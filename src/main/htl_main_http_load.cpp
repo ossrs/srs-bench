@@ -68,19 +68,17 @@ int on_body(http_parser* _, const char* at, size_t length) {
   return 0;
 }
 
-int main(int argc, char** argv){
-    printf("argc=%d, argv[0]=%s\n", argc, argv[0]);
-    
-    string url_str;
-    url_str = "http://192.168.2.111:3080/hls/hls.ts";
-    url_str = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
-    
+int main(int /*argc*/, char** /*argv*/){
     int ret = ERROR_SUCCESS;
     
     StFarm farm;
 
     for(int i = 0; i < 1; i++){
-        StHttpTask* task = new StHttpTask();
+        string url_str;
+        url_str = "http://192.168.2.111:3080/hls/hls.ts";
+        url_str = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
+    
+        StHttpTask* task = new StHttpTask(url_str);
         
         if((ret = farm.Spawn(task)) != ERROR_SUCCESS){
             Error("st farm spwan task failed, ret=%d", ret);

@@ -118,7 +118,7 @@ CORE_OBJS="${MODULE_OBJS[@]}"
 
 #OS Module
 MODULE_ID="OS" 
-MODULE_DEPENDS=() 
+MODULE_DEPENDS=("CORE") 
 ModuleLibIncs=(${LibSTRoot})
 MODULE_FILES=("htl_os_st")
 MODULE_DIR="src/os" . auto/modules.sh

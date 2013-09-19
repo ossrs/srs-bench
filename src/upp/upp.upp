@@ -1,7 +1,10 @@
 file
 	main readonly separator,
-	..\main\htl_app_hls_load.cpp,
+	..\main\htl_main_hls_load.cpp,
+	..\main\htl_main_http_load.cpp,
+	app readonly separator,
 	..\main\htl_app_http_load.cpp,
+	..\main\htl_app_http_load.hpp,
 	core readonly separator,
 	..\core\htl_core_error.cpp,
 	..\core\htl_core_error.hpp,
@@ -9,13 +12,7 @@ file
 	..\core\htl_core_log.hpp,
 	os readonly separator,
 	..\os\htl_os_st.cpp,
-	..\os\htl_os_st.hpp,
-	protocol readonly separator,
-	..\protocol\htl_protocol_http_parser.cpp,
-	..\protocol\htl_protocol_http_parser.hpp,
-	config readonly separator,
-	..\config\htl_config_app_args.hpp,
-	..\config\htl_config_app_args.cpp;
+	..\os\htl_os_st.hpp;
 
 mainconfig
 	"main" = "MAIN";

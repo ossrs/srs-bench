@@ -24,6 +24,17 @@ using namespace std;
 #include <htl_core_log.hpp>
 #include <htl_core_error.hpp>
 #include <htl_os_st.hpp>
+#include <htl_app_http_load.hpp>
+
+StHttpTask::StHttpTask(){
+}
+
+StHttpTask::~StHttpTask(){
+}
+
+int StHttpTask::Process(){
+    return ERROR_SUCCESS;
+}
 
 int on_message_begin(http_parser* _) {
   (void)_;
@@ -73,6 +84,10 @@ int main(int argc, char** argv){
     string url_str;
     url_str = "http://192.168.2.111:3080/hls/hls.ts";
     url_str = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
+    
+    StFarm farm;
+    for(int i = 0; i < 1; i++){
+    }
     
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){

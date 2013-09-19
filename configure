@@ -111,30 +111,14 @@ LibHttpParserfile="${LibHttpParserRoot}/libhttp_parser.a"
 #Core Module
 MODULE_ID="CORE" 
 MODULE_DEPENDS=() 
-ModuleLibIncs=()
-MODULE_FILES=("htl_core_dns" "htl_core_log" "htl_core_error")
+ModuleLibIncs=(${LibSTRoot})
+MODULE_FILES=("htl_core_os" "htl_core_log" "htl_core_error")
 MODULE_DIR="src/core" . auto/modules.sh
 CORE_OBJS="${MODULE_OBJS[@]}"
 
-#Config Module
-MODULE_ID="CONFIG" 
-MODULE_DEPENDS=("CORE") 
-ModuleLibIncs=()
-MODULE_FILES=("htl_config_app_args")
-MODULE_DIR="src/config" . auto/modules.sh
-CONFIG_OBJS="${MODULE_OBJS[@]}"
-
-#Protocol Module
-MODULE_ID="PROTOCOL" 
-MODULE_DEPENDS=("CORE") 
-ModuleLibIncs=()
-MODULE_FILES=("htl_protocol_http_parser")
-MODULE_DIR="src/protocol" . auto/modules.sh
-PROTOCOL_OBJS="${MODULE_OBJS[@]}"
-
 #Main Module
 MODULE_ID="MAIN" 
-MODULE_DEPENDS=("CORE" "CONFIG" "PROTOCOL") 
+MODULE_DEPENDS=("CORE" "CONFIG") 
 ModuleLibIncs=(${LibSTRoot} ${LibHttpParserRoot})
 MODULE_FILES=("htl_app_http_load" "htl_app_hls_load")
 MODULE_DIR="src/main" . auto/modules.sh
@@ -145,12 +129,12 @@ MAIN_ENTRANCES=("htl_app_http_load" "htl_app_hls_load")
 
 # http load test tool over st(state-threads)
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
-MODULE_OBJS="${CORE_OBJS[@]} ${CONFIG_OBJS[@]} ${PROTOCOL_OBJS[@]} ${MAIN_OBJS[@]}"
+MODULE_OBJS="${CORE_OBJS[@]} ${MAIN_OBJS[@]}"
 BUILD_KEY="st_http_load" APP_MAIN="htl_app_http_load" APP_NAME="st_http_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 # hls load test tool over direct TCP.
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
-MODULE_OBJS="${CORE_OBJS[@]} ${CONFIG_OBJS[@]} ${PROTOCOL_OBJS[@]} ${MAIN_OBJS[@]}"
+MODULE_OBJS="${CORE_OBJS[@]} ${MAIN_OBJS[@]}"
 BUILD_KEY="st_hls_load" APP_MAIN="htl_app_hls_load" APP_NAME="st_hls_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 echo 'configure ok! '

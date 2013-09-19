@@ -22,6 +22,7 @@ using namespace std;
 
 // project lib
 #include <htl_core_log.hpp>
+#include <htl_core_os.hpp>
 #include <htl_core_error.hpp>
 
 int on_message_begin(http_parser* _) {
@@ -137,7 +138,7 @@ int main(int argc, char** argv){
     parser.data = (void*)sock; // can set to obj ptr.
     
     for(;;){
-        char buf[16];
+        char buf[230];
         memset(buf, 0, sizeof(buf));
         
         int nread = 0;

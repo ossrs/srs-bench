@@ -26,16 +26,6 @@ using namespace std;
 #include <htl_os_st.hpp>
 #include <htl_app_http_load.hpp>
 
-StHttpTask::StHttpTask(){
-}
-
-StHttpTask::~StHttpTask(){
-}
-
-int StHttpTask::Process(){
-    return ERROR_SUCCESS;
-}
-
 int on_message_begin(http_parser* _) {
   (void)_;
   printf("\n***MESSAGE BEGIN***\n\n");

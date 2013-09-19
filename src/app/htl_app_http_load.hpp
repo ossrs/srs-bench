@@ -7,6 +7,7 @@
 
 #include <htl_os_st.hpp>
 
+// for http task.
 class StHttpTask : public StTask
 {
 public:

@@ -130,11 +130,11 @@ MODULE_DEPENDS=("CORE" "OS")
 ModuleLibIncs=(${LibSTRoot} ${LibHttpParserRoot})
 MODULE_FILES=("htl_app_hls_load" "htl_app_http_load")
 MODULE_DIR="src/app" . auto/modules.sh
-OS_OBJS="${MODULE_OBJS[@]}"
+APP_OBJS="${MODULE_OBJS[@]}"
 
 #Main Module
 MODULE_ID="MAIN" 
-MODULE_DEPENDS=("CORE" "OS") 
+MODULE_DEPENDS=("CORE" "OS" "APP") 
 ModuleLibIncs=(${LibSTRoot} ${LibHttpParserRoot})
 MODULE_FILES=("htl_main_hls_load" "htl_main_http_load")
 MODULE_DIR="src/main" . auto/modules.sh
@@ -145,12 +145,12 @@ MAIN_ENTRANCES=("htl_main_hls_load" "htl_main_http_load")
 
 # http load test tool over st(state-threads)
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
-MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${MAIN_OBJS[@]}"
+MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${APP_OBJS[@]} ${MAIN_OBJS[@]}"
 BUILD_KEY="st_http_load" APP_MAIN="htl_main_hls_load" APP_NAME="st_http_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 # hls load test tool over direct TCP.
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
-MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${MAIN_OBJS[@]}"
+MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${APP_OBJS[@]} ${MAIN_OBJS[@]}"
 BUILD_KEY="st_hls_load" APP_MAIN="htl_main_http_load" APP_NAME="st_hls_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 echo 'configure ok! '

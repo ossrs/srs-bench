@@ -75,9 +75,20 @@ int main(int argc, char** argv){
     url_str = "http://192.168.2.111:3080/hls/hls.ts";
     url_str = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
     
+    int ret = ERROR_SUCCESS;
+    
     StFarm farm;
+
     for(int i = 0; i < 1; i++){
+        StHttpTask* task = new StHttpTask();
+        
+        if((ret = farm.Spawn(task)) != ERROR_SUCCESS){
+            Error("st farm spwan task failed, ret=%d", ret);
+            return ret;
+        }
     }
+    
+    farm.WaitAll();
     
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){

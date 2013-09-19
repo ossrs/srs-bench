@@ -28,6 +28,8 @@ public:
     StFarm();
     virtual ~StFarm();
 public:
+    virtual int Spawn(StTask* task);
+    virtual int WaitAll();
 };
 
 #endif

@@ -3,7 +3,10 @@
 #include <stdio.h>
 
 #include <string>
+#include <sstream>
 using namespace std;
+
+#include <http_parser.h>
 
 int main(int argc, char** argv){
     printf("argc=%d, argv[0]=%s\n", argc, argv[0]);

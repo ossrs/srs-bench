@@ -1,0 +1,17 @@
+file
+	main readonly separator,
+	..\main\htl_app_hls_load.cpp,
+	..\main\htl_app_http_load.cpp,
+	core readonly separator,
+	..\core\htl_core_dns.cpp,
+	..\core\htl_core_dns.hpp,
+	protocol readonly separator,
+	..\protocol\htl_protocol_http_parser.cpp,
+	..\protocol\htl_protocol_http_parser.hpp,
+	config readonly separator,
+	..\config\htl_config_app_args.hpp,
+	..\config\htl_config_app_args.cpp;
+
+mainconfig
+	"main" = "MAIN";
+

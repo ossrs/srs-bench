@@ -22,8 +22,8 @@ using namespace std;
 
 // project lib
 #include <htl_core_log.hpp>
-#include <htl_core_os.hpp>
 #include <htl_core_error.hpp>
+#include <htl_os_st.hpp>
 
 int on_message_begin(http_parser* _) {
   (void)_;

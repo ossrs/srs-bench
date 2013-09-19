@@ -3,6 +3,8 @@ file
 	..\main\htl_main_hls_load.cpp,
 	..\main\htl_main_http_load.cpp,
 	app readonly separator,
+	..\main\htl_app_hls_load.cpp,
+	..\main\htl_app_hls_load.hpp,
 	..\main\htl_app_http_load.cpp,
 	..\main\htl_app_http_load.hpp,
 	core readonly separator,

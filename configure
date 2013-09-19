@@ -1,0 +1,141 @@
+#!/bin/bash
+
+GLOBAL_FILE_MAKEFILE="Makefile"
+GLOBAL_DIR_OBJS="objs"
+
+mkdir -p ${GLOBAL_DIR_OBJS}
+
+#####################################################################################
+# prepare the depends tools
+#####################################################################################
+# st-1.9
+if [[ -f ${GLOBAL_DIR_OBJS}/st-1.9/obj/libst.a && -f ${GLOBAL_DIR_OBJS}/st-1.9/obj/libst.so ]]; then
+    echo "st-1.9t is ok.";
+else
+    echo "build st-1.9t"; 
+    (rm -rf ${GLOBAL_DIR_OBJS}/st-1.9 && cd ${GLOBAL_DIR_OBJS} && unzip ../3rdparty/st-1.9.zip && cd st-1.9 && make linux-debug)
+fi
+# check status
+ret=$?; if [[ $ret -ne 0 ]]; then echo "build st-1.9 failed, ret=$ret"; exit $ret; fi
+if [ ! -f ${GLOBAL_DIR_OBJS}/st-1.9/obj/libst.a ]; then echo "build st-1.9 failed."; exit -1; fi
+if [ ! -f ${GLOBAL_DIR_OBJS}/st-1.9/obj/libst.so ]; then echo "build st-1.9 failed."; exit -1; fi
+
+#####################################################################################
+# generate Makefile.
+#####################################################################################
+echo "generate Makefile"
+
+cat << END > ${GLOBAL_FILE_MAKEFILE}
+.PHONY: default help clean http hls all _prepare_dir
+default: all
+
+help:
+	@echo "Usage: make <help>|<clean>|<http>|<hls>|<all>"
+	@echo "  help       display this help menu"
+	@echo "  clean      cleanup project"
+	@echo "  http       build the http load test tool over st(state-threads)"
+	@echo "  hls        build the hls load test tool over st(state-threads)"
+	@echo "  all        build the http/hls load test tool over st(state-threads)"
+
+clean: 
+	(cd ${GLOBAL_DIR_OBJS}; rm -rf src st_*_load)
+
+http: _prepare_dir
+	@echo "build the http load test tool over st(state-threads)"
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_http_load
+
+hls: _prepare_dir
+	@echo "build the HLS load test tool over st(state-threads)"
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_hls_load
+
+all: _prepare_dir
+	@echo "build the http and hls load test tool over st(state-threads)"
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_http_load
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_hls_load
+
+# the ./configure will generate it.
+_prepare_dir:
+END
+
+echo 'generate Makefile ok!'
+
+# the performance analysis, uncomments the following when use gperf to analysis the performance. see third-party/readme.txt
+#Performance="-pg"
+#PerformanceLink="-pg"
+# enable gdb debug
+GDBDebug="-g -O0"
+# the warning level.
+WarnLevel="-Wall -Wextra"
+# the compile standard.
+CppStd="-std=c++98"
+# other macros defined
+UserMacros=""
+# the cxx flag generated.
+CXXFLAGS="${CppStd} ${WarnLevel} ${GDBDebug} ${Performance} ${UserMacros}"
+cat << END > ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE}
+CXXFLAGS = ${CXXFLAGS}
+GCC = g++
+LINK = \$(GCC)
+AR = ar
+
+.PHONY: default st_http_load st_hls_load
+
+default:
+
+END
+
+# Libraries
+LibSTRoot="${GLOBAL_DIR_OBJS}/st-1.9/obj"
+LibSTfile="${LibSTRoot}/libst.a"
+
+#Core Module
+MODULE_ID="CORE" 
+MODULE_DEPENDS=() 
+ModuleLibIncs=()
+MODULE_FILES=("htl_core_dns")
+MODULE_DIR="src/core" . auto/modules.sh
+CORE_OBJS="${MODULE_OBJS[@]}"
+
+#Config Module
+MODULE_ID="CONFIG" 
+MODULE_DEPENDS=("CORE") 
+ModuleLibIncs=()
+MODULE_FILES=("htl_config_app_args")
+MODULE_DIR="src/config" . auto/modules.sh
+CONFIG_OBJS="${MODULE_OBJS[@]}"
+
+#Protocol Module
+MODULE_ID="PROTOCOL" 
+MODULE_DEPENDS=("CORE") 
+ModuleLibIncs=()
+MODULE_FILES=("htl_protocol_http_parser")
+MODULE_DIR="src/protocol" . auto/modules.sh
+PROTOCOL_OBJS="${MODULE_OBJS[@]}"
+
+#Main Module
+MODULE_ID="MAIN" 
+MODULE_DEPENDS=("CORE" "CONFIG" "PROTOCOL") 
+ModuleLibIncs=(${LibSTRoot})
+MODULE_FILES=("htl_app_http_load" "htl_app_hls_load")
+MODULE_DIR="src/main" . auto/modules.sh
+MAIN_OBJS="${MODULE_OBJS[@].o}"
+
+# all main entrances
+MAIN_ENTRANCES=("htl_app_http_load" "htl_app_hls_load")
+
+# CC Smart Server over st(state-threads)
+ModuleLibFiles=(${LibSTfile})
+MODULE_OBJS="${CORE_OBJS[@]} ${CONFIG_OBJS[@]} ${PROTOCOL_OBJS[@]} ${MAIN_OBJS[@]}"
+BUILD_KEY="st_http_load" APP_MAIN="htl_app_http_load" APP_NAME="st_http_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
+
+# CC Smart Server CLI over direct TCP.
+ModuleLibFiles=()
+MODULE_OBJS="${CORE_OBJS[@]} ${CONFIG_OBJS[@]} ${PROTOCOL_OBJS[@]} ${MAIN_OBJS[@]}"
+BUILD_KEY="st_hls_load" APP_MAIN="htl_app_hls_load" APP_NAME="st_hls_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
+
+echo 'configure ok! '
+
+# next step.
+echo "you can:"
+echo "\" make \" to build the http/hls load test tools."
+echo "\" make help \" to get the usage of make"

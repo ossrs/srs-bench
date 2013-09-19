@@ -68,26 +68,7 @@ int on_body(http_parser* _, const char* at, size_t length) {
   return 0;
 }
 
-int main(int /*argc*/, char** /*argv*/){
-    int ret = ERROR_SUCCESS;
-    
-    StFarm farm;
-
-    for(int i = 0; i < 1; i++){
-        string url_str;
-        url_str = "http://192.168.2.111:3080/hls/hls.ts";
-        url_str = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
-    
-        StHttpTask* task = new StHttpTask(url_str);
-        
-        if((ret = farm.Spawn(task)) != ERROR_SUCCESS){
-            Error("st farm spwan task failed, ret=%d", ret);
-            return ret;
-        }
-    }
-    
-    farm.WaitAll();
-    
+int run(){
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){
         Error("create socket error.");
@@ -165,6 +146,34 @@ int main(int /*argc*/, char** /*argv*/){
         size_t nparsed = http_parser_execute(&parser, &settings, buf, nread);
         Info("[%d] read_size=%d, nparsed=%d", sock, (int)nread, (int)nparsed);
     }
+    
+    return 0;
+}
+
+int main(int /*argc*/, char** /*argv*/){
+    int ret = ERROR_SUCCESS;
+    
+    StFarm farm;
+    
+    if((ret = farm.Initialize()) != ERROR_SUCCESS){
+        Error("initialize the farm failed. ret=%d", ret);
+        return ret;
+    }
+
+    for(int i = 0; i < 1; i++){
+        string url_str;
+        url_str = "http://192.168.2.111:3080/hls/hls.ts";
+        url_str = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
+    
+        StHttpTask* task = new StHttpTask(url_str);
+        
+        if((ret = farm.Spawn(task)) != ERROR_SUCCESS){
+            Error("st farm spwan task failed, ret=%d", ret);
+            return ret;
+        }
+    }
+    
+    farm.WaitAll();
     
     return 0;
 }

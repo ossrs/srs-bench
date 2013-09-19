@@ -10,9 +10,13 @@
 // abstract task for st, which run in a st-thread.
 class StTask
 {
+private:
+    int id;
 public:
     StTask();
     virtual ~StTask();
+public:
+    virtual int GetId();
 public:
     /**
     * the framework will start a thread for the task, 
@@ -28,8 +32,11 @@ public:
     StFarm();
     virtual ~StFarm();
 public:
+    virtual int Initialize();
     virtual int Spawn(StTask* task);
     virtual int WaitAll();
+private:
+    static void* st_thread_function(void* args);
 };
 
 #endif

@@ -18,4 +18,7 @@
 
 #define ERROR_NOT_SUPPORT 300
 
+#define ERROR_ST_INITIALIZE 400
+#define ERROR_ST_THREAD_CREATE 401
+
 #endif

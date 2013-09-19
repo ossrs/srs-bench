@@ -7,7 +7,7 @@
 # $MODULE_OBJS array, the objects to compile the app.
 # $BUILD_KEY a string indicates the build key for Makefile. ie. dump
 # $APP_MAIN the object file that contains main function. ie. your_app_main
-# $APP_NAME the app name to output. ie. smart_server
+# $APP_NAME the app name to output. ie. your_app
 # $ModuleLibFiles array, the 3rdpart library file to link with. ie. (objs/st-1.9/obj/libst.a objs/libx264/obj/libx264.a)
 # $LINK_OPTIONS the linker options.
 # $SO_PATH the libssl.so.10 and other so file path.

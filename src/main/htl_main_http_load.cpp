@@ -150,6 +150,8 @@ int run(){
     return 0;
 }
 
+LogContext* context = new StLogContext();
+
 int main(int /*argc*/, char** /*argv*/){
     int ret = ERROR_SUCCESS;
     

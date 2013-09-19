@@ -5,7 +5,7 @@
 
 StTask::StTask(){
     static int _id = 0;
-    id = _id++;
+    id = ++_id;
 }
 
 StTask::~StTask(){
@@ -65,6 +65,8 @@ int StFarm::WaitAll(){
 void* StFarm::st_thread_function(void* args){
     StTask* task = (StTask*)args;
     
+    context->SetId(task->GetId());
+    
     int ret = task->Process();
     
     if(ret != ERROR_SUCCESS){
@@ -77,4 +79,18 @@ void* StFarm::st_thread_function(void* args){
     delete task;
     
     return NULL;
+}
+
+StLogContext::StLogContext(){
+}
+
+StLogContext::~StLogContext(){
+}
+
+void StLogContext::SetId(int id){
+    cache[st_thread_self()] = id;
+}
+
+int StLogContext::GetId(){
+    return cache[st_thread_self()];
 }

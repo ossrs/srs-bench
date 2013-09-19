@@ -5,7 +5,11 @@
 #include <htl_os_st.hpp>
 */
 
+#include <map>
+
 #include <st.h>
+
+#include <htl_core_log.hpp>
 
 // abstract task for st, which run in a st-thread.
 class StTask
@@ -37,6 +41,19 @@ public:
     virtual int WaitAll();
 private:
     static void* st_thread_function(void* args);
+};
+
+// st-thread based log context.
+class StLogContext : public LogContext
+{
+private:
+    std::map<st_thread_t, int> cache;
+public:
+    StLogContext();
+    virtual ~StLogContext();
+public:
+    virtual void SetId(int id);
+    virtual int GetId();
 };
 
 #endif

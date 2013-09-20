@@ -12,9 +12,16 @@ file
 	..\core\htl_core_error.hpp,
 	..\core\htl_core_log.cpp,
 	..\core\htl_core_log.hpp,
+	..\core\htl_core_http_parser.cpp,
+	..\core\htl_core_http_parser.hpp,
 	os readonly separator,
 	..\os\htl_os_st.cpp,
-	..\os\htl_os_st.hpp;
+	..\os\htl_os_st.hpp,
+	st-1.9 readonly separator,
+	..\..\objs\st-1.9\obj\st.h,
+	http-parser readonly separator,
+	..\..\objs\http-parser-2.1\http_parser.h,
+	..\..\objs\http-parser-2.1\http_parser.c;
 
 mainconfig
 	"main" = "MAIN";

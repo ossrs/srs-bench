@@ -150,6 +150,7 @@ int run(){
     return 0;
 }
 
+// global instance for graceful log.
 LogContext* context = new StLogContext();
 
 int main(int /*argc*/, char** /*argv*/){
@@ -163,11 +164,16 @@ int main(int /*argc*/, char** /*argv*/){
     }
 
     for(int i = 0; i < 1; i++){
-        string url_str;
-        url_str = "http://192.168.2.111:3080/hls/hls.ts";
-        url_str = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
+        string url;
+        url = "http://192.168.2.111:3080/hls/hls.ts";
+        url = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
     
-        StHttpTask* task = new StHttpTask(url_str);
+        StHttpTask* task = new StHttpTask();
+
+        if((ret = task->Initialize(url)) != ERROR_SUCCESS){
+            Error("initialize task failed, url=%s, ret=%d", url.c_str(), ret);
+            return ret;
+        }
         
         if((ret = farm.Spawn(task)) != ERROR_SUCCESS){
             Error("st farm spwan task failed, ret=%d", ret);

@@ -6,16 +6,29 @@ using namespace std;
 
 #include <htl_app_http_load.hpp>
 
-StHttpTask::StHttpTask(string http_url){
-    url = http_url;
+StHttpTask::StHttpTask(){
 }
 
 StHttpTask::~StHttpTask(){
 }
 
+int StHttpTask::Initialize(std::string http_url){
+    int ret = ERROR_SUCCESS;
+    
+    if((ret = url.Initialize(http_url)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    Info("url(%s) parsed", http_url.c_str());
+    
+    return ret;
+}
+
 int StHttpTask::Process(){
-    Trace("start to process task #%d", GetId());
+    int ret = ERROR_SUCCESS;
+    
+    Trace("start to process task #%d, host=%s, port=%d, path=%s", GetId(), url.GetHost(), url.GetPort(), url.GetPath());
     st_usleep(-1);
     
-    return ERROR_SUCCESS;
+    return ret;
 }

@@ -6,17 +6,22 @@
 */
 #include <string>
 
+#include <http_parser.h>
+
+#include <htl_core_http_parser.hpp>
+
 #include <htl_os_st.hpp>
 
 // for http task.
 class StHttpTask : public StTask
 {
 private:
-    std::string url;
+    HttpUri url;
 public:
-    StHttpTask(std::string http_url);
+    StHttpTask();
     virtual ~StHttpTask();
 public:
+    virtual int Initialize(std::string http_url);
     virtual int Process();
 };
 

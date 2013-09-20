@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include <htl_core_http_parser.hpp>
+
 struct M3u8TS
 {
     std::string ts_url;

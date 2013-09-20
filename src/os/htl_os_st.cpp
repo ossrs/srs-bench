@@ -226,6 +226,9 @@ st_utime_t StUtility::BuildRandomMTime(double sleep_seconds, double default_seco
         return default_seconds * 1000;
     }
     
+    // 80% consts value.
+    // 40% random value.
+    // to get more graceful random time to mocking HLS client.
     st_utime_t sleep_ms = (int)(sleep_seconds * 1000 * 0.8) + rand() % (int)(sleep_seconds * 1000 * 0.4);
     
     return sleep_ms;

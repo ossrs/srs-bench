@@ -4,29 +4,16 @@
 /*
 #include <htl_app_http_load.hpp>
 */
-#include <string>
-
-#include <http_parser.h>
-
-#include <htl_core_http_parser.hpp>
-
-#include <htl_os_st.hpp>
+#include <htl_app_http_base.hpp>
 
 // for http task.
-class StHttpTask : public StTask
+class StHttpTask : public StHttpBaseTask
 {
-private:
-    HttpUrl url;
-    double startup_seconds;
-    double delay_seconds;
-    double error_seconds;
-    int count;
 public:
     StHttpTask();
     virtual ~StHttpTask();
-public:
-    virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
-    virtual int Process();
+protected:
+    virtual int ProcessHttp();
 };
 
 #endif

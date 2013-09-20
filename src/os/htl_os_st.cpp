@@ -116,6 +116,8 @@ SocketStatus StSocket::Status(){
 int StSocket::Connect(const char* ip, int port){
     int ret = ERROR_SUCCESS;
     
+    Close();
+    
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == -1){
         ret = ERROR_SOCKET;
@@ -168,6 +170,7 @@ int StSocket::Read(const void* buf, size_t size, ssize_t* nread){
         }
         
         ret = ERROR_READ;
+        status = SocketDisconnected;
     }
         
     return ret;
@@ -184,6 +187,7 @@ int StSocket::Write(const void* buf, size_t size, ssize_t* nwrite){
         }
         
         ret = ERROR_SEND;
+        status = SocketDisconnected;
     }
         
     return ret;

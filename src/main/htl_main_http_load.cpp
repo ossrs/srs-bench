@@ -14,11 +14,7 @@ using namespace std;
 // global instance for graceful log.
 LogContext* context = new StLogContext();
 
-#if 1
-    #define DefaultHttpUrl "http://192.168.2.111:3080/hls/hls.m3u8"
-#else
-    #define DefaultHttpUrl "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts"
-#endif
+#define DefaultHttpUrl "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts"
 #define DefaultThread 1
 #define DefaultDelaySeconds 0.8
 #define DefaultErrorSeconds 10.0
@@ -26,13 +22,6 @@ LogContext* context = new StLogContext();
 
 int discovery_options(int argc, char** argv, bool& show_help, bool& show_version, string& url, int& threads, double& delay, double& error, int& count){
     int ret = ERROR_SUCCESS;
-    
-    // check args
-    int required_arg_count = 1;
-    if(argc <= required_arg_count){
-        show_help = true;
-        return ret;
-    }
     
     static option long_options[] = {
         {"threads", required_argument, 0, 't'},
@@ -75,6 +64,12 @@ int discovery_options(int argc, char** argv, bool& show_help, bool& show_version
                 break;
         }
     }
+    
+    // check values
+    if(url == ""){
+        show_help = true;
+        return ret;
+    }
 
     return ret;
 }
@@ -83,11 +78,11 @@ void help(char** argv){
     printf("%s, Copyright (c) 2013 winlin\n", ProductHTTPName);
     
     printf(""
-        "Usage: %s <Options>\n"
+        "Usage: %s <Options> <-u URL>\n"
         "%s base on st(state-threads), support huge concurrency.\n"
         "Options:\n"
         "  -t THREAD, --thread THREAD  The thread to start. defaut to %d\n"
-        "  -u URL, --url URL           The load test http url. defaut to %s\n"
+        "  -u URL, --url URL           The load test http url. ie. %s\n"
         "  -d DELAY, --delay DELAY     The delay is the ramdom sleep when success in seconds. 0 means no delay. defaut to %.2f\n"
         "  -c COUNT, --count COUNT     The count is the number of downloads. 0 means infinity. defaut to %d\n"
         "  -e ERROR, --error ERROR     The error is the ramdom sleep when error in seconds. 0 means no delay. defaut to %.2f\n"
@@ -118,8 +113,7 @@ int main(int argc, char** argv){
     }
     
     bool show_help = false, show_version = false; 
-    string url = DefaultHttpUrl; int threads = DefaultThread;
-    double delay = DefaultDelaySeconds, error = DefaultErrorSeconds; int count = DefaultCount;
+    string url; int threads = DefaultThread; double delay = DefaultDelaySeconds, error = DefaultErrorSeconds; int count = DefaultCount;
     if((ret = discovery_options(argc, argv, show_help, show_version, url, threads, delay, error, count)) != ERROR_SUCCESS){
         Error("discovery options failed. ret=%d", ret);
         return ret;

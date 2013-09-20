@@ -109,7 +109,7 @@ int StHttpClient::ParseResponseBody(HttpUrl* url, string* response, int body_rec
     while(body_left > 0){
         ssize_t nread;
         if((ret = socket->Read((const void*)buf, (size_t)sizeof(buf), &nread)) != ERROR_SUCCESS){
-            Error("read from server failed. ret=%d", ret);
+            Error("read header from server failed. ret=%d", ret);
             return ret;
         }
         
@@ -146,7 +146,7 @@ int StHttpClient::ParseResponseHeader(string* response, int& body_received){
     for(;;){
         ssize_t nread;
         if((ret = socket->Read((const void*)buf, (size_t)sizeof(buf), &nread)) != ERROR_SUCCESS){
-            Error("read from server failed. ret=%d", ret);
+            Error("read body from server failed. ret=%d", ret);
             return ret;
         }
         

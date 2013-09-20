@@ -58,9 +58,7 @@ int StHttpTask::Process(){
         
         Trace("[HTTP] %s download, size=%"PRId64", sleep %dms", url.GetUrl(), client.GetResponseHeader()->content_length, sleep_ms);
         
-        if(sleep_ms > 0){
-            st_usleep(sleep_ms * 1000);
-        }
+        st_usleep(sleep_ms * 1000);
     }
     
     return ret;

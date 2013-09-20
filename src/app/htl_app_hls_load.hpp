@@ -15,9 +15,12 @@ private:
     // the last downloaded ts url to prevent download multile times.
     M3u8TS last_downloaded_ts;
     int target_duration;
+    bool is_vod;
 public:
     StHlsTask();
     virtual ~StHlsTask();
+public:
+    virtual int Initialize(std::string http_url, bool vod, double startup, double delay, double error, int count);
 protected:
     virtual int ProcessHttp();
 private:

@@ -19,6 +19,16 @@ StHttpTask::StHttpTask(){
 StHttpTask::~StHttpTask(){
 }
 
+int StHttpTask::Initialize(std::string http_url, double startup, double delay, double error, int count){
+    int ret = ERROR_SUCCESS;
+    
+    if((ret = InitializeBase(http_url, startup, delay, error, count)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    return ret;
+}
+
 int StHttpTask::ProcessHttp(){
     int ret = ERROR_SUCCESS;
     

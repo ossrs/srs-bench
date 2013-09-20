@@ -12,6 +12,8 @@ class StHttpTask : public StHttpBaseTask
 public:
     StHttpTask();
     virtual ~StHttpTask();
+public:
+    virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
 protected:
     virtual int ProcessHttp();
 };

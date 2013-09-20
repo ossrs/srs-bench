@@ -23,8 +23,9 @@ protected:
 public:
     StHttpBaseTask();
     virtual ~StHttpBaseTask();
+protected:
+    virtual int InitializeBase(std::string http_url, double startup, double delay, double error, int count);
 public:
-    virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
     virtual int Process();
 protected:
     virtual int ProcessHttp() = 0;

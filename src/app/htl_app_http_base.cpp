@@ -19,7 +19,7 @@ StHttpBaseTask::StHttpBaseTask(){
 StHttpBaseTask::~StHttpBaseTask(){
 }
 
-int StHttpBaseTask::Initialize(std::string http_url, double startup, double delay, double error, int count){
+int StHttpBaseTask::InitializeBase(std::string http_url, double startup, double delay, double error, int count){
     int ret = ERROR_SUCCESS;
     
     if((ret = url.Initialize(http_url)) != ERROR_SUCCESS){

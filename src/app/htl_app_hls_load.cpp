@@ -25,6 +25,18 @@ StHlsTask::StHlsTask(){
 StHlsTask::~StHlsTask(){
 }
 
+int StHlsTask::Initialize(std::string http_url, bool vod, double startup, double delay, double error, int count){
+    int ret = ERROR_SUCCESS;
+    
+    is_vod = vod;
+    
+    if((ret = InitializeBase(http_url, startup, delay, error, count)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    return ret;
+}
+
 int StHlsTask::ProcessHttp(){
     int ret = ERROR_SUCCESS;
     
@@ -76,30 +88,39 @@ int StHlsTask::ProcessM3u8(StHttpClient& client){
 int StHlsTask::ProcessTS(StHttpClient& client, vector<M3u8TS>& ts_objects){
     int ret = ERROR_SUCCESS;
     
-    vector<M3u8TS>::iterator ite = find(ts_objects.begin(), ts_objects.end(), last_downloaded_ts);
+    vector<M3u8TS>::iterator ite = ts_objects.begin();
     
-    // not found, reset to begin to process all.
-    if(ite == ts_objects.end()){
-        ite = ts_objects.begin();
-    }
-    // fount, skip it.
-    else{
-        ite++;
-    }
-    
-    // no ts now, wait for a segment
-    if(ite == ts_objects.end()){
-        int sleep_ms = StUtility::BuildRandomMTime(target_duration, DEFAULT_TS_DURATION);
-        Trace("[TS] no fresh ts, wait for a while. sleep %dms", sleep_ms);
-        st_usleep(sleep_ms * 1000);
+    // if live(not vod), remember the last download ts object.
+    // if vod(not live), always access from the frist ts.
+    if(!is_vod){
+        ite = find(ts_objects.begin(), ts_objects.end(), last_downloaded_ts);
         
-        return ret;
+        // not found, reset to begin to process all.
+        if(ite == ts_objects.end()){
+            ite = ts_objects.begin();
+        }
+        // fount, skip it.
+        else{
+            ite++;
+        }
+        
+        // no ts now, wait for a segment
+        if(ite == ts_objects.end()){
+            int sleep_ms = StUtility::BuildRandomMTime(target_duration, DEFAULT_TS_DURATION);
+            Trace("[TS] no fresh ts, wait for a while. sleep %dms", sleep_ms);
+            st_usleep(sleep_ms * 1000);
+            
+            return ret;
+        }
     }
     
     // to process from the specified ite
     for(; ite != ts_objects.end(); ++ite){
         M3u8TS ts_object = *ite;
-        last_downloaded_ts = ts_object;
+
+        if(!is_vod){
+            last_downloaded_ts = ts_object;
+        }
         
         Info("start to process ts %s", ts_object.ts_url.c_str());
         

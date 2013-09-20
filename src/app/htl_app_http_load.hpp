@@ -16,7 +16,7 @@
 class StHttpTask : public StTask
 {
 private:
-    HttpUri url;
+    HttpUrl url;
 public:
     StHttpTask();
     virtual ~StHttpTask();

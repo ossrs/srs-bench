@@ -42,25 +42,25 @@ public:
 // user must implements the LogContext and define a global instance.
 extern LogContext* context;
 
-#if 0
-    #define Verbose(msg, ...) (void)0
-    #define Info(msg, ...) (void)0
-    #define Trace(msg, ...) (void)0
-    #define Warn(msg, ...) (void)0
-    #define Error(msg, ...) (void)0
-#else
+#if 1
     #define Verbose(msg, ...) printf("[%s][%d][verbs] ", context->FormatTime(), context->GetId());printf(msg, ##__VA_ARGS__);printf("\n")
     #define Info(msg, ...)    printf("[%s][%d][infos] ", context->FormatTime(), context->GetId());printf(msg, ##__VA_ARGS__);printf("\n")
     #define Trace(msg, ...)   printf("[%s][%d][trace] ", context->FormatTime(), context->GetId());printf(msg, ##__VA_ARGS__);printf("\n")
     #define Warn(msg, ...)    printf("[%s][%d][warns] ", context->FormatTime(), context->GetId());printf(msg, ##__VA_ARGS__);printf(" errno=%d(%s)", errno, strerror(errno));printf("\n")
     #define Error(msg, ...)   printf("[%s][%d][error] ", context->FormatTime(), context->GetId());printf(msg, ##__VA_ARGS__);printf(" errno=%d(%s)", errno, strerror(errno));printf("\n")
+#else
+    #define Verbose(msg, ...) printf("[%s][%d][verbs][%s] ", context->FormatTime(), context->GetId(), __FUNCTION__);printf(msg, ##__VA_ARGS__);printf("\n")
+    #define Info(msg, ...)    printf("[%s][%d][infos][%s] ", context->FormatTime(), context->GetId(), __FUNCTION__);printf(msg, ##__VA_ARGS__);printf("\n")
+    #define Trace(msg, ...)   printf("[%s][%d][trace][%s] ", context->FormatTime(), context->GetId(), __FUNCTION__);printf(msg, ##__VA_ARGS__);printf("\n")
+    #define Warn(msg, ...)    printf("[%s][%d][warns][%s] ", context->FormatTime(), context->GetId(), __FUNCTION__);printf(msg, ##__VA_ARGS__);printf(" errno=%d(%s)", errno, strerror(errno));printf("\n")
+    #define Error(msg, ...)   printf("[%s][%d][error][%s] ", context->FormatTime(), context->GetId(), __FUNCTION__);printf(msg, ##__VA_ARGS__);printf(" errno=%d(%s)", errno, strerror(errno));printf("\n")
 #endif
 
 #if 1
     #undef Verbose
     #define Verbose(msg, ...) (void)0
 #endif
-#if 0
+#if 1
     #undef Info
     #define Info(msg, ...) (void)0
 #endif

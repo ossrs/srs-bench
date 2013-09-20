@@ -43,6 +43,37 @@ private:
     static void* st_thread_function(void* args);
 };
 
+// the socket status
+enum SocketStatus{
+    SocketInit,
+    SocketConnected,
+    SocketDisconnected,
+};
+
+// the socket base on st.
+class StSocket
+{
+private:
+    SocketStatus status;
+    st_netfd_t sock_nfd;
+public:
+    StSocket();
+    virtual ~StSocket();
+public:
+    virtual SocketStatus Status();
+    virtual int Connect(const char* ip, int port);
+    virtual int Read(const void* buf, size_t size, ssize_t* nread);
+    virtual int Write(const void* buf, size_t size, ssize_t* nwrite);
+    virtual int Close();
+};
+
+// common utilities.
+class StUtility
+{
+public:
+    static int DnsResolve(std::string host, std::string& ip);
+};
+
 // st-thread based log context.
 class StLogContext : public LogContext
 {

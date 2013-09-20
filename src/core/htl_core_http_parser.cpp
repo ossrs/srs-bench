@@ -1,3 +1,5 @@
+#include <htl_stdinc.hpp>
+
 #include <stdlib.h>
 
 #include <string>
@@ -8,18 +10,14 @@ using namespace std;
 
 #include <htl_core_http_parser.hpp>
 
-#define PROTOCOL_HTTP "http://"
-#define PROTOCOL_HTTPS "https://"
-
-HttpUri::HttpUri(){
-    protocol = PROTOCOL_HTTP;
+HttpUrl::HttpUrl(){
     port = 80;
 }
 
-HttpUri::~HttpUri(){
+HttpUrl::~HttpUrl(){
 }
 
-int HttpUri::Initialize(std::string http_url){
+int HttpUrl::Initialize(std::string http_url){
     int ret = ERROR_SUCCESS;
     
     url = http_url;
@@ -34,7 +32,7 @@ int HttpUri::Initialize(std::string http_url){
     }
     
     if(Get(UF_SCHEMA) != ""){
-        protocol = Get(UF_SCHEMA);
+        schema = Get(UF_SCHEMA);
     }
     
     host = Get(UF_HOST);
@@ -48,27 +46,39 @@ int HttpUri::Initialize(std::string http_url){
     return ret;
 }
 
-const char* HttpUri::GetProtocol(){
-    return protocol.c_str();
+const char* HttpUrl::GetUrl(){
+    return url.c_str();
 }
 
-const char* HttpUri::GetHost(){
+HttpUrl* HttpUrl::Copy(){
+    HttpUrl* copy = new HttpUrl();
+    
+    copy->Initialize(url);
+    
+    return copy;
+}
+
+const char* HttpUrl::GetSchema(){
+    return schema.c_str();
+}
+
+const char* HttpUrl::GetHost(){
     return host.c_str();
 }
 
-int HttpUri::GetPort(){
+int HttpUrl::GetPort(){
     return port;
 }
 
-const char* HttpUri::GetPath(){
+const char* HttpUrl::GetPath(){
     return path.c_str();
 }
 
-string HttpUri::Get(http_parser_url_fields field){
-    return HttpUri::GetUriField(url, &hp_u, field);
+string HttpUrl::Get(http_parser_url_fields field){
+    return HttpUrl::GetUriField(url, &hp_u, field);
 }
 
-string HttpUri::GetUriField(string uri, http_parser_url* hp_u, http_parser_url_fields field){
+string HttpUrl::GetUriField(string uri, http_parser_url* hp_u, http_parser_url_fields field){
     if((hp_u->field_set & (1 << field)) == 0){
         return "";
     }
@@ -78,4 +88,10 @@ string HttpUri::GetUriField(string uri, http_parser_url* hp_u, http_parser_url_f
         uri.c_str() + hp_u->field_data[field].off);
         
     return uri.substr(hp_u->field_data[field].off, hp_u->field_data[field].len);
+}
+
+HttpParser::HttpParser(){
+}
+
+HttpParser::~HttpParser(){
 }

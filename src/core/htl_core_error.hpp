@@ -12,6 +12,8 @@
 #define ERROR_CONNECT 102
 #define ERROR_SEND 103
 #define ERROR_READ 104
+#define ERROR_CLOSE 105
+#define ERROR_DNS_RESOLVE 106
 
 #define ERROR_URL_INVALID 200
 #define ERROR_HTTP_RESPONSE 201
@@ -22,5 +24,12 @@
 #define ERROR_ST_THREAD_CREATE 401
 
 #define ERROR_HP_PARSE_URL 500
+#define ERROR_HP_EP_CHNAGED 501
+#define ERROR_HP_PARSE_RESPONSE 502
+
+#define ProductName "Bravo HttpLoad/1.0"
+
+#define HTTP_HEADER_BUFFER 40
+#define HTTP_BODY_BUFFER 4096
 
 #endif

@@ -128,7 +128,7 @@ OS_OBJS="${MODULE_OBJS[@]}"
 MODULE_ID="APP" 
 MODULE_DEPENDS=("CORE" "OS") 
 ModuleLibIncs=(${LibSTRoot} ${LibHttpParserRoot})
-MODULE_FILES=("htl_app_hls_load" "htl_app_http_load")
+MODULE_FILES=("htl_app_hls_load" "htl_app_http_load" "htl_app_http_client")
 MODULE_DIR="src/app" . auto/modules.sh
 APP_OBJS="${MODULE_OBJS[@]}"
 

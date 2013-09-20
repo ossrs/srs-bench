@@ -52,7 +52,7 @@ LogContext* context = new StLogContext();
 
 #define ShowHelpPart1()\
         "  -t THREAD, --thread THREAD  The thread to start. defaut: %d\n" \
-        "  -u URL, --url URL           The load test http url. \n" \ 
+        "  -u URL, --url URL           The load test http url. \n" \
         "                              ie. %s\n"
 #define ShowHelpPart2()\
         "  -s STARTUP, --start STARTUP The start is the ramdom sleep when  thread startup in seconds. \n" \

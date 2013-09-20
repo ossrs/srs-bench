@@ -38,7 +38,7 @@ int StHttpTask::Initialize(std::string http_url, double delay, double error, int
 int StHttpTask::Process(){
     int ret = ERROR_SUCCESS;
     
-    Trace("start to process task #%d, schema=%s, host=%s, port=%d, path=%s, delay=%.2f, error=%.2f, count=%d", 
+    Trace("start to process HTTP task #%d, schema=%s, host=%s, port=%d, path=%s, delay=%.2f, error=%.2f, count=%d", 
         GetId(), url.GetSchema(), url.GetHost(), url.GetPort(), url.GetPath(), delay_seconds, error_seconds, count);
         
     StHttpClient client;

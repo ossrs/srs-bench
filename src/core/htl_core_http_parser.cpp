@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include <string>
+#include <sstream>
 using namespace std;
 
 #include <htl_core_log.hpp>
@@ -48,6 +49,46 @@ int HttpUrl::Initialize(std::string http_url){
 
 const char* HttpUrl::GetUrl(){
     return url.c_str();
+}
+
+#define PROTOCOL_HTTP "http://"
+#define PROTOCOL_HTTPS "https://"
+string HttpUrl::Resolve(string origin_url){
+    string copy = origin_url;
+    
+    size_t pos = string::npos;
+    string key = "./";
+    if((pos = origin_url.find(key)) == 0){
+        copy = origin_url.substr(key.length());
+    }
+    
+    // uri
+    if(copy.find(PROTOCOL_HTTP) == 0 || copy.find(PROTOCOL_HTTPS) == 0){
+        return copy;
+    }
+    
+    // abs or relative url
+    stringstream ss;
+    ss << schema << "://" << host;
+        
+    if(port != 80){
+        ss << ":" << port;
+    }
+    
+    // relative path
+    if(copy.find("/") != 0){
+        string dir = path;
+        
+        if((pos = dir.rfind("/")) != string::npos){
+            dir = dir.substr(0, pos);
+        }
+        
+        ss << dir << "/";
+    }
+        
+    ss << copy;
+    
+    return ss.str();
 }
 
 HttpUrl* HttpUrl::Copy(){

@@ -55,7 +55,7 @@ int StHttpClient::DownloadString(HttpUrl* url, std::string* response){
     }
     
     if((ret = ParseResponse(url, response)) != ERROR_SUCCESS){
-        Error("http client parse content failed. ret=%d", ret);
+        Error("http client parse response failed. ret=%d", ret);
         return ret;
     }
     

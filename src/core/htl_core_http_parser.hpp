@@ -26,6 +26,7 @@ public:
     virtual int Initialize(std::string http_url);
 public:
     virtual const char* GetUrl();
+    virtual std::string Resolve(std::string origin_url);
     virtual HttpUrl* Copy();
 public:
     virtual const char* GetSchema();

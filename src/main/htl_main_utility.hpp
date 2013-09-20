@@ -51,13 +51,18 @@ LogContext* context = new StLogContext();
                 break;
 
 #define ShowHelpPart1()\
-        "  -t THREAD, --thread THREAD  The thread to start. defaut to %d\n" \
-        "  -u URL, --url URL           The load test http url. ie. %s\n"
+        "  -t THREAD, --thread THREAD  The thread to start. defaut: %d\n" \
+        "  -u URL, --url URL           The load test http url. \n" \ 
+        "                              ie. %s\n"
 #define ShowHelpPart2()\
-        "  -s STARTUP, --start STARTUP The start is the ramdom sleep when  thread startup in seconds. 0 means no delay. defaut to %.2f\n" \
-        "  -d DELAY, --delay DELAY     The delay is the ramdom sleep when success in seconds. 0 means no delay. defaut to %.2f\n" \
-        "  -c COUNT, --count COUNT     The count is the number of downloads. 0 means infinity. defaut to %d\n" \
-        "  -e ERROR, --error ERROR     The error is the ramdom sleep when error in seconds. 0 means no delay. defaut to %.2f\n" \
+        "  -s STARTUP, --start STARTUP The start is the ramdom sleep when  thread startup in seconds. \n" \
+        "                              defaut: %.2f. 0 means no delay.\n" \
+        "  -d DELAY, --delay DELAY     The delay is the ramdom sleep when success in seconds. \n" \
+        "                              default: %.2f. 0 means no delay. -1 means to use HLS EXTINF duration(HLS only).\n" \
+        "  -c COUNT, --count COUNT     The count is the number of downloads. \n" \
+        "                              default: %d. 0 means infinity.\n" \
+        "  -e ERROR, --error ERROR     The error is the ramdom sleep when error in seconds. \n" \
+        "                              defaut: %.2f. 0 means no delay. \n" \
         "  -v, --version               Print the version and exit.\n" \
         "  -h, --help                  Print this help message and exit.\n"
 

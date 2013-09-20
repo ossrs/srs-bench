@@ -2,6 +2,7 @@ file
 	main readonly separator,
 	..\main\htl_main_hls_load.cpp,
 	..\main\htl_main_http_load.cpp,
+	..\main\htl_main_utility.cpp,
 	..\main\htl_main_utility.hpp,
 	app readonly separator,
 	..\app\htl_app_hls_load.cpp,

@@ -15,7 +15,10 @@ using namespace std;
 
 #define DefaultHttpUrl "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts"
 
-int discovery_options(int argc, char** argv, bool& show_help, bool& show_version, string& url, int& threads, double& startup, double& delay, double& error, int& count){
+int discovery_options(int argc, char** argv, 
+    bool& show_help, bool& show_version, string& url, int& threads, 
+    double& startup, double& delay, double& error, int& count
+){
     int ret = ERROR_SUCCESS;
     
     static option long_options[] = {

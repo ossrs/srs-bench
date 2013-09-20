@@ -72,6 +72,7 @@ class StUtility
 {
 public:
     static void InitRandom();
+    static st_utime_t BuildRandomMTime(double sleep_seconds, double default_seconds = 0.0);
     static int DnsResolve(std::string host, std::string& ip);
 };
 

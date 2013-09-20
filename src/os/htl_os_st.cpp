@@ -221,6 +221,16 @@ void StUtility::InitRandom(){
     srand(now.tv_sec * 1000000 + now.tv_usec);
 }
 
+st_utime_t StUtility::BuildRandomMTime(double sleep_seconds, double default_seconds){
+    if(sleep_seconds <= 0){
+        return default_seconds * 1000;
+    }
+    
+    st_utime_t sleep_ms = (int)(sleep_seconds * 1000 * 0.8) + rand() % (int)(sleep_seconds * 1000 * 0.4);
+    
+    return sleep_ms;
+}
+
 int StUtility::DnsResolve(string host, string& ip){
     int ret = ERROR_SUCCESS;
     

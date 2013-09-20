@@ -43,7 +43,7 @@ int StHttpTask::Process(){
         GetId(), url.GetSchema(), url.GetHost(), url.GetPort(), url.GetPath(), startup_seconds, delay_seconds, error_seconds, count);
     
     if(startup_seconds > 0){
-        int sleep_ms = (int)(startup_seconds * 1000 * 0.8) + rand() % (int)(startup_seconds * 1000 * 0.4);
+        int sleep_ms = StUtility::BuildRandomMTime(startup_seconds);
         Trace("start random sleep %dms", sleep_ms);
         st_usleep(sleep_ms * 1000);
     }
@@ -58,13 +58,8 @@ int StHttpTask::Process(){
             continue;
         }
         
-        int sleep_ms = 0;
-        if(delay_seconds > 0){
-            sleep_ms = (int)(delay_seconds * 1000 * 0.8) + rand() % (int)(delay_seconds * 1000 * 0.4);
-        }
-        
+        int sleep_ms = StUtility::BuildRandomMTime(delay_seconds);
         Trace("[HTTP] %s download, size=%"PRId64", sleep %dms", url.GetUrl(), client.GetResponseHeader()->content_length, sleep_ms);
-        
         st_usleep(sleep_ms * 1000);
     }
     

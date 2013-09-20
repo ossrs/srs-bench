@@ -5,6 +5,8 @@ file
 	app readonly separator,
 	..\app\htl_app_hls_load.cpp,
 	..\app\htl_app_hls_load.hpp,
+	..\app\htl_app_m3u8_parser.cpp,
+	..\app\htl_app_m3u8_parser.hpp,
 	..\app\htl_app_http_load.cpp,
 	..\app\htl_app_http_load.hpp,
 	..\app\htl_app_http_client.cpp,

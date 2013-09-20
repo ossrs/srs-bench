@@ -13,16 +13,7 @@
 #include <htl_app_http_client.hpp>
 
 #include <htl_os_st.hpp>
-
-struct M3u8TS
-{
-    string ts_url;
-    double duration;
-    
-    bool operator== (const M3u8TS& b)const{
-        return ts_url == b.ts_url;
-    }
-};
+#include <htl_app_m3u8_parser.hpp>
 
 // for http task.
 class StHlsTask : public StTask
@@ -47,7 +38,6 @@ private:
     virtual int ProcessM3u8(StHttpClient& client);
     virtual int ProcessTS(StHttpClient& client, std::vector<M3u8TS>& ts_objects);
     virtual int DownloadTS(StHttpClient& client, M3u8TS& ts);
-    virtual int ParseM3u8Data(std::string m3u8, std::vector<M3u8TS>& ts_objects);
 };
 
 #endif

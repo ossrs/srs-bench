@@ -19,16 +19,17 @@ StHttpTask::StHttpTask(){
 StHttpTask::~StHttpTask(){
 }
 
-int StHttpTask::Initialize(std::string http_url, double delay, double error, int count){
+int StHttpTask::Initialize(std::string http_url, double startup, double delay, double error, int count){
     int ret = ERROR_SUCCESS;
     
     if((ret = url.Initialize(http_url)) != ERROR_SUCCESS){
         return ret;
     }
     
-    Info("task url(%s) parsed, delay=%.2f, error=%.2f, count=%d", http_url.c_str(), delay, error, count);
+    Info("task url(%s) parsed, startup=%.2f, delay=%.2f, error=%.2f, count=%d", http_url.c_str(), startup, delay, error, count);
     
     this->delay_seconds = delay;
+    this->startup_seconds = startup;
     this->error_seconds = error;
     this->count = count;
     
@@ -38,8 +39,14 @@ int StHttpTask::Initialize(std::string http_url, double delay, double error, int
 int StHttpTask::Process(){
     int ret = ERROR_SUCCESS;
     
-    Trace("start to process HTTP task #%d, schema=%s, host=%s, port=%d, path=%s, delay=%.2f, error=%.2f, count=%d", 
-        GetId(), url.GetSchema(), url.GetHost(), url.GetPort(), url.GetPath(), delay_seconds, error_seconds, count);
+    Trace("start to process HTTP task #%d, schema=%s, host=%s, port=%d, path=%s, startup=%.2f, delay=%.2f, error=%.2f, count=%d", 
+        GetId(), url.GetSchema(), url.GetHost(), url.GetPort(), url.GetPath(), startup_seconds, delay_seconds, error_seconds, count);
+    
+    if(startup_seconds > 0){
+        int sleep_ms = (int)(startup_seconds * 1000 * 0.8) + rand() % (int)(startup_seconds * 1000 * 0.4);
+        Trace("start random sleep %dms", sleep_ms);
+        st_usleep(sleep_ms * 1000);
+    }
         
     StHttpClient client;
     

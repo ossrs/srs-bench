@@ -17,6 +17,7 @@ class StHttpTask : public StTask
 {
 private:
     HttpUrl url;
+    double startup_seconds;
     double delay_seconds;
     double error_seconds;
     int count;
@@ -24,7 +25,7 @@ public:
     StHttpTask();
     virtual ~StHttpTask();
 public:
-    virtual int Initialize(std::string http_url, double delay, double error, int count);
+    virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
     virtual int Process();
 };
 

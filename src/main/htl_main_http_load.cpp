@@ -16,16 +16,18 @@ LogContext* context = new StLogContext();
 
 #define DefaultHttpUrl "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts"
 #define DefaultThread 1
+#define DefaultStartupSeconds 5.0
 #define DefaultDelaySeconds 0.8
 #define DefaultErrorSeconds 10.0
 #define DefaultCount 0
 
-int discovery_options(int argc, char** argv, bool& show_help, bool& show_version, string& url, int& threads, double& delay, double& error, int& count){
+int discovery_options(int argc, char** argv, bool& show_help, bool& show_version, string& url, int& threads, double& startup, double& delay, double& error, int& count){
     int ret = ERROR_SUCCESS;
     
     static option long_options[] = {
         {"threads", required_argument, 0, 't'},
         {"url", required_argument, 0, 'u'},
+        {"startup", required_argument, 0, 's'},
         {"delay", required_argument, 0, 'd'},
         {"count", required_argument, 0, 'c'},
         {"error", required_argument, 0, 'e'},
@@ -36,7 +38,7 @@ int discovery_options(int argc, char** argv, bool& show_help, bool& show_version
     
     int opt = 0;
     int option_index = 0;
-    while((opt = getopt_long(argc, argv, "hvu:t:d:c:e:", long_options, &option_index)) != -1){
+    while((opt = getopt_long(argc, argv, "hvu:t:s:d:c:e:", long_options, &option_index)) != -1){
         switch(opt){
             case 'h':
                 show_help = true;
@@ -49,6 +51,9 @@ int discovery_options(int argc, char** argv, bool& show_help, bool& show_version
                 break;
             case 't':
                 threads = atoi(optarg);
+                break;
+            case 's':
+                startup = atof(optarg);
                 break;
             case 'd':
                 delay = atof(optarg);
@@ -83,6 +88,7 @@ void help(char** argv){
         "Options:\n"
         "  -t THREAD, --thread THREAD  The thread to start. defaut to %d\n"
         "  -u URL, --url URL           The load test http url. ie. %s\n"
+        "  -s STARTUP, --start STARTUP The start is the ramdom sleep when  thread startup in seconds. 0 means no delay. defaut to %.2f\n"
         "  -d DELAY, --delay DELAY     The delay is the ramdom sleep when success in seconds. 0 means no delay. defaut to %.2f\n"
         "  -c COUNT, --count COUNT     The count is the number of downloads. 0 means infinity. defaut to %d\n"
         "  -e ERROR, --error ERROR     The error is the ramdom sleep when error in seconds. 0 means no delay. defaut to %.2f\n"
@@ -91,7 +97,7 @@ void help(char** argv){
         "\n"
         "This program built for %s.\n"
         "Report bugs to <%s>\n",
-        argv[0], argv[0], DefaultThread, DefaultHttpUrl, DefaultDelaySeconds, DefaultCount, 
+        argv[0], argv[0], DefaultThread, DefaultHttpUrl, (double)DefaultStartupSeconds, DefaultDelaySeconds, DefaultCount, 
         DefaultErrorSeconds, BuildPlatform, BugReportEmail);
         
     exit(0);
@@ -113,11 +119,15 @@ int main(int argc, char** argv){
     }
     
     bool show_help = false, show_version = false; 
-    string url; int threads = DefaultThread; double delay = DefaultDelaySeconds, error = DefaultErrorSeconds; int count = DefaultCount;
-    if((ret = discovery_options(argc, argv, show_help, show_version, url, threads, delay, error, count)) != ERROR_SUCCESS){
+    string url; int threads = DefaultThread; 
+    double start = DefaultStartupSeconds, delay = DefaultDelaySeconds, error = DefaultErrorSeconds; 
+    int count = DefaultCount;
+    
+    if((ret = discovery_options(argc, argv, show_help, show_version, url, threads, start, delay, error, count)) != ERROR_SUCCESS){
         Error("discovery options failed. ret=%d", ret);
         return ret;
     }
+    Info("params url=%s, threads=%d, start=%.2f, delay=%.2f, error=%.2f, count=%d", url.c_str(), threads, start, delay, error, count);
     
     if(show_help){
         help(argv);
@@ -129,7 +139,7 @@ int main(int argc, char** argv){
     for(int i = 0; i < threads; i++){
         StHttpTask* task = new StHttpTask();
 
-        if((ret = task->Initialize(url, delay, error, count)) != ERROR_SUCCESS){
+        if((ret = task->Initialize(url, start, delay, error, count)) != ERROR_SUCCESS){
             Error("initialize task failed, url=%s, ret=%d", url.c_str(), ret);
             return ret;
         }

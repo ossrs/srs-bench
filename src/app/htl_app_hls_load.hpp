@@ -33,6 +33,7 @@ private:
     int target_duration;
 private:
     HttpUrl url;
+    double startup_seconds;
     double delay_seconds;
     double error_seconds;
     int count;
@@ -40,7 +41,7 @@ public:
     StHlsTask();
     virtual ~StHlsTask();
 public:
-    virtual int Initialize(std::string http_url, double delay, double error, int count);
+    virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
     virtual int Process();
 private:
     virtual int ProcessM3u8(StHttpClient& client);

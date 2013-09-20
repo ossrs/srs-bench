@@ -62,7 +62,7 @@ int StHlsTask::Process(){
             sleep_ms = (int)(delay_seconds * 1000 * 0.8) + rand() % (int)(delay_seconds * 1000 * 0.4);
         }
         
-        Trace("[HLS] %s download, size=%"PRId64", sleep %dms", url.GetUrl(), client.GetResponseHeader()->content_length, sleep_ms);
+        Info("[HLS] %s download, sleep %dms", url.GetUrl(), sleep_ms);
         
         st_usleep(sleep_ms * 1000);
     }
@@ -78,7 +78,7 @@ int StHlsTask::ProcessM3u8(StHttpClient& client){
         Error("http client get m3u8 failed. ret=%d", ret);
         return ret;
     }
-    Trace("[HLS] m3u8(%s) get success, length=%"PRId64, url.GetUrl(), m3u8.length());
+    Trace("[HLS] get m3u8 %s get success, length=%"PRId64, url.GetUrl(), m3u8.length());
     
     vector<M3u8TS> ts_objects;
     if((ret = ParseM3u8Data(m3u8, ts_objects)) != ERROR_SUCCESS){
@@ -116,7 +116,7 @@ int StHlsTask::ProcessTS(StHttpClient& client, vector<M3u8TS>& ts_objects){
             sleep_ms = (int)(target_duration * 1000 * 0.8) + rand() % (int)(target_duration * 1000 * 0.4);
         }
         
-        Trace("no ts now, wait for a segment. sleep %dms", sleep_ms);
+        Trace("[TS] no fresh ts, wait for a while. sleep %dms", sleep_ms);
         st_usleep(sleep_ms * 1000);
         
         return ret;

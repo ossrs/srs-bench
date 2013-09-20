@@ -1,37 +1,113 @@
 #include <htl_stdinc.hpp>
 
-// system
-#include <unistd.h>
-#include <errno.h>
-
-// socket
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-// c lib
-#include <stdio.h>
+#include <getopt.h>
 #include <stdlib.h>
-#include <string.h>
 
-// c++ lib
 #include <string>
-#include <sstream>
 using namespace std;
-
-// 3rdparty lib
-#include <http_parser.h>
 
 // project lib
 #include <htl_core_log.hpp>
 #include <htl_core_error.hpp>
-#include <htl_os_st.hpp>
 #include <htl_app_http_load.hpp>
 
 // global instance for graceful log.
 LogContext* context = new StLogContext();
 
-int main(int /*argc*/, char** /*argv*/){
+#if 1
+    #define DefaultHttpUrl "http://192.168.2.111:3080/hls/hls.m3u8"
+#else
+    #define DefaultHttpUrl "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts"
+#endif
+#define DefaultThread 1
+#define DefaultDelaySeconds 0.8
+#define DefaultErrorSeconds 10.0
+#define DefaultCount 0
+
+int discovery_options(int argc, char** argv, bool& show_help, bool& show_version, string& url, int& threads, double& delay, double& error, int& count){
+    int ret = ERROR_SUCCESS;
+    
+    // check args
+    int required_arg_count = 1;
+    if(argc <= required_arg_count){
+        show_help = true;
+        return ret;
+    }
+    
+    static option long_options[] = {
+        {"threads", required_argument, 0, 't'},
+        {"url", required_argument, 0, 'u'},
+        {"delay", required_argument, 0, 'd'},
+        {"count", required_argument, 0, 'c'},
+        {"error", required_argument, 0, 'e'},
+        {"help", no_argument, 0, 'h'},
+        {"version", no_argument, 0, 'v'},
+        {0, 0, 0, 0}
+    };
+    
+    int opt = 0;
+    int option_index = 0;
+    while((opt = getopt_long(argc, argv, "hvu:t:d:c:e:", long_options, &option_index)) != -1){
+        switch(opt){
+            case 'h':
+                show_help = true;
+                break;
+            case 'v':
+                show_version = true;
+                break;
+            case 'u':
+                url = optarg;
+                break;
+            case 't':
+                threads = atoi(optarg);
+                break;
+            case 'd':
+                delay = atof(optarg);
+                break;
+            case 'c':
+                count = atoi(optarg);
+                break;
+            case 'e':
+                error = atof(optarg);
+                break;
+            default:
+                show_help = true;
+                break;
+        }
+    }
+
+    return ret;
+}
+
+void help(char** argv){
+    printf("%s, Copyright (c) 2013 winlin\n", ProductHTTPName);
+    
+    printf(""
+        "Usage: %s <Options>\n"
+        "%s base on st(state-threads), support huge concurrency.\n"
+        "Options:\n"
+        "  -t THREAD, --thread THREAD  The thread to start. defaut to %d\n"
+        "  -u URL, --url URL           The load test http url. defaut to %s\n"
+        "  -d DELAY, --delay DELAY     The delay is the ramdom sleep when success in seconds. 0 means no delay. defaut to %.2f\n"
+        "  -c COUNT, --count COUNT     The count is the number of downloads. 0 means infinity. defaut to %d\n"
+        "  -e ERROR, --error ERROR     The error is the ramdom sleep when error in seconds. 0 means no delay. defaut to %.2f\n"
+        "  -v, --version               Print the version and exit.\n"
+        "  -h, --help                  Print this help message and exit.\n"
+        "\n"
+        "This program built for %s.\n"
+        "Report bugs to <%s>\n",
+        argv[0], argv[0], DefaultThread, DefaultHttpUrl, DefaultDelaySeconds, DefaultCount, 
+        DefaultErrorSeconds, BuildPlatform, BugReportEmail);
+        
+    exit(0);
+}
+
+void version(){
+    printf(ProductVersion);
+    exit(0);
+}
+
+int main(int argc, char** argv){
     int ret = ERROR_SUCCESS;
     
     StFarm farm;
@@ -40,15 +116,26 @@ int main(int /*argc*/, char** /*argv*/){
         Error("initialize the farm failed. ret=%d", ret);
         return ret;
     }
-
-    for(int i = 0; i < 1; i++){
-        string url;
-        url = "http://192.168.2.111:3080/hls/hls.m3u8";
-        //url = "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts";
     
+    bool show_help = false, show_version = false; 
+    string url = DefaultHttpUrl; int threads = DefaultThread;
+    double delay = DefaultDelaySeconds, error = DefaultErrorSeconds; int count = DefaultCount;
+    if((ret = discovery_options(argc, argv, show_help, show_version, url, threads, delay, error, count)) != ERROR_SUCCESS){
+        Error("discovery options failed. ret=%d", ret);
+        return ret;
+    }
+    
+    if(show_help){
+        help(argv);
+    }
+    if(show_version){
+        version();
+    }
+
+    for(int i = 0; i < threads; i++){
         StHttpTask* task = new StHttpTask();
 
-        if((ret = task->Initialize(url)) != ERROR_SUCCESS){
+        if((ret = task->Initialize(url, delay, error, count)) != ERROR_SUCCESS){
             Error("initialize task failed, url=%s, ret=%d", url.c_str(), ret);
             return ret;
         }

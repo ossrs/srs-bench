@@ -1,6 +1,8 @@
 // system
 #include <unistd.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <sys/time.h>
 
 // socket
 #include <sys/socket.h>
@@ -51,6 +53,8 @@ int StFarm::Initialize(){
         Error("st_init failed. ret=%d", ret);
         return ret;
     }
+    
+    StUtility::InitRandom();
     
     return ret;
 }
@@ -200,6 +204,17 @@ int StSocket::Close(){
     status = SocketDisconnected;
     
     return ret;
+}
+
+void StUtility::InitRandom(){
+    timeval now;
+    
+    if(gettimeofday(&now, NULL) == -1){
+        srand(0);
+        return;
+    }
+    
+    srand(now.tv_sec * 1000000 + now.tv_usec);
 }
 
 int StUtility::DnsResolve(string host, string& ip){

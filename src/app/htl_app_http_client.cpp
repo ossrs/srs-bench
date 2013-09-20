@@ -45,7 +45,7 @@ int StHttpClient::DownloadString(HttpUrl* url, std::string* response){
         << "HTTP/1.1\r\n"
         << "Host: " << url->GetHost() << "\r\n"
         << "Connection: Keep-Alive" << "\r\n"
-        << "User-Agent: " << ProductName << "\r\n"
+        << "User-Agent: " << ProductHTTPName << "\r\n"
         << "\r\n";
     
     ssize_t nwrite;

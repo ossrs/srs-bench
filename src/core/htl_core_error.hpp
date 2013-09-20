@@ -27,7 +27,11 @@
 #define ERROR_HP_EP_CHNAGED 501
 #define ERROR_HP_PARSE_RESPONSE 502
 
-#define ProductName "Bravo HttpLoad/1.0"
+#define ProductVersion "1.0"
+#define ProductHTTPName "Bravo HttpLoad/"ProductVersion
+#define ProductHLSName "Bravo HlsLoad/"ProductVersion
+#define BuildPlatform "linux"
+#define BugReportEmail "winterserver@126.com"
 
 #define HTTP_HEADER_BUFFER 40
 #define HTTP_BODY_BUFFER 4096

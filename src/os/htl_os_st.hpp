@@ -71,6 +71,7 @@ public:
 class StUtility
 {
 public:
+    static void InitRandom();
     static int DnsResolve(std::string host, std::string& ip);
 };
 

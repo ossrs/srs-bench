@@ -17,11 +17,14 @@ class StHttpTask : public StTask
 {
 private:
     HttpUrl url;
+    double delay_seconds;
+    double error_seconds;
+    int count;
 public:
     StHttpTask();
     virtual ~StHttpTask();
 public:
-    virtual int Initialize(std::string http_url);
+    virtual int Initialize(std::string http_url, double delay, double error, int count);
     virtual int Process();
 };
 

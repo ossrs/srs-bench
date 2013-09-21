@@ -80,8 +80,8 @@ void StStatistic::DoReport(double sleep_ms){
         double read_mbps = 0, write_mbps = 0;
         
         if(duration > 0){
-            read_mbps = nread * 8.0 / duration / 1000 / 1000;
-            write_mbps = nwrite * 8.0 / duration / 1000 / 1000;
+            read_mbps = nread * 8.0 / duration / 1000;
+            write_mbps = nwrite * 8.0 / duration / 1000;
         }
         
         LReport("[report] threads:%d alive:%d duration:%.0f nread:%.2f nwrite:%.2f "

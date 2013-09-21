@@ -8,8 +8,9 @@
 #include <vector>
 using namespace std;
 
-#include <htl_core_error.hpp>
 #include <htl_core_log.hpp>
+#include <htl_core_error.hpp>
+#include <htl_core_aggregate_ret.hpp>
 #include <htl_app_http_client.hpp>
 
 #include <htl_app_hls_load.hpp>
@@ -120,6 +121,8 @@ int StHlsTask::ProcessTS(StHttpClient& client, vector<M3u8TS>& ts_objects){
         }
     }
     
+    AggregateRet aggregate_ret;
+    
     // to process from the specified ite
     for(; ite != ts_objects.end(); ++ite){
         M3u8TS ts_object = *ite;
@@ -130,13 +133,10 @@ int StHlsTask::ProcessTS(StHttpClient& client, vector<M3u8TS>& ts_objects){
         
         Info("start to process ts %s", ts_object.ts_url.c_str());
         
-        if((ret = DownloadTS(client, ts_object)) != ERROR_SUCCESS){
-            Error("process ts file failed. ret=%d", ret);
-            return ret;
-        }
+        aggregate_ret.Add(DownloadTS(client, ts_object));
     }
     
-    return ret;
+    return aggregate_ret.GetReturnValue();
 }
 
 int StHlsTask::DownloadTS(StHttpClient& client, M3u8TS& ts){

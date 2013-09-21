@@ -12,6 +12,7 @@ LogContext* context = new StLogContext();
 #define DefaultStartupSeconds 5.0
 #define DefaultDelaySeconds 0.8
 #define DefaultErrorSeconds 10.0
+#define DefaultReportSeconds 3.0
 #define DefaultCount 0
 
 #define SharedOptions()\
@@ -21,6 +22,7 @@ LogContext* context = new StLogContext();
         {"delay", required_argument, 0, 'd'}, \
         {"count", required_argument, 0, 'c'}, \
         {"error", required_argument, 0, 'e'}, \
+        {"report", required_argument, 0, 'r'}, \
         {"help", no_argument, 0, 'h'}, \
         {"version", no_argument, 0, 'v'},
 
@@ -48,6 +50,9 @@ LogContext* context = new StLogContext();
                 break; \
             case 'e': \
                 error = atof(optarg); \
+                break; \
+            case 'r': \
+                report = atof(optarg); \
                 break;
 
 #define ShowHelpPart1()\
@@ -61,7 +66,11 @@ LogContext* context = new StLogContext();
         "                              default: %.2f. 0 means no delay. -1 means to use HLS EXTINF duration(HLS only).\n" \
         "  -c COUNT, --count COUNT     The count is the number of downloads. \n" \
         "                              default: %d. 0 means infinity.\n" \
-        "  -e ERROR, --error ERROR     The error is the ramdom sleep when error in seconds. \n" \
+        "  -e ERROR, --error ERROR     The error is the sleep when error in seconds. \n" \
+        "                              defaut: %.2f. 0 means no delay. \n" \
+        "  -r REPORT, --report REPORT  The report is the sleep when report in seconds. \n" \
+        "                              etasks is error_tasks, statks is sub_tasks, estatks is error_sub_tasks.\n" \
+        "                              nread/nwrite in Mbps, duration in seconds.\n" \
         "                              defaut: %.2f. 0 means no delay. \n" \
         "  -v, --version               Print the version and exit.\n" \
         "  -h, --help                  Print this help message and exit.\n"

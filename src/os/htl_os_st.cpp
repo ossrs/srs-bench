@@ -1,8 +1,11 @@
+#include <htl_stdinc.hpp>
+
 // system
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <inttypes.h>
 
 // socket
 #include <sys/socket.h>
@@ -19,6 +22,78 @@ using namespace std;
 #include <htl_core_log.hpp>
 
 #include <htl_os_st.hpp>
+
+StStatistic::StStatistic(){
+    starttime = StUtility::GetCurrentTime();
+    threads = alive = 0;
+    nread = nwrite = 0;
+    tasks = err_tasks = sub_tasks = err_sub_tasks = 0;
+}
+
+StStatistic::~StStatistic(){
+}
+
+void StStatistic::OnRead(int /*tid*/, ssize_t nread){
+    this->nread += nread;
+}
+
+void StStatistic::OnWrite(int /*tid*/, ssize_t nwrite){
+    this->nwrite += nwrite;
+}
+
+void StStatistic::OnThreadRun(int /*tid*/){
+    threads++;
+}
+
+void StStatistic::OnThreadQuit(int /*tid*/){
+    threads--;
+}
+
+void StStatistic::OnTaskStart(int /*tid*/, std::string /*task_url*/){
+    alive++;
+    tasks++;
+}
+
+void StStatistic::OnTaskError(int /*tid*/){
+    alive--;
+    err_tasks++;
+}
+
+void StStatistic::OnTaskEnd(int /*tid*/){
+    alive--;
+}
+
+void StStatistic::OnSubTaskStart(int /*tid*/, std::string /*sub_task_url*/){
+    sub_tasks++;
+}
+
+void StStatistic::OnSubTaskError(int /*tid*/){
+    err_sub_tasks++;
+}
+
+void StStatistic::OnSubTaskEnd(int /*tid*/){
+}
+
+void StStatistic::DoReport(double sleep_ms){
+    for(;;){
+        int64_t duration = StUtility::GetCurrentTime() - starttime;
+        double read_mbps = 0, write_mbps = 0;
+        
+        if(duration > 0){
+            read_mbps = nread * 8.0 / duration / 1000 / 1000;
+            write_mbps = nwrite * 8.0 / duration / 1000 / 1000;
+        }
+        
+        LReport("[report] threads:%d alive:%d duration:%.0f nread:%.2f nwrite:%.2f "
+            "tasks:%"PRId64" etasks:%"PRId64" stasks:%"PRId64" estasks:%"PRId64,
+            threads, alive, duration/1000.0, read_mbps, write_mbps, 
+            tasks, err_tasks, sub_tasks, err_sub_tasks);
+        
+        st_usleep(sleep_ms * 1000);
+    }
+}
+
+StStatistic* statistic = new StStatistic();
 
 StTask::StTask(){
     static int _id = 0;
@@ -38,8 +113,10 @@ StFarm::StFarm(){
 StFarm::~StFarm(){
 }
 
-int StFarm::Initialize(){
+int StFarm::Initialize(double report){
     int ret = ERROR_SUCCESS;
+    
+    report_seconds = report;
     
     // use linux epoll.
     if(st_set_eventsys(ST_EVENTSYS_ALT) == -1){
@@ -76,6 +153,9 @@ int StFarm::Spawn(StTask* task){
 int StFarm::WaitAll(){
     int ret = ERROR_SUCCESS;
     
+    // main thread turn to a report therad.
+    statistic->DoReport(report_seconds * 1000);
+    
     st_thread_exit(NULL);
     
     return ret;
@@ -86,7 +166,11 @@ void* StFarm::st_thread_function(void* args){
     
     context->SetId(task->GetId());
     
+    statistic->OnThreadRun(task->GetId());
+    
     int ret = task->Process();
+    
+    statistic->OnThreadQuit(task->GetId());
     
     if(ret != ERROR_SUCCESS){
         Warn("st task terminate with ret=%d", ret);
@@ -172,6 +256,10 @@ int StSocket::Read(const void* buf, size_t size, ssize_t* nread){
         ret = ERROR_READ;
         status = SocketDisconnected;
     }
+    
+    if(*nread > 0){
+        statistic->OnRead(context->GetId(), *nread);
+    }
         
     return ret;
 }
@@ -188,6 +276,10 @@ int StSocket::Write(const void* buf, size_t size, ssize_t* nwrite){
         
         ret = ERROR_SEND;
         status = SocketDisconnected;
+    }
+    
+    if(*nwrite > 0){
+        statistic->OnWrite(context->GetId(), *nwrite);
     }
         
     return ret;
@@ -208,6 +300,19 @@ int StSocket::Close(){
     status = SocketDisconnected;
     
     return ret;
+}
+
+int64_t StUtility::GetCurrentTime(){
+    timeval now;
+    
+    int ret = gettimeofday(&now, NULL);
+    
+    if(ret == -1){
+        Warn("gettimeofday error, ret=%d", ret);
+    }
+
+    // we must convert the tv_sec/tv_usec to int64_t.
+    return ((int64_t)now.tv_sec)*1000 + ((int64_t)now.tv_usec) / 1000;
 }
 
 void StUtility::InitRandom(){

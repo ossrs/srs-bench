@@ -47,7 +47,11 @@ int StHlsTask::ProcessHttp(){
     
     // if count is zero, infinity loop.
     for(int i = 0; count == 0 || i < count; i++){
+        statistic->OnTaskStart(GetId(), url.GetUrl());
+        
         if((ret = ProcessM3u8(client)) != ERROR_SUCCESS){
+            statistic->OnTaskError(GetId());
+            
             Error("http client process m3u8 failed. ret=%d", ret);
             st_usleep(error_seconds * 1000 * 1000);
             continue;
@@ -56,6 +60,8 @@ int StHlsTask::ProcessHttp(){
         int sleep_ms = StUtility::BuildRandomMTime(delay_seconds);
         Info("[HLS] %s download, sleep %dms", url.GetUrl(), sleep_ms);
         st_usleep(sleep_ms * 1000);
+        
+        statistic->OnTaskEnd(GetId());
     }
     
     return ret;
@@ -144,8 +150,11 @@ int StHlsTask::DownloadTS(StHttpClient& client, M3u8TS& ts){
     }
     
     Info("[TS] url=%s, duration=%.2f, delay=%.2f", url.GetUrl(), ts.duration, delay_seconds);
+    statistic->OnSubTaskStart(GetId(), ts.ts_url);
     
     if((ret = client.DownloadString(&url, NULL)) != ERROR_SUCCESS){
+        statistic->OnSubTaskError(GetId());
+            
         Error("http client download ts file %s failed. ret=%d", url.GetUrl(), ret);
         return ret;
     }
@@ -154,6 +163,8 @@ int StHlsTask::DownloadTS(StHttpClient& client, M3u8TS& ts){
     Trace("[TS] url=%s download, duration=%.2f, delay=%.2f, size=%"PRId64", sleep %dms", 
         url.GetUrl(), ts.duration, delay_seconds, client.GetResponseHeader()->content_length, sleep_ms);
     st_usleep(sleep_ms * 1000);
+    
+    statistic->OnSubTaskEnd(GetId());
     
     return ret;
 }

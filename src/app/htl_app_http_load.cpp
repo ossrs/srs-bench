@@ -39,7 +39,11 @@ int StHttpTask::ProcessHttp(){
     
     // if count is zero, infinity loop.
     for(int i = 0; count == 0 || i < count; i++){
+        statistic->OnTaskStart(GetId(), url.GetUrl());
+        
         if((ret = client.DownloadString(&url, NULL)) != ERROR_SUCCESS){
+            statistic->OnTaskError(GetId());
+            
             Error("http client get url failed. ret=%d", ret);
             st_usleep(error_seconds * 1000 * 1000);
             continue;
@@ -48,6 +52,8 @@ int StHttpTask::ProcessHttp(){
         int sleep_ms = StUtility::BuildRandomMTime(delay_seconds);
         Trace("[HTTP] %s download, size=%"PRId64", sleep %dms", url.GetUrl(), client.GetResponseHeader()->content_length, sleep_ms);
         st_usleep(sleep_ms * 1000);
+        
+        statistic->OnTaskEnd(GetId());
     }
     
     return ret;

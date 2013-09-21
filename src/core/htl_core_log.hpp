@@ -65,4 +65,7 @@ extern LogContext* context;
     #define Info(msg, ...) (void)0
 #endif
 
+// for summary/report thread, print to stderr.
+#define LReport(msg, ...)   fprintf(stderr, "[%s] ", context->FormatTime());fprintf(stderr, msg, ##__VA_ARGS__);fprintf(stderr, "\n")
+    
 #endif

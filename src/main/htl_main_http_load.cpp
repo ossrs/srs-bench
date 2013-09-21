@@ -76,7 +76,7 @@ int main(int argc, char** argv){
         Error("discovery options failed. ret=%d", ret);
         return ret;
     }
-    Info("params url=%s, threads=%d, start=%.2f, delay=%.2f, error=%.2f, report=%.2f, count=%d", 
+    Trace("params url=%s, threads=%d, start=%.2f, delay=%.2f, error=%.2f, report=%.2f, count=%d", 
         url.c_str(), threads, start, delay, error, report, count);
     
     if(show_help){

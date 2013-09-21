@@ -24,7 +24,7 @@ int discovery_options(int argc, char** argv,
     
     static option long_options[] = {
         SharedOptions()
-        {"vod", required_argument, 0, 'o'},
+        {"vod", no_argument, 0, 'o'},
         {0, 0, 0, 0}
     };
     
@@ -83,7 +83,7 @@ int main(int argc, char** argv){
         Error("discovery options failed. ret=%d", ret);
         return ret;
     }
-    Info("params url=%s, vod=%d, threads=%d, start=%.2f, delay=%.2f, error=%.2f, report=%.2f, count=%d", 
+    Trace("params url=%s, vod=%d, threads=%d, start=%.2f, delay=%.2f, error=%.2f, report=%.2f, count=%d", 
         url.c_str(), vod, threads, start, delay, error, report, count);
     
     if(show_help){

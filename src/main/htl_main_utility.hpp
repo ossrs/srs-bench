@@ -12,7 +12,7 @@ LogContext* context = new StLogContext();
 #define DefaultStartupSeconds 5.0
 #define DefaultDelaySeconds 0.8
 #define DefaultErrorSeconds 10.0
-#define DefaultReportSeconds 3.0
+#define DefaultReportSeconds 30.0
 #define DefaultCount 0
 
 #define SharedOptions()\

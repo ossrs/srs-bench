@@ -14,7 +14,7 @@ using namespace std;
 #include <htl_main_utility.hpp>
 
 #define DefaultDelaySeconds 0.8
-#define DefaultHttpUrl "http://192.168.2.111:3080/hls/segm130813144315787-522881.ts"
+#define DefaultHttpUrl "http://127.0.0.1:3080/hls/segm130813144315787-522881.ts"
 
 int discovery_options(int argc, char** argv, 
     bool& show_help, bool& show_version, string& url, int& threads, 

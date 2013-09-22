@@ -216,12 +216,15 @@ int StSocket::Connect(const char* ip, int port){
         return ret;
     }
     
-    int recv_buf_size = HTTP_BODY_BUFFER;
-    if(setsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char*)(&recv_buf_size), sizeof(recv_buf_size)) == -1){
+    int optlen, optval0, optval1, recv_buf_size = HTTP_BODY_BUFFER*10;
+    getsockopt(sock, SOL_SOCKET, SO_RCVBUF, &optval0, (socklen_t*)&optlen);
+    if(setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &recv_buf_size, sizeof(recv_buf_size)) == -1){
         ret = ERROR_SOCKET;
         Error("setsockopt recvbuf error. ret=%d", ret);
         return ret;
     }
+    getsockopt(sock, SOL_SOCKET, SO_RCVBUF, &optval1, (socklen_t*)&optlen);
+    Trace("socket buff size %d set to %d, current is %d", optval0, recv_buf_size, optval1);
 
     sock_nfd = st_netfd_open_socket(sock);
     if(sock_nfd == NULL){

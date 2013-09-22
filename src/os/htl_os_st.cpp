@@ -215,6 +215,13 @@ int StSocket::Connect(const char* ip, int port){
         Error("setsockopt reuse-addr error. ret=%d", ret);
         return ret;
     }
+    
+    int recv_buf_size = HTTP_BODY_BUFFER;
+    if(setsockopt(sock, SOL_SOCKET, SO_RCVBUF, (char*)(&recv_buf_size), sizeof(recv_buf_size)) == -1){
+        ret = ERROR_SOCKET;
+        Error("setsockopt recvbuf error. ret=%d", ret);
+        return ret;
+    }
 
     sock_nfd = st_netfd_open_socket(sock);
     if(sock_nfd == NULL){

@@ -42,7 +42,7 @@ int StHttpTask::ProcessHttp(){
         statistic->OnTaskStart(GetId(), url.GetUrl());
         
         if((ret = client.DownloadString(&url, NULL)) != ERROR_SUCCESS){
-            statistic->OnTaskError(GetId());
+            statistic->OnTaskError(GetId(), 0);
             
             Error("http client get url failed. ret=%d", ret);
             st_usleep(error_seconds * 1000 * 1000);

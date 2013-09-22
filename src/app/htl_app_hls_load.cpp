@@ -51,7 +51,7 @@ int StHlsTask::ProcessHttp(){
         statistic->OnTaskStart(GetId(), url.GetUrl());
         
         if((ret = ProcessM3u8(client)) != ERROR_SUCCESS){
-            statistic->OnTaskError(GetId());
+            statistic->OnTaskError(GetId(), 0);
             
             Error("http client process m3u8 failed. ret=%d", ret);
             st_usleep(error_seconds * 1000 * 1000);
@@ -149,7 +149,7 @@ int StHlsTask::DownloadTS(StHttpClient& client, M3u8TS& ts){
     statistic->OnSubTaskStart(GetId(), ts.ts_url);
     
     if((ret = client.DownloadString(&url, NULL)) != ERROR_SUCCESS){
-        statistic->OnSubTaskError(GetId());
+        statistic->OnSubTaskError(GetId(), ts.duration);
             
         Error("http client download ts file %s failed. ret=%d", url.GetUrl(), ret);
         return ret;

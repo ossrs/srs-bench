@@ -55,9 +55,10 @@ void StStatistic::OnTaskStart(int /*tid*/, std::string /*task_url*/){
     tasks++;
 }
 
-void StStatistic::OnTaskError(int /*tid*/){
+void StStatistic::OnTaskError(int /*tid*/, int duration_seconds){
     alive--;
     err_tasks++;
+    this->task_duration += duration_seconds * 1000;
 }
 
 void StStatistic::OnTaskEnd(int /*tid*/, int duration_seconds){
@@ -69,8 +70,9 @@ void StStatistic::OnSubTaskStart(int /*tid*/, std::string /*sub_task_url*/){
     sub_tasks++;
 }
 
-void StStatistic::OnSubTaskError(int /*tid*/){
+void StStatistic::OnSubTaskError(int /*tid*/, int duration_seconds){
     err_sub_tasks++;
+    this->task_duration += duration_seconds * 1000;
 }
 
 void StStatistic::OnSubTaskEnd(int /*tid*/, int duration_seconds){

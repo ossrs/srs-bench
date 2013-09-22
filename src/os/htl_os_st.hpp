@@ -34,13 +34,13 @@ public:
     // when task start request url, ie. get m3u8
     virtual void OnTaskStart(int tid, std::string task_url);
     // when task error.
-    virtual void OnTaskError(int tid);
+    virtual void OnTaskError(int tid, int duration_seconds);
     // when task finish request url, ie. finish all ts in m3u8
     virtual void OnTaskEnd(int tid, int duration_seconds);
     // when sub task start, ie. get ts in m3u8
     virtual void OnSubTaskStart(int tid, std::string sub_task_url);
     // when sub task error.
-    virtual void OnSubTaskError(int tid);
+    virtual void OnSubTaskError(int tid, int duration_seconds);
     // when sub task finish, ie. finish a ts.
     virtual void OnSubTaskEnd(int tid, int duration_seconds);
 public:

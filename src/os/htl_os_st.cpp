@@ -84,9 +84,9 @@ void StStatistic::DoReport(double sleep_ms){
             write_mbps = nwrite * 8.0 / duration / 1000;
         }
         
-        LReport("[report] threads:%d alive:%d duration:%.0f nread:%.2f nwrite:%.2f "
+        LReport("[report] [%d] threads:%d alive:%d duration:%.0f nread:%.2f nwrite:%.2f "
             "tasks:%"PRId64" etasks:%"PRId64" stasks:%"PRId64" estasks:%"PRId64,
-            threads, alive, duration/1000.0, read_mbps, write_mbps, 
+            getpid(), threads, alive, duration/1000.0, read_mbps, write_mbps, 
             tasks, err_tasks, sub_tasks, err_sub_tasks);
         
         st_usleep(sleep_ms * 1000);

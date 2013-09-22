@@ -34,7 +34,7 @@
 #define BuildPlatform "linux"
 #define BugReportEmail "winterserver@126.com"
 
-#define HTTP_HEADER_BUFFER 40
-#define HTTP_BODY_BUFFER 4096
+#define HTTP_HEADER_BUFFER 1024
+#define HTTP_BODY_BUFFER 32*1024
 
 #endif

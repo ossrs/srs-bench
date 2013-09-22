@@ -105,16 +105,33 @@ int StHttpClient::ParseResponseBody(HttpUrl* url, string* response, int body_rec
     
     uint64_t body_left = http_header.content_length - body_received;
     
-    char buf[HTTP_BODY_BUFFER];
+    if(response != NULL){
+        char buf[HTTP_BODY_BUFFER];
+        return ParseResponseBodyData(url, response, (size_t)body_left, (const void*)buf, (size_t)HTTP_BODY_BUFFER);
+    }
+    else{
+        // if ignore response, use shared fast memory.
+        static char buf[HTTP_BODY_BUFFER];
+        return ParseResponseBodyData(url, response, (size_t)body_left, (const void*)buf, (size_t)HTTP_BODY_BUFFER);
+    }
+    
+    return ret;
+}
+
+int StHttpClient::ParseResponseBodyData(HttpUrl* url, string* response, size_t body_left, const void* buf, size_t size){
+    int ret = ERROR_SUCCESS;
+    
+    assert(url != NULL);
+    
     while(body_left > 0){
         ssize_t nread;
-        if((ret = socket->Read((const void*)buf, (size_t)sizeof(buf), &nread)) != ERROR_SUCCESS){
+        if((ret = socket->Read(buf, (size < body_left)? size:body_left, &nread)) != ERROR_SUCCESS){
             Error("read header from server failed. ret=%d", ret);
             return ret;
         }
         
         if(response != NULL && nread > 0){
-            response->append(buf, nread);
+            response->append((char*)buf, nread);
         }
         
         body_left -= nread;

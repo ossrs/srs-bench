@@ -38,6 +38,7 @@ private:
 private:
     virtual int ParseResponse(HttpUrl* url, string* response);
     virtual int ParseResponseBody(HttpUrl* url, string* response, int body_received);
+    virtual int ParseResponseBodyData(HttpUrl* url, string* response, size_t body_left, const void* buf, size_t size);
     virtual int ParseResponseHeader(string* response, int& body_received);
     virtual int Connect(HttpUrl* url);
     virtual int CheckUrl(HttpUrl* url);

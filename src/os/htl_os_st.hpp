@@ -113,7 +113,7 @@ class StUtility
 public:
     static int64_t GetCurrentTime();
     static void InitRandom();
-    static st_utime_t BuildRandomMTime(double sleep_seconds, double default_seconds = 0.0);
+    static st_utime_t BuildRandomMTime(double sleep_seconds);
     static int DnsResolve(std::string host, std::string& ip);
 };
 

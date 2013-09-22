@@ -113,7 +113,7 @@ int StHlsTask::ProcessTS(StHttpClient& client, vector<M3u8TS>& ts_objects){
         
         // no ts now, wait for a segment
         if(ite == ts_objects.end()){
-            int sleep_ms = StUtility::BuildRandomMTime(target_duration, DEFAULT_TS_DURATION);
+            int sleep_ms = StUtility::BuildRandomMTime((target_duration > 0)? target_duration:DEFAULT_TS_DURATION);
             Trace("[TS] no fresh ts, wait for a while. sleep %dms", sleep_ms);
             st_usleep(sleep_ms * 1000);
             
@@ -159,7 +159,7 @@ int StHlsTask::DownloadTS(StHttpClient& client, M3u8TS& ts){
         return ret;
     }
     
-    int sleep_ms = StUtility::BuildRandomMTime(delay_seconds, (delay_seconds == -1)? ts.duration : 0);
+    int sleep_ms = StUtility::BuildRandomMTime((delay_seconds >= 0)? delay_seconds:ts.duration);
     Trace("[TS] url=%s download, duration=%.2f, delay=%.2f, size=%"PRId64", sleep %dms", 
         url.GetUrl(), ts.duration, delay_seconds, client.GetResponseHeader()->content_length, sleep_ms);
     st_usleep(sleep_ms * 1000);

@@ -326,9 +326,9 @@ void StUtility::InitRandom(){
     srand(now.tv_sec * 1000000 + now.tv_usec);
 }
 
-st_utime_t StUtility::BuildRandomMTime(double sleep_seconds, double default_seconds){
+st_utime_t StUtility::BuildRandomMTime(double sleep_seconds){
     if(sleep_seconds <= 0){
-        return default_seconds * 1000;
+        return 0 * 1000;
     }
     
     // 80% consts value.

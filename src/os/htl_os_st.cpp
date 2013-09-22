@@ -258,8 +258,8 @@ int StSocket::Read(const void* buf, size_t size, ssize_t* nread){
     *nread = st_read(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
     
     if(*nread <= 0){
-        if(errno == ETIME){
-            errno = EAGAIN;
+        if(*nread == 0){
+            errno = ECONNRESET;
         }
         
         ret = ERROR_READ;
@@ -279,10 +279,6 @@ int StSocket::Write(const void* buf, size_t size, ssize_t* nwrite){
     *nwrite = st_write(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
     
     if(*nwrite <= 0){
-        if(errno == ETIME){
-            errno = EAGAIN;
-        }
-        
         ret = ERROR_SEND;
         status = SocketDisconnected;
     }

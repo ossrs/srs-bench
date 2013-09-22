@@ -224,6 +224,13 @@ int StSocket::Connect(const char* ip, int port){
         Error("setsockopt reuse-addr error. ret=%d", ret);
         return ret;
     }
+    
+    int keepalive_socket = 1;
+    if(setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepalive_socket, sizeof(int)) == -1){
+        ret = ERROR_SOCKET;
+        Error("setsockopt keep-alive error. ret=%d", ret);
+        return ret;
+    }
 
     sock_nfd = st_netfd_open_socket(sock);
     if(sock_nfd == NULL){

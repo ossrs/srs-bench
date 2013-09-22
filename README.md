@@ -3,9 +3,11 @@ st-hls-load
 
 hls/http load test tool base on st(state-threads), support huge concurrency
 
-TestEnvironment: 24CPU, 80Gbps Network, 16GB Memory
-Server: NGINX HLS
+TestEnvironment: 24CPU, 80Gbps Network, 16GB Memory<br/>
+Server: NGINX HLS<br/>
+Result: 90% bandwith, 72Gbps
 
+<pre>
 [root@dell-server ~]# dstat
 ----total-cpu-usage---- -dsk/total- -net/total- ---paging-- ---system--
 usr sys idl wai hiq siq| read  writ| recv  send  |  in   out | int   csw 
@@ -43,4 +45,5 @@ usr sys idl wai hiq siq| read  writ| recv  send  |  in   out | int   csw
   2   9  58   0   0  31|   0    92k|  71MB 9083MB|   0     0 | 860k   39k
   2   9  56   0   0  33|   0     0 |  78MB 9098MB|   0     0 | 914k   39k
   2   8  61   0   0  30|   0     0 |  73MB 8860MB|   0     0 | 876k   39k
+</pre>
 

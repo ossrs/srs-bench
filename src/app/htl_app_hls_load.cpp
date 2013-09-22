@@ -62,7 +62,7 @@ int StHlsTask::ProcessHttp(){
         Info("[HLS] %s download, sleep %dms", url.GetUrl(), sleep_ms);
         st_usleep(sleep_ms * 1000);
         
-        statistic->OnTaskEnd(GetId());
+        statistic->OnTaskEnd(GetId(), 0);
     }
     
     return ret;
@@ -164,7 +164,7 @@ int StHlsTask::DownloadTS(StHttpClient& client, M3u8TS& ts){
         url.GetUrl(), ts.duration, delay_seconds, client.GetResponseHeader()->content_length, sleep_ms);
     st_usleep(sleep_ms * 1000);
     
-    statistic->OnSubTaskEnd(GetId());
+    statistic->OnSubTaskEnd(GetId(), ts.duration);
     
     return ret;
 }

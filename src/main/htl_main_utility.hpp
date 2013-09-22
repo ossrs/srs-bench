@@ -69,7 +69,8 @@ LogContext* context = new StLogContext();
         "                              defaut: %.2f. 0 means no delay. \n" \
         "  -r REPORT, --report REPORT  The report is the sleep when report in seconds. \n" \
         "                              etasks is error_tasks, statks is sub_tasks, estatks is error_sub_tasks.\n" \
-        "                              nread/nwrite in Mbps, duration in seconds.\n" \
+        "                              duration is the running time in seconds, tduration is the avarage duation of tasks.\n" \
+        "                              nread/nwrite in Mbps, duration/tduration in seconds.\n" \
         "                              defaut: %.2f. 0 means no delay. \n" \
         "  -v, --version               Print the version and exit.\n" \
         "  -h, --help                  Print this help message and exit.\n"

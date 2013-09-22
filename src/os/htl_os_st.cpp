@@ -33,12 +33,12 @@ StStatistic::StStatistic(){
 StStatistic::~StStatistic(){
 }
 
-void StStatistic::OnRead(int /*tid*/, ssize_t nread){
-    this->nread += nread;
+void StStatistic::OnRead(int /*tid*/, ssize_t nread_bytes){
+    this->nread += nread_bytes;
 }
 
-void StStatistic::OnWrite(int /*tid*/, ssize_t nwrite){
-    this->nwrite += nwrite;
+void StStatistic::OnWrite(int /*tid*/, ssize_t nwrite_bytes){
+    this->nwrite += nwrite_bytes;
 }
 
 void StStatistic::OnThreadRun(int /*tid*/){
@@ -59,8 +59,9 @@ void StStatistic::OnTaskError(int /*tid*/){
     err_tasks++;
 }
 
-void StStatistic::OnTaskEnd(int /*tid*/){
+void StStatistic::OnTaskEnd(int /*tid*/, int duration_seconds){
     alive--;
+    this->task_duration += duration_seconds * 1000;
 }
 
 void StStatistic::OnSubTaskStart(int /*tid*/, std::string /*sub_task_url*/){
@@ -71,7 +72,8 @@ void StStatistic::OnSubTaskError(int /*tid*/){
     err_sub_tasks++;
 }
 
-void StStatistic::OnSubTaskEnd(int /*tid*/){
+void StStatistic::OnSubTaskEnd(int /*tid*/, int duration_seconds){
+    this->task_duration += duration_seconds * 1000;
 }
 
 void StStatistic::DoReport(double sleep_ms){
@@ -84,9 +86,9 @@ void StStatistic::DoReport(double sleep_ms){
             write_mbps = nwrite * 8.0 / duration / 1000;
         }
         
-        LReport("[report] [%d] threads:%d alive:%d duration:%.0f nread:%.2f nwrite:%.2f "
+        LReport("[report] [%d] threads:%d alive:%d duration:%.0f tduration:%.0f nread:%.2f nwrite:%.2f "
             "tasks:%"PRId64" etasks:%"PRId64" stasks:%"PRId64" estasks:%"PRId64,
-            getpid(), threads, alive, duration/1000.0, read_mbps, write_mbps, 
+            getpid(), threads, alive, duration/1000.0, task_duration/1000.0/tasks, read_mbps, write_mbps, 
             tasks, err_tasks, sub_tasks, err_sub_tasks);
         
         st_usleep(sleep_ms * 1000);
@@ -334,7 +336,7 @@ st_utime_t StUtility::BuildRandomMTime(double sleep_seconds){
     // 80% consts value.
     // 40% random value.
     // to get more graceful random time to mocking HLS client.
-    st_utime_t sleep_ms = (int)(sleep_seconds * 1000 * 0.8) + rand() % (int)(sleep_seconds * 1000 * 0.4);
+    st_utime_t sleep_ms = (int)(sleep_seconds * 1000 * 0.7) + rand() % (int)(sleep_seconds * 1000 * 0.4);
     
     return sleep_ms;
 }

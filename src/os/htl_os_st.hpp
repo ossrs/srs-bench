@@ -17,15 +17,15 @@ class StStatistic
 {
 private:
     int threads, alive;
-    int64_t starttime;
+    int64_t starttime, task_duration;
     ssize_t nread, nwrite;
     ssize_t tasks, err_tasks, sub_tasks, err_sub_tasks;
 public:
     StStatistic();
     virtual ~StStatistic();
 public:
-    virtual void OnRead(int tid, ssize_t nread);
-    virtual void OnWrite(int tid, ssize_t nwrite);
+    virtual void OnRead(int tid, ssize_t nread_bytes);
+    virtual void OnWrite(int tid, ssize_t nwrite_bytes);
 public:
     // when task thread run.
     virtual void OnThreadRun(int tid);
@@ -36,13 +36,13 @@ public:
     // when task error.
     virtual void OnTaskError(int tid);
     // when task finish request url, ie. finish all ts in m3u8
-    virtual void OnTaskEnd(int tid);
+    virtual void OnTaskEnd(int tid, int duration_seconds);
     // when sub task start, ie. get ts in m3u8
     virtual void OnSubTaskStart(int tid, std::string sub_task_url);
     // when sub task error.
     virtual void OnSubTaskError(int tid);
     // when sub task finish, ie. finish a ts.
-    virtual void OnSubTaskEnd(int tid);
+    virtual void OnSubTaskEnd(int tid, int duration_seconds);
 public:
     virtual void DoReport(double sleep_ms);
 };

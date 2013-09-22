@@ -5,6 +5,7 @@ hls/http load test tool base on st(state-threads), support huge concurrency
 
 TestEnvironment: 24CPU, 80Gbps Network, 16GB Memory
 Server: NGINX HLS
+Result: 90% bandwith, 72Gbps
 
 <pre>
 [root@dell-server ~]# dstat

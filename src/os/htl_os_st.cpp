@@ -25,6 +25,7 @@ using namespace std;
 
 StStatistic::StStatistic(){
     starttime = StUtility::GetCurrentTime();
+    task_duration = 0;
     threads = alive = 0;
     nread = nwrite = 0;
     tasks = err_tasks = sub_tasks = err_sub_tasks = 0;

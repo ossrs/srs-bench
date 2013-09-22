@@ -58,11 +58,7 @@ int StHlsTask::ProcessHttp(){
             continue;
         }
         
-        int sleep_ms = StUtility::BuildRandomMTime(delay_seconds);
-        Info("[HLS] %s download, sleep %dms", url.GetUrl(), sleep_ms);
-        st_usleep(sleep_ms * 1000);
-        
-        statistic->OnTaskEnd(GetId(), 0);
+        Info("[HLS] %s download completed.", url.GetUrl());
     }
     
     return ret;

@@ -31,7 +31,7 @@ int discovery_options(int argc, char** argv,
     
     int opt = 0;
     int option_index = 0;
-    while((opt = getopt_long(argc, argv, "hvu:ot:s:d:c:e:r:", long_options, &option_index)) != -1){
+    while((opt = getopt_long(argc, argv, "hvc:r:t:os:d:e:m:", long_options, &option_index)) != -1){
         switch(opt){
             case 'o':
                 vod = true;
@@ -60,14 +60,17 @@ void help(char** argv){
         "%s base on st(state-threads), support huge concurrency.\n"
         "Options:\n"
         ShowHelpPart1()
-        "  -o, --vod                   Whether url is vod, loop the m3u8 file list. default is %s\n"
+        "  -o, --vod                        Whether url is vod, loop the m3u8 file list. default is %s\n"
         ShowHelpPart2()
         "\n"
         "This program built for %s.\n"
         "Report bugs to <%s>\n",
-        argv[0], argv[0], DefaultThread, DefaultHttpUrl, (DefaultVod? "true":"false"), 
-        (double)DefaultStartupSeconds, (double)DefaultDelaySeconds, DefaultCount, 
-        DefaultErrorSeconds, DefaultReportSeconds, BuildPlatform, BugReportEmail);
+        argv[0], argv[0], 
+        DefaultThread, DefaultHttpUrl, DefaultCount, // part1
+        (DefaultVod? "true":"false"), // vod
+        (double)DefaultStartupSeconds, (double)DefaultDelaySeconds, // part2
+        DefaultErrorSeconds, DefaultReportSeconds, // part2
+        BuildPlatform, BugReportEmail);
         
     exit(0);
 }

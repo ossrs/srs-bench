@@ -29,7 +29,7 @@ int discovery_options(int argc, char** argv,
     
     int opt = 0;
     int option_index = 0;
-    while((opt = getopt_long(argc, argv, "hvu:t:s:d:c:e:r:", long_options, &option_index)) != -1){
+    while((opt = getopt_long(argc, argv, "hvc:r:t:s:d:e:m:", long_options, &option_index)) != -1){
         switch(opt){
             ProcessSharedOptions()
             default:
@@ -57,10 +57,24 @@ void help(char** argv){
         ShowHelpPart1()
         ShowHelpPart2()
         "\n"
+        "Examples:\n"
+        "1. start a client\n"
+        "   %s -c 1 -r http://mov.bn.netease.com/open-movie/nos/mp4/2013/08/05/S94IUO9BT_hd.mp4\n"
+        "2. start 1000 clients\n"
+        "   %s -c 1000 -r http://mov.bn.netease.com/open-movie/nos/mp4/2013/08/05/S94IUO9BT_hd.mp4\n"
+        "3. start 10000 clients\n"
+        "   %s -c 10000 -r http://mov.bn.netease.com/open-movie/nos/mp4/2013/08/05/S94IUO9BT_hd.mp4\n"
+        "4. start 100000 clients\n"
+        "   %s -c 100000 -r http://mov.bn.netease.com/open-movie/nos/mp4/2013/08/05/S94IUO9BT_hd.mp4\n"
+        "\n"
         "This program built for %s.\n"
         "Report bugs to <%s>\n",
-        argv[0], argv[0], DefaultThread, DefaultHttpUrl, (double)DefaultStartupSeconds, DefaultDelaySeconds, DefaultCount, 
-        DefaultErrorSeconds, DefaultReportSeconds, BuildPlatform, BugReportEmail);
+        argv[0], argv[0], 
+        DefaultThread, DefaultHttpUrl, DefaultCount, // part1
+        (double)DefaultStartupSeconds, DefaultDelaySeconds, // part2
+        DefaultErrorSeconds, DefaultReportSeconds, // part2
+        argv[0], argv[0], argv[0], argv[0],
+        BuildPlatform, BugReportEmail);
         
     exit(0);
 }

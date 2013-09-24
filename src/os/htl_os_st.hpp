@@ -18,8 +18,8 @@ class StStatistic
 private:
     int threads, alive;
     int64_t starttime, task_duration;
-    ssize_t nread, nwrite;
-    ssize_t tasks, err_tasks, sub_tasks, err_sub_tasks;
+    int64_t nread, nwrite;
+    int64_t tasks, err_tasks, sub_tasks, err_sub_tasks;
 public:
     StStatistic();
     virtual ~StStatistic();

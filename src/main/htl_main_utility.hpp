@@ -15,13 +15,15 @@ LogContext* context = new StLogContext();
 #define DefaultCount 0
 
 #define SharedOptions()\
-        {"threads", required_argument, 0, 't'}, \
-        {"url", required_argument, 0, 'u'}, \
+        {"clients", required_argument, 0, 'c'}, \
+        {"url", required_argument, 0, 'r'}, \
+        {"repeat", required_argument, 0, 't'}, \
+        \
         {"startup", required_argument, 0, 's'}, \
         {"delay", required_argument, 0, 'd'}, \
-        {"count", required_argument, 0, 'c'}, \
         {"error", required_argument, 0, 'e'}, \
-        {"report", required_argument, 0, 'r'}, \
+        {"summary", required_argument, 0, 'm'}, \
+        \
         {"help", no_argument, 0, 'h'}, \
         {"version", no_argument, 0, 'v'},
 
@@ -32,11 +34,14 @@ LogContext* context = new StLogContext();
             case 'v': \
                 show_version = true; \
                 break; \
-            case 'u': \
+            case 'c': \
+                threads = atoi(optarg); \
+                break; \
+            case 'r': \
                 url = optarg; \
                 break; \
             case 't': \
-                threads = atoi(optarg); \
+                count = atoi(optarg); \
                 break; \
             case 's': \
                 startup = atof(optarg); \
@@ -44,37 +49,34 @@ LogContext* context = new StLogContext();
             case 'd': \
                 delay = atof(optarg); \
                 break; \
-            case 'c': \
-                count = atoi(optarg); \
-                break; \
             case 'e': \
                 error = atof(optarg); \
                 break; \
-            case 'r': \
+            case 'm': \
                 report = atof(optarg); \
                 break;
 
 #define ShowHelpPart1()\
-        "  -t THREAD, --thread THREAD  The thread to start. defaut: %d\n" \
-        "  -u URL, --url URL           The load test http url. \n" \
-        "                              ie. %s\n"
+        "  -c CLIENTS, --clients CLIENTS    The concurrency client to start to request HTTP data. defaut: %d\n" \
+        "  -r URL, --url URL                The load test http url for each client to download/process. \n" \
+        "  -t REPEAT, --repeat REPEAT       The repeat is the number for each client to download the url. \n" \
+        "                                   ie. %s\n" \
+        "                                   default: %d. 0 means infinity.\n"
 #define ShowHelpPart2()\
-        "  -s STARTUP, --start STARTUP The start is the ramdom sleep when  thread startup in seconds. \n" \
-        "                              defaut: %.2f. 0 means no delay.\n" \
-        "  -d DELAY, --delay DELAY     The delay is the ramdom sleep when success in seconds. \n" \
-        "                              default: %.2f. 0 means no delay. -1 means to use HLS EXTINF duration(HLS only).\n" \
-        "  -c COUNT, --count COUNT     The count is the number of downloads. \n" \
-        "                              default: %d. 0 means infinity.\n" \
-        "  -e ERROR, --error ERROR     The error is the sleep when error in seconds. \n" \
-        "                              defaut: %.2f. 0 means no delay. \n" \
-        "  -r REPORT, --report REPORT  The report is the sleep when report in seconds. \n" \
-        "                              etasks is error_tasks, statks is sub_tasks, estatks is error_sub_tasks.\n" \
-        "                              duration is the running time in seconds, tduration is the avarage duation of tasks.\n" \
-        "                              nread/nwrite in Mbps, duration/tduration in seconds.\n" \
-        "                              defaut: %.2f. 0 means no delay. \n" \
-        "  -v, --version               Print the version and exit.\n" \
-        "  -h, --help                  Print this help message and exit.\n"
-
+        "  -s STARTUP, --start STARTUP      The start is the ramdom sleep when  thread startup in seconds. \n" \
+        "                                   defaut: %.2f. 0 means no delay.\n" \
+        "  -d DELAY, --delay DELAY          The delay is the ramdom sleep when success in seconds. \n" \
+        "                                   default: %.2f. 0 means no delay. -1 means to use HLS EXTINF duration(HLS only).\n" \
+        "  -e ERROR, --error ERROR          The error is the sleep when error in seconds. \n" \
+        "                                   defaut: %.2f. 0 means no delay. \n" \
+        "  -m SUMMARY, --summary SUMMARY    The summary is the sleep when report in seconds. \n" \
+        "                                   etasks is error_tasks, statks is sub_tasks, estatks is error_sub_tasks.\n" \
+        "                                   duration is the running time in seconds, tduration is the avarage duation of tasks.\n" \
+        "                                   nread/nwrite in Mbps, duration/tduration in seconds.\n" \
+        "                                   defaut: %.2f. 0 means no delay. \n" \
+        "  -v, --version                    Print the version and exit.\n" \
+        "  -h, --help                       Print this help message and exit.\n"
+        
 void version(){
     printf(ProductVersion);
     exit(0);

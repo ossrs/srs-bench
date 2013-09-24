@@ -72,7 +72,7 @@ int StHlsTask::ProcessM3u8(StHttpClient& client){
         Error("http client get m3u8 failed. ret=%d", ret);
         return ret;
     }
-    Trace("[HLS] get m3u8 %s get success, length=%"PRId64, url.GetUrl(), m3u8.length());
+    Trace("[HLS] get m3u8 %s get success, length=%"PRId64, url.GetUrl(), (int64_t)m3u8.length());
     
     vector<M3u8TS> ts_objects;
     if((ret = HlsM3u8Parser::ParseM3u8Data(&url, m3u8, ts_objects, target_duration)) != ERROR_SUCCESS){

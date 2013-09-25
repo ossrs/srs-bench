@@ -13,7 +13,7 @@ using namespace std;
 
 #include <htl_main_utility.hpp>
 
-#define DefaultDelaySeconds 0.8
+#define DefaultDelaySeconds 0.0
 #define DefaultHttpUrl "http://127.0.0.1:3080/hls/segm130813144315787-522881.ts"
 
 int discovery_options(int argc, char** argv, 
@@ -59,13 +59,13 @@ void help(char** argv){
         "\n"
         "Examples:\n"
         "1. start a client\n"
-        "   %s -c 1 -r http://mov.bn.netease.com/open-movie/nos/mp4/2013/08/05/S94IUO9BT_hd.mp4\n"
+        "   %s -c 1 -r %s\n"
         "2. start 1000 clients\n"
-        "   %s -c 1000 -r http://mov.bn.netease.com/open-movie/nos/mp4/2013/08/05/S94IUO9BT_hd.mp4\n"
+        "   %s -c 1000 -r %s\n"
         "3. start 10000 clients\n"
-        "   %s -c 10000 -r http://mov.bn.netease.com/open-movie/nos/mp4/2013/08/05/S94IUO9BT_hd.mp4\n"
+        "   %s -c 10000 -r %s\n"
         "4. start 100000 clients\n"
-        "   %s -c 100000 -r http://mov.bn.netease.com/open-movie/nos/mp4/2013/08/05/S94IUO9BT_hd.mp4\n"
+        "   %s -c 100000 -r %s\n"
         "\n"
         "This program built for %s.\n"
         "Report bugs to <%s>\n",
@@ -73,7 +73,7 @@ void help(char** argv){
         DefaultThread, DefaultHttpUrl, DefaultCount, // part1
         (double)DefaultStartupSeconds, DefaultDelaySeconds, // part2
         DefaultErrorSeconds, DefaultReportSeconds, // part2
-        argv[0], argv[0], argv[0], argv[0],
+        argv[0], DefaultHttpUrl, argv[0], DefaultHttpUrl, argv[0], DefaultHttpUrl, argv[0], DefaultHttpUrl,
         BuildPlatform, BugReportEmail);
         
     exit(0);

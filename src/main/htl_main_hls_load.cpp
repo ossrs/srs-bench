@@ -63,6 +63,19 @@ void help(char** argv){
         "  -o, --vod                        Whether url is vod, loop the m3u8 file list. default is %s\n"
         ShowHelpPart2()
         "\n"
+        "\n"
+        "Examples:\n"
+        "1. start a client\n"
+        "   %s -c 1 -r %s\n"
+        "2. start 1000 clients\n"
+        "   %s -c 1000 -r %s\n"
+        "3. start 10000 clients\n"
+        "   %s -c 10000 -r %s\n"
+        "4. start 100000 clients\n"
+        "   %s -c 100000 -r %s\n"
+        "5. start 10000 vod clients\n"
+        "   %s -c 10000 -o -r %s\n"
+        "\n"
         "This program built for %s.\n"
         "Report bugs to <%s>\n",
         argv[0], argv[0], 
@@ -70,6 +83,8 @@ void help(char** argv){
         (DefaultVod? "true":"false"), // vod
         (double)DefaultStartupSeconds, (double)DefaultDelaySeconds, // part2
         DefaultErrorSeconds, DefaultReportSeconds, // part2
+        argv[0], DefaultHttpUrl, argv[0], DefaultHttpUrl, argv[0], DefaultHttpUrl, argv[0], DefaultHttpUrl,
+        argv[0], DefaultHttpUrl,
         BuildPlatform, BugReportEmail);
         
     exit(0);

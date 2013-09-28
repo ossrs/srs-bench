@@ -28,6 +28,10 @@ int StRtmpTask::Initialize(std::string http_url, double startup, double delay, d
     return ret;
 }
 
+Uri* StRtmpTask::GetUri(){
+    return &url;
+}
+
 int StRtmpTask::ProcessTask(){
     int ret = ERROR_SUCCESS;
     

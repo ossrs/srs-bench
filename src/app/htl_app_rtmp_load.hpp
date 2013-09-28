@@ -9,12 +9,15 @@
 // for rtmp task.
 class StRtmpTask : public StBaseTask
 {
+private:
+    HttpUrl url;
 public:
     StRtmpTask();
     virtual ~StRtmpTask();
 public:
     virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
 protected:
+    virtual Uri* GetUri();
     virtual int ProcessTask();
 };
 

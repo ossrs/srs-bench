@@ -7,7 +7,6 @@
 #include <string>
 
 #include <http_parser.h>
-
 #include <htl_core_uri.hpp>
 
 #include <htl_os_st.hpp>
@@ -15,7 +14,6 @@
 class StBaseTask : public StTask
 {
 protected:
-    HttpUrl url;
     double startup_seconds;
     double delay_seconds;
     double error_seconds;
@@ -28,6 +26,7 @@ protected:
 public:
     virtual int Process();
 protected:
+    virtual Uri* GetUri() = 0;
     virtual int ProcessTask() = 0;
 };
 

@@ -9,23 +9,47 @@
 
 #include <http_parser.h>
 
-class HttpUrl
+class Uri
 {
-private:
+public:
+    Uri();
+    virtual ~Uri();
+public:
+    virtual int Initialize(std::string http_url) = 0;
+};
+
+class ProtocolUrl : public Uri
+{
+protected:
     std::string url;
     http_parser_url hp_u;
-private:
+protected:
     std::string schema;
     std::string host;
     int port;
     std::string path;
 public:
-    HttpUrl();
-    virtual ~HttpUrl();
+    ProtocolUrl();
+    virtual ~ProtocolUrl();
 public:
     virtual int Initialize(std::string http_url);
 public:
     virtual const char* GetUrl();
+protected:
+    virtual std::string Get(http_parser_url_fields field);
+    /**
+    * get the parsed url field.
+    * @return return empty string if not set.
+    */
+    static std::string GetUriField(std::string uri, http_parser_url* hp_u, http_parser_url_fields field);
+};
+
+class HttpUrl : public ProtocolUrl
+{
+public:
+    HttpUrl();
+    virtual ~HttpUrl();
+public:
     virtual std::string Resolve(std::string origin_url);
     virtual HttpUrl* Copy();
 public:
@@ -33,13 +57,6 @@ public:
     virtual const char* GetHost();
     virtual int GetPort();
     virtual const char* GetPath();
-private:
-    virtual std::string Get(http_parser_url_fields field);
-    /**
-    * get the parsed url field.
-    * @return return empty string if not set.
-    */
-    static std::string GetUriField(std::string uri, http_parser_url* hp_u, http_parser_url_fields field);
 };
 
 #endif

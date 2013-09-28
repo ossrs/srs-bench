@@ -9,12 +9,15 @@
 // for http task.
 class StHttpTask : public StBaseTask
 {
+private:
+    HttpUrl url;
 public:
     StHttpTask();
     virtual ~StHttpTask();
 public:
     virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
 protected:
+    virtual Uri* GetUri();
     virtual int ProcessTask();
 };
 

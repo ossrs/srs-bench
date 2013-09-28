@@ -11,14 +11,19 @@ using namespace std;
 
 #include <htl_core_uri.hpp>
 
-HttpUrl::HttpUrl(){
-    port = 80;
+Uri::Uri(){
 }
 
-HttpUrl::~HttpUrl(){
+Uri::~Uri(){
 }
 
-int HttpUrl::Initialize(std::string http_url){
+ProtocolUrl::ProtocolUrl(){
+}
+
+ProtocolUrl::~ProtocolUrl(){
+}
+
+int ProtocolUrl::Initialize(std::string http_url){
     int ret = ERROR_SUCCESS;
     
     url = http_url;
@@ -47,8 +52,31 @@ int HttpUrl::Initialize(std::string http_url){
     return ret;
 }
 
-const char* HttpUrl::GetUrl(){
+const char* ProtocolUrl::GetUrl(){
     return url.c_str();
+}
+
+string ProtocolUrl::Get(http_parser_url_fields field){
+    return HttpUrl::GetUriField(url, &hp_u, field);
+}
+
+string ProtocolUrl::GetUriField(string uri, http_parser_url* hp_u, http_parser_url_fields field){
+    if((hp_u->field_set & (1 << field)) == 0){
+        return "";
+    }
+    
+    Verbose("uri field matched, off=%d, len=%d, value=%.*s", 
+        hp_u->field_data[field].off, hp_u->field_data[field].len, hp_u->field_data[field].len, 
+        uri.c_str() + hp_u->field_data[field].off);
+        
+    return uri.substr(hp_u->field_data[field].off, hp_u->field_data[field].len);
+}
+
+HttpUrl::HttpUrl(){
+    port = 80;
+}
+
+HttpUrl::~HttpUrl(){
 }
 
 #define PROTOCOL_HTTP "http://"
@@ -113,20 +141,4 @@ int HttpUrl::GetPort(){
 
 const char* HttpUrl::GetPath(){
     return path.c_str();
-}
-
-string HttpUrl::Get(http_parser_url_fields field){
-    return HttpUrl::GetUriField(url, &hp_u, field);
-}
-
-string HttpUrl::GetUriField(string uri, http_parser_url* hp_u, http_parser_url_fields field){
-    if((hp_u->field_set & (1 << field)) == 0){
-        return "";
-    }
-    
-    Verbose("uri field matched, off=%d, len=%d, value=%.*s", 
-        hp_u->field_data[field].off, hp_u->field_data[field].len, hp_u->field_data[field].len, 
-        uri.c_str() + hp_u->field_data[field].off);
-        
-    return uri.substr(hp_u->field_data[field].off, hp_u->field_data[field].len);
 }

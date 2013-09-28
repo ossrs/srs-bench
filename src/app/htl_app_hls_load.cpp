@@ -38,6 +38,10 @@ int StHlsTask::Initialize(std::string http_url, bool vod, double startup, double
     return ret;
 }
 
+Uri* StHlsTask::GetUri(){
+    return &url;
+}
+
 int StHlsTask::ProcessTask(){
     int ret = ERROR_SUCCESS;
     

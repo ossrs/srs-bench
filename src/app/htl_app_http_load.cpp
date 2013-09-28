@@ -29,6 +29,10 @@ int StHttpTask::Initialize(std::string http_url, double startup, double delay, d
     return ret;
 }
 
+Uri* StHttpTask::GetUri(){
+    return &url;
+}
+
 int StHttpTask::ProcessTask(){
     int ret = ERROR_SUCCESS;
     

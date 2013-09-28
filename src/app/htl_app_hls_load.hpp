@@ -6,10 +6,10 @@
 */
 #include <htl_app_http_client.hpp>
 #include <htl_app_m3u8_parser.hpp>
-#include <htl_app_http_base.hpp>
+#include <htl_app_task_base.hpp>
 
 // for http task.
-class StHlsTask : public StHttpBaseTask
+class StHlsTask : public StBaseTask
 {
 private:
     // the last downloaded ts url to prevent download multile times.
@@ -22,7 +22,7 @@ public:
 public:
     virtual int Initialize(std::string http_url, bool vod, double startup, double delay, double error, int count);
 protected:
-    virtual int ProcessHttp();
+    virtual int ProcessTask();
 private:
     virtual int ProcessM3u8(StHttpClient& client);
     virtual int ProcessTS(StHttpClient& client, std::vector<M3u8TS>& ts_objects);

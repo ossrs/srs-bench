@@ -1,17 +1,17 @@
-#ifndef _htl_app_http_load_hpp
-#define _htl_app_http_load_hpp
+#ifndef _htl_app_rtmp_load_hpp
+#define _htl_app_rtmp_load_hpp
 
 /*
-#include <htl_app_http_load.hpp>
+#include <htl_app_rtmp_load.hpp>
 */
 #include <htl_app_task_base.hpp>
 
-// for http task.
-class StHttpTask : public StBaseTask
+// for rtmp task.
+class StRtmpTask : public StBaseTask
 {
 public:
-    StHttpTask();
-    virtual ~StHttpTask();
+    StRtmpTask();
+    virtual ~StRtmpTask();
 public:
     virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
 protected:

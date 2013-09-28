@@ -38,7 +38,7 @@ int StHlsTask::Initialize(std::string http_url, bool vod, double startup, double
     return ret;
 }
 
-int StHlsTask::ProcessHttp(){
+int StHlsTask::ProcessTask(){
     int ret = ERROR_SUCCESS;
     
     Trace("start to process HLS task #%d, schema=%s, host=%s, port=%d, path=%s, startup=%.2f, delay=%.2f, error=%.2f, count=%d", 

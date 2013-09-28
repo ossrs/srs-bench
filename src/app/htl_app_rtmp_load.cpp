@@ -9,17 +9,16 @@ using namespace std;
 
 #include <htl_core_error.hpp>
 #include <htl_core_log.hpp>
-#include <htl_app_http_client.hpp>
 
-#include <htl_app_http_load.hpp>
+#include <htl_app_rtmp_load.hpp>
 
-StHttpTask::StHttpTask(){
+StRtmpTask::StRtmpTask(){
 }
 
-StHttpTask::~StHttpTask(){
+StRtmpTask::~StRtmpTask(){
 }
 
-int StHttpTask::Initialize(std::string http_url, double startup, double delay, double error, int count){
+int StRtmpTask::Initialize(std::string http_url, double startup, double delay, double error, int count){
     int ret = ERROR_SUCCESS;
     
     if((ret = InitializeBase(http_url, startup, delay, error, count)) != ERROR_SUCCESS){
@@ -29,12 +28,13 @@ int StHttpTask::Initialize(std::string http_url, double startup, double delay, d
     return ret;
 }
 
-int StHttpTask::ProcessTask(){
+int StRtmpTask::ProcessTask(){
     int ret = ERROR_SUCCESS;
     
     Trace("start to process HTTP task #%d, schema=%s, host=%s, port=%d, path=%s, startup=%.2f, delay=%.2f, error=%.2f, count=%d", 
         GetId(), url.GetSchema(), url.GetHost(), url.GetPort(), url.GetPath(), startup_seconds, delay_seconds, error_seconds, count);
         
+/*
     StHttpClient client;
     
     // if count is zero, infinity loop.
@@ -54,7 +54,7 @@ int StHttpTask::ProcessTask(){
         st_usleep(sleep_ms * 1000);
         
         statistic->OnTaskEnd(GetId(), 0);
-    }
+    }*/
     
     return ret;
 }

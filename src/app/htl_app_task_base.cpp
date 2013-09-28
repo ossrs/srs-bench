@@ -11,15 +11,15 @@ using namespace std;
 #include <htl_core_log.hpp>
 #include <htl_app_http_client.hpp>
 
-#include <htl_app_http_base.hpp>
+#include <htl_app_task_base.hpp>
 
-StHttpBaseTask::StHttpBaseTask(){
+StBaseTask::StBaseTask(){
 }
 
-StHttpBaseTask::~StHttpBaseTask(){
+StBaseTask::~StBaseTask(){
 }
 
-int StHttpBaseTask::InitializeBase(std::string http_url, double startup, double delay, double error, int count){
+int StBaseTask::InitializeBase(std::string http_url, double startup, double delay, double error, int count){
     int ret = ERROR_SUCCESS;
     
     if((ret = url.Initialize(http_url)) != ERROR_SUCCESS){
@@ -36,7 +36,7 @@ int StHttpBaseTask::InitializeBase(std::string http_url, double startup, double 
     return ret;
 }
 
-int StHttpBaseTask::Process(){
+int StBaseTask::Process(){
     int ret = ERROR_SUCCESS;
     
     if(startup_seconds > 0){
@@ -45,7 +45,7 @@ int StHttpBaseTask::Process(){
         st_usleep(sleep_ms * 1000);
     }
     
-    if((ret = ProcessHttp()) != ERROR_SUCCESS){
+    if((ret = ProcessTask()) != ERROR_SUCCESS){
         return ret;
     }
     

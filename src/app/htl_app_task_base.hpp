@@ -1,8 +1,8 @@
-#ifndef _htl_app_http_base_hpp
-#define _htl_app_http_base_hpp
+#ifndef _htl_app_task_base_hpp
+#define _htl_app_task_base_hpp
 
 /*
-#include <htl_app_http_base.hpp>
+#include <htl_app_task_base.hpp>
 */
 #include <string>
 
@@ -12,7 +12,7 @@
 
 #include <htl_os_st.hpp>
 
-class StHttpBaseTask : public StTask
+class StBaseTask : public StTask
 {
 protected:
     HttpUrl url;
@@ -21,14 +21,14 @@ protected:
     double error_seconds;
     int count;
 public:
-    StHttpBaseTask();
-    virtual ~StHttpBaseTask();
+    StBaseTask();
+    virtual ~StBaseTask();
 protected:
     virtual int InitializeBase(std::string http_url, double startup, double delay, double error, int count);
 public:
     virtual int Process();
 protected:
-    virtual int ProcessHttp() = 0;
+    virtual int ProcessTask() = 0;
 };
 
 #endif

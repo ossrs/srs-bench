@@ -18,6 +18,12 @@ public:
     virtual ~StRtmpClient();
 public:
     virtual int Dump(RtmpUrl* url);
+private:
+    virtual int Connect(RtmpUrl* url);
+    virtual int Handshake();
+    virtual int ConnectApp(RtmpUrl* url);
+    virtual int PlayStram(RtmpUrl* url);
+    virtual int DumpAV();
 };
 
 #endif

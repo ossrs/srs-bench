@@ -27,7 +27,20 @@ with IDs 3-6 are reserved for usage of RTMP. Protocol message with ID
 #define RTMP_MSG_UserControlMessage 0x04
 #define RTMP_MSG_WindowAcknowledgementSize 0x05
 #define RTMP_MSG_SetPeerBandwidth 0x06
-#define RTMP_MSG_EdgeAndOriginServerCommand 0x07
+#define RTMP_MSG_EdgeAndOriginServerCommand 0x07        /**
+* The server sends this event to test whether the client is reachable. 
+* 
+* Event data is a 4-byte timestamp, representing the local server time when the server dispatched the command. 
+* The client responds with PingResponse on receiving PingRequest.
+*/
+#define RTMP_MSG_PCUC_PingRequest 0x06
+
+/**
+* The client sends this event to the server in response to the ping request. 
+* 
+* The event data is a 4-byte timestamp, which was received with the PingRequest request.
+*/
+#define RTMP_MSG_PCUC_PingResponse 0x07
 /**
 3. Types of messages
 The server and the client send messages over the network to
@@ -161,11 +174,17 @@ messages.
     } \
     *p++ = value
 #define RtmpStreamRequire(size)\
-    if(RTMP_CLINET_MSG_MAX_SIZE - (p - buffer) < size){ \
+    if(buffer_size - (p - buffer) < size){ \
         return ERROR_RTMP_OVERFLOW; \
     }
 
-Rtmp::Rtmp(){
+Rtmp::Rtmp(int buffer_size){
+    assert(buffer_size > 0);
+    buffer = new char[buffer_size];
+    this->buffer_size = buffer_size;
+    
+    auto_response = NULL;
+    
     in_chunk_size = out_chunk_size = RTMP_DEFAULT_CHUNK_SIZE;
     p = p_chunk = buffer;
     ack_size = -1;
@@ -173,6 +192,11 @@ Rtmp::Rtmp(){
 }
 
 Rtmp::~Rtmp(){
+    delete[] buffer;
+    buffer = NULL;
+    
+    delete auto_response;
+    auto_response = NULL;
 }
 
 int Rtmp::GetSize(){
@@ -305,6 +329,18 @@ int Rtmp::WriteAMF0ObjectEnd(){
     RtmpStreamSet(p, 0x00);
     RtmpStreamSet(p, 0x00);
     RtmpStreamSet(p, 0x09);
+    
+    return ret;
+}
+
+int Rtmp::WriteInt16(int32_t value){
+    int ret = ERROR_SUCCESS;
+
+    RtmpStreamRequire(2);
+    
+    char* pp = (char*)&value;
+    RtmpStreamSet(p, pp[1]);
+    RtmpStreamSet(p, pp[0]);
     
     return ret;
 }
@@ -566,24 +602,61 @@ int Rtmp::FilterPacket(StSocket* socket){
     if(ack_size <= 0){
         return ret;
     }
+        
+    if(auto_response == NULL){
+        auto_response = new Rtmp(RTMP_CLIENT_PCUC_MAX_SIZE);
+    }
     
     // send out ack size immediately
     if(recv_size - acked_size >= ack_size){
-        Rtmp rtmp;
-        
-        if((ret = rtmp.WriteBegin(RTMP_CID_ProtocolControl, 0, RTMP_MSG_Acknowledgement, 0)) != ERROR_SUCCESS){
+        if((ret = auto_response->WriteBegin(RTMP_CID_ProtocolControl, 0, RTMP_MSG_Acknowledgement, 0)) != ERROR_SUCCESS){
             return ret;
         }
-        if((ret = rtmp.WriteInt32(recv_size)) != ERROR_SUCCESS){
+        if((ret = auto_response->WriteInt32(recv_size)) != ERROR_SUCCESS){
             return ret;
         }
-        if((ret = rtmp.WriteEnd()) != ERROR_SUCCESS){
+        if((ret = auto_response->WriteEnd()) != ERROR_SUCCESS){
             return ret;
         }
         
         ssize_t nsize;
-        if((ret = socket->Write(rtmp.GetBuffer(), rtmp.GetSize(), &nsize)) != ERROR_SUCCESS){
+        if((ret = socket->Write(auto_response->GetBuffer(), auto_response->GetSize(), &nsize)) != ERROR_SUCCESS){
             return ret;
+        }
+    }
+    
+    // response ping.
+    if(message_type == RTMP_MSG_UserControlMessage){
+        int16_t eventType;
+        char* pp = (char*)&eventType;
+        pp[1] = *p++;
+        pp[0] = *p++;
+        
+        if(eventType == RTMP_MSG_PCUC_PingRequest){
+            int32_t timestamp;
+            pp = (char*)&timestamp;
+            pp[3] = *p++;
+            pp[2] = *p++;
+            pp[1] = *p++;
+            pp[0] = *p++;
+            
+            if((ret = auto_response->WriteBegin(RTMP_CID_ProtocolControl, 0, RTMP_MSG_UserControlMessage, 0)) != ERROR_SUCCESS){
+                return ret;
+            }
+            if((ret = auto_response->WriteInt16(RTMP_MSG_PCUC_PingResponse)) != ERROR_SUCCESS){
+                return ret;
+            }
+            if((ret = auto_response->WriteInt32(timestamp)) != ERROR_SUCCESS){
+                return ret;
+            }
+            if((ret = auto_response->WriteEnd()) != ERROR_SUCCESS){
+                return ret;
+            }
+            
+            ssize_t nsize;
+            if((ret = socket->Write(auto_response->GetBuffer(), auto_response->GetSize(), &nsize)) != ERROR_SUCCESS){
+                return ret;
+            }
         }
     }
 

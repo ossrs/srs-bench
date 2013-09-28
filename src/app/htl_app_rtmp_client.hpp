@@ -11,13 +11,16 @@
 
 // max client message size, the message client sent to server.
 #define RTMP_CLINET_MSG_MAX_SIZE 8192
+#define RTMP_CLIENT_PCUC_MAX_SIZE 64
 class Rtmp
 {
 private:
     int in_chunk_size;
     int out_chunk_size;
 private:
-    char buffer[RTMP_CLINET_MSG_MAX_SIZE];
+    Rtmp* auto_response;
+    char* buffer;
+    int buffer_size;
     char* p_chunk;
     int chunk_fragments;
     char* p;
@@ -38,7 +41,7 @@ private:
     char message_type;
     int32_t message_stream_id;
 public:
-    Rtmp();
+    Rtmp(int buffer_size = RTMP_CLINET_MSG_MAX_SIZE);
     virtual ~Rtmp();
 public:
     virtual int GetSize();
@@ -55,6 +58,7 @@ public:
     virtual int WriteAMF0ObjectStart();
     virtual int WriteAMF0ObjectPropertyName(const char* value);
     virtual int WriteAMF0ObjectEnd();
+    virtual int WriteInt16(int32_t value);
     virtual int WriteInt32(int32_t value);
     virtual int WriteEnd();
 public:

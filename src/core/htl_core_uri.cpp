@@ -56,6 +56,18 @@ const char* ProtocolUrl::GetUrl(){
     return url.c_str();
 }
 
+const char* ProtocolUrl::GetSchema(){
+    return schema.c_str();
+}
+
+const char* ProtocolUrl::GetHost(){
+    return host.c_str();
+}
+
+int ProtocolUrl::GetPort(){
+    return port;
+}
+
 string ProtocolUrl::Get(http_parser_url_fields field){
     return HttpUrl::GetUriField(url, &hp_u, field);
 }
@@ -127,18 +139,58 @@ HttpUrl* HttpUrl::Copy(){
     return copy;
 }
 
-const char* HttpUrl::GetSchema(){
-    return schema.c_str();
-}
-
-const char* HttpUrl::GetHost(){
-    return host.c_str();
-}
-
-int HttpUrl::GetPort(){
-    return port;
-}
-
 const char* HttpUrl::GetPath(){
     return path.c_str();
+}
+
+RtmpUrl::RtmpUrl(){
+    port = 1935;
+}
+
+RtmpUrl::~RtmpUrl(){
+}
+
+int RtmpUrl::Initialize(std::string http_url){
+    int ret = ERROR_SUCCESS;
+    
+    if((ret = ProtocolUrl::Initialize(http_url)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    // TODO: support rewrite vhost in query.
+    vhost = host;
+
+    app = path.c_str() + 1;
+    
+    size_t pos = string::npos;
+    if((pos = app.find("/")) == string::npos){
+        ret = ERROR_RTMP_URL;
+        Error("invalid rtmp url, no stream found, ret=%d", ret);
+        return ret;
+    }
+    
+    stream = app.substr(pos + 1);
+    app = app.substr(0, pos);
+    
+    stringstream ss;
+    ss << schema << "://" << vhost << ":" << port << "/" << app;
+    tcUrl = ss.str();
+    
+    return ret;
+}
+
+const char* RtmpUrl::GetTcUrl(){
+    return tcUrl.c_str();
+}
+
+const char* RtmpUrl::GetVhost(){
+    return vhost.c_str();
+}
+
+const char* RtmpUrl::GetApp(){
+    return app.c_str();
+}
+
+const char* RtmpUrl::GetStream(){
+    return stream.c_str();
 }

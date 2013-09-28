@@ -10,7 +10,7 @@
 class StRtmpTask : public StBaseTask
 {
 private:
-    HttpUrl url;
+    RtmpUrl url;
 public:
     StRtmpTask();
     virtual ~StRtmpTask();

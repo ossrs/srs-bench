@@ -28,6 +28,8 @@
 #define ERROR_HP_EP_CHNAGED 501
 #define ERROR_HP_PARSE_RESPONSE 502
 
+#define ERROR_RTMP_URL 600
+
 #define ProductVersion "1.0"
 #define ProductHTTPName "Bravo HttpLoad/"ProductVersion
 #define ProductHLSName "Bravo HlsLoad/"ProductVersion

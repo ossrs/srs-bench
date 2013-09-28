@@ -35,6 +35,9 @@ public:
     virtual int Initialize(std::string http_url);
 public:
     virtual const char* GetUrl();
+    virtual const char* GetSchema();
+    virtual const char* GetHost();
+    virtual int GetPort();
 protected:
     virtual std::string Get(http_parser_url_fields field);
     /**
@@ -53,10 +56,26 @@ public:
     virtual std::string Resolve(std::string origin_url);
     virtual HttpUrl* Copy();
 public:
-    virtual const char* GetSchema();
-    virtual const char* GetHost();
-    virtual int GetPort();
     virtual const char* GetPath();
+};
+
+class RtmpUrl : public ProtocolUrl
+{
+private:
+    std::string tcUrl;
+    std::string vhost;
+    std::string app;
+    std::string stream;
+public:
+    RtmpUrl();
+    virtual ~RtmpUrl();
+public:
+    virtual int Initialize(std::string http_url);
+public:
+    virtual const char* GetTcUrl();
+    virtual const char* GetVhost();
+    virtual const char* GetApp();
+    virtual const char* GetStream();
 };
 
 #endif

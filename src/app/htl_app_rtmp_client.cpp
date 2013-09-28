@@ -180,49 +180,58 @@ messages.
     if(buffer_size - (p - buffer) < size){ \
         return ERROR_RTMP_OVERFLOW; \
     }
+    
+ChunkStream::ChunkStream(int in_chunk_size, int out_chunk_size, int buffer_size){
+    fmt = cid = 0;
+    extended_timestamp = false;
+    timestamp = message_length = message_type = message_stream_id = 0;
+    
+    header_size = received = 0;
 
-Rtmp::Rtmp(int buffer_size){
+    this->in_chunk_size = in_chunk_size;
+    this->out_chunk_size = out_chunk_size;
+    
     assert(buffer_size > 0);
     buffer = new char[buffer_size];
     this->buffer_size = buffer_size;
-    
-    auto_response = NULL;
-    
-    in_chunk_size = out_chunk_size = RTMP_DEFAULT_CHUNK_SIZE;
     p = p_chunk = buffer;
-    ack_size = -1;
-    acked_size = recv_size = 0;
 }
 
-Rtmp::~Rtmp(){
+ChunkStream::~ChunkStream(){
     delete[] buffer;
     buffer = NULL;
-    
-    delete auto_response;
-    auto_response = NULL;
 }
 
-int Rtmp::GetSize(){
+int ChunkStream::GetSize(){
     return p - buffer;
 }
 
-const char* Rtmp::GetBuffer(){
+const char* ChunkStream::GetBuffer(){
     return buffer;
 }
 
-char Rtmp::GetMessageType(){
+char ChunkStream::GetMessageType(){
     return message_type;
 }
 
-int Rtmp::GetBodySize(){
+int ChunkStream::GetBodySize(){
     return message_length;
 }
 
-const char* Rtmp::GetBody(){
+const char* ChunkStream::GetBody(){
     return buffer + header_size;
 }
 
-int Rtmp::WriteBegin(char cid, int32_t timestamp, char message_type, int32_t message_stream_id){
+bool ChunkStream::Completed(){
+    return received >= message_length;
+}
+
+void ChunkStream::Reset(){
+    p = buffer + header_size;
+    received = 0;
+}
+
+int ChunkStream::WriteBegin(char cid, int32_t timestamp, char message_type, int32_t message_stream_id){
     int ret = ERROR_SUCCESS;
     
     // save data, use them when WriteEnd.
@@ -246,8 +255,8 @@ int Rtmp::WriteBegin(char cid, int32_t timestamp, char message_type, int32_t mes
     
     return ret;
 }
-    
-int Rtmp::WriteAMF0String(const char* value){
+
+int ChunkStream::WriteAMF0String(const char* value){
     int ret = ERROR_SUCCESS;
     
     int16_t size = strlen(value);
@@ -262,7 +271,7 @@ int Rtmp::WriteAMF0String(const char* value){
     return ret;
 }
     
-int Rtmp::WriteAMF0Boolean(bool value){
+int ChunkStream::WriteAMF0Boolean(bool value){
     int ret = ERROR_SUCCESS;
     
     RtmpStreamRequire(1 + 1);
@@ -273,7 +282,7 @@ int Rtmp::WriteAMF0Boolean(bool value){
     return ret;
 }
 
-int Rtmp::WriteAMF0Number(double value){
+int ChunkStream::WriteAMF0Number(double value){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(1 + 8);
@@ -296,7 +305,7 @@ int Rtmp::WriteAMF0Number(double value){
     return ret;
 }
 
-int Rtmp::WriteAMF0Null(){
+int ChunkStream::WriteAMF0Null(){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(1);
@@ -306,7 +315,7 @@ int Rtmp::WriteAMF0Null(){
     return ret;
 }
 
-int Rtmp::WriteAMF0ObjectStart(){
+int ChunkStream::WriteAMF0ObjectStart(){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(1);
@@ -316,7 +325,7 @@ int Rtmp::WriteAMF0ObjectStart(){
     return ret;
 }
 
-int Rtmp::WriteAMF0ObjectPropertyName(const char* value){
+int ChunkStream::WriteAMF0ObjectPropertyName(const char* value){
     int ret = ERROR_SUCCESS;
     
     int16_t size = strlen(value);
@@ -334,7 +343,7 @@ int Rtmp::WriteAMF0ObjectPropertyName(const char* value){
     return ret;
 }
 
-int Rtmp::WriteAMF0ObjectEnd(){
+int ChunkStream::WriteAMF0ObjectEnd(){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(3);
@@ -346,7 +355,7 @@ int Rtmp::WriteAMF0ObjectEnd(){
     return ret;
 }
 
-int Rtmp::WriteInt16(int32_t value){
+int ChunkStream::WriteInt16(int32_t value){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(2);
@@ -358,7 +367,7 @@ int Rtmp::WriteInt16(int32_t value){
     return ret;
 }
 
-int Rtmp::WriteInt32(int32_t value){
+int ChunkStream::WriteInt32(int32_t value){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(4);
@@ -372,7 +381,7 @@ int Rtmp::WriteInt32(int32_t value){
     return ret;
 }
 
-int Rtmp::WriteEnd(){
+int ChunkStream::WriteEnd(){
     int ret = ERROR_SUCCESS;
     
     if(RTMP_CLINET_MSG_MAX_SIZE < 16){
@@ -433,69 +442,67 @@ int Rtmp::WriteEnd(){
     return ret;
 }
 
-int Rtmp::Read(StSocket* socket){
+int ChunkStream::Read(StSocket* socket, ssize_t* pnread){
     int ret = ERROR_SUCCESS;
     
-    int64_t origin_recv_size = recv_size;
+    if((ret = ReadHeader(socket, pnread)) != ERROR_SUCCESS){
+        return ret;
+    }
     
+    int size_left = message_length - received;
+    
+    if(size_left > in_chunk_size){
+        size_left = in_chunk_size;
+    }
+    
+    // you can use ReadDrop to drop the message body if not care.
+    if(p + size_left > buffer + RTMP_CLINET_MSG_MAX_SIZE){
+        ret = ERROR_RTMP_MSG_TOO_BIG;
+        Error("message size=%d is too big, available buffer is %d, ret=%d", 
+            message_length, (int)(RTMP_CLINET_MSG_MAX_SIZE - header_size), ret);
+        return ret;
+    }
+
     ssize_t nread;
-    p = buffer;
-    
-    // we assume the packet is not interlaced.
-    // so the header must be a new stream(fmt===0).
-    
-    // max header size:
-    // 1 bytes basic header
-    // 11 bytes message header
-    // 4 bytes extended timestamp.
-    if((ret = socket->ReadFully(buffer, 12, &nread)) != ERROR_SUCCESS){
+    if((ret = socket->ReadFully(p, size_left, &nread)) != ERROR_SUCCESS){
         return ret;
     }
-    recv_size += nread;
+    *pnread += nread;
+    received += nread;
     
-    // parse the header in buffer, change the position of p.
-    if((ret = ParseHeader(socket)) != ERROR_SUCCESS){
-        return ret;
-    }
+    p += nread;
     
-    return ReadBody(socket, recv_size - origin_recv_size);
+    Info("[read] message header fmt=%d cid=%d type=%d size=%d recv=%d time=%d", fmt, cid, message_type, message_length, received, timestamp);
+    
+    return ret;
 }
 
-int Rtmp::ReadFast(StSocket* socket){
+int ChunkStream::ReadFast(StSocket* socket, ssize_t* pnread){
     int ret = ERROR_SUCCESS;
     
-    int64_t origin_recv_size = recv_size;
+    if((ret = ReadHeader(socket, pnread)) != ERROR_SUCCESS){
+        return ret;
+    }
     
+    int size_left = message_length - received;
+    
+    if(size_left > in_chunk_size){
+        size_left = in_chunk_size;
+    }
+
     ssize_t nread;
-    p = buffer;
-    
-    // we assume the packet is not interlaced.
-    // so the header must be a new stream(fmt===0).
-    
-    // max header size:
-    // 1 bytes basic header
-    // 11 bytes message header
-    // 4 bytes extended timestamp.
-    if((ret = socket->ReadFully(buffer, 12, &nread)) != ERROR_SUCCESS){
+    if((ret = socket->ReadFully(p, size_left, &nread)) != ERROR_SUCCESS){
         return ret;
     }
-    recv_size += nread;
+    *pnread += nread;
+    received += nread;
     
-    // parse the header in buffer, change the position of p.
-    if((ret = ParseHeader(socket)) != ERROR_SUCCESS){
-        return ret;
-    }
+    Info("[fast] message header fmt=%d cid=%d type=%d size=%d recv=%d time=%d", fmt, cid, message_type, message_length, received, timestamp);
     
-    if(message_type == RTMP_MSG_AudioMessage 
-        || message_type == RTMP_MSG_VideoMessage 
-        || message_type == RTMP_MSG_AggregateMessage
-    ){
-        return DropBody(socket, recv_size - origin_recv_size);
-    }
-    return ReadBody(socket, recv_size - origin_recv_size);
+    return ret;
 }
 
-int Rtmp::ParseAMF0Type(char required_amf0_type){
+int ChunkStream::ParseAMF0Type(char required_amf0_type){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(1);
@@ -511,7 +518,7 @@ int Rtmp::ParseAMF0Type(char required_amf0_type){
     return ret;
 }
 
-int Rtmp::ParseAMF0String(std::string* value){
+int ChunkStream::ParseAMF0String(std::string* value){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(2);
@@ -529,7 +536,7 @@ int Rtmp::ParseAMF0String(std::string* value){
     return ret;
 }
 
-int Rtmp::ParseAMF0Number(double* value){
+int ChunkStream::ParseAMF0Number(double* value){
     int ret = ERROR_SUCCESS;
 
     RtmpStreamRequire(8);
@@ -549,144 +556,50 @@ int Rtmp::ParseAMF0Number(double* value){
     
     return ret;
 }
-    
-int Rtmp::ReadBody(StSocket* socket, ssize_t nread){
-    int ret = ERROR_SUCCESS;
-    
-    // curent p is the body start position.
-    char* pbody = p;
-    header_size = p - buffer;
-    
-    // read all data.
-    int received = nread - header_size;
-    while(received < message_length){
-        int size_left = message_length - received;
-        
-        if(size_left > in_chunk_size){
-            // read the next header.
-            size_left = in_chunk_size + 1;
-        }
-        
-        // you can use ReadDrop to drop the message body if not care.
-        if(p + size_left > buffer + RTMP_CLINET_MSG_MAX_SIZE){
-            ret = ERROR_RTMP_MSG_TOO_BIG;
-            Error("message size=%d is too big, available buffer is %d, ret=%d", 
-                message_length, (int)(RTMP_CLINET_MSG_MAX_SIZE - (pbody - buffer)), ret);
-            return ret;
-        }
-        
-        ssize_t nread;
-        if((ret = socket->ReadFully(p, size_left, &nread)) != ERROR_SUCCESS){
-            return ret;
-        }
-        recv_size += nread;
-        received += nread;
-        
-        // completed.
-        if(received >= message_length){
-            break;
-        }
-        
-        // back to the basic header where fmt===3.
-        p += size_left - 1;
-        
-        // ensure the header fmt===3.
-        if((ret = ParseHeader(socket)) != ERROR_SUCCESS){
-            return ret;
-        }
-        
-        // ignore the parsed header.
-        p--;
-        received--;
-    }
 
-    // filter received packet.
-    if((ret = FilterPacket(socket)) != ERROR_SUCCESS){
-        return ret;
-    }
+int ChunkStream::ParseInt16(int16_t* value){
+    int ret = ERROR_SUCCESS;
+
+    RtmpStreamRequire(2);
     
-    // set p to the body.
-    p = pbody;
+    char* pp = (char*)value;
+    pp[1] = *p++;
+    pp[0] = *p++;
     
     return ret;
 }
 
-int Rtmp::DropBody(StSocket* socket, ssize_t nread){
+int ChunkStream::ParseInt32(int32_t* value){
     int ret = ERROR_SUCCESS;
-    
-    // curent p is the body start position.
-    char* pbody = p;
-    header_size = p - buffer;
-    
-    // read all data.
-    int received = nread - header_size;
-    while(received < message_length){
-        int size_left = message_length - received;
-        
-        if(size_left > in_chunk_size){
-            // read the next header.
-            size_left = in_chunk_size + 1;
-        }
-        
-        // reset the p, to drop all message.
-        p = pbody;
-        
-        if((ret = socket->ReadFully(p, size_left, &nread)) != ERROR_SUCCESS){
-            return ret;
-        }
-        recv_size += nread;
-        received += nread;
-        
-        // completed.
-        if(received >= message_length){
-            break;
-        }
-        
-        // back to the basic header where fmt===3.
-        p += size_left - 1;
-        
-        // ensure the header fmt===3.
-        if((ret = ParseHeader(socket)) != ERROR_SUCCESS){
-            return ret;
-        }
-        
-        // ignore the parsed header.
-        received--;
-    }
 
-    // filter received packet.
-    if((ret = FilterPacket(socket)) != ERROR_SUCCESS){
-        return ret;
-    }
+    RtmpStreamRequire(4);
     
-    // set p to the body.
-    p = pbody;
+    char* pp = (char*)value;
+    pp[3] = *p++;
+    pp[2] = *p++;
+    pp[1] = *p++;
+    pp[0] = *p++;
     
     return ret;
 }
 
-int Rtmp::ParseHeader(StSocket* socket){
+int ChunkStream::ReadHeader(StSocket* socket, ssize_t* pnread){
     int ret = ERROR_SUCCESS;
     
-    // basic header, 1/2/3 bytes.
-    char fmt = (*p>>6 & 0x03);
-    char cid = *p++ & 0x3f;
-    if(cid == 0){
-        cid = 64;
-        cid += *p++;
-    }
-    else if(cid == 1){
-        cid = 64;
-        cid += 256 * (*p++);
-    }
-    Info("fmt=%d, cid=%d, cache_cid=%d", fmt, cid, this->cid);
+    static char mh_sizes[] = {11, 7, 1, 0};
+    char mh_size = mh_sizes[(int)fmt];
     
-    // simplify the rtmp, disable the interlaced chunk
     if(fmt == 0){
-        this->cid = cid;
+        p = buffer;
+        received = 0;
     }
-    else{
-        assert(cid == this->cid);
+    
+    if(mh_size > 0){
+        ssize_t nread;
+        if((ret = socket->ReadFully(p, mh_size, &nread)) != ERROR_SUCCESS){
+            return ret;
+        }
+        *pnread += nread;
     }
     
     // message header.
@@ -724,7 +637,7 @@ int Rtmp::ParseHeader(StSocket* socket){
         if((ret = socket->ReadFully(p, 4, &nread)) != ERROR_SUCCESS){
             return ret;
         }
-        recv_size += nread;
+        *pnread += nread;
         
         char* pp = (char*)&timestamp;
         pp[3] = *p++;
@@ -733,93 +646,297 @@ int Rtmp::ParseHeader(StSocket* socket){
         pp[0] = *p++;
     }
     
+    if(fmt == 0){
+        header_size = p - buffer;
+    }
+    
+    return ret;
+}
+
+Rtmp::Rtmp(){
+    ack_size = -1;
+    acked_size = recv_size = 0;
+    
+    in_chunk_size = out_chunk_size = RTMP_DEFAULT_CHUNK_SIZE;
+    out_chunk_stream = new ChunkStream(in_chunk_size, out_chunk_size);
+
+    in_chunk_streams = new ChunkStream*[RTMP_MAX_CHUNK_STREAMS];
+    for(int i = 0; i < RTMP_MAX_CHUNK_STREAMS; i++){
+        in_chunk_streams[i] = NULL;
+    }
+    current_cs = NULL;
+}
+
+Rtmp::~Rtmp(){
+    delete out_chunk_stream;
+    out_chunk_stream = NULL;
+
+    delete[] in_chunk_streams;
+    in_chunk_streams = NULL;
+}
+
+int Rtmp::GetSize(){
+    return current_cs->GetSize();
+}
+
+const char* Rtmp::GetBuffer(){
+    return current_cs->GetBuffer();
+}
+
+char Rtmp::GetMessageType(){
+    return current_cs->message_type;
+}
+
+int Rtmp::GetBodySize(){
+    return current_cs->message_length;
+}
+
+const char* Rtmp::GetBody(){
+    return current_cs->GetBody();
+}
+
+int Rtmp::WriteBegin(char cid, int32_t timestamp, char message_type, int32_t message_stream_id){
+    current_cs = out_chunk_stream;
+    
+    return current_cs->WriteBegin(cid, timestamp, message_type, message_stream_id);
+}
+
+int Rtmp::WriteAMF0String(const char* value){
+    return current_cs->WriteAMF0String(value);
+}
+    
+int Rtmp::WriteAMF0Boolean(bool value){
+    return current_cs->WriteAMF0Boolean(value);
+}
+
+int Rtmp::WriteAMF0Number(double value){
+    return current_cs->WriteAMF0Number(value);
+}
+
+int Rtmp::WriteAMF0Null(){
+    return current_cs->WriteAMF0Null();
+}
+
+int Rtmp::WriteAMF0ObjectStart(){
+    return current_cs->WriteAMF0ObjectStart();
+}
+
+int Rtmp::WriteAMF0ObjectPropertyName(const char* value){
+    return current_cs->WriteAMF0ObjectPropertyName(value);
+}
+
+int Rtmp::WriteAMF0ObjectEnd(){
+    return current_cs->WriteAMF0ObjectEnd();
+}
+
+int Rtmp::WriteInt16(int32_t value){
+    return current_cs->WriteInt16(value);
+}
+
+int Rtmp::WriteInt32(int32_t value){
+    return current_cs->WriteInt32(value);
+}
+
+int Rtmp::WriteEnd(){
+    return current_cs->WriteEnd();
+}
+
+int Rtmp::Read(StSocket* socket){
+    int ret = ERROR_SUCCESS;
+    
+    while(true){
+        if((ret = ReadHeader(socket)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        ssize_t nread = 0;
+        if((ret = current_cs->Read(socket, &nread)) != ERROR_SUCCESS){
+            return ret;
+        }
+        recv_size += nread;
+        
+        if(!current_cs->Completed()){
+            continue;
+        }
+        
+        current_cs->Reset();
+        if((ret = FilterPacket(socket)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        current_cs->Reset();
+        break;
+    }
+    
+    return ret;
+}
+
+int Rtmp::ReadFast(StSocket* socket){
+    int ret = ERROR_SUCCESS;
+    
+    while(true){
+        if((ret = ReadHeader(socket)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        ssize_t nread = 0;
+        if((ret = current_cs->ReadFast(socket, &nread)) != ERROR_SUCCESS){
+            return ret;
+        }
+        recv_size += nread;
+        
+        if(!current_cs->Completed()){
+            continue;
+        }
+        
+        current_cs->Reset();
+        if((ret = FilterPacket(socket)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        current_cs->Reset();
+        break;
+    }
+        
+    return ret;
+}
+
+int Rtmp::ParseAMF0Type(char required_amf0_type){
+    return current_cs->ParseAMF0Type(required_amf0_type);
+}
+
+int Rtmp::ParseAMF0String(std::string* value){
+    return current_cs->ParseAMF0String(value);
+}
+
+int Rtmp::ParseAMF0Number(double* value){
+    return current_cs->ParseAMF0Number(value);
+}
+
+int Rtmp::ReadHeader(StSocket* socket){
+    int ret = ERROR_SUCCESS;
+    
+    ssize_t nread;
+    
+    // read the basic header.
+    char bh;
+    if((ret = socket->Read(&bh, 1, &nread)) != ERROR_SUCCESS){
+        return ret;
+    }
+    recv_size += nread;
+    
+    char fmt = (bh >> 6) & 0x03;
+    int16_t cid = bh & 0x3f;
+    
+    if(cid == 0){
+        if((ret = socket->Read(&bh, 1, &nread)) != ERROR_SUCCESS){
+            return ret;
+        }
+        recv_size += nread;
+
+        cid = 64;
+        cid += bh;
+    }
+    else if(cid == 1){
+        if((ret = socket->Read(&bh, 1, &nread)) != ERROR_SUCCESS){
+            return ret;
+        }
+        recv_size += nread;
+
+        cid = 64;
+        cid += 256 * bh;
+    }
+    
+    assert(cid < RTMP_MAX_CHUNK_STREAMS);
+    current_cs = in_chunk_streams[cid];
+    if(current_cs == NULL){
+        current_cs = in_chunk_streams[cid] = new ChunkStream(in_chunk_size, out_chunk_size, RTMP_CLINET_MSG_MAX_SIZE);
+    }
+
+    Info("fmt=%d, cid=%d, cache=(fmt=%d, cid=%d, size=%d, type=%d)", fmt, cid,
+        current_cs->fmt, current_cs->cid, current_cs->message_length, current_cs->message_type);
+    
+    current_cs->fmt = fmt;
+    current_cs->cid = cid;
+    
     return ret;
 }
 
 int Rtmp::FilterPacket(StSocket* socket){
     int ret = ERROR_SUCCESS;
-
-    // set p to the body.
-    p = buffer + header_size;
     
-    if(message_type == RTMP_MSG_WindowAcknowledgementSize){
-        assert(message_length == 4);
+    if(current_cs->message_type == RTMP_MSG_WindowAcknowledgementSize){
+        assert(current_cs->message_length == 4);
         
-        char* pp = (char*)&ack_size;
-        pp[3] = *p++;
-        pp[2] = *p++;
-        pp[1] = *p++;
-        pp[0] = *p++;
+        if((ret = current_cs->ParseInt32(&ack_size)) != ERROR_SUCCESS){
+            return ret;
+        }
         Info("set ack size to %d", ack_size);
     }
-    if(message_type == RTMP_MSG_SetChunkSize){
-        assert(message_length == 4);
+    if(current_cs->message_type == RTMP_MSG_SetChunkSize){
+        assert(current_cs->message_length == 4);
         
-        char* pp = (char*)&in_chunk_size;
-        pp[3] = *p++;
-        pp[2] = *p++;
-        pp[1] = *p++;
-        pp[0] = *p++;
+        if((ret = current_cs->ParseInt32(&in_chunk_size)) != ERROR_SUCCESS){
+            return ret;
+        }
         Info("set in_chunk_size to %d", in_chunk_size);
-    }
-    
-    // no ack size, ignore
-    if(ack_size <= 0){
-        return ret;
-    }
         
-    if(auto_response == NULL){
-        auto_response = new Rtmp(RTMP_CLIENT_PCUC_MAX_SIZE);
+        for(int i = 0; i < RTMP_MAX_CHUNK_STREAMS; i++){
+            if(in_chunk_streams[i] == NULL){
+                continue;
+            }
+            
+            in_chunk_streams[i]->in_chunk_size = in_chunk_size;
+        }
+        out_chunk_stream->in_chunk_size = in_chunk_size;
     }
     
     // send out ack size immediately
-    if(recv_size - acked_size >= ack_size){
-        if((ret = auto_response->WriteBegin(RTMP_CID_ProtocolControl, 0, RTMP_MSG_Acknowledgement, 0)) != ERROR_SUCCESS){
+    if(ack_size > 0 && recv_size - acked_size >= ack_size){
+        if((ret = out_chunk_stream->WriteBegin(RTMP_CID_ProtocolControl, 0, RTMP_MSG_Acknowledgement, 0)) != ERROR_SUCCESS){
             return ret;
         }
-        if((ret = auto_response->WriteInt32(recv_size)) != ERROR_SUCCESS){
+        if((ret = out_chunk_stream->WriteInt32(recv_size)) != ERROR_SUCCESS){
             return ret;
         }
-        if((ret = auto_response->WriteEnd()) != ERROR_SUCCESS){
+        if((ret = out_chunk_stream->WriteEnd()) != ERROR_SUCCESS){
             return ret;
         }
         
         ssize_t nsize;
-        if((ret = socket->Write(auto_response->GetBuffer(), auto_response->GetSize(), &nsize)) != ERROR_SUCCESS){
+        if((ret = socket->Write(out_chunk_stream->GetBuffer(), out_chunk_stream->GetSize(), &nsize)) != ERROR_SUCCESS){
             return ret;
         }
     }
     
     // response ping.
-    if(message_type == RTMP_MSG_UserControlMessage){
+    if(current_cs->message_type == RTMP_MSG_UserControlMessage){
         int16_t eventType;
-        char* pp = (char*)&eventType;
-        pp[1] = *p++;
-        pp[0] = *p++;
+        if((ret = current_cs->ParseInt16(&eventType)) != ERROR_SUCCESS){
+            return ret;
+        }
         
         if(eventType == RTMP_MSG_PCUC_PingRequest){
             int32_t timestamp;
-            pp = (char*)&timestamp;
-            pp[3] = *p++;
-            pp[2] = *p++;
-            pp[1] = *p++;
-            pp[0] = *p++;
+            if((ret = current_cs->ParseInt32(&timestamp)) != ERROR_SUCCESS){
+                return ret;
+            }
             
-            if((ret = auto_response->WriteBegin(RTMP_CID_ProtocolControl, 0, RTMP_MSG_UserControlMessage, 0)) != ERROR_SUCCESS){
+            if((ret = out_chunk_stream->WriteBegin(RTMP_CID_ProtocolControl, 0, RTMP_MSG_UserControlMessage, 0)) != ERROR_SUCCESS){
                 return ret;
             }
-            if((ret = auto_response->WriteInt16(RTMP_MSG_PCUC_PingResponse)) != ERROR_SUCCESS){
+            if((ret = out_chunk_stream->WriteInt16(RTMP_MSG_PCUC_PingResponse)) != ERROR_SUCCESS){
                 return ret;
             }
-            if((ret = auto_response->WriteInt32(timestamp)) != ERROR_SUCCESS){
+            if((ret = out_chunk_stream->WriteInt32(timestamp)) != ERROR_SUCCESS){
                 return ret;
             }
-            if((ret = auto_response->WriteEnd()) != ERROR_SUCCESS){
+            if((ret = out_chunk_stream->WriteEnd()) != ERROR_SUCCESS){
                 return ret;
             }
             
             ssize_t nsize;
-            if((ret = socket->Write(auto_response->GetBuffer(), auto_response->GetSize(), &nsize)) != ERROR_SUCCESS){
+            if((ret = socket->Write(out_chunk_stream->GetBuffer(), out_chunk_stream->GetSize(), &nsize)) != ERROR_SUCCESS){
                 return ret;
             }
         }

@@ -12,36 +12,85 @@
 // max client message size, the message client sent to server.
 #define RTMP_CLINET_MSG_MAX_SIZE 8192
 #define RTMP_CLIENT_PCUC_MAX_SIZE 64
-class Rtmp
+#define RTMP_MAX_CHUNK_STREAMS 10000
+
+struct ChunkStream
 {
-private:
+public:
     int in_chunk_size;
     int out_chunk_size;
-private:
-    Rtmp* auto_response;
+// chunk info
+public:
+    char fmt;
+    char cid;
+    bool extended_timestamp;
+// message info
+public:
+    int32_t timestamp;
+    int32_t message_length;
+    char message_type;
+    int32_t message_stream_id;
+// buffer
+public:
     char* buffer;
     int buffer_size;
     char* p_chunk;
     int chunk_fragments;
     char* p;
     int header_size;
+    int received;
+public:
+    ChunkStream(int in_chunk_size, int out_chunk_size, int buffer_size = RTMP_CLINET_MSG_MAX_SIZE);
+    virtual ~ChunkStream();
+public:
+    virtual int GetSize();
+    virtual const char* GetBuffer();
+public:
+    virtual char GetMessageType();
+    virtual int GetBodySize();
+    virtual const char* GetBody();
+    virtual bool Completed();
+    virtual void Reset();
+public:
+    virtual int WriteBegin(char cid, int32_t timestamp, char message_type, int32_t message_stream_id);
+    virtual int WriteAMF0String(const char* value);
+    virtual int WriteAMF0Boolean(bool value);
+    virtual int WriteAMF0Number(double value);
+    virtual int WriteAMF0Null();
+    virtual int WriteAMF0ObjectStart();
+    virtual int WriteAMF0ObjectPropertyName(const char* value);
+    virtual int WriteAMF0ObjectEnd();
+    virtual int WriteInt16(int32_t value);
+    virtual int WriteInt32(int32_t value);
+    virtual int WriteEnd();
+public:
+    virtual int Read(StSocket* socket, ssize_t* pnread);
+    virtual int ReadFast(StSocket* socket, ssize_t* pnread);
+    virtual int ParseAMF0Type(char required_amf0_type);
+    virtual int ParseAMF0String(std::string* value);
+    virtual int ParseAMF0Number(double* value);
+    virtual int ParseInt16(int16_t* value);
+    virtual int ParseInt32(int32_t* value);
+private:
+    virtual int ReadHeader(StSocket* socket, ssize_t* pnread);
+};
+
+class Rtmp
+{
+private:
+    int in_chunk_size;
+    int out_chunk_size;
+private:
+    ChunkStream* current_cs;
+    ChunkStream** in_chunk_streams;
+    ChunkStream* out_chunk_stream;
 // protocol info
 private:
     int ack_size;
     int64_t acked_size;
     int64_t recv_size;
-// chunk info
-private:
-    char cid;
-    bool extended_timestamp;
-// message info
-private:
-    int32_t timestamp;
-    int32_t message_length;
-    char message_type;
-    int32_t message_stream_id;
 public:
-    Rtmp(int buffer_size = RTMP_CLINET_MSG_MAX_SIZE);
+    Rtmp();
     virtual ~Rtmp();
 public:
     virtual int GetSize();
@@ -69,9 +118,7 @@ public:
     virtual int ParseAMF0String(std::string* value);
     virtual int ParseAMF0Number(double* value);
 private:
-    virtual int ReadBody(StSocket* socket, ssize_t nread);
-    virtual int DropBody(StSocket* socket, ssize_t nread);
-    virtual int ParseHeader(StSocket* socket);
+    virtual int ReadHeader(StSocket* socket);
     virtual int FilterPacket(StSocket* socket);
 };
 

@@ -12,6 +12,8 @@ file
 	..\app\htl_app_m3u8_parser.hpp,
 	..\app\htl_app_rtmp_load.cpp,
 	..\app\htl_app_rtmp_load.hpp,
+	..\app\htl_app_rtmp_client.cpp,
+	..\app\htl_app_rtmp_client.hpp,
 	..\app\htl_app_http_load.cpp,
 	..\app\htl_app_http_load.hpp,
 	..\app\htl_app_task_base.cpp,

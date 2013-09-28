@@ -13,7 +13,7 @@ using namespace std;
 
 #include <htl_main_utility.hpp>
 
-#define DefaultDelaySeconds 0.0
+#define DefaultDelaySeconds 1.0
 #define DefaultRtmpUrl "rtmp://127.0.0.1:19350/live/livestream"
 
 int discovery_options(int argc, char** argv, 

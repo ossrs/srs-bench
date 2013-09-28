@@ -1,7 +1,7 @@
-st-hls-load
+st-load
 ===========
 
-hls/http load test tool base on st(state-threads), support huge concurrency
+hls/http/rtmp load test tool base on st(state-threads), support huge concurrency
 
 TestEnvironment: 24CPU, 80Gbps Network, 16GB Memory<br/>
 Server: NGINX HLS<br/>

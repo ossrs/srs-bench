@@ -81,6 +81,31 @@ int StRtmpClient::Connect(RtmpUrl* url){
 
 int StRtmpClient::Handshake(){
     int ret = ERROR_SUCCESS;
+    
+    ssize_t nsize;
+    
+    char buf[1537];
+    buf[0] = 0x03; // plain text.
+
+    char* c0c1 = buf;
+    if((ret = socket->Write(c0c1, 1537, &nsize)) != ERROR_SUCCESS){
+        return ret;
+    }
+
+    char* s0s1 = buf;
+    if((ret = socket->ReadFully(s0s1, 1537, &nsize)) != ERROR_SUCCESS){
+        return ret;
+    }
+    char* s2 = buf;
+    if((ret = socket->ReadFully(s2, 1536, &nsize)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    char* c2 = buf;
+    if((ret = socket->Write(c2, 1536, &nsize)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
     return ret;
 }
 

@@ -103,6 +103,7 @@ public:
     virtual SocketStatus Status();
     virtual int Connect(const char* ip, int port);
     virtual int Read(const void* buf, size_t size, ssize_t* nread);
+    virtual int ReadFully(const void* buf, size_t size, ssize_t* nread);
     virtual int Write(const void* buf, size_t size, ssize_t* nwrite);
     virtual int Close();
 };

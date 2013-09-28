@@ -264,8 +264,33 @@ int StSocket::Read(const void* buf, size_t size, ssize_t* nread){
     
     *nread = st_read(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
     
+    // On success a non-negative integer indicating the number of bytes actually read is returned 
+    // (a value of 0 means the network connection is closed or end of file is reached).
     if(*nread <= 0){
         if(*nread == 0){
+            errno = ECONNRESET;
+        }
+        
+        ret = ERROR_READ;
+        status = SocketDisconnected;
+    }
+    
+    if(*nread > 0){
+        statistic->OnRead(context->GetId(), *nread);
+    }
+        
+    return ret;
+}
+
+int StSocket::ReadFully(const void* buf, size_t size, ssize_t* nread){
+    int ret = ERROR_SUCCESS;
+    
+    *nread = st_read_fully(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
+    
+    // On success a non-negative integer indicating the number of bytes actually read is returned 
+    // (a value less than nbyte means the network connection is closed or end of file is reached)
+    if(*nread != size){
+        if(*nread >= 0){
             errno = ECONNRESET;
         }
         

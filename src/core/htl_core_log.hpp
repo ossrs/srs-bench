@@ -60,7 +60,7 @@ extern LogContext* context;
     #undef Verbose
     #define Verbose(msg, ...) (void)0
 #endif
-#if 0
+#if 1
     #undef Info
     #define Info(msg, ...) (void)0
 #endif

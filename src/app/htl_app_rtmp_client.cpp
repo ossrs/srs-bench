@@ -27,7 +27,8 @@ with IDs 3-6 are reserved for usage of RTMP. Protocol message with ID
 #define RTMP_MSG_UserControlMessage 0x04
 #define RTMP_MSG_WindowAcknowledgementSize 0x05
 #define RTMP_MSG_SetPeerBandwidth 0x06
-#define RTMP_MSG_EdgeAndOriginServerCommand 0x07        /**
+#define RTMP_MSG_EdgeAndOriginServerCommand 0x07
+/**
 * The server sends this event to test whether the client is reachable. 
 * 
 * Event data is a 4-byte timestamp, representing the local server time when the server dispatched the command. 
@@ -165,6 +166,7 @@ messages.
 #define RTMP_AMF0_OriginStrictArray 0x20
 
 #define RTMP_DEFAULT_CHUNK_SIZE 128
+#define RTMP_EXTENDED_TIMESTAMP 0xFFFFFF
 
 #define RtmpStreamSet(p, value)\
     if(p - p_chunk == out_chunk_size){ \
@@ -173,6 +175,7 @@ messages.
         p_chunk = p; \
     } \
     *p++ = value
+    
 #define RtmpStreamRequire(size)\
     if(buffer_size - (p - buffer) < size){ \
         return ERROR_RTMP_OVERFLOW; \
@@ -234,7 +237,7 @@ int Rtmp::WriteBegin(char cid, int32_t timestamp, char message_type, int32_t mes
     p = buffer + 12;
     
     // 4bytes extended timestamp
-    if(timestamp > 0xFFFFFF){
+    if(timestamp >= RTMP_EXTENDED_TIMESTAMP){
         p = buffer + 4;
     }
     
@@ -289,6 +292,16 @@ int Rtmp::WriteAMF0Number(double value){
     RtmpStreamSet(p, pp[2]);
     RtmpStreamSet(p, pp[1]);
     RtmpStreamSet(p, pp[0]);
+    
+    return ret;
+}
+
+int Rtmp::WriteAMF0Null(){
+    int ret = ERROR_SUCCESS;
+
+    RtmpStreamRequire(1);
+    
+    RtmpStreamSet(p, RTMP_AMF0_Null);
     
     return ret;
 }
@@ -380,7 +393,7 @@ int Rtmp::WriteEnd(){
 
     // chunk message header, 11 bytes
     // timestamp, 3bytes, big-endian
-    if(timestamp > 0xFFFFFF){
+    if(timestamp >= RTMP_EXTENDED_TIMESTAMP){
         p[2] = 0xFF;
         p[1] = 0xFF;
         p[0] = 0xFF;
@@ -406,7 +419,7 @@ int Rtmp::WriteEnd(){
     *p++ = pp[3];
     
     // chunk extended timestamp header, 0 or 4 bytes, big-endian
-    if(timestamp > 0xFFFFFF){
+    if(timestamp >= RTMP_EXTENDED_TIMESTAMP){
         pp = (char*)&timestamp; 
         *p++ = pp[3];
         *p++ = pp[2];
@@ -422,6 +435,8 @@ int Rtmp::WriteEnd(){
 
 int Rtmp::Read(StSocket* socket){
     int ret = ERROR_SUCCESS;
+    
+    int64_t origin_recv_size = recv_size;
     
     ssize_t nread;
     p = buffer;
@@ -443,16 +458,109 @@ int Rtmp::Read(StSocket* socket){
         return ret;
     }
     
+    return ReadBody(socket, recv_size - origin_recv_size);
+}
+
+int Rtmp::ReadFast(StSocket* socket){
+    int ret = ERROR_SUCCESS;
+    
+    int64_t origin_recv_size = recv_size;
+    
+    ssize_t nread;
+    p = buffer;
+    
+    // we assume the packet is not interlaced.
+    // so the header must be a new stream(fmt===0).
+    
+    // max header size:
+    // 1 bytes basic header
+    // 11 bytes message header
+    // 4 bytes extended timestamp.
+    if((ret = socket->ReadFully(buffer, 12, &nread)) != ERROR_SUCCESS){
+        return ret;
+    }
+    recv_size += nread;
+    
+    // parse the header in buffer, change the position of p.
+    if((ret = ParseHeader(socket)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    if(message_type == RTMP_MSG_AudioMessage 
+        || message_type == RTMP_MSG_VideoMessage 
+        || message_type == RTMP_MSG_AggregateMessage
+    ){
+        return DropBody(socket, recv_size - origin_recv_size);
+    }
+    return ReadBody(socket, recv_size - origin_recv_size);
+}
+
+int Rtmp::ParseAMF0Type(char required_amf0_type){
+    int ret = ERROR_SUCCESS;
+
+    RtmpStreamRequire(1);
+    
+    char amf0_type = *p++;
+        
+    if(amf0_type != required_amf0_type){
+        ret = ERROR_RTMP_INVALID_RESPONSE;
+        Error("invalid amf0 type=%d, required=%d, ret=%d", amf0_type, required_amf0_type, ret);
+        return ret;
+    }
+    
+    return ret;
+}
+
+int Rtmp::ParseAMF0String(std::string* value){
+    int ret = ERROR_SUCCESS;
+
+    RtmpStreamRequire(2);
+    
+    int16_t size;
+    char* pp = (char*)&size;
+    pp[1] = *p++;
+    pp[0] = *p++;
+    
+    RtmpStreamRequire(size);
+    
+    value->append(p, size);
+    p += size;
+    
+    return ret;
+}
+
+int Rtmp::ParseAMF0Number(double* value){
+    int ret = ERROR_SUCCESS;
+
+    RtmpStreamRequire(8);
+    
+    int64_t data;
+    char* pp = (char*)&data;
+    pp[7] = *p++;
+    pp[6] = *p++;
+    pp[5] = *p++;
+    pp[4] = *p++;
+    pp[3] = *p++;
+    pp[2] = *p++;
+    pp[1] = *p++;
+    pp[0] = *p++;
+    
+    memcpy(value, &data, 8);
+    
+    return ret;
+}
+    
+int Rtmp::ReadBody(StSocket* socket, ssize_t nread){
+    int ret = ERROR_SUCCESS;
+    
     // curent p is the body start position.
     char* pbody = p;
     header_size = p - buffer;
     
-    // move p to the end of header.
-    p = buffer + nread;
-    
     // read all data.
-    while(p - pbody < message_length){
-        int size_left = message_length - (p - pbody);
+    int received = nread - header_size;
+    while(received < message_length){
+        int size_left = message_length - received;
         
         if(size_left > in_chunk_size){
             // read the next header.
@@ -467,13 +575,15 @@ int Rtmp::Read(StSocket* socket){
             return ret;
         }
         
+        ssize_t nread;
         if((ret = socket->ReadFully(p, size_left, &nread)) != ERROR_SUCCESS){
             return ret;
         }
         recv_size += nread;
+        received += nread;
         
         // completed.
-        if(p + size_left >= pbody + message_length){
+        if(received >= message_length){
             break;
         }
         
@@ -495,7 +605,61 @@ int Rtmp::Read(StSocket* socket){
     }
     
     // set p to the body.
-    p = buffer + header_size;
+    p = pbody;
+    
+    return ret;
+}
+
+int Rtmp::DropBody(StSocket* socket, ssize_t nread){
+    int ret = ERROR_SUCCESS;
+    
+    // curent p is the body start position.
+    char* pbody = p;
+    header_size = p - buffer;
+    
+    // read all data.
+    int received = nread - header_size;
+    while(received < message_length){
+        int size_left = message_length - received;
+        
+        if(size_left > in_chunk_size){
+            // read the next header.
+            size_left = in_chunk_size + 1;
+        }
+        
+        // reset the p, to drop all message.
+        p = pbody;
+        
+        if((ret = socket->ReadFully(p, size_left, &nread)) != ERROR_SUCCESS){
+            return ret;
+        }
+        recv_size += nread;
+        received += nread;
+        
+        // completed.
+        if(received >= message_length){
+            break;
+        }
+        
+        // back to the basic header where fmt===3.
+        p += size_left - 1;
+        
+        // ensure the header fmt===3.
+        if((ret = ParseHeader(socket)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        // ignore the parsed header.
+        received--;
+    }
+
+    // filter received packet.
+    if((ret = FilterPacket(socket)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    // set p to the body.
+    p = pbody;
     
     return ret;
 }
@@ -533,7 +697,7 @@ int Rtmp::ParseHeader(StSocket* socket){
         pp[0] = *p++;
         pp[3] = 0;
         
-        extended_timestamp = (timestamp == 0xFFFFFF);
+        extended_timestamp = (timestamp == RTMP_EXTENDED_TIMESTAMP);
         
         if(fmt <= 1){
             pp = (char*)&message_length;
@@ -665,6 +829,7 @@ int Rtmp::FilterPacket(StSocket* socket){
 
 StRtmpClient::StRtmpClient(){
     socket = new StSocket();
+    stream_id = 0;
 }
 
 StRtmpClient::~StRtmpClient(){
@@ -691,6 +856,12 @@ int StRtmpClient::Dump(RtmpUrl* url){
         return ret;
     }
     Info("rtmp client connect tcUrl(%s) success", url->GetTcUrl());
+    
+    if((ret = CreateStream()) != ERROR_SUCCESS){
+        Error("rtmp client create stream failed. ret=%d", ret);
+        return ret;
+    }
+    Info("rtmp client create stream(%d) success", stream_id);
     
     if((ret = PlayStram(url)) != ERROR_SUCCESS){
         Error("rtmp client play stream failed. ret=%d", ret);
@@ -761,6 +932,189 @@ int StRtmpClient::Handshake(){
 }
 
 int StRtmpClient::ConnectApp(RtmpUrl* url){
+    int ret = ERROR_SUCCESS;
+
+    if((ret = BuildConnectApp(url)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    ssize_t nsize;
+    
+    // send connect(tcUrl) packet.
+    if((ret = socket->Write(rtmp.GetBuffer(), rtmp.GetSize(), &nsize)) != ERROR_SUCCESS){
+        return ret;
+    }
+    // recv response
+    while(true){
+        if((ret = rtmp.Read(socket)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        if(rtmp.GetMessageType() != RTMP_MSG_AMF0CommandMessage){
+            Info("ignore message type=%d", rtmp.GetMessageType());
+            continue;
+        }
+        
+        if((ret = rtmp.ParseAMF0Type(RTMP_AMF0_String)) != ERROR_SUCCESS){
+            return ret;
+        }
+
+        string cmd;
+        if((ret = rtmp.ParseAMF0String(&cmd)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        if(cmd != "_result"){
+            Info("ignore amf0 cmd=%d", cmd.c_str());
+            continue;
+        }
+        
+        Info("connect app completed");
+        break;
+    }
+    
+    return ret;
+}
+
+int StRtmpClient::CreateStream(){
+    int ret = ERROR_SUCCESS;
+
+    if((ret = rtmp.WriteBegin(RTMP_CID_OverConnection, 0, RTMP_MSG_AMF0CommandMessage, 0)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    if((ret = rtmp.WriteAMF0String("createStream")) != ERROR_SUCCESS){
+        return ret;
+    }
+    if((ret = rtmp.WriteAMF0Number(2.0)) != ERROR_SUCCESS){
+        return ret;
+    }
+    if((ret = rtmp.WriteAMF0Null()) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    if((ret = rtmp.WriteEnd()) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    ssize_t nsize;
+    
+    // send createStream packet.
+    if((ret = socket->Write(rtmp.GetBuffer(), rtmp.GetSize(), &nsize)) != ERROR_SUCCESS){
+        return ret;
+    }
+    // recv response
+    while(true){
+        if((ret = rtmp.Read(socket)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        if(rtmp.GetMessageType() != RTMP_MSG_AMF0CommandMessage){
+            Info("ignore message type=%d", rtmp.GetMessageType());
+            continue;
+        }
+        
+        // command name
+        if((ret = rtmp.ParseAMF0Type(RTMP_AMF0_String)) != ERROR_SUCCESS){
+            return ret;
+        }
+        string cmd;
+        if((ret = rtmp.ParseAMF0String(&cmd)) != ERROR_SUCCESS){
+            return ret;
+        }
+        if(cmd != "_result"){
+            Info("ignore amf0 cmd=%d", cmd.c_str());
+            continue;
+        }
+        
+        // transaction id.
+        if((ret = rtmp.ParseAMF0Type(RTMP_AMF0_Number)) != ERROR_SUCCESS){
+            return ret;
+        }
+        double tid;
+        if((ret = rtmp.ParseAMF0Number(&tid)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        // null
+        if((ret = rtmp.ParseAMF0Type(RTMP_AMF0_Null)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        // stream id
+        if((ret = rtmp.ParseAMF0Type(RTMP_AMF0_Number)) != ERROR_SUCCESS){
+            return ret;
+        }
+        double sid;
+        if((ret = rtmp.ParseAMF0Number(&sid)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        stream_id = (int)sid;
+        
+        Info("create stream completed, stream_id=%d", stream_id);
+        break;
+    }
+    
+    return ret;
+}
+
+int StRtmpClient::PlayStram(RtmpUrl* url){
+    int ret = ERROR_SUCCESS;
+
+    if((ret = rtmp.WriteBegin(RTMP_CID_OverConnection, 0, RTMP_MSG_AMF0CommandMessage, stream_id)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    if((ret = rtmp.WriteAMF0String("play")) != ERROR_SUCCESS){
+        return ret;
+    }
+    if((ret = rtmp.WriteAMF0Number(0)) != ERROR_SUCCESS){
+        return ret;
+    }
+    if((ret = rtmp.WriteAMF0Null()) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    // streamName
+    if((ret = rtmp.WriteAMF0String(url->GetStream())) != ERROR_SUCCESS){
+        return ret;
+    }
+    // start
+    if((ret = rtmp.WriteAMF0Number(-2)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    if((ret = rtmp.WriteEnd()) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    ssize_t nsize;
+    
+    // send createStream packet.
+    if((ret = socket->Write(rtmp.GetBuffer(), rtmp.GetSize(), &nsize)) != ERROR_SUCCESS){
+        return ret;
+    }
+    
+    return ret;
+}
+
+int StRtmpClient::DumpAV(){
+    int ret = ERROR_SUCCESS;
+
+    // recv response
+    while(true){
+        if((ret = rtmp.ReadFast(socket)) != ERROR_SUCCESS){
+            return ret;
+        }
+        
+        Info("get message type=%d, size=%d", rtmp.GetMessageType(), rtmp.GetBodySize());
+    }
+    
+    return ret;
+}
+
+int StRtmpClient::BuildConnectApp(RtmpUrl* url){
     int ret = ERROR_SUCCESS;
 
     if((ret = rtmp.WriteBegin(RTMP_CID_OverConnection, 0, RTMP_MSG_AMF0CommandMessage, 0)) != ERROR_SUCCESS){
@@ -863,32 +1217,6 @@ int StRtmpClient::ConnectApp(RtmpUrl* url){
         return ret;
     }
     
-    ssize_t nsize;
-    
-    // send connect(tcUrl) packet.
-    if((ret = socket->Write(rtmp.GetBuffer(), rtmp.GetSize(), &nsize)) != ERROR_SUCCESS){
-        return ret;
-    }
-    // recv response
-    while(true){
-        if((ret = rtmp.Read(socket)) != ERROR_SUCCESS){
-            return ret;
-        }
-        
-        if(rtmp.GetMessageType() == RTMP_MSG_AMF0CommandMessage){
-        }
-    }
-    
-    return ret;
-}
-
-int StRtmpClient::PlayStram(RtmpUrl* url){
-    int ret = ERROR_SUCCESS;
-    return ret;
-}
-
-int StRtmpClient::DumpAV(){
-    int ret = ERROR_SUCCESS;
     return ret;
 }
 

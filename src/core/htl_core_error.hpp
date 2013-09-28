@@ -31,6 +31,7 @@
 #define ERROR_RTMP_URL 600
 #define ERROR_RTMP_OVERFLOW 601
 #define ERROR_RTMP_MSG_TOO_BIG 602
+#define ERROR_RTMP_INVALID_RESPONSE 603
 
 #define ProductVersion "1.0"
 #define ProductHTTPName "Bravo HttpLoad/"ProductVersion

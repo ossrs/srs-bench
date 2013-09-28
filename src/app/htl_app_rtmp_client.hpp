@@ -55,6 +55,7 @@ public:
     virtual int WriteAMF0String(const char* value);
     virtual int WriteAMF0Boolean(bool value);
     virtual int WriteAMF0Number(double value);
+    virtual int WriteAMF0Null();
     virtual int WriteAMF0ObjectStart();
     virtual int WriteAMF0ObjectPropertyName(const char* value);
     virtual int WriteAMF0ObjectEnd();
@@ -63,7 +64,13 @@ public:
     virtual int WriteEnd();
 public:
     virtual int Read(StSocket* socket);
+    virtual int ReadFast(StSocket* socket);
+    virtual int ParseAMF0Type(char required_amf0_type);
+    virtual int ParseAMF0String(std::string* value);
+    virtual int ParseAMF0Number(double* value);
 private:
+    virtual int ReadBody(StSocket* socket, ssize_t nread);
+    virtual int DropBody(StSocket* socket, ssize_t nread);
     virtual int ParseHeader(StSocket* socket);
     virtual int FilterPacket(StSocket* socket);
 };
@@ -72,6 +79,7 @@ class StRtmpClient
 {
 private:
     Rtmp rtmp;
+    int stream_id;
 private:
     StSocket* socket;
 public:
@@ -83,8 +91,11 @@ private:
     virtual int Connect(RtmpUrl* url);
     virtual int Handshake();
     virtual int ConnectApp(RtmpUrl* url);
+    virtual int CreateStream();
     virtual int PlayStram(RtmpUrl* url);
     virtual int DumpAV();
+private:
+    virtual int BuildConnectApp(RtmpUrl* url);
 };
 
 #endif

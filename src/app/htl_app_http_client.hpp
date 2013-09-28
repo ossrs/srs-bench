@@ -6,7 +6,7 @@
 */
 #include <string>
 
-#include <htl_core_http_parser.hpp>
+#include <htl_core_uri.hpp>
 #include <htl_os_st.hpp>
 
 class StHttpClient

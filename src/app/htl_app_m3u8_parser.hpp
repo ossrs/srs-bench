@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include <htl_core_http_parser.hpp>
+#include <htl_core_uri.hpp>
 
 struct M3u8TS
 {

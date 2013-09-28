@@ -1,8 +1,8 @@
-#ifndef _htl_core_http_parser_hpp
-#define _htl_core_http_parser_hpp
+#ifndef _htl_core_uri_hpp
+#define _htl_core_uri_hpp
 
 /*
-#include <htl_core_http_parser.hpp>
+#include <htl_core_uri.hpp>
 */
 
 #include <string>
@@ -40,14 +40,6 @@ private:
     * @return return empty string if not set.
     */
     static std::string GetUriField(std::string uri, http_parser_url* hp_u, http_parser_url_fields field);
-};
-
-class HttpParser
-{
-public:
-    HttpParser();
-    virtual ~HttpParser();
-public:
 };
 
 #endif

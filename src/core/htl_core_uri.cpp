@@ -9,7 +9,7 @@ using namespace std;
 #include <htl_core_log.hpp>
 #include <htl_core_error.hpp>
 
-#include <htl_core_http_parser.hpp>
+#include <htl_core_uri.hpp>
 
 HttpUrl::HttpUrl(){
     port = 80;
@@ -129,10 +129,4 @@ string HttpUrl::GetUriField(string uri, http_parser_url* hp_u, http_parser_url_f
         uri.c_str() + hp_u->field_data[field].off);
         
     return uri.substr(hp_u->field_data[field].off, hp_u->field_data[field].len);
-}
-
-HttpParser::HttpParser(){
-}
-
-HttpParser::~HttpParser(){
 }

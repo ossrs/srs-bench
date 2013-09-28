@@ -118,7 +118,7 @@ LibHttpParserfile="${LibHttpParserRoot}/libhttp_parser.a"
 MODULE_ID="CORE" 
 MODULE_DEPENDS=() 
 ModuleLibIncs=(${LibHttpParserRoot})
-MODULE_FILES=("htl_core_log" "htl_core_error" "htl_core_http_parser" "htl_core_aggregate_ret")
+MODULE_FILES=("htl_core_log" "htl_core_error" "htl_core_uri" "htl_core_aggregate_ret")
 MODULE_DIR="src/core" . auto/modules.sh
 CORE_OBJS="${MODULE_OBJS[@]}"
 

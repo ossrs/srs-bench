@@ -289,7 +289,7 @@ int StSocket::ReadFully(const void* buf, size_t size, ssize_t* nread){
     
     // On success a non-negative integer indicating the number of bytes actually read is returned 
     // (a value less than nbyte means the network connection is closed or end of file is reached)
-    if(*nread != size){
+    if(*nread != (ssize_t)size){
         if(*nread >= 0){
             errno = ECONNRESET;
         }

@@ -29,6 +29,8 @@
 #define ERROR_HP_PARSE_RESPONSE 502
 
 #define ERROR_RTMP_URL 600
+#define ERROR_RTMP_OVERFLOW 601
+#define ERROR_RTMP_MSG_TOO_BIG 602
 
 #define ProductVersion "1.0"
 #define ProductHTTPName "Bravo HttpLoad/"ProductVersion

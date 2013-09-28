@@ -679,7 +679,7 @@ int Rtmp::ParseHeader(StSocket* socket){
         cid = 64;
         cid += 256 * (*p++);
     }
-    Info("fmt=%d, cid=%d", fmt, cid);
+    Info("fmt=%d, cid=%d, cache_cid=%d", fmt, cid, this->cid);
     
     // simplify the rtmp, disable the interlaced chunk
     if(fmt == 0){
@@ -750,7 +750,7 @@ int Rtmp::FilterPacket(StSocket* socket){
         pp[2] = *p++;
         pp[1] = *p++;
         pp[0] = *p++;
-        Info("set ack size to %d", ack);
+        Info("set ack size to %d", ack_size);
     }
     if(message_type == RTMP_MSG_SetChunkSize){
         assert(message_length == 4);
@@ -966,7 +966,7 @@ int StRtmpClient::ConnectApp(RtmpUrl* url){
         }
         
         if(cmd != "_result"){
-            Info("ignore amf0 cmd=%d", cmd.c_str());
+            Info("ignore amf0 cmd=%s", cmd.c_str());
             continue;
         }
         
@@ -1024,7 +1024,7 @@ int StRtmpClient::CreateStream(){
             return ret;
         }
         if(cmd != "_result"){
-            Info("ignore amf0 cmd=%d", cmd.c_str());
+            Info("ignore amf0 cmd=%s", cmd.c_str());
             continue;
         }
         

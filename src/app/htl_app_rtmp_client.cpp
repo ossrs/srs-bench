@@ -597,6 +597,7 @@ int Rtmp::ReadBody(StSocket* socket, ssize_t nread){
         
         // ignore the parsed header.
         p--;
+        received--;
     }
 
     // filter received packet.
@@ -668,7 +669,7 @@ int Rtmp::ParseHeader(StSocket* socket){
     int ret = ERROR_SUCCESS;
     
     // basic header, 1/2/3 bytes.
-    char fmt = *p>>6;
+    char fmt = (*p>>6 & 0x03);
     char cid = *p++ & 0x3f;
     if(cid == 0){
         cid = 64;

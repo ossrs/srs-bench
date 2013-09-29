@@ -3,6 +3,12 @@ st-load
 
 hls/http/rtmp load test tool base on st(state-threads), support huge concurrency
 
+服务器负载测试工具(st-load)：
+1. 模拟huge并发：2G内存就可以开300k连接。基于states-threads的协程。
+2. 支持HLS解析和测试，下载ts片后等待一个切片长度，模拟客户端。支持HLS点播和直播。
+3. 支持HTTP负载测试，所有并发重复下载一个http文件。可将80Gbps带宽测试的72Gbps。
+4. 支持RTMP流测试，一个进程支持5k并发。使用nginx-rtmp的协议直接将chunk流解析为messgae。
+
 TestEnvironment: 24CPU, 80Gbps Network, 16GB Memory<br/>
 Server: NGINX HLS<br/>
 Result: 90% bandwith, 72Gbps

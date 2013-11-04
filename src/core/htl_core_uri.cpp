@@ -194,3 +194,4 @@ const char* RtmpUrl::GetApp(){
 const char* RtmpUrl::GetStream(){
     return stream.c_str();
 }
+

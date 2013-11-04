@@ -420,3 +420,4 @@ void StLogContext::SetId(int id){
 int StLogContext::GetId(){
     return cache[st_thread_self()];
 }
+

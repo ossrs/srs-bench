@@ -46,3 +46,4 @@ int LogContext::GetId(){
 const char* LogContext::FormatTime(){
     return time.FormatTime();
 }
+

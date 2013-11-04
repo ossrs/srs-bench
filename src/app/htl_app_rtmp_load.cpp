@@ -49,7 +49,7 @@ int StRtmpTask::ProcessTask(){
             statistic->OnTaskError(GetId(), 0);
             
             Error("rtmp client dump url failed. ret=%d", ret);
-            st_usleep(error_seconds * 1000 * 1000);
+            st_usleep((st_utime_t)(error_seconds * 1000 * 1000));
             continue;
         }
         

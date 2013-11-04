@@ -98,7 +98,7 @@ void StStatistic::DoReport(double sleep_ms){
             getpid(), threads, alive, duration/1000.0, avarage_duration, read_mbps, write_mbps, 
             tasks, err_tasks, sub_tasks, err_sub_tasks);
         
-        st_usleep(sleep_ms * 1000);
+        st_usleep((st_utime_t)(sleep_ms * 1000));
     }
 }
 

@@ -30,7 +30,7 @@ else
         cd http-parser-2.1 && 
         sed -i "s/CPPFLAGS_FAST +=.*$/CPPFLAGS_FAST = \$\(CPPFLAGS_DEBUG\)/g" Makefile &&
         sed -i "s/CFLAGS_FAST =.*$/CFLAGS_FAST = \$\(CFLAGS_DEBUG\)/g" Makefile &&
-        make package && make url_parser_g && make parsertrace_g
+        make package
     )
 fi
 # check status

@@ -135,7 +135,7 @@ MODULE_ID="APP"
 MODULE_DEPENDS=("CORE" "OS") 
 ModuleLibIncs=(${LibSTRoot} ${LibHttpParserRoot})
 MODULE_FILES=("htl_app_hls_load" "htl_app_http_load" "htl_app_http_client" "htl_app_rtmp_client" 
-    "htl_app_m3u8_parser" "htl_app_task_base" "htl_app_rtmp_load")
+    "htl_app_m3u8_parser" "htl_app_task_base" "htl_app_rtmp_load" "htl_app_rtmp_protocol")
 MODULE_DIR="src/app" . auto/modules.sh
 APP_OBJS="${MODULE_OBJS[@]}"
 

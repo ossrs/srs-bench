@@ -202,6 +202,10 @@ StSocket::~StSocket(){
     Close();
 }
 
+st_netfd_t StSocket::GetStfd(){
+	return sock_nfd;
+}
+
 SocketStatus StSocket::Status(){
     return status;
 }

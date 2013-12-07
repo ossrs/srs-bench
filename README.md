@@ -62,7 +62,7 @@ Cpu(s):  7.4%us,  7.2%sy,  0.0%ni, 78.8%id,  0.0%wa,  0.1%hi,  6.5%si,  0.0%st
 Mem:   2055440k total,  1304528k used,   750912k free,   182336k buffers
 Swap:  2064376k total,        0k used,  2064376k free,   613848k cached
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND                                                                          
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
 13091 winlin    20   0  186m 110m 1404 S 29.6  5.5   1:55.35 ./objs/st_rtmp_load -c 1000 
 12544 winlin    20   0  124m  22m 2080 S 20.3  1.1   1:51.51 ./objs/simple_rtmp_server
 

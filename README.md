@@ -63,8 +63,8 @@ Mem:   2055440k total,  1304528k used,   750912k free,   182336k buffers
 Swap:  2064376k total,        0k used,  2064376k free,   613848k cached
 
   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND                                                                          
-13091 winlin    20   0  186m 110m 1404 S 29.6  5.5   1:55.35 ./objs/st_rtmp_load -c 1000 -r rtmp://dev:1935/live/livestream                    
-12544 winlin    20   0  124m  22m 2080 S 20.3  1.1   1:51.51 ./objs/simple_rtmp_server -c conf/srs.conf 
+13091 winlin    20   0  186m 110m 1404 S 29.6  5.5   1:55.35 ./objs/st_rtmp_load -c 1000 
+12544 winlin    20   0  124m  22m 2080 S 20.3  1.1   1:51.51 ./objs/simple_rtmp_server
 
 ----total-cpu-usage---- -dsk/total- ---net/lo-- ---paging-- ---system--
 usr sys idl wai hiq siq| read  writ| recv  send|  in   out | int   csw 

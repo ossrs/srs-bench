@@ -10,7 +10,7 @@ LogContext* context = new StLogContext();
 
 #define DefaultThread 1
 #define DefaultStartupSeconds 5.0
-#define DefaultErrorSeconds 10.0
+#define DefaultErrorSeconds 3.0
 #define DefaultReportSeconds 30.0
 #define DefaultCount 0
 

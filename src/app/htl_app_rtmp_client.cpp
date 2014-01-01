@@ -28,6 +28,9 @@ StRtmpClient::~StRtmpClient(){
 int StRtmpClient::Dump(RtmpUrl* url){
     int ret = ERROR_SUCCESS;
     
+    delete socket;
+    socket = new StSocket();
+    
     if((ret = Connect(url)) != ERROR_SUCCESS){
         Error("rtmp client connect server failed. ret=%d", ret);
         return ret;

@@ -54,7 +54,7 @@ int StHttpTask::ProcessTask(){
         }
         
         int sleep_ms = StUtility::BuildRandomMTime((delay_seconds >= 0)? delay_seconds:0);
-        Trace("[HTTP] %s download, size=%"PRId64", sleep %dms", url.GetUrl(), client.GetResponseHeader()->content_length, sleep_ms);
+        Info("[HTTP] %s download, size=%"PRId64", sleep %dms", url.GetUrl(), client.GetResponseHeader()->content_length, sleep_ms);
         st_usleep(sleep_ms * 1000);
         
         statistic->OnTaskEnd(GetId(), 0);

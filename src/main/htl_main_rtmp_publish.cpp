@@ -37,8 +37,9 @@ using namespace std;
 #include <htl_main_utility.hpp>
 
 #define DefaultDelaySeconds 1.0
-#define DefaultRtmpUrl "rtmp://127.0.0.1:1935/live/livestream"
-#define DefaultInputFlv "~/srs/doc/source.200kbps.768x320.flv"
+#define DefaultRtmpUrlSingle "rtmp://127.0.0.1:1935/live/livestream"
+#define DefaultRtmpUrl "rtmp://127.0.0.1:1935/live/livestream_{i}"
+#define DefaultInputFlv "doc/source.200kbps.768x320.flv"
 
 int discovery_options(int argc, char** argv, 
     bool& show_help, bool& show_version, string& url, int& threads, 
@@ -102,7 +103,7 @@ void help(char** argv){
         DefaultThread, DefaultRtmpUrl, DefaultCount, // part1
         (double)DefaultStartupSeconds, DefaultDelaySeconds, // part2
         DefaultErrorSeconds, DefaultReportSeconds, // part2
-        argv[0], DefaultInputFlv, DefaultRtmpUrl, 
+        argv[0], DefaultInputFlv, DefaultRtmpUrlSingle, 
         argv[0], DefaultInputFlv, DefaultRtmpUrl, 
         argv[0], DefaultInputFlv, DefaultRtmpUrl, 
         argv[0], DefaultInputFlv, DefaultRtmpUrl,
@@ -142,11 +143,22 @@ int main(int argc, char** argv){
         return ret;
     }
 
+    
     for(int i = 0; i < threads; i++){
         StRtmpPublishTask* task = new StRtmpPublishTask();
 
-        if((ret = task->Initialize(input, url, start, delay, error, count)) != ERROR_SUCCESS){
-            Error("initialize task failed, input=%s, url=%s, ret=%d", input.c_str(), url.c_str(), ret);
+        char index[16];
+        snprintf(index, sizeof(index), "%d", i);
+        
+        std::string _index = index;
+        std::string rtmp_url = url;
+        size_t pos = std::string::npos;
+        if ((pos = rtmp_url.find("{i}")) != std::string::npos) {
+            rtmp_url = rtmp_url.replace(pos, pos + 3, _index);
+        }
+        
+        if((ret = task->Initialize(input, rtmp_url, start, delay, error, count)) != ERROR_SUCCESS){
+            Error("initialize task failed, input=%s, url=%s, ret=%d", input.c_str(), rtmp_url.c_str(), ret);
             return ret;
         }
         

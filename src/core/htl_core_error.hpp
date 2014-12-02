@@ -33,9 +33,10 @@
 #define ERROR_RTMP_MSG_TOO_BIG 602
 #define ERROR_RTMP_INVALID_RESPONSE 603
 
-#define ProductVersion "1.0"
+#define ProductVersion "1.0.1"
 #define ProductHTTPName "Bravo HttpLoad/"ProductVersion
 #define ProductHLSName "Bravo HlsLoad/"ProductVersion
+#define ProductRtmpName "Bravo RtmpLoad/"ProductVersion
 #define BuildPlatform "linux"
 #define BugReportEmail "winterserver@126.com"
 

@@ -48,7 +48,7 @@ int discovery_options(int argc, char** argv,
 }
 
 void help(char** argv){
-    printf("%s, Copyright (c) 2013 winlin\n", ProductHTTPName);
+    printf("%s, Copyright (c) 2013 winlin\n", ProductRtmpName);
     
     printf(""
         "Usage: %s <Options> <-u URL>\n"

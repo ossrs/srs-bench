@@ -80,6 +80,10 @@ all: _prepare_dir
 	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_http_load
 	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_hls_load
 	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_rtmp_load
+	@echo "build ok, you can:"
+	@echo "     ./objs/st_http_load"
+	@echo "     ./objs/st_hls_load"
+	@echo "     ./objs/st_rtmp_load"
 
 # the ./configure will generate it.
 _prepare_dir:

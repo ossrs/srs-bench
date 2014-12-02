@@ -1,18 +1,7 @@
-#ifndef _htl_app_rtmp_protocol_hpp
-#define _htl_app_rtmp_protocol_hpp
-
-/*
-#include <htl_app_rtmp_protocol.hpp>
-*/
-
-#include <st.h>
-#include <vector>
-#include <map>
-
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013 winlin
+Copyright (c) 2013-2014 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -31,1896 +20,1007 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-class SrsProtocol;
-class ISrsMessage;
-class SrsCommonMessage;
-class SrsCreateStreamPacket;
-class SrsFMLEStartPacket;
-class SrsPublishPacket;
-class SrsSharedPtrMessage;
-class SrsOnMetaDataPacket;
 
-#if 1
-	#define srs_verbose(msg, ...) (void)0
-	#define srs_info(msg, ...) (void)0
-	#define srs_trace(msg, ...) (void)0
-	#define srs_warn(msg, ...) (void)0
-	#define srs_error(msg, ...) (void)0
+#ifndef SRS_LIB_RTMP_HPP
+#define SRS_LIB_RTMP_HPP
+
+/*
+#include <srs_librtmp.h>
+*/
+
+/**
+* srs-librtmp is a librtmp like library,
+* used to play/publish rtmp stream from/to rtmp server.
+* socket: use sync and block socket to connect/recv/send data with server.
+* depends: no need other libraries; depends on ssl if use srs_complex_handshake.
+* thread-safe: no
+*/
+
+/*************************************************************
+**************************************************************
+* Windows SRS-LIBRTMP pre-declare
+**************************************************************
+*************************************************************/
+// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+#ifdef _WIN32
+    // include windows first.
+    #include <windows.h>
+    // the type used by this header for windows.
+    typedef unsigned long long u_int64_t;
+    typedef long long int64_t;
+    typedef unsigned int u_int32_t;
+    typedef int int32_t;
+    typedef unsigned char u_int8_t;
+    typedef char int8_t;
+    typedef unsigned short u_int16_t;
+    typedef short int16_t;
+    typedef int64_t ssize_t;
+    struct iovec {
+        void  *iov_base;    /* Starting address */
+        size_t iov_len;     /* Number of bytes to transfer */
+    };
 #endif
 
-// donot use openssl, use simple handshake.
-#undef SRS_SSL
+#include <sys/types.h>
 
-#include <assert.h>
-#define srs_assert(expression) assert(expression)
-
-// current release version
-#define RTMP_SIG_SRS_VERSION "0.5.0"
-// server info.
-#define RTMP_SIG_SRS_KEY "srs"
-#define RTMP_SIG_SRS_ROLE "origin server"
-#define RTMP_SIG_SRS_NAME RTMP_SIG_SRS_KEY"(simple rtmp server)"
-#define RTMP_SIG_SRS_URL "https://"RTMP_SIG_SRS_URL_SHORT
-#define RTMP_SIG_SRS_URL_SHORT "github.com/winlinvip/simple-rtmp-server"
-#define RTMP_SIG_SRS_WEB "http://blog.csdn.net/win_lin"
-#define RTMP_SIG_SRS_EMAIL "winterserver@126.com"
-#define RTMP_SIG_SRS_LICENSE "The MIT License (MIT)"
-#define RTMP_SIG_SRS_COPYRIGHT "Copyright (c) 2013 winlin"
-#define RTMP_SIG_SRS_CONTRIBUTOR "winlin"
-
-// default vhost for rtmp
-#define RTMP_VHOST_DEFAULT "__defaultVhost__"
-
-#define SRS_LOCALHOST "127.0.0.1"
-#define RTMP_DEFAULT_PORT 1935
-#define RTMP_DEFAULT_PORTS "1935"
-
-#define SRS_CONF_DEFAULT_HLS_PATH "./objs/nginx/html"
-#define SRS_CONF_DEFAULT_HLS_FRAGMENT 10
-#define SRS_CONF_DEFAULT_HLS_WINDOW 60
-// in ms, for HLS aac sync time.
-#define SRS_CONF_DEFAULT_AAC_SYNC 100
-// in ms, for HLS aac flush the audio
-#define SRS_CONF_DEFAULT_AAC_DELAY 300
-
-#define ERROR_SUCCESS 					0
-
-#define ERROR_ST_SET_EPOLL 				100
-#ifndef ERROR_ST_INITIALIZE
-#define ERROR_ST_INITIALIZE 			101
+#ifdef __cplusplus
+extern "C"{
 #endif
-#define ERROR_ST_OPEN_SOCKET			102
-#define ERROR_ST_CREATE_LISTEN_THREAD	103
-#define ERROR_ST_CREATE_CYCLE_THREAD	104
-#define ERROR_ST_CREATE_FORWARD_THREAD	105
-#define ERROR_ST_CONNECT				106
 
-#define ERROR_SOCKET_CREATE 			200
-#define ERROR_SOCKET_SETREUSE 			201
-#define ERROR_SOCKET_BIND 				202
-#define ERROR_SOCKET_LISTEN 			203
-#define ERROR_SOCKET_CLOSED 			204
-#define ERROR_SOCKET_GET_PEER_NAME		205
-#define ERROR_SOCKET_GET_PEER_IP		206
-#define ERROR_SOCKET_READ				207
-#define ERROR_SOCKET_READ_FULLY			208
-#define ERROR_SOCKET_WRITE				209
-#define ERROR_SOCKET_WAIT				210
-#define ERROR_SOCKET_TIMEOUT			211
+// typedefs
+typedef int srs_bool;
 
-#define ERROR_RTMP_PLAIN_REQUIRED		300
-#define ERROR_RTMP_CHUNK_START			301
-#define ERROR_RTMP_MSG_INVLIAD_SIZE		302
-#define ERROR_RTMP_AMF0_DECODE			303
-#define ERROR_RTMP_AMF0_INVALID			304
-#define ERROR_RTMP_REQ_CONNECT			305
-#define ERROR_RTMP_REQ_TCURL			306
-#define ERROR_RTMP_MESSAGE_DECODE		307
-#define ERROR_RTMP_MESSAGE_ENCODE		308
-#define ERROR_RTMP_AMF0_ENCODE			309
-#define ERROR_RTMP_CHUNK_SIZE			310
-#define ERROR_RTMP_TRY_SIMPLE_HS		311
-#define ERROR_RTMP_CH_SCHEMA			312
-#define ERROR_RTMP_PACKET_SIZE			313
-#define ERROR_RTMP_VHOST_NOT_FOUND		314
-#define ERROR_RTMP_ACCESS_DENIED		315
-#define ERROR_RTMP_HANDSHAKE			316
-#define ERROR_RTMP_NO_REQUEST			317
+/*************************************************************
+**************************************************************
+* srs-librtmp version
+**************************************************************
+*************************************************************/
+extern int srs_version_major();
+extern int srs_version_minor();
+extern int srs_version_revision();
 
-#define ERROR_SYSTEM_STREAM_INIT		400
-#define ERROR_SYSTEM_PACKET_INVALID		401
-#define ERROR_SYSTEM_CLIENT_INVALID		402
-#define ERROR_SYSTEM_ASSERT_FAILED		403
-#define ERROR_SYSTEM_SIZE_NEGATIVE		404
-#define ERROR_SYSTEM_CONFIG_INVALID		405
-#define ERROR_SYSTEM_CONFIG_DIRECTIVE	406
-#define ERROR_SYSTEM_CONFIG_BLOCK_START	407
-#define ERROR_SYSTEM_CONFIG_BLOCK_END	408
-#define ERROR_SYSTEM_CONFIG_EOF			409
-#define ERROR_SYSTEM_STREAM_BUSY		410
-#define ERROR_SYSTEM_IP_INVALID			411
-#define ERROR_SYSTEM_CONFIG_TOO_LARGE	412
-#define ERROR_SYSTEM_FORWARD_LOOP		413
-#define ERROR_SYSTEM_WAITPID			414
-
-// see librtmp.
-// failed when open ssl create the dh
-#define ERROR_OpenSslCreateDH			500
-// failed when open ssl create the Private key.
-#define ERROR_OpenSslCreateP			501
-// when open ssl create G.
-#define ERROR_OpenSslCreateG			502
-// when open ssl parse P1024
-#define ERROR_OpenSslParseP1024			503
-// when open ssl set G
-#define ERROR_OpenSslSetG				504
-// when open ssl generate DHKeys
-#define ERROR_OpenSslGenerateDHKeys		505
-// when open ssl share key already computed.
-#define ERROR_OpenSslShareKeyComputed	506
-// when open ssl get shared key size.
-#define ERROR_OpenSslGetSharedKeySize	507
-// when open ssl get peer public key.
-#define ERROR_OpenSslGetPeerPublicKey	508
-// when open ssl compute shared key.
-#define ERROR_OpenSslComputeSharedKey	509
-// when open ssl is invalid DH state.
-#define ERROR_OpenSslInvalidDHState		510
-// when open ssl copy key
-#define ERROR_OpenSslCopyKey			511
-// when open ssl sha256 digest key invalid size.
-#define ERROR_OpenSslSha256DigestSize	512
-
-#define ERROR_HLS_METADATA				600
-#define ERROR_HLS_DECODE_ERROR			601
-#define ERROR_HLS_CREATE_DIR			602
-#define ERROR_HLS_OPEN_FAILED			603
-#define ERROR_HLS_WRITE_FAILED			604
-#define ERROR_HLS_AAC_FRAME_LENGTH		605
-#define ERROR_HLS_AVC_SAMPLE_SIZE		606
-
-#define ERROR_ENCODER_VCODEC			700
-#define ERROR_ENCODER_OUTPUT			701
-#define ERROR_ENCODER_ACHANNELS			702
-#define ERROR_ENCODER_ASAMPLE_RATE		703
-#define ERROR_ENCODER_ABITRATE			704
-#define ERROR_ENCODER_ACODEC			705
-#define ERROR_ENCODER_VPRESET			706
-#define ERROR_ENCODER_VPROFILE			707
-#define ERROR_ENCODER_VTHREADS			708
-#define ERROR_ENCODER_VHEIGHT			709
-#define ERROR_ENCODER_VWIDTH			710
-#define ERROR_ENCODER_VFPS				711
-#define ERROR_ENCODER_VBITRATE			712
-#define ERROR_ENCODER_FORK				713
-#define ERROR_ENCODER_LOOP				714
-#define ERROR_ENCODER_OPEN				715
-#define ERROR_ENCODER_DUP2				716
-
-// free the p and set to NULL.
-// p must be a T*.
-#define srs_freep(p) \
-	if (p) { \
-		delete p; \
-		p = NULL; \
-	} \
-	(void)0
-// free the p which represents a array
-#define srs_freepa(p) \
-	if (p) { \
-		delete[] p; \
-		p = NULL; \
-	} \
-	(void)0
-
-// compare
-#define srs_min(a, b) (((a) < (b))? (a) : (b))
-#define srs_max(a, b) (((a) < (b))? (b) : (a))
-
-class SrsSocket;
+/*************************************************************
+**************************************************************
+* RTMP protocol context
+**************************************************************
+*************************************************************/
+// the RTMP handler.
+typedef void* srs_rtmp_t;
 
 /**
-* the buffer provices bytes cache for protocol. generally, 
-* protocol recv data from socket, put into buffer, decode to RTMP message.
-* protocol encode RTMP message to bytes, put into buffer, send to socket.
+* create/destroy a rtmp protocol stack.
+* @url rtmp url, for example: 
+*         rtmp://localhost/live/livestream
+*
+* @return a rtmp handler, or NULL if error occured.
 */
-class SrsBuffer
-{
-private:
-	std::vector<char> data;
-public:
-	SrsBuffer();
-	virtual ~SrsBuffer();
-public:
-	virtual int size();
-	virtual char* bytes();
-	virtual void erase(int size);
-private:
-	virtual void append(char* bytes, int size);
-public:
-	virtual int ensure_buffer_bytes(SrsSocket* skt, int required_size);
-};
-
-class SrsStream
-{
-private:
-	char* p;
-	char* pp;
-	char* bytes;
-	int size;
-public:
-	SrsStream();
-	virtual ~SrsStream();
-public:
-	/**
-	* initialize the stream from bytes.
-	* @_bytes, must not be NULL, or return error.
-	* @_size, must be positive, or return error.
-	* @remark, stream never free the _bytes, user must free it.
-	*/
-	virtual int initialize(char* _bytes, int _size);
-	/**
-	* reset the position to beginning.
-	*/
-	virtual void reset();
-	/**
-	* whether stream is empty.
-	* if empty, never read or write.
-	*/
-	virtual bool empty();
-	/**
-	* whether required size is ok.
-	* @return true if stream can read/write specified required_size bytes.
-	*/
-	virtual bool require(int required_size);
-	/**
-	* to skip some size.
-	* @size can be any value. positive to forward; nagetive to backward.
-	*/
-	virtual void skip(int size);
-	/**
-	* tell the current pos.
-	*/
-	virtual int pos();
-	/**
-	* left size of bytes.
-	*/
-	virtual int left();
-	virtual char* current();
-public:
-	/**
-	* get 1bytes char from stream.
-	*/
-	virtual int8_t read_1bytes();
-	/**
-	* get 2bytes int from stream.
-	*/
-	virtual int16_t read_2bytes();
-	/**
-	* get 3bytes int from stream.
-	*/
-	virtual int32_t read_3bytes();
-	/**
-	* get 4bytes int from stream.
-	*/
-	virtual int32_t read_4bytes();
-	/**
-	* get 8bytes int from stream.
-	*/
-	virtual int64_t read_8bytes();
-	/**
-	* get string from stream, length specifies by param len.
-	*/
-	virtual std::string read_string(int len);
-public:
-	/**
-	* write 1bytes char to stream.
-	*/
-	virtual void write_1bytes(int8_t value);
-	/**
-	* write 2bytes int to stream.
-	*/
-	virtual void write_2bytes(int16_t value);
-	/**
-	* write 4bytes int to stream.
-	*/
-	virtual void write_4bytes(int32_t value);
-	/**
-	* write 8bytes int to stream.
-	*/
-	virtual void write_8bytes(int64_t value);
-	/**
-	* write string to stream
-	*/
-	virtual void write_string(std::string value);
-};
-
+extern srs_rtmp_t srs_rtmp_create(const char* url);
 /**
-* the socket provides TCP socket over st,
-* that is, the sync socket mechanism.
+* create rtmp with url, used for connection specified application.
+* @param url the tcUrl, for exmple:
+*         rtmp://localhost/live
+* @remark this is used to create application connection-oriented,
+*       for example, the bandwidth client used this, no stream specified.
+*
+* @return a rtmp handler, or NULL if error occured.
 */
-class SrsSocket
-{
-private:
-	int64_t recv_timeout;
-	int64_t send_timeout;
-	int64_t recv_bytes;
-	int64_t send_bytes;
-	int64_t start_time_ms;
-    st_netfd_t stfd;
-public:
-    SrsSocket(st_netfd_t client_stfd);
-    virtual ~SrsSocket();
-public:
-	virtual void set_recv_timeout(int64_t timeout_us);
-	virtual int64_t get_recv_timeout();
-	virtual void set_send_timeout(int64_t timeout_us);
-	virtual int64_t get_recv_bytes();
-	virtual int64_t get_send_bytes();
-	virtual int get_recv_kbps();
-	virtual int get_send_kbps();
-public:
-    virtual int read(const void* buf, size_t size, ssize_t* nread);
-    virtual int read_fully(const void* buf, size_t size, ssize_t* nread);
-    virtual int write(const void* buf, size_t size, ssize_t* nwrite);
-    virtual int writev(const iovec *iov, int iov_size, ssize_t* nwrite);
-};
-
-class SrsSocket;
-class SrsComplexHandshake;
-
+extern srs_rtmp_t srs_rtmp_create2(const char* url);
 /**
-* try complex handshake, if failed, fallback to simple handshake.
+* close and destroy the rtmp stack.
+* @remark, user should use the rtmp again.
 */
-class SrsSimpleHandshake
-{
-public:
-	SrsSimpleHandshake();
-	virtual ~SrsSimpleHandshake();
-public:
-	/**
-	* simple handshake.
-	* @param complex_hs, try complex handshake first, 
-	* 		if failed, rollback to simple handshake.
-	*/
-	virtual int handshake_with_client(SrsSocket& skt, SrsComplexHandshake& complex_hs);
-	virtual int handshake_with_server(SrsSocket& skt, SrsComplexHandshake& complex_hs);
-};
+extern void srs_rtmp_destroy(srs_rtmp_t rtmp);
 
+/*************************************************************
+**************************************************************
+* RTMP protocol stack
+**************************************************************
+*************************************************************/
 /**
-* rtmp complex handshake,
-* @see also crtmp(crtmpserver) or librtmp,
-* @see also: http://blog.csdn.net/win_lin/article/details/13006803
+* connect and handshake with server
+* category: publish/play
+* previous: rtmp-create
+* next: connect-app
+*
+* @return 0, success; otherswise, failed.
 */
-class SrsComplexHandshake
-{
-public:
-	SrsComplexHandshake();
-	virtual ~SrsComplexHandshake();
-public:
-	/**
-	* complex hanshake.
-	* @_c1, size of c1 must be 1536.
-	* @remark, user must free the c1.
-	* @return user must:
-	* 	continue connect app if success,
-	* 	try simple handshake if error is ERROR_RTMP_TRY_SIMPLE_HS,
-	* 	otherwise, disconnect
-	*/
-	virtual int handshake_with_client(SrsSocket& skt, char* _c1);
-	virtual int handshake_with_server(SrsSocket& skt);
-};
-
 /**
-* auto free the instance in the current scope.
+* simple handshake specifies in rtmp 1.0,
+* not depends on ssl.
 */
-#define SrsAutoFree(className, instance, is_array) \
-	__SrsAutoFree<className> _auto_free_##instance(&instance, is_array)
-    
-template<class T>
-class __SrsAutoFree
-{
-private:
-    T** ptr;
-    bool is_array;
-public:
-    /**
-    * auto delete the ptr.
-    * @is_array a bool value indicates whether the ptr is a array.
-    */
-    __SrsAutoFree(T** _ptr, bool _is_array){
-        ptr = _ptr;
-        is_array = _is_array;
-    }
-    
-    virtual ~__SrsAutoFree(){
-        if (ptr == NULL || *ptr == NULL) {
-            return;
-        }
-        
-        if (is_array) {
-            delete[] *ptr;
-        } else {
-            delete *ptr;
-        }
-        
-        *ptr = NULL;
-    }
-};
-
-#include <string>
-#include <vector>
-
-class SrsStream;
-class SrsAmf0Object;
-
 /**
-* any amf0 value.
-* 2.1 Types Overview
-* value-type = number-type | boolean-type | string-type | object-type 
-* 		| null-marker | undefined-marker | reference-type | ecma-array-type 
-* 		| strict-array-type | date-type | long-string-type | xml-document-type 
-* 		| typed-object-type
+* srs_rtmp_handshake equals to invoke:
+*       __srs_rtmp_dns_resolve()
+*       __srs_rtmp_connect_server()
+*       __srs_rtmp_do_simple_handshake()
+* user can use these functions if needed.
 */
-struct SrsAmf0Any
-{
-	char marker;
-
-	SrsAmf0Any();
-	virtual ~SrsAmf0Any();
-	
-	virtual bool is_string();
-	virtual bool is_boolean();
-	virtual bool is_number();
-	virtual bool is_null();
-	virtual bool is_undefined();
-	virtual bool is_object();
-	virtual bool is_object_eof();
-	virtual bool is_ecma_array();
-};
+extern int srs_rtmp_handshake(srs_rtmp_t rtmp);
+// parse uri, create socket, resolve host
+extern int __srs_rtmp_dns_resolve(srs_rtmp_t rtmp);
+// connect socket to server
+extern int __srs_rtmp_connect_server(srs_rtmp_t rtmp);
+// do simple handshake over socket.
+extern int __srs_rtmp_do_simple_handshake(srs_rtmp_t rtmp);
 
 /**
-* read amf0 string from stream.
-* 2.4 String Type
-* string-type = string-marker UTF-8
-* @return default value is empty string.
+* connect to rtmp vhost/app
+* category: publish/play
+* previous: handshake
+* next: publish or play
+*
+* @return 0, success; otherswise, failed.
 */
-struct SrsAmf0String : public SrsAmf0Any
-{
-	std::string value;
-
-	SrsAmf0String(const char* _value = NULL);
-	virtual ~SrsAmf0String();
-};
+extern int srs_rtmp_connect_app(srs_rtmp_t rtmp);
 
 /**
-* read amf0 boolean from stream.
-* 2.4 String Type
-* boolean-type = boolean-marker U8
-* 		0 is false, <> 0 is true
-* @return default value is false.
-*/
-struct SrsAmf0Boolean : public SrsAmf0Any
-{
-	bool value;
-
-	SrsAmf0Boolean(bool _value = false);
-	virtual ~SrsAmf0Boolean();
-};
-
-/**
-* read amf0 number from stream.
-* 2.2 Number Type
-* number-type = number-marker DOUBLE
-* @return default value is 0.
-*/
-struct SrsAmf0Number : public SrsAmf0Any
-{
-	double value;
-
-	SrsAmf0Number(double _value = 0.0);
-	virtual ~SrsAmf0Number();
-};
-
-/**
-* read amf0 null from stream.
-* 2.7 null Type
-* null-type = null-marker
-*/
-struct SrsAmf0Null : public SrsAmf0Any
-{
-	SrsAmf0Null();
-	virtual ~SrsAmf0Null();
-};
-
-/**
-* read amf0 undefined from stream.
-* 2.8 undefined Type
-* undefined-type = undefined-marker
-*/
-struct SrsAmf0Undefined : public SrsAmf0Any
-{
-	SrsAmf0Undefined();
-	virtual ~SrsAmf0Undefined();
-};
-
-/**
-* 2.11 Object End Type
-* object-end-type = UTF-8-empty object-end-marker
-* 0x00 0x00 0x09
-*/
-struct SrsAmf0ObjectEOF : public SrsAmf0Any
-{
-	int16_t utf8_empty;
-
-	SrsAmf0ObjectEOF();
-	virtual ~SrsAmf0ObjectEOF();
-};
-
-/**
-* to ensure in inserted order.
-* for the FMLE will crash when AMF0Object is not ordered by inserted,
-* if ordered in map, the string compare order, the FMLE will creash when
-* get the response of connect app.
-*/
-struct SrsUnSortedHashtable
-{
-private:
-	typedef std::pair<std::string, SrsAmf0Any*> SrsObjectPropertyType;
-	std::vector<SrsObjectPropertyType> properties;
-public:
-	SrsUnSortedHashtable();
-	virtual ~SrsUnSortedHashtable();
-	
-	virtual int size();
-	virtual void clear();
-	virtual std::string key_at(int index);
-	virtual SrsAmf0Any* value_at(int index);
-	virtual void set(std::string key, SrsAmf0Any* value);
-	
-	virtual SrsAmf0Any* get_property(std::string name);
-	virtual SrsAmf0Any* ensure_property_string(std::string name);
-	virtual SrsAmf0Any* ensure_property_number(std::string name);
-};
-
-/**
-* 2.5 Object Type
-* anonymous-object-type = object-marker *(object-property)
-* object-property = (UTF-8 value-type) | (UTF-8-empty object-end-marker)
-*/
-struct SrsAmf0Object : public SrsAmf0Any
-{
-private:
-	SrsUnSortedHashtable properties;
-public:
-	SrsAmf0ObjectEOF eof;
-
-	SrsAmf0Object();
-	virtual ~SrsAmf0Object();
-	
-	virtual int size();
-	virtual std::string key_at(int index);
-	virtual SrsAmf0Any* value_at(int index);
-	virtual void set(std::string key, SrsAmf0Any* value);
-
-	virtual SrsAmf0Any* get_property(std::string name);
-	virtual SrsAmf0Any* ensure_property_string(std::string name);
-	virtual SrsAmf0Any* ensure_property_number(std::string name);
-};
-
-/**
-* 2.10 ECMA Array Type
-* ecma-array-type = associative-count *(object-property)
-* associative-count = U32
-* object-property = (UTF-8 value-type) | (UTF-8-empty object-end-marker)
-*/
-struct SrsASrsAmf0EcmaArray : public SrsAmf0Any
-{
-private:
-	SrsUnSortedHashtable properties;
-public:
-	int32_t count;
-	SrsAmf0ObjectEOF eof;
-
-	SrsASrsAmf0EcmaArray();
-	virtual ~SrsASrsAmf0EcmaArray();
-	
-	virtual int size();
-	virtual void clear();
-	virtual std::string key_at(int index);
-	virtual SrsAmf0Any* value_at(int index);
-	virtual void set(std::string key, SrsAmf0Any* value);
-
-	virtual SrsAmf0Any* get_property(std::string name);
-	virtual SrsAmf0Any* ensure_property_string(std::string name);
-};
-
-/**
-* read amf0 utf8 string from stream.
-* 1.3.1 Strings and UTF-8
-* UTF-8 = U16 *(UTF8-char)
-* UTF8-char = UTF8-1 | UTF8-2 | UTF8-3 | UTF8-4
-* UTF8-1 = %x00-7F
-* @remark only support UTF8-1 char.
-*/
-extern int srs_amf0_read_utf8(SrsStream* stream, std::string& value);
-extern int srs_amf0_write_utf8(SrsStream* stream, std::string value);
-
-/**
-* read amf0 string from stream.
-* 2.4 String Type
-* string-type = string-marker UTF-8
-*/
-extern int srs_amf0_read_string(SrsStream* stream, std::string& value);
-extern int srs_amf0_write_string(SrsStream* stream, std::string value);
-
-/**
-* read amf0 boolean from stream.
-* 2.4 String Type
-* boolean-type = boolean-marker U8
-* 		0 is false, <> 0 is true
-*/
-extern int srs_amf0_read_boolean(SrsStream* stream, bool& value);
-extern int srs_amf0_write_boolean(SrsStream* stream, bool value);
-
-/**
-* read amf0 number from stream.
-* 2.2 Number Type
-* number-type = number-marker DOUBLE
-*/
-extern int srs_amf0_read_number(SrsStream* stream, double& value);
-extern int srs_amf0_write_number(SrsStream* stream, double value);
-
-/**
-* read amf0 null from stream.
-* 2.7 null Type
-* null-type = null-marker
-*/
-extern int srs_amf0_read_null(SrsStream* stream);
-extern int srs_amf0_write_null(SrsStream* stream);
-
-/**
-* read amf0 undefined from stream.
-* 2.8 undefined Type
-* undefined-type = undefined-marker
-*/
-extern int srs_amf0_read_undefined(SrsStream* stream);
-extern int srs_amf0_write_undefined(SrsStream* stream);
-
-extern int srs_amf0_read_any(SrsStream* stream, SrsAmf0Any*& value);
-
-/**
-* read amf0 object from stream.
-* 2.5 Object Type
-* anonymous-object-type = object-marker *(object-property)
-* object-property = (UTF-8 value-type) | (UTF-8-empty object-end-marker)
-*/
-extern int srs_amf0_read_object(SrsStream* stream, SrsAmf0Object*& value);
-extern int srs_amf0_write_object(SrsStream* stream, SrsAmf0Object* value);
-
-/**
-* read amf0 object from stream.
-* 2.10 ECMA Array Type
-* ecma-array-type = associative-count *(object-property)
-* associative-count = U32
-* object-property = (UTF-8 value-type) | (UTF-8-empty object-end-marker)
-*/
-extern int srs_amf0_read_ecma_array(SrsStream* stream, SrsASrsAmf0EcmaArray*& value);
-extern int srs_amf0_write_ecma_array(SrsStream* stream, SrsASrsAmf0EcmaArray* value);
-
-/**
-* get amf0 objects size.
-*/
-extern int srs_amf0_get_utf8_size(std::string value);
-extern int srs_amf0_get_string_size(std::string value);
-extern int srs_amf0_get_number_size();
-extern int srs_amf0_get_null_size();
-extern int srs_amf0_get_undefined_size();
-extern int srs_amf0_get_boolean_size();
-extern int srs_amf0_get_object_size(SrsAmf0Object* obj);
-extern int srs_amf0_get_ecma_array_size(SrsASrsAmf0EcmaArray* arr);
-
-/**
-* convert the any to specified object.
-* @return T*, the converted object. never NULL.
-* @remark, user must ensure the current object type, 
-* 		or the covert will cause assert failed.
-*/
-template<class T>
-T* srs_amf0_convert(SrsAmf0Any* any)
-{
-	T* p = dynamic_cast<T*>(any);
-	srs_assert(p != NULL);
-	return p;
-}
-
-/**
-* the original request from client.
-*/
-struct SrsRequest
-{
-	/**
-	* tcUrl: rtmp://request_vhost:port/app/stream
-	* support pass vhost in query string, such as:
-	*	rtmp://ip:port/app?vhost=request_vhost/stream
-	*	rtmp://ip:port/app...vhost...request_vhost/stream
-	*/
-	std::string tcUrl;
-	std::string pageUrl;
-	std::string swfUrl;
-	double objectEncoding;
-	
-	std::string schema;
-	std::string vhost;
-	std::string port;
-	std::string app;
-	std::string stream;
-	
-	SrsRequest();
-	virtual ~SrsRequest();
-#if 0 //disable the server-side behavior.
-	/**
-	* disconvery vhost/app from tcUrl.
-	*/
-	virtual int discovery_app();
-#endif
-	virtual std::string get_stream_url();
-	virtual void strip();
-private:
-	std::string& trim(std::string& str, std::string chs);
-};
-
-/**
-* the response to client.
-*/
-struct SrsResponse
-{
-	int stream_id;
-	
-	SrsResponse();
-	virtual ~SrsResponse();
-};
-
-/**
-* the rtmp client type.
-*/
-enum SrsClientType
-{
-	SrsClientUnknown,
-	SrsClientPlay,
-	SrsClientFMLEPublish,
-	SrsClientFlashPublish,
-};
-
-class SrsSocket;
-class SrsBuffer;
-class SrsPacket;
-class SrsStream;
-class SrsCommonMessage;
-class SrsChunkStream;
-class SrsAmf0Object;
-class SrsAmf0Null;
-class SrsAmf0Undefined;
-class ISrsMessage;
-
-// convert class name to string.
-#define CLASS_NAME_STRING(className) #className
-
-/**
-* max rtmp header size:
-* 	1bytes basic header,
-* 	11bytes message header,
-* 	4bytes timestamp header,
-* that is, 1+11+4=16bytes.
-*/
-#define RTMP_MAX_FMT0_HEADER_SIZE 16
-/**
-* max rtmp header size:
-* 	1bytes basic header,
-* 	4bytes timestamp header,
-* that is, 1+4=5bytes.
-*/
-#define RTMP_MAX_FMT3_HEADER_SIZE 5
-
-/**
-* the protocol provides the rtmp-message-protocol services,
-* to recv RTMP message from RTMP chunk stream,
-* and to send out RTMP message over RTMP chunk stream.
-*/
-class SrsProtocol
-{
-private:
-	struct AckWindowSize
-	{
-		int ack_window_size;
-		int64_t acked_size;
-		
-		AckWindowSize();
-	};
-// peer in/out
-private:
-	st_netfd_t stfd;
-	SrsSocket* skt;
-	char* pp;
-	/**
-	* requests sent out, used to build the response.
-	* key: transactionId
-	* value: the request command name
-	*/
-	std::map<double, std::string> requests;
-// peer in
-private:
-	std::map<int, SrsChunkStream*> chunk_streams;
-	SrsBuffer* buffer;
-	int32_t in_chunk_size;
-	AckWindowSize in_ack_size;
-// peer out
-private:
-	char out_header_fmt0[RTMP_MAX_FMT0_HEADER_SIZE];
-	char out_header_fmt3[RTMP_MAX_FMT3_HEADER_SIZE];
-	int32_t out_chunk_size;
-public:
-	SrsProtocol(st_netfd_t client_stfd);
-	virtual ~SrsProtocol();
-public:
-	std::string get_request_name(double transcationId);
-	/**
-	* set the timeout in us.
-	* if timeout, recv/send message return ERROR_SOCKET_TIMEOUT.
-	*/
-	virtual void set_recv_timeout(int64_t timeout_us);
-	virtual int64_t get_recv_timeout();
-	virtual void set_send_timeout(int64_t timeout_us);
-	virtual int64_t get_recv_bytes();
-	virtual int64_t get_send_bytes();
-	virtual int get_recv_kbps();
-	virtual int get_send_kbps();
-	/**
-	* recv a message with raw/undecoded payload from peer.
-	* the payload is not decoded, use srs_rtmp_expect_message<T> if requires 
-	* specifies message.
-	* @pmsg, user must free it. NULL if not success.
-	* @remark, only when success, user can use and must free the pmsg.
-	*/
-	virtual int recv_message(SrsCommonMessage** pmsg);
-	/**
-	* send out message with encoded payload to peer.
-	* use the message encode method to encode to payload,
-	* then sendout over socket.
-	* @msg this method will free it whatever return value.
-	*/
-	virtual int send_message(ISrsMessage* msg);
-private:
-	/**
-	* when recv message, update the context.
-	*/
-	virtual int on_recv_message(SrsCommonMessage* msg);
-	virtual int response_acknowledgement_message();
-	virtual int response_ping_message(int32_t timestamp);
-	/**
-	* when message sentout, update the context.
-	*/
-	virtual int on_send_message(ISrsMessage* msg);
-	/**
-	* try to recv interlaced message from peer,
-	* return error if error occur and nerver set the pmsg,
-	* return success and pmsg set to NULL if no entire message got,
-	* return success and pmsg set to entire message if got one.
-	*/
-	virtual int recv_interlaced_message(SrsCommonMessage** pmsg);
-	/**
-	* read the chunk basic header(fmt, cid) from chunk stream.
-	* user can discovery a SrsChunkStream by cid.
-	* @bh_size return the chunk basic header size, to remove the used bytes when finished.
-	*/
-	virtual int read_basic_header(char& fmt, int& cid, int& bh_size);
-	/**
-	* read the chunk message header(timestamp, payload_length, message_type, stream_id) 
-	* from chunk stream and save to SrsChunkStream.
-	* @mh_size return the chunk message header size, to remove the used bytes when finished.
-	*/
-	virtual int read_message_header(SrsChunkStream* chunk, char fmt, int bh_size, int& mh_size);
-	/**
-	* read the chunk payload, remove the used bytes in buffer,
-	* if got entire message, set the pmsg.
-	* @payload_size read size in this roundtrip, generally a chunk size or left message size.
-	*/
-	virtual int read_message_payload(SrsChunkStream* chunk, int bh_size, int mh_size, int& payload_size, SrsCommonMessage** pmsg);
-};
-
-/**
-* 4.1. Message Header
-*/
-struct SrsMessageHeader
-{
-	/**
-	* One byte field to represent the message type. A range of type IDs
-	* (1-7) are reserved for protocol control messages.
-	*/
-	int8_t message_type;
-	/**
-	* Three-byte field that represents the size of the payload in bytes.
-	* It is set in big-endian format.
-	*/
-	int32_t payload_length;
-	/**
-	* Three-byte field that contains a timestamp delta of the message.
-	* The 4 bytes are packed in the big-endian order.
-	* @remark, only used for decoding message from chunk stream.
-	*/
-	int32_t timestamp_delta;
-	/**
-	* Three-byte field that identifies the stream of the message. These
-	* bytes are set in big-endian format.
-	*/
-	int32_t stream_id;
-	
-	/**
-	* Four-byte field that contains a timestamp of the message.
-	* The 4 bytes are packed in the big-endian order.
-	* @remark, used as calc timestamp when decode and encode time.
-	*/
-	u_int32_t timestamp;
-	
-	SrsMessageHeader();
-	virtual ~SrsMessageHeader();
-
-	bool is_audio();
-	bool is_video();
-	bool is_amf0_command();
-	bool is_amf0_data();
-	bool is_amf3_command();
-	bool is_amf3_data();
-	bool is_window_ackledgement_size();
-	bool is_set_chunk_size();
-	bool is_user_control_message();
-};
-
-/**
-* incoming chunk stream maybe interlaced,
-* use the chunk stream to cache the input RTMP chunk streams.
-*/
-class SrsChunkStream
-{
-public:
-	/**
-	* represents the basic header fmt,
-	* which used to identify the variant message header type.
-	*/
-	char fmt;
-	/**
-	* represents the basic header cid,
-	* which is the chunk stream id.
-	*/
-	int cid;
-	/**
-	* cached message header
-	*/
-	SrsMessageHeader header;
-	/**
-	* whether the chunk message header has extended timestamp.
-	*/
-	bool extended_timestamp;
-	/**
-	* partially read message.
-	*/
-	SrsCommonMessage* msg;
-	/**
-	* decoded msg count, to identify whether the chunk stream is fresh.
-	*/
-	int64_t msg_count;
-public:
-	SrsChunkStream(int _cid);
-	virtual ~SrsChunkStream();
-};
-
-/**
-* message to output.
-*/
-class ISrsMessage
-{
-// 4.1. Message Header
-public:
-	SrsMessageHeader header;
-// 4.2. Message Payload
-public:
-	/**
-	* The other part which is the payload is the actual data that is
-	* contained in the message. For example, it could be some audio samples
-	* or compressed video data. The payload format and interpretation are
-	* beyond the scope of this document.
-	*/
-	int32_t size;
-	int8_t* payload;
-public:
-	ISrsMessage();
-	virtual ~ISrsMessage();
-public:
-	/**
-	* whether message canbe decoded.
-	* only update the context when message canbe decoded.
-	*/
-	virtual bool can_decode() = 0;
-/**
-* encode functions.
-*/
-public:
-	/**
-	* get the perfered cid(chunk stream id) which sendout over.
-	*/
-	virtual int get_perfer_cid() = 0;
-	/**
-	* encode the packet to message payload bytes.
-	* @remark there exists empty packet, so maybe the payload is NULL.
-	*/
-	virtual int encode_packet() = 0;
-};
-
-/**
-* common RTMP message defines in rtmp.part2.Message-Formats.pdf.
-* cannbe parse and decode.
-*/
-class SrsCommonMessage : public ISrsMessage
-{
-private:
-	typedef ISrsMessage super;
-// decoded message payload.
-private:
-	SrsStream* stream;
-	SrsPacket* packet;
-public:
-	SrsCommonMessage();
-	virtual ~SrsCommonMessage();
-public:
-	virtual bool can_decode();
-/**
-* decode functions.
-*/
-public:
-	/**
-	* decode packet from message payload.
-	*/
-	// TODO: use protocol to decode it.
-	virtual int decode_packet(SrsProtocol* protocol);
-	/**
-	* get the decoded packet which decoded by decode_packet().
-	* @remark, user never free the pkt, the message will auto free it.
-	*/
-	virtual SrsPacket* get_packet();
-/**
-* encode functions.
-*/
-public:
-	/**
-	* get the perfered cid(chunk stream id) which sendout over.
-	*/
-	virtual int get_perfer_cid();
-	/**
-	* set the encoded packet to encode_packet() to payload.
-	* @stream_id, the id of stream which is created by createStream.
-	* @remark, user never free the pkt, the message will auto free it.
-	*/
-	// TODO: refine the send methods.
-	virtual void set_packet(SrsPacket* pkt, int stream_id);
-	/**
-	* encode the packet to message payload bytes.
-	* @remark there exists empty packet, so maybe the payload is NULL.
-	*/
-	virtual int encode_packet();
-};
-
-/**
-* shared ptr message.
-* for audio/video/data message that need less memory copy.
-* and only for output.
-*/
-class SrsSharedPtrMessage : public ISrsMessage
-{
-private:
-	typedef ISrsMessage super;
-private:
-	struct SrsSharedPtr
-	{
-		char* payload;
-		int size;
-		int perfer_cid;
-		int shared_count;
-		
-		SrsSharedPtr();
-		virtual ~SrsSharedPtr();
-	};
-	SrsSharedPtr* ptr;
-public:
-	SrsSharedPtrMessage();
-	virtual ~SrsSharedPtrMessage();
-public:
-	virtual bool can_decode();
-public:
-	/**
-	* set the shared payload.
-	* we will detach the payload of source,
-	* so ensure donot use it before.
-	*/
-	virtual int initialize(SrsCommonMessage* source);
-	/**
-	* set the shared payload.
-	* we will use the payload, donot use the payload of source.
-	*/
-	virtual int initialize(SrsCommonMessage* source, char* payload, int size);
-	virtual SrsSharedPtrMessage* copy();
-public:
-	/**
-	* get the perfered cid(chunk stream id) which sendout over.
-	*/
-	virtual int get_perfer_cid();
-	/**
-	* ignored.
-	* for shared message, nothing should be done.
-	* use initialize() to set the data.
-	*/
-	virtual int encode_packet();
-};
-
-/**
-* the decoded message payload.
-* @remark we seperate the packet from message,
-*		for the packet focus on logic and domain data,
-*		the message bind to the protocol and focus on protocol, such as header.
-* 		we can merge the message and packet, using OOAD hierachy, packet extends from message,
-* 		it's better for me to use components -- the message use the packet as payload.
-*/
-class SrsPacket
-{
-protected:
-	/**
-	* subpacket must override to provide the right class name.
-	*/
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsPacket);
-	}
-public:
-	SrsPacket();
-	virtual ~SrsPacket();
-/**
-* decode functions.
-*/
-public:
-	/**
-	* subpacket must override to decode packet from stream.
-	* @remark never invoke the super.decode, it always failed.
-	*/
-	virtual int decode(SrsStream* stream);
-/**
-* encode functions.
-*/
-public:
-	virtual int get_perfer_cid();
-	virtual int get_payload_length();
-public:
-	/**
-	* subpacket must override to provide the right message type.
-	*/
-	virtual int get_message_type();
-	/**
-	* the subpacket can override this encode,
-	* for example, video and audio will directly set the payload withou memory copy,
-	* other packet which need to serialize/encode to bytes by override the 
-	* get_size and encode_packet.
-	*/
-	virtual int encode(int& size, char*& payload);
-protected:
-	/**
-	* subpacket can override to calc the packet size.
-	*/
-	virtual int get_size();
-	/**
-	* subpacket can override to encode the payload to stream.
-	* @remark never invoke the super.encode_packet, it always failed.
-	*/
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* 4.1.1. connect
-* The client sends the connect command to the server to request
-* connection to a server application instance.
-*/
-class SrsConnectAppPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsConnectAppPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Object* command_object;
-public:
-	SrsConnectAppPacket();
-	virtual ~SrsConnectAppPacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-/**
-* response for SrsConnectAppPacket.
-*/
-class SrsConnectAppResPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsConnectAppResPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Object* props;
-	SrsAmf0Object* info;
-public:
-	SrsConnectAppResPacket();
-	virtual ~SrsConnectAppResPacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* 4.1.3. createStream
-* The client sends this command to the server to create a logical
-* channel for message communication The publishing of audio, video, and
-* metadata is carried out over stream channel created using the
-* createStream command.
-*/
-class SrsCreateStreamPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsCreateStreamPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* command_object;
-public:
-	SrsCreateStreamPacket();
-	virtual ~SrsCreateStreamPacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-/**
-* response for SrsCreateStreamPacket.
-*/
-class SrsCreateStreamResPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsCreateStreamResPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* command_object;
-	double stream_id;
-public:
-	SrsCreateStreamResPacket(double _transaction_id, double _stream_id);
-	virtual ~SrsCreateStreamResPacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* FMLE start publish: ReleaseStream/PublishStream
-*/
-class SrsFMLEStartPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsFMLEStartPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* command_object;
-	std::string stream_name;
-public:
-	SrsFMLEStartPacket();
-	virtual ~SrsFMLEStartPacket();
-public:
-	virtual int decode(SrsStream* stream);
-};
-/**
-* response for SrsFMLEStartPacket.
-*/
-class SrsFMLEStartResPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsFMLEStartResPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* command_object;
-	SrsAmf0Undefined* args;
-public:
-	SrsFMLEStartResPacket(double _transaction_id);
-	virtual ~SrsFMLEStartResPacket();
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* FMLE/flash publish
-* 4.2.6. Publish
-* The client sends the publish command to publish a named stream to the
-* server. Using this name, any client can play this stream and receive
-* the published audio, video, and data messages.
-*/
-class SrsPublishPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsPublishPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* command_object;
-	std::string stream_name;
-	// optional, default to live.
-	std::string type;
-public:
-	SrsPublishPacket();
-	virtual ~SrsPublishPacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* 4.2.8. pause
-* The client sends the pause command to tell the server to pause or
-* start playing.
-*/
-class SrsPausePacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsPausePacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* command_object;
-	bool is_pause;
-	double time_ms;
-public:
-	SrsPausePacket();
-	virtual ~SrsPausePacket();
-public:
-	virtual int decode(SrsStream* stream);
-};
-
-/**
-* 4.2.1. play
-* The client sends this command to the server to play a stream.
-*/
-class SrsPlayPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsPlayPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* command_object;
-	std::string stream_name;
-	double start;
-	double duration;
-	bool reset;
-public:
-	SrsPlayPacket();
-	virtual ~SrsPlayPacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-/**
-* response for SrsPlayPacket.
-* @remark, user must set the stream_id in header.
-*/
-class SrsPlayResPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsPlayResPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* command_object;
-	SrsAmf0Object* desc;
-public:
-	SrsPlayResPacket();
-	virtual ~SrsPlayResPacket();
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* when bandwidth test done, notice client.
-*/
-class SrsOnBWDonePacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsOnBWDonePacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* args;
-public:
-	SrsOnBWDonePacket();
-	virtual ~SrsOnBWDonePacket();
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* onStatus command, AMF0 Call
-* @remark, user must set the stream_id by SrsMessage.set_packet().
-*/
-class SrsOnStatusCallPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsOnStatusCallPacket);
-	}
-public:
-	std::string command_name;
-	double transaction_id;
-	SrsAmf0Null* args;
-	SrsAmf0Object* data;
-public:
-	SrsOnStatusCallPacket();
-	virtual ~SrsOnStatusCallPacket();
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* onStatus data, AMF0 Data
-* @remark, user must set the stream_id by SrsMessage.set_packet().
-*/
-class SrsOnStatusDataPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsOnStatusDataPacket);
-	}
-public:
-	std::string command_name;
-	SrsAmf0Object* data;
-public:
-	SrsOnStatusDataPacket();
-	virtual ~SrsOnStatusDataPacket();
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* AMF0Data RtmpSampleAccess
-* @remark, user must set the stream_id by SrsMessage.set_packet().
-*/
-class SrsSampleAccessPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsSampleAccessPacket);
-	}
-public:
-	std::string command_name;
-	bool video_sample_access;
-	bool audio_sample_access;
-public:
-	SrsSampleAccessPacket();
-	virtual ~SrsSampleAccessPacket();
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* the stream metadata.
-* FMLE: @setDataFrame
-* others: onMetaData
-*/
-class SrsOnMetaDataPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsOnMetaDataPacket);
-	}
-public:
-	std::string name;
-	SrsAmf0Object* metadata;
-public:
-	SrsOnMetaDataPacket();
-	virtual ~SrsOnMetaDataPacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* 5.5. Window Acknowledgement Size (5)
-* The client or the server sends this message to inform the peer which
-* window size to use when sending acknowledgment.
-*/
-class SrsSetWindowAckSizePacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsSetWindowAckSizePacket);
-	}
-public:
-	int32_t ackowledgement_window_size;
-public:
-	SrsSetWindowAckSizePacket();
-	virtual ~SrsSetWindowAckSizePacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* 5.3. Acknowledgement (3)
-* The client or the server sends the acknowledgment to the peer after
-* receiving bytes equal to the window size.
-*/
-class SrsAcknowledgementPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsAcknowledgementPacket);
-	}
-public:
-	int32_t sequence_number;
-public:
-	SrsAcknowledgementPacket();
-	virtual ~SrsAcknowledgementPacket();
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* 7.1. Set Chunk Size
-* Protocol control message 1, Set Chunk Size, is used to notify the
-* peer about the new maximum chunk size.
-*/
-class SrsSetChunkSizePacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsSetChunkSizePacket);
-	}
-public:
-	int32_t chunk_size;
-public:
-	SrsSetChunkSizePacket();
-	virtual ~SrsSetChunkSizePacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-/**
-* 5.6. Set Peer Bandwidth (6)
-* The client or the server sends this message to update the output
-* bandwidth of the peer.
-*/
-class SrsSetPeerBandwidthPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsSetPeerBandwidthPacket);
-	}
-public:
-	int32_t bandwidth;
-	int8_t type;
-public:
-	SrsSetPeerBandwidthPacket();
-	virtual ~SrsSetPeerBandwidthPacket();
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
-
-// 3.7. User Control message
-enum SrcPCUCEventType
-{
-	 // generally, 4bytes event-data
-	SrcPCUCStreamBegin 			= 0x00,
-	SrcPCUCStreamEOF 			= 0x01,
-	SrcPCUCStreamDry 			= 0x02,
-	SrcPCUCSetBufferLength 		= 0x03, // 8bytes event-data
-	SrcPCUCStreamIsRecorded 	= 0x04,
-	SrcPCUCPingRequest 			= 0x06,
-	SrcPCUCPingResponse 		= 0x07,
-};
-
-/**
-* for the EventData is 4bytes.
-* Stream Begin(=0)			4-bytes stream ID
-* Stream EOF(=1)			4-bytes stream ID
-* StreamDry(=2)				4-bytes stream ID
-* SetBufferLength(=3)		8-bytes 4bytes stream ID, 4bytes buffer length.
-* StreamIsRecorded(=4)		4-bytes stream ID
-* PingRequest(=6)			4-bytes timestamp local server time
-* PingResponse(=7)			4-bytes timestamp received ping request.
+* connect to server, get the debug srs info.
 * 
-* 3.7. User Control message
-* +------------------------------+-------------------------
-* | Event Type ( 2- bytes ) | Event Data
-* +------------------------------+-------------------------
-* Figure 5 Pay load for the ‘User Control Message’.
+* SRS debug info:
+* @param srs_server_ip, 128bytes, debug info, server ip client connected at.
+* @param srs_server, 128bytes, server info.
+* @param srs_primary, 128bytes, primary authors.
+* @param srs_authors, 128bytes, authors.
+* @param srs_version, 32bytes, server version.
+* @param srs_id, int, debug info, client id in server log.
+* @param srs_pid, int, debug info, server pid in log.
+*
+* @return 0, success; otherswise, failed.
 */
-class SrsUserControlPacket : public SrsPacket
-{
-private:
-	typedef SrsPacket super;
-protected:
-	virtual const char* get_class_name()
-	{
-		return CLASS_NAME_STRING(SrsUserControlPacket);
-	}
-public:
-	// @see: SrcPCUCEventType
-	int16_t event_type;
-	int32_t event_data;
-	/**
-	* 4bytes if event_type is SetBufferLength; otherwise 0.
-	*/
-	int32_t extra_data;
-public:
-	SrsUserControlPacket();
-	virtual ~SrsUserControlPacket();
-public:
-	virtual int decode(SrsStream* stream);
-public:
-	virtual int get_perfer_cid();
-public:
-	virtual int get_message_type();
-protected:
-	virtual int get_size();
-	virtual int encode_packet(SrsStream* stream);
-};
+extern int srs_rtmp_connect_app2(srs_rtmp_t rtmp,
+    char srs_server_ip[128], char srs_server[128], 
+    char srs_primary[128], char srs_authors[128], 
+    char srs_version[32], int* srs_id, int* srs_pid
+);
 
 /**
-* expect a specified message, drop others util got specified one.
-* @pmsg, user must free it. NULL if not success.
-* @ppacket, store in the pmsg, user must never free it. NULL if not success.
-* @remark, only when success, user can use and must free the pmsg/ppacket.
+* play a live/vod stream.
+* category: play
+* previous: connect-app
+* next: destroy
+* @return 0, success; otherwise, failed.
 */
-template<class T>
-int srs_rtmp_expect_message(SrsProtocol* protocol, SrsCommonMessage** pmsg, T** ppacket)
-{
-	*pmsg = NULL;
-	*ppacket = NULL;
-	
-	int ret = ERROR_SUCCESS;
-	
-	while (true) {
-		SrsCommonMessage* msg = NULL;
-		if ((ret = protocol->recv_message(&msg)) != ERROR_SUCCESS) {
-			srs_error("recv message failed. ret=%d", ret);
-			return ret;
-		}
-		srs_verbose("recv message success.");
-		
-		if ((ret = msg->decode_packet(protocol)) != ERROR_SUCCESS) {
-			delete msg;
-			srs_error("decode message failed. ret=%d", ret);
-			return ret;
-		}
-		
-		T* pkt = dynamic_cast<T*>(msg->get_packet());
-		if (!pkt) {
-			delete msg;
-			srs_trace("drop message(type=%d, size=%d, time=%d, sid=%d).", 
-				msg->header.message_type, msg->header.payload_length,
-				msg->header.timestamp, msg->header.stream_id);
-			continue;
-		}
-		
-		*pmsg = msg;
-		*ppacket = pkt;
-		break;
-	}
-	
-	return ret;
+extern int srs_rtmp_play_stream(srs_rtmp_t rtmp);
+
+/**
+* publish a live stream.
+* category: publish
+* previous: connect-app
+* next: destroy
+* @return 0, success; otherwise, failed.
+*/
+extern int srs_rtmp_publish_stream(srs_rtmp_t rtmp);
+
+/**
+* do bandwidth check with srs server.
+* 
+* bandwidth info:
+* @param start_time, output the start time, in ms.
+* @param end_time, output the end time, in ms.
+* @param play_kbps, output the play/download kbps.
+* @param publish_kbps, output the publish/upload kbps.
+* @param play_bytes, output the play/download bytes.
+* @param publish_bytes, output the publish/upload bytes.
+* @param play_duration, output the play/download test duration, in ms.
+* @param publish_duration, output the publish/upload test duration, in ms.
+*
+* @return 0, success; otherswise, failed.
+*/
+extern int srs_rtmp_bandwidth_check(srs_rtmp_t rtmp, 
+    int64_t* start_time, int64_t* end_time, 
+    int* play_kbps, int* publish_kbps,
+    int* play_bytes, int* publish_bytes,
+    int* play_duration, int* publish_duration
+);
+
+/**
+* E.4.1 FLV Tag, page 75
+*/
+// 8 = audio
+#define SRS_RTMP_TYPE_AUDIO 8
+// 9 = video
+#define SRS_RTMP_TYPE_VIDEO 9
+// 18 = script data
+#define SRS_RTMP_TYPE_SCRIPT 18
+/**
+* read a audio/video/script-data packet from rtmp stream.
+* @param type, output the packet type, macros:
+*            SRS_RTMP_TYPE_AUDIO, FlvTagAudio
+*            SRS_RTMP_TYPE_VIDEO, FlvTagVideo
+*            SRS_RTMP_TYPE_SCRIPT, FlvTagScript
+* @param timestamp, in ms, overflow in 50days
+* @param data, the packet data, according to type:
+*             FlvTagAudio, @see "E.4.2.1 AUDIODATA"
+*            FlvTagVideo, @see "E.4.3.1 VIDEODATA"
+*            FlvTagScript, @see "E.4.4.1 SCRIPTDATA"
+* @param size, size of packet.
+* @return the error code. 0 for success; otherwise, error.
+*
+* @remark: for read, user must free the data.
+* @remark: for write, user should never free the data, even if error.
+* @example /trunk/research/librtmp/srs_play.c
+* @example /trunk/research/librtmp/srs_publish.c
+*
+* @return 0, success; otherswise, failed.
+*/
+extern int srs_rtmp_read_packet(srs_rtmp_t rtmp, 
+    char* type, u_int32_t* timestamp, char** data, int* size
+);
+extern int srs_rtmp_write_packet(srs_rtmp_t rtmp, 
+    char type, u_int32_t timestamp, char* data, int size
+);
+
+/*************************************************************
+**************************************************************
+* audio raw codec
+**************************************************************
+*************************************************************/
+/**
+* write an audio raw frame to srs.
+* not similar to h.264 video, the audio never aggregated, always
+* encoded one frame by one, so this api is used to write a frame.
+*
+* @param sound_format Format of SoundData. The following values are defined:
+*               0 = Linear PCM, platform endian
+*               1 = ADPCM
+*               2 = MP3
+*               3 = Linear PCM, little endian
+*               4 = Nellymoser 16 kHz mono
+*               5 = Nellymoser 8 kHz mono
+*               6 = Nellymoser
+*               7 = G.711 A-law logarithmic PCM
+*               8 = G.711 mu-law logarithmic PCM
+*               9 = reserved
+*               10 = AAC
+*               11 = Speex
+*               14 = MP3 8 kHz
+*               15 = Device-specific sound
+*               Formats 7, 8, 14, and 15 are reserved.
+*               AAC is supported in Flash Player 9,0,115,0 and higher.
+*               Speex is supported in Flash Player 10 and higher.
+* @param sound_rate Sampling rate. The following values are defined:
+*               0 = 5.5 kHz
+*               1 = 11 kHz
+*               2 = 22 kHz
+*               3 = 44 kHz
+* @param sound_size Size of each audio sample. This parameter only pertains to
+*               uncompressed formats. Compressed formats always decode
+*               to 16 bits internally.
+*               0 = 8-bit samples
+*               1 = 16-bit samples
+* @param sound_type Mono or stereo sound
+*               0 = Mono sound
+*               1 = Stereo sound
+* @param timestamp The timestamp of audio.
+*
+* @example /trunk/research/librtmp/srs_aac_raw_publish.c
+* @example /trunk/research/librtmp/srs_audio_raw_publish.c
+*
+* @remark for aac, the frame must be in ADTS format. 
+*       @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 75, 1.A.2.2 ADTS
+* @remark for aac, only support profile 1-4, AAC main/LC/SSR/LTP,
+*       @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 23, 1.5.1.1 Audio object type
+*
+* @see https://github.com/winlinvip/simple-rtmp-server/issues/212
+* @see E.4.2.1 AUDIODATA of video_file_format_spec_v10_1.pdf
+* 
+* @return 0, success; otherswise, failed.
+*/
+extern int srs_audio_write_raw_frame(srs_rtmp_t rtmp, 
+    char sound_format, char sound_rate, char sound_size, char sound_type,
+    char* frame, int frame_size, u_int32_t timestamp
+);
+
+/**
+* whether aac raw data is in adts format,
+* which bytes sequence matches '1111 1111 1111'B, that is 0xFFF.
+* @param aac_raw_data the input aac raw data, a encoded aac frame data.
+* @param ac_raw_size the size of aac raw data.
+*
+* @reamrk used to check whether current frame is in adts format.
+*       @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 75, 1.A.2.2 ADTS
+* @example /trunk/research/librtmp/srs_aac_raw_publish.c
+*
+* @return 0 false; otherwise, true.
+*/
+extern srs_bool srs_aac_is_adts(char* aac_raw_data, int ac_raw_size);
+
+/**
+* parse the adts header to get the frame size,
+* which bytes sequence matches '1111 1111 1111'B, that is 0xFFF.
+* @param aac_raw_data the input aac raw data, a encoded aac frame data.
+* @param ac_raw_size the size of aac raw data.
+*
+* @return failed when <=0 failed; otherwise, ok.
+*/
+extern int srs_aac_adts_frame_size(char* aac_raw_data, int ac_raw_size);
+
+/*************************************************************
+**************************************************************
+* h264 raw codec
+**************************************************************
+*************************************************************/
+/**
+* write h.264 raw frame over RTMP to rtmp server.
+* @param frames the input h264 raw data, encoded h.264 I/P/B frames data.
+*       frames can be one or more than one frame,
+*       each frame prefixed h.264 annexb header, by N[00] 00 00 01, where N>=0, 
+*       for instance, frame = header(00 00 00 01) + payload(67 42 80 29 95 A0 14 01 6E 40)
+*       about annexb, @see H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
+* @param frames_size the size of h264 raw data. 
+*       assert frames_size > 0, at least has 1 bytes header.
+* @param dts the dts of h.264 raw data.
+* @param pts the pts of h.264 raw data.
+* 
+* @remark, user should free the frames.
+* @remark, the tbn of dts/pts is 1/1000 for RTMP, that is, in ms.
+* @remark, cts = pts - dts
+* @remark, use srs_h264_startswith_annexb to check whether frame is annexb format.
+* @example /trunk/research/librtmp/srs_h264_raw_publish.c
+* @see https://github.com/winlinvip/simple-rtmp-server/issues/66
+* 
+* @return 0, success; otherswise, failed.
+*       for dvbsp error, @see srs_h264_is_dvbsp_error().
+*       for duplictated sps error, @see srs_h264_is_duplicated_sps_error().
+*       for duplictated pps error, @see srs_h264_is_duplicated_pps_error().
+*/
+/**
+For the example file: 
+    http://winlinvip.github.io/srs.release/3rdparty/720p.h264.raw
+The data sequence is:
+    // SPS
+    000000016742802995A014016E40
+    // PPS
+    0000000168CE3880
+    // IFrame
+    0000000165B8041014C038008B0D0D3A071.....
+    // PFrame
+    0000000141E02041F8CDDC562BBDEFAD2F.....
+User can send the SPS+PPS, then each frame:
+    // SPS+PPS
+    srs_h264_write_raw_frames('000000016742802995A014016E400000000168CE3880', size, dts, pts)
+    // IFrame
+    srs_h264_write_raw_frames('0000000165B8041014C038008B0D0D3A071......', size, dts, pts)
+    // PFrame
+    srs_h264_write_raw_frames('0000000141E02041F8CDDC562BBDEFAD2F......', size, dts, pts)
+User also can send one by one:
+    // SPS
+    srs_h264_write_raw_frames('000000016742802995A014016E4', size, dts, pts)
+    // PPS
+    srs_h264_write_raw_frames('00000000168CE3880', size, dts, pts)
+    // IFrame
+    srs_h264_write_raw_frames('0000000165B8041014C038008B0D0D3A071......', size, dts, pts)
+    // PFrame
+    srs_h264_write_raw_frames('0000000141E02041F8CDDC562BBDEFAD2F......', size, dts, pts) 
+*/
+extern int srs_h264_write_raw_frames(srs_rtmp_t rtmp, 
+    char* frames, int frames_size, u_int32_t dts, u_int32_t pts
+);
+/**
+* whether error_code is dvbsp(drop video before sps/pps/sequence-header) error.
+*
+* @see https://github.com/winlinvip/simple-rtmp-server/issues/203
+* @example /trunk/research/librtmp/srs_h264_raw_publish.c
+* @remark why drop video?
+*       some encoder, for example, ipcamera, will send sps/pps before each IFrame,
+*       so, when error and reconnect the rtmp, the first video is not sps/pps(sequence header),
+*       this will cause SRS server to disable HLS.
+*/
+extern srs_bool srs_h264_is_dvbsp_error(int error_code);
+/**
+* whether error_code is duplicated sps error.
+* 
+* @see https://github.com/winlinvip/simple-rtmp-server/issues/204
+* @example /trunk/research/librtmp/srs_h264_raw_publish.c
+*/
+extern srs_bool srs_h264_is_duplicated_sps_error(int error_code);
+/**
+* whether error_code is duplicated pps error.
+* 
+* @see https://github.com/winlinvip/simple-rtmp-server/issues/204
+* @example /trunk/research/librtmp/srs_h264_raw_publish.c
+*/
+extern srs_bool srs_h264_is_duplicated_pps_error(int error_code);
+/**
+* whether h264 raw data starts with the annexb,
+* which bytes sequence matches N[00] 00 00 01, where N>=0.
+* @param h264_raw_data the input h264 raw data, a encoded h.264 I/P/B frame data.
+* @paam h264_raw_size the size of h264 raw data.
+* @param pnb_start_code output the size of start code, must >=3. 
+*       NULL to ignore.
+*
+* @reamrk used to check whether current frame is in annexb format.
+* @example /trunk/research/librtmp/srs_h264_raw_publish.c
+*
+* @return 0 false; otherwise, true.
+*/
+extern srs_bool srs_h264_startswith_annexb(
+    char* h264_raw_data, int h264_raw_size, 
+    int* pnb_start_code
+);
+
+/*************************************************************
+**************************************************************
+* flv codec
+* @example /trunk/research/librtmp/srs_flv_injecter.c
+* @example /trunk/research/librtmp/srs_flv_parser.c
+* @example /trunk/research/librtmp/srs_ingest_flv.c
+* @example /trunk/research/librtmp/srs_ingest_rtmp.c
+**************************************************************
+*************************************************************/
+typedef void* srs_flv_t;
+/* open flv file for both read/write. */
+extern srs_flv_t srs_flv_open_read(const char* file);
+extern srs_flv_t srs_flv_open_write(const char* file);
+extern void srs_flv_close(srs_flv_t flv);
+/**
+* read the flv header. 9bytes header. 
+* @param header, @see E.2 The FLV header, flv_v10_1.pdf in SRS doc.
+*   3bytes, signature, "FLV",
+*   1bytes, version, 0x01,
+*   1bytes, flags, UB[5] 0, UB[1] audio present, UB[1] 0, UB[1] video present.
+*   4bytes, dataoffset, 0x09, The length of this header in bytes
+*
+* @return 0, success; otherswise, failed.
+* @remark, drop the 4bytes zero previous tag size.
+*/
+extern int srs_flv_read_header(srs_flv_t flv, char header[9]);
+/**
+* read the flv tag header, 1bytes tag, 3bytes data_size, 
+* 4bytes time, 3bytes stream id. 
+* @param ptype, output the type of tag, macros:
+*            SRS_RTMP_TYPE_AUDIO, FlvTagAudio
+*            SRS_RTMP_TYPE_VIDEO, FlvTagVideo
+*            SRS_RTMP_TYPE_SCRIPT, FlvTagScript
+* @param pdata_size, output the size of tag data.
+* @param ptime, output the time of tag, the dts in ms.
+*
+* @return 0, success; otherswise, failed.
+* @remark, user must ensure the next is a tag, srs never check it.
+*/
+extern int srs_flv_read_tag_header(srs_flv_t flv, 
+    char* ptype, int32_t* pdata_size, u_int32_t* ptime
+);
+/**
+* read the tag data. drop the 4bytes previous tag size 
+* @param data, the data to read, user alloc and free it.
+* @param size, the size of data to read, get by srs_flv_read_tag_header().
+* @remark, srs will ignore and drop the 4bytes previous tag size.
+*/
+extern int srs_flv_read_tag_data(srs_flv_t flv, char* data, int32_t size);
+/**
+* write the flv header. 9bytes header. 
+* @param header, @see E.2 The FLV header, flv_v10_1.pdf in SRS doc.
+*   3bytes, signature, "FLV",
+*   1bytes, version, 0x01,
+*   1bytes, flags, UB[5] 0, UB[1] audio present, UB[1] 0, UB[1] video present.
+*   4bytes, dataoffset, 0x09, The length of this header in bytes
+*
+* @return 0, success; otherswise, failed.
+* @remark, auto write the 4bytes zero previous tag size.
+*/
+extern int srs_flv_write_header(srs_flv_t flv, char header[9]);
+/**
+* write the flv tag to file.
+*
+* @return 0, success; otherswise, failed.
+* @remark, auto write the 4bytes zero previous tag size.
+*/
+/* write flv tag to file, auto write the 4bytes previous tag size */
+extern int srs_flv_write_tag(srs_flv_t flv, 
+    char type, int32_t time, char* data, int size
+);
+/**
+* get the tag size, for flv injecter to adjust offset, 
+*       size = tag_header(11B) + data_size + previous_tag(4B)
+* @return the size of tag.
+*/
+extern int srs_flv_size_tag(int data_size);
+/* file stream */
+/* file stream tellg to get offset */
+extern int64_t srs_flv_tellg(srs_flv_t flv);
+/* seek file stream, offset is form the start of file */
+extern void srs_flv_lseek(srs_flv_t flv, int64_t offset);
+/* error code */
+/* whether the error code indicates EOF */
+extern srs_bool srs_flv_is_eof(int error_code);
+/* media codec */
+/**
+* whether the video body is sequence header 
+* @param data, the data of tag, read by srs_flv_read_tag_data().
+* @param size, the size of tag, read by srs_flv_read_tag_data().
+*/
+extern srs_bool srs_flv_is_sequence_header(char* data, int32_t size);
+/**
+* whether the video body is keyframe 
+* @param data, the data of tag, read by srs_flv_read_tag_data().
+* @param size, the size of tag, read by srs_flv_read_tag_data().
+*/
+extern srs_bool srs_flv_is_keyframe(char* data, int32_t size);
+
+/*************************************************************
+**************************************************************
+* amf0 codec
+* @example /trunk/research/librtmp/srs_ingest_flv.c
+* @example /trunk/research/librtmp/srs_ingest_rtmp.c
+**************************************************************
+*************************************************************/
+/* the output handler. */
+typedef void* srs_amf0_t;
+typedef double srs_amf0_number;
+/**
+* parse amf0 from data.
+* @param nparsed, the parsed size, NULL to ignore.
+* @return the parsed amf0 object. NULL for error.
+*/
+extern srs_amf0_t srs_amf0_parse(char* data, int size, int* nparsed);
+extern srs_amf0_t srs_amf0_create_number(srs_amf0_number value);
+extern srs_amf0_t srs_amf0_create_ecma_array();
+extern srs_amf0_t srs_amf0_create_strict_array();
+extern srs_amf0_t srs_amf0_create_object();
+extern void srs_amf0_free(srs_amf0_t amf0);
+/* size and to bytes */
+extern int srs_amf0_size(srs_amf0_t amf0);
+extern int srs_amf0_serialize(srs_amf0_t amf0, char* data, int size);
+/* type detecter */
+extern srs_bool srs_amf0_is_string(srs_amf0_t amf0);
+extern srs_bool srs_amf0_is_boolean(srs_amf0_t amf0);
+extern srs_bool srs_amf0_is_number(srs_amf0_t amf0);
+extern srs_bool srs_amf0_is_null(srs_amf0_t amf0);
+extern srs_bool srs_amf0_is_object(srs_amf0_t amf0);
+extern srs_bool srs_amf0_is_ecma_array(srs_amf0_t amf0);
+extern srs_bool srs_amf0_is_strict_array(srs_amf0_t amf0);
+/* value converter */
+extern const char* srs_amf0_to_string(srs_amf0_t amf0);
+extern srs_bool srs_amf0_to_boolean(srs_amf0_t amf0);
+extern srs_amf0_number srs_amf0_to_number(srs_amf0_t amf0);
+/* value setter */
+extern void srs_amf0_set_number(srs_amf0_t amf0, srs_amf0_number value);
+/* object value converter */
+extern int srs_amf0_object_property_count(srs_amf0_t amf0);
+extern const char* srs_amf0_object_property_name_at(srs_amf0_t amf0, int index);
+extern srs_amf0_t srs_amf0_object_property_value_at(srs_amf0_t amf0, int index);
+extern srs_amf0_t srs_amf0_object_property(srs_amf0_t amf0, const char* name);
+extern void srs_amf0_object_property_set(srs_amf0_t amf0, const char* name, srs_amf0_t value);
+extern void srs_amf0_object_clear(srs_amf0_t amf0);
+/* ecma array value converter */
+extern int srs_amf0_ecma_array_property_count(srs_amf0_t amf0);
+extern const char* srs_amf0_ecma_array_property_name_at(srs_amf0_t amf0, int index);
+extern srs_amf0_t srs_amf0_ecma_array_property_value_at(srs_amf0_t amf0, int index);
+extern srs_amf0_t srs_amf0_ecma_array_property(srs_amf0_t amf0, const char* name);
+extern void srs_amf0_ecma_array_property_set(srs_amf0_t amf0, const char* name, srs_amf0_t value);
+/* strict array value converter */
+extern int srs_amf0_strict_array_property_count(srs_amf0_t amf0);
+extern srs_amf0_t srs_amf0_strict_array_property_at(srs_amf0_t amf0, int index);
+extern void srs_amf0_strict_array_append(srs_amf0_t amf0, srs_amf0_t value);
+
+/*************************************************************
+**************************************************************
+* utilities
+**************************************************************
+*************************************************************/
+/**
+* get the current system time in ms.
+* use gettimeofday() to get system time.
+*/
+extern int64_t srs_utils_time_ms();
+
+/**
+* get the send bytes.
+*/
+extern int64_t srs_utils_send_bytes(srs_rtmp_t rtmp);
+
+/**
+* get the recv bytes.
+*/
+extern int64_t srs_utils_recv_bytes(srs_rtmp_t rtmp);
+
+/**
+* parse the dts and pts by time in header and data in tag,
+* or to parse the RTMP packet by srs_rtmp_read_packet().
+*
+* @param time, the timestamp of tag, read by srs_flv_read_tag_header().
+* @param type, the type of tag, read by srs_flv_read_tag_header().
+* @param data, the data of tag, read by srs_flv_read_tag_data().
+* @param size, the size of tag, read by srs_flv_read_tag_header().
+* @param ppts, output the pts in ms,
+*
+* @return 0, success; otherswise, failed.
+* @remark, the dts always equals to @param time.
+* @remark, the pts=dts for audio or data.
+* @remark, video only support h.264.
+*/
+extern int srs_utils_parse_timestamp(
+    u_int32_t time, char type, char* data, int size,
+    u_int32_t* ppts
+);
+
+/**
+* get the CodecID of video tag.
+* Codec Identifier. The following values are defined:
+*           2 = Sorenson H.263
+*           3 = Screen video
+*           4 = On2 VP6
+*           5 = On2 VP6 with alpha channel
+*           6 = Screen video version 2
+*           7 = AVC
+* @return the code id. 0 for error.
+*/
+extern char srs_utils_flv_video_codec_id(char* data, int size);
+
+/**
+* get the AVCPacketType of video tag.
+* The following values are defined:
+*           0 = AVC sequence header
+*           1 = AVC NALU
+*           2 = AVC end of sequence (lower level NALU sequence ender is
+*               not required or supported)
+* @return the avc packet type. -1(0xff) for error.
+*/
+extern char srs_utils_flv_video_avc_packet_type(char* data, int size);
+
+/**
+* get the FrameType of video tag.
+* Type of video frame. The following values are defined:
+*           1 = key frame (for AVC, a seekable frame)
+*           2 = inter frame (for AVC, a non-seekable frame)
+*           3 = disposable inter frame (H.263 only)
+*           4 = generated key frame (reserved for server use only)
+*           5 = video info/command frame
+* @return the frame type. 0 for error.
+*/
+extern char srs_utils_flv_video_frame_type(char* data, int size);
+
+/**
+* get the SoundFormat of audio tag.
+* Format of SoundData. The following values are defined:
+*               0 = Linear PCM, platform endian
+*               1 = ADPCM
+*               2 = MP3
+*               3 = Linear PCM, little endian
+*               4 = Nellymoser 16 kHz mono
+*               5 = Nellymoser 8 kHz mono
+*               6 = Nellymoser
+*               7 = G.711 A-law logarithmic PCM
+*               8 = G.711 mu-law logarithmic PCM
+*               9 = reserved
+*               10 = AAC
+*               11 = Speex
+*               14 = MP3 8 kHz
+*               15 = Device-specific sound
+*               Formats 7, 8, 14, and 15 are reserved.
+*               AAC is supported in Flash Player 9,0,115,0 and higher.
+*               Speex is supported in Flash Player 10 and higher.
+* @return the sound format. -1(0xff) for error.
+*/
+extern char srs_utils_flv_audio_sound_format(char* data, int size);
+
+/**
+* get the SoundRate of audio tag.
+* Sampling rate. The following values are defined:
+*               0 = 5.5 kHz
+*               1 = 11 kHz
+*               2 = 22 kHz
+*               3 = 44 kHz
+* @return the sound rate. -1(0xff) for error.
+*/
+extern char srs_utils_flv_audio_sound_rate(char* data, int size);
+
+/**
+* get the SoundSize of audio tag.
+* Size of each audio sample. This parameter only pertains to
+* uncompressed formats. Compressed formats always decode
+* to 16 bits internally.
+*               0 = 8-bit samples
+*               1 = 16-bit samples
+* @return the sound size. -1(0xff) for error.
+*/
+extern char srs_utils_flv_audio_sound_size(char* data, int size);
+
+/**
+* get the SoundType of audio tag.
+* Mono or stereo sound
+*               0 = Mono sound
+*               1 = Stereo sound
+* @return the sound type. -1(0xff) for error.
+*/
+extern char srs_utils_flv_audio_sound_type(char* data, int size);
+
+/**
+* get the AACPacketType of audio tag.
+* The following values are defined:
+*               0 = AAC sequence header
+*               1 = AAC raw
+* @return the aac packet type. -1(0xff) for error.
+*/
+extern char srs_utils_flv_audio_aac_packet_type(char* data, int size);
+
+/*************************************************************
+**************************************************************
+* human readable print.
+**************************************************************
+*************************************************************/
+/**
+* human readable print 
+* @param pdata, output the heap data, NULL to ignore.
+*       user must use srs_amf0_free_bytes to free it.
+* @return return the *pdata for print. NULL to ignore.
+*/
+extern char* srs_human_amf0_print(srs_amf0_t amf0, char** pdata, int* psize);
+/**
+* convert the flv tag type to string.
+*     SRS_RTMP_TYPE_AUDIO to "Audio"
+*     SRS_RTMP_TYPE_VIDEO to "Video"
+*     SRS_RTMP_TYPE_SCRIPT to "Data"
+*     otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_tag_type2string(char type);
+
+/**
+* get the codec id string.
+*           H.263 = Sorenson H.263
+*           Screen = Screen video
+*           VP6 = On2 VP6
+*           VP6Alpha = On2 VP6 with alpha channel
+*           Screen2 = Screen video version 2
+*           H.264 = AVC
+*           otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_video_codec_id2string(char codec_id);
+
+/**
+* get the avc packet type string.
+*           SH = AVC sequence header
+*           Nalu = AVC NALU
+*           SpsPpsEnd = AVC end of sequence
+*           otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_video_avc_packet_type2string(char avc_packet_type);
+
+/**
+* get the frame type string.
+*           I = key frame (for AVC, a seekable frame)
+*           P/B = inter frame (for AVC, a non-seekable frame)
+*           DI = disposable inter frame (H.263 only)
+*           GI = generated key frame (reserved for server use only)
+*           VI = video info/command frame
+*           otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_video_frame_type2string(char frame_type);
+
+/**
+* get the SoundFormat string.
+* Format of SoundData. The following values are defined:
+*               LinearPCM = Linear PCM, platform endian
+*               ADPCM = ADPCM
+*               MP3 = MP3
+*               LinearPCMLe = Linear PCM, little endian
+*               NellymoserKHz16 = Nellymoser 16 kHz mono
+*               NellymoserKHz8 = Nellymoser 8 kHz mono
+*               Nellymoser = Nellymoser
+*               G711APCM = G.711 A-law logarithmic PCM
+*               G711MuPCM = G.711 mu-law logarithmic PCM
+*               Reserved = reserved
+*               AAC = AAC
+*               Speex = Speex
+*               MP3KHz8 = MP3 8 kHz
+*               DeviceSpecific = Device-specific sound
+*               otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_audio_sound_format2string(char sound_format);
+
+/**
+* get the SoundRate of audio tag.
+* Sampling rate. The following values are defined:
+*               5.5KHz = 5.5 kHz
+*               11KHz = 11 kHz
+*               22KHz = 22 kHz
+*               44KHz = 44 kHz
+*               otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_audio_sound_rate2string(char sound_rate);
+
+/**
+* get the SoundSize of audio tag.
+* Size of each audio sample. This parameter only pertains to
+* uncompressed formats. Compressed formats always decode
+* to 16 bits internally.
+*               8bit = 8-bit samples
+*               16bit = 16-bit samples
+*               otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_audio_sound_size2string(char sound_size);
+
+/**
+* get the SoundType of audio tag.
+* Mono or stereo sound
+*               Mono = Mono sound
+*               Stereo = Stereo sound
+*               otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_audio_sound_type2string(char sound_type);
+
+/**
+* get the AACPacketType of audio tag.
+* The following values are defined:
+*               SH = AAC sequence header
+*               Raw = AAC raw
+*               otherwise, "Unknown"
+* @remark user never free the return char*, 
+*   it's static shared const string.
+*/
+extern const char* srs_human_flv_audio_aac_packet_type2string(char aac_packet_type);
+
+/**
+* print the rtmp packet, use srs_human_trace/srs_human_verbose for packet,
+* and use srs_human_raw for script data body.
+* @return an error code for parse the timetstamp to dts and pts.
+*/
+extern int srs_human_print_rtmp_packet(char type, u_int32_t timestamp, char* data, int size);
+
+// log to console, for use srs-librtmp application.
+extern const char* srs_human_format_time();
+
+// when disabled log, donot compile it.
+#ifdef SRS_DISABLE_LOG
+    #define srs_human_trace(msg, ...) (void)0
+    #define srs_human_verbose(msg, ...) (void)0
+    #define srs_human_raw(msg, ...) (void)0
+#else
+    #define srs_human_trace(msg, ...) printf("[%s] ", srs_human_format_time());printf(msg, ##__VA_ARGS__);printf("\n")
+    #define srs_human_verbose(msg, ...) printf("[%s] ", srs_human_format_time());printf(msg, ##__VA_ARGS__);printf("\n")
+    #define srs_human_raw(msg, ...) printf(msg, ##__VA_ARGS__)
+#endif
+
+/*************************************************************
+**************************************************************
+* IO hijack, use your specified io functions.
+**************************************************************
+*************************************************************/
+// the void* will convert to your handler for io hijack.
+typedef void* srs_hijack_io_t;
+// define the following macro and functions in your module to hijack the io.
+// the example @see https://github.com/winlinvip/st-load
+// which use librtmp but use its own io(use st also).
+#ifdef SRS_HIJACK_IO
+    #ifndef _WIN32
+        // for iovec.
+        #include <sys/uio.h>
+    #endif
+    /**
+    * create hijack.
+    * @return NULL for error; otherwise, ok.
+    */
+    extern srs_hijack_io_t srs_hijack_io_create();
+    /**
+    * destroy the context, user must close the socket.
+    */
+    extern void srs_hijack_io_destroy(srs_hijack_io_t ctx);
+    /**
+    * create socket, not connect yet.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int srs_hijack_io_create_socket(srs_hijack_io_t ctx);
+    /**
+    * connect socket at server_ip:port.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int srs_hijack_io_connect(srs_hijack_io_t ctx, const char* server_ip, int port);
+    /**
+    * read from socket.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int srs_hijack_io_read(srs_hijack_io_t ctx, void* buf, size_t size, ssize_t* nread);
+    /**
+    * set the socket recv timeout.
+    * @return 0, success; otherswise, failed.
+    */
+    extern void srs_hijack_io_set_recv_timeout(srs_hijack_io_t ctx, int64_t timeout_us);
+    /**
+    * get the socket recv timeout.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int64_t srs_hijack_io_get_recv_timeout(srs_hijack_io_t ctx);
+    /**
+    * get the socket recv bytes.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int64_t srs_hijack_io_get_recv_bytes(srs_hijack_io_t ctx);
+    /**
+    * set the socket send timeout.
+    * @return 0, success; otherswise, failed.
+    */
+    extern void srs_hijack_io_set_send_timeout(srs_hijack_io_t ctx, int64_t timeout_us);
+    /**
+    * get the socket send timeout.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int64_t srs_hijack_io_get_send_timeout(srs_hijack_io_t ctx);
+    /**
+    * get the socket send bytes.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int64_t srs_hijack_io_get_send_bytes(srs_hijack_io_t ctx);
+    /**
+    * writev of socket.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int srs_hijack_io_writev(srs_hijack_io_t ctx, const iovec *iov, int iov_size, ssize_t* nwrite);
+    /**
+    * whether the timeout is never timeout.
+    * @return 0, success; otherswise, failed.
+    */
+    extern bool srs_hijack_io_is_never_timeout(srs_hijack_io_t ctx, int64_t timeout_us);
+    /**
+    * read fully, fill the buf exactly size bytes.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int srs_hijack_io_read_fully(srs_hijack_io_t ctx, void* buf, size_t size, ssize_t* nread);
+    /**
+    * write bytes to socket.
+    * @return 0, success; otherswise, failed.
+    */
+    extern int srs_hijack_io_write(srs_hijack_io_t ctx, void* buf, size_t size, ssize_t* nwrite);
+#endif
+
+/*************************************************************
+**************************************************************
+* Windows SRS-LIBRTMP solution
+**************************************************************
+*************************************************************/
+// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+#ifdef _WIN32
+    #define _CRT_SECURE_NO_WARNINGS
+    #include <time.h>
+    int gettimeofday(struct timeval* tv, struct timezone* tz);
+    #define PRId64 "lld"
+    
+    typedef int socklen_t;
+    const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
+    typedef int mode_t;
+    #define S_IRUSR 0
+    #define S_IWUSR 0
+    #define S_IRGRP 0
+    #define S_IWGRP 0
+    #define S_IROTH 0
+    
+    #include <io.h>
+    #include <fcntl.h>
+    #define open _open
+    #define close _close
+    #define lseek _lseek
+    #define write _write
+    #define read _read
+    
+    typedef int pid_t;
+    pid_t getpid(void);
+    #define snprintf _snprintf
+    ssize_t writev(int fd, const struct iovec *iov, int iovcnt);
+    typedef int64_t useconds_t;
+    int usleep(useconds_t usec);
+    int socket_setup();
+    int socket_cleanup();
+#endif
+
+#ifdef __cplusplus
 }
-
-/**
-* implements the client role protocol.
-*/
-class SrsRtmpClient
-{
-private:
-	SrsProtocol* protocol;
-	st_netfd_t stfd;
-public:
-	SrsRtmpClient(st_netfd_t _stfd);
-	virtual ~SrsRtmpClient();
-public:
-	virtual void set_recv_timeout(int64_t timeout_us);
-	virtual void set_send_timeout(int64_t timeout_us);
-	virtual int64_t get_recv_bytes();
-	virtual int64_t get_send_bytes();
-	virtual int get_recv_kbps();
-	virtual int get_send_kbps();
-	virtual int recv_message(SrsCommonMessage** pmsg);
-	virtual int send_message(ISrsMessage* msg);
-public:
-	virtual int handshake();
-	virtual int connect_app(std::string app, std::string tc_url);
-	virtual int create_stream(int& stream_id);
-	virtual int play(std::string stream, int stream_id);
-	virtual int publish(std::string stream, int stream_id);
-};
+#endif
 
 #endif
+

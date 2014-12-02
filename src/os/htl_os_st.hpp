@@ -100,12 +100,13 @@ public:
     StSocket();
     virtual ~StSocket();
 public:
-	virtual st_netfd_t GetStfd();
+    virtual st_netfd_t GetStfd();
     virtual SocketStatus Status();
     virtual int Connect(const char* ip, int port);
     virtual int Read(const void* buf, size_t size, ssize_t* nread);
     virtual int ReadFully(const void* buf, size_t size, ssize_t* nread);
     virtual int Write(const void* buf, size_t size, ssize_t* nwrite);
+    virtual int Writev(const iovec *iov, int iov_size, ssize_t* nwrite);
     virtual int Close();
 };
 

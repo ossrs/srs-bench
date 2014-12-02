@@ -101,7 +101,7 @@ WarnLevel="-Wall -Wextra"
 # the compile standard.
 CppStd="-std=c++98"
 # other macros defined
-UserMacros=""
+UserMacros="-DSRS_HIJACK_IO -DSRS_DISABLE_LOG"
 # the cxx flag generated.
 CXXFLAGS="${CppStd} ${WarnLevel} ${GDBDebug} ${Performance} ${UserMacros}"
 cat << END > ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE}

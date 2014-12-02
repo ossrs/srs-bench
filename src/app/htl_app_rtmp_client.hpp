@@ -9,13 +9,13 @@
 #include <htl_core_uri.hpp>
 #include <htl_os_st.hpp>
 
-class SrsRtmpClient;
+#include <htl_app_rtmp_protocol.hpp>
 
 class StRtmpClient
 {
 private:
-	SrsRtmpClient* srs;
-	StSocket* socket;
+    srs_rtmp_t srs;
+    StSocket* socket;
     int stream_id;
 public:
     StRtmpClient();
@@ -25,9 +25,8 @@ public:
 private:
     virtual int Connect(RtmpUrl* url);
     virtual int Handshake();
-    virtual int ConnectApp(RtmpUrl* url);
-    virtual int CreateStream();
-    virtual int PlayStram(RtmpUrl* url);
+    virtual int ConnectApp();
+    virtual int PlayStram();
     virtual int DumpAV();
 };
 

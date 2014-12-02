@@ -72,8 +72,7 @@ public:
         }
         
         // get the data to trim.
-        value = "";
-        value.append(start, end - start + 1);
+        value = value.substr(start - bytes, end - start + 1);
         
         return *this;
     }

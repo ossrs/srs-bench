@@ -36,7 +36,8 @@
 #define ProductVersion "1.0.3"
 #define ProductHTTPName "Bravo HttpLoad/"ProductVersion
 #define ProductHLSName "Bravo HlsLoad/"ProductVersion
-#define ProductRtmpName "Bravo RtmpLoad/"ProductVersion
+#define ProductRtmpName "Bravo RtmpPlayLoad/"ProductVersion
+#define ProductRtmpPublishName "Bravo RtmpPublishLoad/"ProductVersion
 #define BuildPlatform "linux"
 #define BugReportEmail "winterserver@126.com"
 

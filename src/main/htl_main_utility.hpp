@@ -57,8 +57,8 @@ LogContext* context = new StLogContext();
                 break;
 
 #define ShowHelpPart1()\
-        "  -c CLIENTS, --clients CLIENTS    The concurrency client to start to request HTTP data. defaut: %d\n" \
-        "  -r URL, --url URL                The load test http url for each client to download/process. \n" \
+        "  -c CLIENTS, --clients CLIENTS    The concurrency client to start to request. defaut: %d\n" \
+        "  -r URL, --url URL                The load test url for each client to download/process. \n" \
         "  -t REPEAT, --repeat REPEAT       The repeat is the number for each client to download the url. \n" \
         "                                   ie. %s\n" \
         "                                   default: %d. 0 means infinity.\n"

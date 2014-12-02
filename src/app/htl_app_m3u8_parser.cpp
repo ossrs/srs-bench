@@ -51,39 +51,29 @@ public:
         return pos == value.length() - key.length();
     }
     String& strip(){
-        while(value.length() > 0){
-            if(startswith("\n")){
-                value = value.substr(1);
-                continue;
-            }
-            
-            if(startswith("\r")){
-                value = value.substr(1);
-                continue;
-            }
-            
-            if(startswith(" ")){
-                value = value.substr(1);
-                continue;
-            }
-            
-            if(endswith("\n")){
-                value = value.substr(0, value.length() - 1);
-                continue;
-            }
-            
-            if(endswith("\r")){
-                value = value.substr(0, value.length() - 1);
-                continue;
-            }
-            
-            if(endswith(" ")){
-                value = value.substr(0, value.length() - 1);
-                continue;
-            }
-
-            break;
+        if (value.empty()) {
+            return *this;
         }
+        
+        // macro to test whether char is a space.
+        #define __IS_SPACE(ch) (ch == '\n' || ch == '\r' || ch == ' ')
+        
+        // find the start and end which is not space.
+        char* bytes = (char*)value.data();
+        
+        // find the end not space
+        char* end = NULL;
+        for (end = bytes + value.length() - 1; end > bytes && __IS_SPACE(end[0]); end--) {
+        }
+
+        // find the start not space
+        char* start = NULL;
+        for (start = bytes; start < end && __IS_SPACE(start[0]); start++) {
+        }
+        
+        // get the data to trim.
+        value = "";
+        value.append(start, end - start + 1);
         
         return *this;
     }

@@ -106,9 +106,6 @@ StRtmpClient::~StRtmpClient(){
 int StRtmpClient::Dump(RtmpUrl* url){
     int ret = ERROR_SUCCESS;
     
-    delete socket;
-    socket = new StSocket();
-    
     if((ret = Connect(url)) != ERROR_SUCCESS){
         Error("rtmp client connect server failed. ret=%d", ret);
         return ret;
@@ -144,7 +141,9 @@ int StRtmpClient::Dump(RtmpUrl* url){
 int StRtmpClient::Connect(RtmpUrl* url){
     int ret = ERROR_SUCCESS;
     
-    if(socket->Status() == SocketConnected){
+    StSocket* socket = (StSocket*)srs_hijack_io_get(srs);
+    
+    if(socket && socket->Status() == SocketConnected){
         return ret;
     }
     

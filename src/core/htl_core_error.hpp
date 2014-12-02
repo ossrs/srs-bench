@@ -33,7 +33,7 @@
 #define ERROR_RTMP_MSG_TOO_BIG 602
 #define ERROR_RTMP_INVALID_RESPONSE 603
 
-#define ProductVersion "1.0.2"
+#define ProductVersion "1.0.3"
 #define ProductHTTPName "Bravo HttpLoad/"ProductVersion
 #define ProductHLSName "Bravo HlsLoad/"ProductVersion
 #define ProductRtmpName "Bravo RtmpLoad/"ProductVersion

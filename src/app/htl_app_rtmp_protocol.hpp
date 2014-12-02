@@ -895,14 +895,21 @@ extern const char* srs_human_format_time();
 *************************************************************/
 // the void* will convert to your handler for io hijack.
 typedef void* srs_hijack_io_t;
-// define the following macro and functions in your module to hijack the io.
-// the example @see https://github.com/winlinvip/st-load
-// which use librtmp but use its own io(use st also).
 #ifdef SRS_HIJACK_IO
     #ifndef _WIN32
         // for iovec.
         #include <sys/uio.h>
     #endif
+    /**
+    * get the hijack io object in rtmp protocol sdk.
+    * @remark, user should never provides this method, srs-librtmp provides it.
+    */
+    extern srs_hijack_io_t srs_hijack_io_get(srs_rtmp_t rtmp);
+#endif
+// define the following macro and functions in your module to hijack the io.
+// the example @see https://github.com/winlinvip/st-load
+// which use librtmp but use its own io(use st also).
+#ifdef SRS_HIJACK_IO
     /**
     * create hijack.
     * @return NULL for error; otherwise, ok.

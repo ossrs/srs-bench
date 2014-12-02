@@ -266,12 +266,12 @@ int StSocket::Connect(const char* ip, int port){
 int StSocket::Read(const void* buf, size_t size, ssize_t* nread){
     int ret = ERROR_SUCCESS;
     
-    *nread = st_read(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
+    ssize_t got = st_read(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
     
     // On success a non-negative integer indicating the number of bytes actually read is returned 
     // (a value of 0 means the network connection is closed or end of file is reached).
-    if(*nread <= 0){
-        if(*nread == 0){
+    if(got <= 0){
+        if(got == 0){
             errno = ECONNRESET;
         }
         
@@ -279,8 +279,12 @@ int StSocket::Read(const void* buf, size_t size, ssize_t* nread){
         status = SocketDisconnected;
     }
     
-    if(*nread > 0){
-        statistic->OnRead(context->GetId(), *nread);
+    if(got > 0){
+        statistic->OnRead(context->GetId(), got);
+    }
+    
+    if (nread) {
+        *nread = got;
     }
         
     return ret;
@@ -289,12 +293,12 @@ int StSocket::Read(const void* buf, size_t size, ssize_t* nread){
 int StSocket::ReadFully(const void* buf, size_t size, ssize_t* nread){
     int ret = ERROR_SUCCESS;
     
-    *nread = st_read_fully(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
+    ssize_t got = st_read_fully(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
     
     // On success a non-negative integer indicating the number of bytes actually read is returned 
     // (a value less than nbyte means the network connection is closed or end of file is reached)
-    if(*nread != (ssize_t)size){
-        if(*nread >= 0){
+    if(got != (ssize_t)size){
+        if(got >= 0){
             errno = ECONNRESET;
         }
         
@@ -302,8 +306,12 @@ int StSocket::ReadFully(const void* buf, size_t size, ssize_t* nread){
         status = SocketDisconnected;
     }
     
-    if(*nread > 0){
-        statistic->OnRead(context->GetId(), *nread);
+    if(got > 0){
+        statistic->OnRead(context->GetId(), got);
+    }
+    
+    if (nread) {
+        *nread = got;
     }
         
     return ret;
@@ -312,15 +320,19 @@ int StSocket::ReadFully(const void* buf, size_t size, ssize_t* nread){
 int StSocket::Write(const void* buf, size_t size, ssize_t* nwrite){
     int ret = ERROR_SUCCESS;
     
-    *nwrite = st_write(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
+    ssize_t writen = st_write(sock_nfd, (void*)buf, size, ST_UTIME_NO_TIMEOUT);
     
-    if(*nwrite <= 0){
+    if(writen <= 0){
         ret = ERROR_SEND;
         status = SocketDisconnected;
     }
     
-    if(*nwrite > 0){
-        statistic->OnWrite(context->GetId(), *nwrite);
+    if(writen > 0){
+        statistic->OnWrite(context->GetId(), writen);
+    }
+    
+    if (nwrite) {
+        *nwrite = writen;
     }
         
     return ret;
@@ -329,15 +341,19 @@ int StSocket::Write(const void* buf, size_t size, ssize_t* nwrite){
 int StSocket::Writev(const iovec *iov, int iov_size, ssize_t* nwrite){
     int ret = ERROR_SUCCESS;
     
-    *nwrite = st_writev(sock_nfd, iov, iov_size, ST_UTIME_NO_TIMEOUT);
+    ssize_t writen = st_writev(sock_nfd, iov, iov_size, ST_UTIME_NO_TIMEOUT);
     
-    if(*nwrite <= 0){
+    if(writen <= 0){
         ret = ERROR_SEND;
         status = SocketDisconnected;
     }
     
-    if(*nwrite > 0){
-        statistic->OnWrite(context->GetId(), *nwrite);
+    if(writen > 0){
+        statistic->OnWrite(context->GetId(), writen);
+    }
+    
+    if (nwrite) {
+        *nwrite = writen;
     }
         
     return ret;

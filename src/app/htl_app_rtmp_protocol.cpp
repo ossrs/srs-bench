@@ -29,8 +29,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef SRS_AUTO_HEADER_HPP
 #define SRS_AUTO_HEADER_HPP
 
-#define SRS_AUTO_BUILD_TS "1417498906"
-#define SRS_AUTO_BUILD_DATE "2014-12-02 13:41:46"
+#define SRS_AUTO_BUILD_TS "1417499871"
+#define SRS_AUTO_BUILD_DATE "2014-12-02 13:57:51"
 #define SRS_AUTO_UNAME "Linux dev6 2.6.32-71.el6.x86_64 #1 SMP Fri May 20 03:51:51 BST 2011 x86_64 x86_64 x86_64 GNU/Linux"
 #define SRS_AUTO_USER_CONFIGURE "--x86-x64  --export-librtmp-single=/home/winlin/srs.librtmp/src/srs/"
 #define SRS_AUTO_CONFIGURE "--prefix=/usr/local/srs --without-hls --without-dvr --without-nginx --without-ssl --without-ffmpeg --without-transcode --without-ingest --without-stat --without-http-callback --without-http-server --without-http-api --with-librtmp --with-research --without-utest --without-gperf --without-gmc --without-gmp --without-gcp --without-gprof --without-arm-ubuntu12 --without-mips-ubuntu12 --log-trace"
@@ -5745,7 +5745,7 @@ extern srs_rtmp_t srs_rtmp_create(const char* url);
 extern srs_rtmp_t srs_rtmp_create2(const char* url);
 /**
 * close and destroy the rtmp stack.
-* @remark, user should use the rtmp again.
+* @remark, user should never use the rtmp again.
 */
 extern void srs_rtmp_destroy(srs_rtmp_t rtmp);
 
@@ -6533,14 +6533,21 @@ extern const char* srs_human_format_time();
 *************************************************************/
 // the void* will convert to your handler for io hijack.
 typedef void* srs_hijack_io_t;
-// define the following macro and functions in your module to hijack the io.
-// the example @see https://github.com/winlinvip/st-load
-// which use librtmp but use its own io(use st also).
 #ifdef SRS_HIJACK_IO
     #ifndef _WIN32
         // for iovec.
         #include <sys/uio.h>
     #endif
+    /**
+    * get the hijack io object in rtmp protocol sdk.
+    * @remark, user should never provides this method, srs-librtmp provides it.
+    */
+    extern srs_hijack_io_t srs_hijack_io_get(srs_rtmp_t rtmp);
+#endif
+// define the following macro and functions in your module to hijack the io.
+// the example @see https://github.com/winlinvip/st-load
+// which use librtmp but use its own io(use st also).
+#ifdef SRS_HIJACK_IO
     /**
     * create hijack.
     * @return NULL for error; otherwise, ok.
@@ -6715,6 +6722,7 @@ public:
     SimpleSocketStream();
     virtual ~SimpleSocketStream();
 public:
+    virtual srs_hijack_io_t hijack_io();
     virtual int create_socket();
     virtual int connect(const char* server, int port);
 // ISrsBufferReader
@@ -18223,7 +18231,10 @@ srs_rtmp_t srs_rtmp_create2(const char* url)
 
 void srs_rtmp_destroy(srs_rtmp_t rtmp)
 {
-    srs_assert(rtmp != NULL);
+    if (!rtmp) {
+        return;
+    }
+    
     Context* context = (Context*)rtmp;
     
     srs_freep(context);
@@ -20113,6 +20124,23 @@ const char* srs_human_format_time()
     return buf;
 }
 
+
+#ifdef SRS_HIJACK_IO
+srs_hijack_io_t srs_hijack_io_get(srs_rtmp_t rtmp)
+{
+    if (!rtmp) {
+        return NULL;
+    }
+    
+    Context* context = (Context*)rtmp;
+    if (!context->skt) {
+        return NULL;
+    }
+    
+    return context->skt->hijack_io();
+}
+#endif
+
 #ifdef __cplusplus
 }
 #endif
@@ -20408,6 +20436,11 @@ SimpleSocketStream::~SimpleSocketStream()
         srs_hijack_io_destroy(io);
         io = NULL;
     }
+}
+
+srs_hijack_io_t SimpleSocketStream::hijack_io()
+{
+    return io;
 }
 
 int SimpleSocketStream::create_socket()

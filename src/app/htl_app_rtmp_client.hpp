@@ -15,7 +15,6 @@ class StRtmpClient
 {
 private:
     srs_rtmp_t srs;
-    StSocket* socket;
     int stream_id;
 public:
     StRtmpClient();

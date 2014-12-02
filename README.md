@@ -6,11 +6,25 @@ hls/http/rtmp-play/rtmp-publish load test tool base on st(state-threads), suppor
 服务器负载测试工具(st-load)：
 
 1. 模拟huge并发：2G内存就可以开300k连接。基于states-threads的协程。
-1. 支持HLS解析和测试，下载ts片后等待一个切片长度，模拟客户端。支持HLS点播和直播。`./objs/st_hls_load`
-1. 支持HTTP负载测试，所有并发重复下载一个http文件。可将80Gbps带宽测试的72Gbps。`./objs/st_http_load `
-1. 支持RTMP流播放测试，一个进程支持5k并发。`./objs/st_rtmp_load`
-1. 支持RTMP流推流测试，一个进程支持500个并发。`./objs/st_rtmp_publish`
+1. 支持HLS解析和测试，下载ts片后等待一个切片长度，模拟客户端。支持HLS点播和直播。执行程序：`./objs/st_hls_load`
+1. 支持HTTP负载测试，所有并发重复下载一个http文件。可将80Gbps带宽测试的72Gbps。执行程序：`./objs/st_http_load `
+1. 支持RTMP流播放测试，一个进程支持5k并发。执行程序：`./objs/st_rtmp_load`
+1. 支持RTMP流推流测试，一个进程支持500个并发。执行程序：`./objs/st_rtmp_publish`
 1. RTMP协议使用高性能服务器SRS([SimpleRtmpServer](https://github.com/winlinvip/simple-rtmp-server))的协议栈。
+
+注意：
+
+1. HTTP/HLS：HTTP服务器必须在头中返回Content-Length，不支持chunked方式。
+2. 所有程序都在Linux下运行，模拟客户端运行。
+3. 其他工具参考[srs-librtmp](https://github.com/winlinvip/simple-rtmp-server/wiki/v2_CN_SrsLibrtmp#srs-librtmp-examples)
+
+Usage:
+
+```
+git clone https://github.com/winlinvip/st-load.git &&
+cd st-load && ./configure && make &&
+./objs/st_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
+```
 
 TestEnvironment: 24CPU, 80Gbps Network, 16GB Memory<br/>
 Server: NGINX HLS<br/>

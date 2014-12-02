@@ -21,11 +21,11 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef _htl_app_rtmp_client_hpp
-#define _htl_app_rtmp_client_hpp
+#ifndef _htl_app_rtmp_play_hpp
+#define _htl_app_rtmp_play_hpp
 
 /*
-#include <htl_app_rtmp_client.hpp>
+#include <htl_app_rtmp_play.hpp>
 */
 #include <string>
 
@@ -34,14 +34,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <htl_app_rtmp_protocol.hpp>
 
-class StRtmpClient
+class StRtmpPlayClient
 {
 private:
     srs_rtmp_t srs;
     int stream_id;
 public:
-    StRtmpClient();
-    virtual ~StRtmpClient();
+    StRtmpPlayClient();
+    virtual ~StRtmpPlayClient();
 public:
     virtual int Dump(RtmpUrl* url);
 private:

@@ -33,19 +33,19 @@ using namespace std;
 #include <htl_core_error.hpp>
 #include <htl_core_log.hpp>
 
-#include <htl_app_rtmp_client.hpp>
+#include <htl_app_rtmp_play.hpp>
 #include <htl_app_rtmp_protocol.hpp>
 
-StRtmpClient::StRtmpClient(){
+StRtmpPlayClient::StRtmpPlayClient(){
     stream_id = 0;
     srs = NULL;
 }
 
-StRtmpClient::~StRtmpClient(){
+StRtmpPlayClient::~StRtmpPlayClient(){
     srs_rtmp_destroy(srs);
 }
 
-int StRtmpClient::Dump(RtmpUrl* url){
+int StRtmpPlayClient::Dump(RtmpUrl* url){
     int ret = ERROR_SUCCESS;
     
     if((ret = Connect(url)) != ERROR_SUCCESS){
@@ -80,7 +80,7 @@ int StRtmpClient::Dump(RtmpUrl* url){
     return ret;
 }
 
-int StRtmpClient::Connect(RtmpUrl* url){
+int StRtmpPlayClient::Connect(RtmpUrl* url){
     int ret = ERROR_SUCCESS;
     
     srs_rtmp_destroy(srs);
@@ -101,19 +101,19 @@ int StRtmpClient::Connect(RtmpUrl* url){
     return ret;
 }
 
-int StRtmpClient::Handshake(){
+int StRtmpPlayClient::Handshake(){
     return __srs_rtmp_do_simple_handshake(srs);
 }
 
-int StRtmpClient::ConnectApp(){
+int StRtmpPlayClient::ConnectApp(){
     return srs_rtmp_connect_app(srs);
 }
 
-int StRtmpClient::PlayStram(){
+int StRtmpPlayClient::PlayStram(){
     return srs_rtmp_play_stream(srs);
 }
 
-int StRtmpClient::DumpAV(){
+int StRtmpPlayClient::DumpAV(){
     int ret = ERROR_SUCCESS;
 
     // recv response

@@ -32,7 +32,7 @@ using namespace std;
 
 #include <htl_core_error.hpp>
 #include <htl_core_log.hpp>
-#include <htl_app_rtmp_client.hpp>
+#include <htl_app_rtmp_play.hpp>
 #include <htl_app_rtmp_publish.hpp>
 
 #include <htl_app_rtmp_load.hpp>
@@ -63,7 +63,7 @@ int StRtmpTask::ProcessTask(){
     Trace("start to process RTMP play task #%d, schema=%s, host=%s, port=%d, tcUrl=%s, stream=%s, startup=%.2f, delay=%.2f, error=%.2f, count=%d", 
         GetId(), url.GetSchema(), url.GetHost(), url.GetPort(), url.GetTcUrl(), url.GetStream(), startup_seconds, delay_seconds, error_seconds, count);
        
-    StRtmpClient client;
+    StRtmpPlayClient client;
     
     // if count is zero, infinity loop.
     for(int i = 0; count == 0 || i < count; i++){

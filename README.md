@@ -1,14 +1,15 @@
 st-load
 ===========
 
-hls/http/rtmp load test tool base on st(state-threads), support huge concurrency<br/>
+hls/http/rtmp-play/rtmp-publish load test tool base on st(state-threads), support huge concurrency<br/>
 
 服务器负载测试工具(st-load)：<br/>
 1. 模拟huge并发：2G内存就可以开300k连接。基于states-threads的协程。<br/>
-2. 支持HLS解析和测试，下载ts片后等待一个切片长度，模拟客户端。支持HLS点播和直播。<br/>
-3. 支持HTTP负载测试，所有并发重复下载一个http文件。可将80Gbps带宽测试的72Gbps。<br/>
-4. 支持RTMP流测试，一个进程支持5k并发。使用nginx-rtmp的协议直接将chunk流解析为messgae。<br/>
-5. RTMP协议使用高性能服务器SRS([SimpleRtmpServer](https://github.com/winlinvip/simple-rtmp-server))的协议栈，1000个客户端只需要使用30%CPU。<br/>
+2. 支持HLS解析和测试，下载ts片后等待一个切片长度，模拟客户端。支持HLS点播和直播。`./objs/st_hls_load`<br/>
+3. 支持HTTP负载测试，所有并发重复下载一个http文件。可将80Gbps带宽测试的72Gbps。`./objs/st_http_load `<br/>
+4. 支持RTMP流播放测试，一个进程支持5k并发。`./objs/st_rtmp_load`<br/>
+5. 支持RTMP流推流测试，一个进程支持500个并发。`./objs/st_rtmp_publish`<br/>
+6. RTMP协议使用高性能服务器SRS([SimpleRtmpServer](https://github.com/winlinvip/simple-rtmp-server))的协议栈。<br/>
 
 TestEnvironment: 24CPU, 80Gbps Network, 16GB Memory<br/>
 Server: NGINX HLS<br/>
@@ -103,3 +104,4 @@ usr sys idl wai hiq siq| read  writ| recv  send|  in   out | int   csw
   7   8  79   0   0   6|   0     0 | 147M  147M|   0     0 |2966   366
 </pre>
 
+Winlin 2014.12

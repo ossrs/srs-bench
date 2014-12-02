@@ -153,7 +153,7 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv){
             return ret;
         }
         
-        Trace("send message type=%d, size=%d, time=%d", type, size, timestamp);
+        Info("send message type=%d, size=%d, time=%d", type, size, timestamp);
         
         if (re <= 0) {
             re = timestamp;

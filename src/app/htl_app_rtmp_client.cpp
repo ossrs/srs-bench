@@ -83,12 +83,6 @@ int StRtmpClient::Dump(RtmpUrl* url){
 int StRtmpClient::Connect(RtmpUrl* url){
     int ret = ERROR_SUCCESS;
     
-    StSocket* socket = (StSocket*)srs_hijack_io_get(srs);
-    
-    if(socket && socket->Status() == SocketConnected){
-        return ret;
-    }
-    
     srs_rtmp_destroy(srs);
     srs = srs_rtmp_create(url->GetUrl());
 

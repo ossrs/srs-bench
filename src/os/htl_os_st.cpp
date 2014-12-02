@@ -389,12 +389,15 @@ int StSocket::Close(){
         return ret;
     }
     
+    int fd = st_netfd_fileno(sock_nfd);
     if(st_netfd_close(sock_nfd) != 0){
         ret = ERROR_CLOSE;
     }
     
     sock_nfd = NULL;
     status = SocketDisconnected;
+    
+    ::close(fd);
     
     return ret;
 }

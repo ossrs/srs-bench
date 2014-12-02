@@ -143,10 +143,10 @@ int main(int argc, char** argv){
     }
 
     for(int i = 0; i < threads; i++){
-        StRtmpTask* task = new StRtmpTask();
+        StRtmpPublishTask* task = new StRtmpPublishTask();
 
-        if((ret = task->Initialize(url, start, delay, error, count)) != ERROR_SUCCESS){
-            Error("initialize task failed, url=%s, ret=%d", url.c_str(), ret);
+        if((ret = task->Initialize(input, url, start, delay, error, count)) != ERROR_SUCCESS){
+            Error("initialize task failed, input=%s, url=%s, ret=%d", input.c_str(), url.c_str(), ret);
             return ret;
         }
         

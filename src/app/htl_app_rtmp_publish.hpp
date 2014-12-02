@@ -43,13 +43,13 @@ public:
     StRtmpPublishClient();
     virtual ~StRtmpPublishClient();
 public:
-    virtual int Dump(RtmpUrl* url);
+    virtual int Publish(std::string input, RtmpUrl* url);
 private:
     virtual int Connect(RtmpUrl* url);
     virtual int Handshake();
     virtual int ConnectApp();
-    virtual int PlayStram();
-    virtual int DumpAV();
+    virtual int PublishStram();
+    virtual int PublishAV(srs_flv_t flv);
 };
 
 #endif

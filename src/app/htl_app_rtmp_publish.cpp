@@ -45,7 +45,7 @@ StRtmpPublishClient::~StRtmpPublishClient(){
     srs_rtmp_destroy(srs);
 }
 
-int StRtmpPublishClient::Dump(RtmpUrl* url){
+int StRtmpPublishClient::Publish(string input, RtmpUrl* url){
     int ret = ERROR_SUCCESS;
     
     if((ret = Connect(url)) != ERROR_SUCCESS){
@@ -65,13 +65,23 @@ int StRtmpPublishClient::Dump(RtmpUrl* url){
     }
     Info("rtmp client connect tcUrl(%s) success", url->GetTcUrl());
     
-    if((ret = PlayStram()) != ERROR_SUCCESS){
-        Error("rtmp client play stream failed. ret=%d", ret);
+    if((ret = PublishStram()) != ERROR_SUCCESS){
+        Error("rtmp client publish stream failed. ret=%d", ret);
         return ret;
     }
-    Info("rtmp client play stream(%s) success", url->GetUrl());
+    Info("rtmp client publish stream(%s) success", url->GetUrl());
     
-    if((ret = DumpAV()) != ERROR_SUCCESS){
+    srs_flv_t flv = srs_flv_open_read(input.c_str());
+    if (!flv) {
+        ret = ERROR_RTMP_OPEN_FLV;
+        Error("open flv file %s failed. ret=%d", input.c_str(), ret);
+        return ret;
+    }
+
+    ret = PublishAV(flv);
+    srs_flv_close(flv);
+    
+    if(ret != ERROR_SUCCESS){
         Error("rtmp client dump av failed. ret=%d", ret);
         return ret;
     }
@@ -82,12 +92,6 @@ int StRtmpPublishClient::Dump(RtmpUrl* url){
 
 int StRtmpPublishClient::Connect(RtmpUrl* url){
     int ret = ERROR_SUCCESS;
-    
-    StSocket* socket = (StSocket*)srs_hijack_io_get(srs);
-    
-    if(socket && socket->Status() == SocketConnected){
-        return ret;
-    }
     
     srs_rtmp_destroy(srs);
     srs = srs_rtmp_create(url->GetUrl());
@@ -115,26 +119,50 @@ int StRtmpPublishClient::ConnectApp(){
     return srs_rtmp_connect_app(srs);
 }
 
-int StRtmpPublishClient::PlayStram(){
-    return srs_rtmp_play_stream(srs);
+int StRtmpPublishClient::PublishStram(){
+    return srs_rtmp_publish_stream(srs);
 }
 
-int StRtmpPublishClient::DumpAV(){
+int StRtmpPublishClient::PublishAV(srs_flv_t flv){
     int ret = ERROR_SUCCESS;
+    
+    char header[9];
+    if ((ret = srs_flv_read_header(flv, header)) != ERROR_SUCCESS) {
+        Error("read flv header failed. ret=%d", ret);
+        return ret;
+    }
 
-    // recv response
+    // open flv and publish to server.
+    u_int32_t re = 0;
     while(true){
         char type;
         u_int32_t timestamp;
-        char* data;
-        int size;
+        int32_t size;
         
-        if ((ret = srs_rtmp_read_packet(srs, &type, &timestamp, &data, &size)) != ERROR_SUCCESS){
+        if ((ret = srs_flv_read_tag_header(flv, &type, &size, &timestamp)) != ERROR_SUCCESS) {
             return ret;
         }
         
-        Info("get message type=%d, size=%d", type, size);
-        delete data;
+        char* data = new char[size];
+        if ((ret = srs_flv_read_tag_data(flv, data, size)) != ERROR_SUCCESS) {
+            delete data;
+            return ret;
+        }
+        
+        if ((ret = srs_rtmp_write_packet(srs, type, timestamp, data, size)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        Trace("send message type=%d, size=%d, time=%d", type, size, timestamp);
+        
+        if (re <= 0) {
+            re = timestamp;
+        }
+        
+        if (timestamp - re > 300) {
+            st_usleep((timestamp - re) * 1000);
+            re = timestamp;
+        }
     }
     
     return ret;

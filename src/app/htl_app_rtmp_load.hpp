@@ -44,4 +44,21 @@ protected:
     virtual int ProcessTask();
 };
 
+// for rtmp publish load task.
+class StRtmpPublishTask : public StBaseTask
+{
+private:
+    std::string input_flv_file;
+    RtmpUrl url;
+public:
+    StRtmpPublishTask();
+    virtual ~StRtmpPublishTask();
+public:
+    virtual int Initialize(std::string input, 
+        std::string http_url, double startup, double delay, double error, int count);
+protected:
+    virtual Uri* GetUri();
+    virtual int ProcessTask();
+};
+
 #endif

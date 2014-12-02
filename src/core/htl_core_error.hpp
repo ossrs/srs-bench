@@ -55,8 +55,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ERROR_RTMP_OVERFLOW 601
 #define ERROR_RTMP_MSG_TOO_BIG 602
 #define ERROR_RTMP_INVALID_RESPONSE 603
+#define ERROR_RTMP_OPEN_FLV 604
 
-#define ProductVersion "1.0.4"
+#define ProductVersion "1.0.6"
 #define ProductHTTPName "Bravo HttpLoad/"ProductVersion
 #define ProductHLSName "Bravo HlsLoad/"ProductVersion
 #define ProductRtmpName "Bravo RtmpPlayLoad/"ProductVersion

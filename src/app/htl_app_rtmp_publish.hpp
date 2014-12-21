@@ -49,7 +49,9 @@ private:
     virtual int Handshake();
     virtual int ConnectApp();
     virtual int PublishStram();
-    virtual int PublishAV(srs_flv_t flv);
+    virtual int PublishAV(srs_flv_t flv, 
+        int64_t timebase, int32_t* starttime, int32_t* endtime
+    );
 };
 
 #endif

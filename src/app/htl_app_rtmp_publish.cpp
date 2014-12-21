@@ -78,7 +78,23 @@ int StRtmpPublishClient::Publish(string input, RtmpUrl* url){
         return ret;
     }
 
-    ret = PublishAV(flv);
+    int64_t timebase = 0;
+    while (true) {
+        int32_t starttime = -1;
+        int32_t endtime = -1;
+        
+        // publish the whole av of flv file
+        ret = PublishAV(flv, timebase, &starttime, &endtime);
+        
+        // restart when flv EOF
+        if (srs_flv_is_eof(ret)) {
+            srs_flv_lseek(flv, 0);
+            timebase += endtime - starttime;
+            Info("republish for flv EOF, timebase=%"PRId64", start=%d, end=%d, ret=%d", 
+                timebase, starttime, endtime, ret);
+            continue;
+        }
+    }
     srs_flv_close(flv);
     
     if(ret != ERROR_SUCCESS){
@@ -123,7 +139,9 @@ int StRtmpPublishClient::PublishStram(){
     return srs_rtmp_publish_stream(srs);
 }
 
-int StRtmpPublishClient::PublishAV(srs_flv_t flv){
+int StRtmpPublishClient::PublishAV(srs_flv_t flv, 
+    int64_t timebase, int32_t* starttime, int32_t* endtime
+){
     int ret = ERROR_SUCCESS;
     
     char header[9];
@@ -142,6 +160,12 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv){
         if ((ret = srs_flv_read_tag_header(flv, &type, &size, &timestamp)) != ERROR_SUCCESS) {
             return ret;
         }
+
+        // update the start and end time.
+        if (*starttime < 0) {
+            *starttime = timestamp;
+        }
+        *endtime = timestamp;
         
         char* data = new char[size];
         if ((ret = srs_flv_read_tag_data(flv, data, size)) != ERROR_SUCCESS) {
@@ -149,11 +173,14 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv){
             return ret;
         }
         
-        if ((ret = srs_rtmp_write_packet(srs, type, timestamp, data, size)) != ERROR_SUCCESS) {
+        // TODO: FIXME: modify the duration to -1
+        
+        u_int32_t dts = (u_int32_t)(timebase + timestamp);
+        if ((ret = srs_rtmp_write_packet(srs, type, dts, data, size)) != ERROR_SUCCESS) {
             return ret;
         }
-        
-        Info("send message type=%d, size=%d, time=%d", type, size, timestamp);
+        Info("send message type=%d, size=%d, time=%d, dts=%d", 
+            type, size, timestamp, dts);
         
         if (re <= 0) {
             re = timestamp;

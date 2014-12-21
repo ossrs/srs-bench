@@ -173,7 +173,42 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv,
             return ret;
         }
         
-        // TODO: FIXME: modify the duration to -1
+        // modify the duration to -1
+        if (type == SRS_RTMP_TYPE_SCRIPT) {
+            int nparsed = 0;
+            srs_amf0_t onMetaData = srs_amf0_parse(data, size, &nparsed);
+            srs_amf0_t metadata = srs_amf0_parse(data + nparsed, size - nparsed, &nparsed);
+            if (srs_amf0_is_ecma_array(metadata)) {
+                srs_amf0_t obj = srs_amf0_ecma_array_to_object(metadata);
+                srs_amf0_free(metadata);
+                metadata = obj;
+            }
+            srs_amf0_t amf0_duration = srs_amf0_object_property(metadata, "duration");
+            if (amf0_duration) {
+                srs_amf0_object_property_set(metadata, "duration", srs_amf0_create_number(-1));
+                
+                // serialize to bytes.
+                int nb_onMetaData = srs_amf0_size(onMetaData);
+                int nb_metadata = srs_amf0_size(metadata);
+                size = nb_onMetaData + nb_metadata;
+                
+                delete[] data;
+                data = new char[size];
+                
+                ret = srs_amf0_serialize(onMetaData, data, nb_onMetaData);
+                if (ret == ERROR_SUCCESS) {
+                    ret = srs_amf0_serialize(metadata, data + nb_onMetaData, nb_metadata);
+                }
+                
+                srs_amf0_free(onMetaData);
+                srs_amf0_free(metadata);
+                
+                if (ret != ERROR_SUCCESS) {
+                    delete data;
+                    return ret;
+                }
+            }
+        }
         
         u_int32_t dts = (u_int32_t)(timebase + timestamp);
         if ((ret = srs_rtmp_write_packet(srs, type, dts, data, size)) != ERROR_SUCCESS) {

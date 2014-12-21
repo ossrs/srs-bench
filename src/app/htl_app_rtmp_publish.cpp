@@ -183,8 +183,7 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv,
                 srs_amf0_free(metadata);
                 metadata = obj;
             }
-            srs_amf0_t amf0_duration = srs_amf0_object_property(metadata, "duration");
-            if (amf0_duration) {
+            if (srs_amf0_object_property(metadata, "duration")) {
                 srs_amf0_object_property_set(metadata, "duration", srs_amf0_create_number(-1));
                 
                 // serialize to bytes.

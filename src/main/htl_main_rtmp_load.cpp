@@ -33,6 +33,7 @@ using namespace std;
 #include <htl_core_log.hpp>
 #include <htl_core_error.hpp>
 #include <htl_app_rtmp_load.hpp>
+#include <htl_app_rtmp_protocol.hpp>
 
 #include <htl_main_utility.hpp>
 
@@ -72,6 +73,8 @@ int discovery_options(int argc, char** argv,
 
 void help(char** argv){
     printf("%s, Copyright (c) 2013 winlin\n", ProductRtmpName);
+    printf("srs.librtmp %d.%d.%d (https://github.com/winlinvip/srs.librtmp)\n\n", 
+        srs_version_major(), srs_version_minor(), srs_version_revision());
     
     printf(""
         "Usage: %s <Options> <-u URL>\n"

@@ -113,7 +113,7 @@ int StRtmpTaskFast::ProcessTask(){
     Trace("start to process RTMP play fast task #%d, schema=%s, host=%s, port=%d, tcUrl=%s, stream=%s, startup=%.2f, delay=%.2f, error=%.2f, count=%d", 
         GetId(), url.GetSchema(), url.GetHost(), url.GetPort(), url.GetTcUrl(), url.GetStream(), startup_seconds, delay_seconds, error_seconds, count);
        
-    StRtmpPlayClient client;
+    StRtmpPlayClientFast client;
     
     // if count is zero, infinity loop.
     for(int i = 0; count == 0 || i < count; i++){

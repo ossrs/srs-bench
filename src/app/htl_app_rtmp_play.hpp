@@ -36,7 +36,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 class StRtmpPlayClient
 {
-private:
+protected:
     srs_rtmp_t srs;
     int stream_id;
 public:
@@ -44,11 +44,20 @@ public:
     virtual ~StRtmpPlayClient();
 public:
     virtual int Dump(RtmpUrl* url);
-private:
+protected:
     virtual int Connect(RtmpUrl* url);
     virtual int Handshake();
     virtual int ConnectApp();
     virtual int PlayStram();
+    virtual int DumpAV();
+};
+
+class StRtmpPlayClientFast : public StRtmpPlayClient
+{
+public:
+    StRtmpPlayClientFast();
+    virtual ~StRtmpPlayClientFast();
+protected:
     virtual int DumpAV();
 };
 

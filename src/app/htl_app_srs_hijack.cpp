@@ -28,7 +28,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <htl_core_error.hpp>
 #include <htl_app_rtmp_protocol.hpp>
 
-#ifdef SRS_HIJACK_IO
+#ifndef SRS_HIJACK_IO
+    #error "must hijack the srs-librtmp"
+#endif
+
+StSocket* srs_hijack_get(srs_rtmp_t rtmp)
+{
+    srs_hijack_io_t ctx = srs_hijack_io_get(rtmp);
+    return (StSocket*)ctx;
+}
+
 srs_hijack_io_t srs_hijack_io_create()
 {
     return new StSocket();
@@ -107,4 +116,3 @@ int srs_hijack_io_write(srs_hijack_io_t ctx, void* buf, size_t size, ssize_t* nw
     StSocket* skt = (StSocket*)ctx;
     return skt->Write(buf, size, nwrite);
 }
-#endif

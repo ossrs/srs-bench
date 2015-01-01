@@ -44,6 +44,22 @@ protected:
     virtual int ProcessTask();
 };
 
+// for rtmp task with fast algorihtm.
+// donot recv in RTMP, but directly in TCP.
+class StRtmpTaskFast : public StBaseTask
+{
+private:
+    RtmpUrl url;
+public:
+    StRtmpTaskFast();
+    virtual ~StRtmpTaskFast();
+public:
+    virtual int Initialize(std::string http_url, double startup, double delay, double error, int count);
+protected:
+    virtual Uri* GetUri();
+    virtual int ProcessTask();
+};
+
 // for rtmp publish load task.
 class StRtmpPublishTask : public StBaseTask
 {

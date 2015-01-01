@@ -35,6 +35,7 @@ using namespace std;
 
 #include <htl_app_rtmp_play.hpp>
 #include <htl_app_rtmp_protocol.hpp>
+#include <htl_app_srs_hijack.hpp>
 
 StRtmpPlayClient::StRtmpPlayClient(){
     stream_id = 0;
@@ -129,6 +130,30 @@ int StRtmpPlayClient::DumpAV(){
         
         Info("get message type=%d, size=%d", type, size);
         delete data;
+    }
+    
+    return ret;
+}
+
+StRtmpPlayClientFast::StRtmpPlayClientFast(){
+}
+
+StRtmpPlayClientFast::~StRtmpPlayClientFast(){
+}
+
+int StRtmpPlayClientFast::DumpAV(){
+    int ret = ERROR_SUCCESS;
+
+    StSocket* skt = srs_hijack_get(srs);
+    
+    // recv response
+    char buf[4096];
+    while(true){
+        if ((ret = skt->Read(buf, sizeof(buf), NULL)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        Info("get message size=%d", size);
     }
     
     return ret;

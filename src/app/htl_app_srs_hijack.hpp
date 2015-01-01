@@ -28,4 +28,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <htl_app_srs_hijack.hpp>
 */
 
+#include <htl_app_rtmp_protocol.hpp>
+
+class StSocket;
+extern StSocket* srs_hijack_get(srs_rtmp_t rtmp);
+
+
 #endif

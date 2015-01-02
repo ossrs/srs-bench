@@ -141,15 +141,28 @@ StRtmpPlayClientFast::StRtmpPlayClientFast(){
 StRtmpPlayClientFast::~StRtmpPlayClientFast(){
 }
 
+#define SOCK_READ_BUFFER 4096
+#define SOCK_READV_NB 1024
+
 int StRtmpPlayClientFast::DumpAV(){
     int ret = ERROR_SUCCESS;
 
     StSocket* skt = srs_hijack_get(srs);
     
+    // use buffered iovs to read tcp data.
+    char buf[SOCK_READ_BUFFER];
+    iovec iovs[SOCK_READV_NB];
+    
+    for (int i = 0; i < SOCK_READV_NB; i++) {
+        iovec& iov = iovs[i];
+        iov.iov_base = buf;
+        iov.iov_len = SOCK_READ_BUFFER;
+    }
+    
     // recv response
-    char buf[4096];
     while(true){
-        if ((ret = skt->Read(buf, sizeof(buf), NULL)) != ERROR_SUCCESS) {
+        ssize_t size = 0;
+        if ((ret = skt->Readv(iovs, SOCK_READV_NB, &size)) != ERROR_SUCCESS) {
             return ret;
         }
         

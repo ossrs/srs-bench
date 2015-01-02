@@ -57,7 +57,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ERROR_RTMP_INVALID_RESPONSE 603
 #define ERROR_RTMP_OPEN_FLV 604
 
-#define ProductVersion "1.0.11"
+#define ProductVersion "1.0.12"
 #define ProductHTTPName "Bravo HttpLoad/"ProductVersion
 #define ProductHLSName "Bravo HlsLoad/"ProductVersion
 #define ProductRtmpName "Bravo RtmpPlayLoad/"ProductVersion

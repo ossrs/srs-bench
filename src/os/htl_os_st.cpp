@@ -313,6 +313,33 @@ int StSocket::Read(const void* buf, size_t size, ssize_t* nread){
     return ret;
 }
 
+int StSocket::Readv(const iovec *iov, int iov_size, ssize_t* nread){
+    int ret = ERROR_SUCCESS;
+    
+    ssize_t got = st_readv(sock_nfd, iov, iov_size, ST_UTIME_NO_TIMEOUT);
+    
+    // On success a non-negative integer indicating the number of bytes actually read is returned 
+    // (a value of 0 means the network connection is closed or end of file is reached).
+    if(got <= 0){
+        if(got == 0){
+            errno = ECONNRESET;
+        }
+        
+        ret = ERROR_READ;
+        status = SocketDisconnected;
+    }
+    
+    if(got > 0){
+        statistic->OnRead(context->GetId(), got);
+    }
+    
+    if (nread) {
+        *nread = got;
+    }
+        
+    return ret;
+}
+
 int StSocket::ReadFully(const void* buf, size_t size, ssize_t* nread){
     int ret = ERROR_SUCCESS;
     

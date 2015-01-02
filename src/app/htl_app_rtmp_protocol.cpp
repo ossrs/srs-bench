@@ -34,7 +34,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -60,10 +60,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef SRS_AUTO_HEADER_HPP
 #define SRS_AUTO_HEADER_HPP
 
-#define SRS_AUTO_BUILD_TS "1419133356"
-#define SRS_AUTO_BUILD_DATE "2014-12-21 11:42:36"
+#define SRS_AUTO_BUILD_TS "1420160923"
+#define SRS_AUTO_BUILD_DATE "2015-01-02 09:08:43"
 #define SRS_AUTO_UNAME "Linux dev6 2.6.32-71.el6.x86_64 #1 SMP Fri May 20 03:51:51 BST 2011 x86_64 x86_64 x86_64 GNU/Linux"
-#define SRS_AUTO_USER_CONFIGURE "--x86-x64  --export-librtmp-single=/home/winlin/srs.librtmp/src/srs/"
+#define SRS_AUTO_USER_CONFIGURE "--x86-x64  --export-librtmp-single=/home/winlin/srs.librtmp/src/srs"
 #define SRS_AUTO_CONFIGURE "--prefix=/usr/local/srs --without-hls --without-dvr --without-nginx --without-ssl --without-ffmpeg --without-transcode --without-ingest --without-stat --without-http-callback --without-http-server --without-http-api --with-librtmp --with-research --without-utest --without-gperf --without-gmc --without-gmp --without-gcp --without-gprof --without-arm-ubuntu12 --without-mips-ubuntu12 --log-trace"
 
 #define SRS_AUTO_EMBEDED_TOOL_CHAIN "normal x86/x64 gcc"
@@ -117,7 +117,7 @@ tufang14<breadbean1449@gmail.com> \
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -147,7 +147,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // current release version
 #define VERSION_MAJOR       2
 #define VERSION_MINOR       0
-#define VERSION_REVISION    74
+#define VERSION_REVISION    82
 // server info.
 #define RTMP_SIG_SRS_KEY "SRS"
 #define RTMP_SIG_SRS_ROLE "origin/edge server"
@@ -157,7 +157,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define RTMP_SIG_SRS_WEB "http://blog.csdn.net/win_lin"
 #define RTMP_SIG_SRS_EMAIL "winlin@vip.126.com"
 #define RTMP_SIG_SRS_LICENSE "The MIT License (MIT)"
-#define RTMP_SIG_SRS_COPYRIGHT "Copyright (c) 2013-2014 winlin"
+#define RTMP_SIG_SRS_COPYRIGHT "Copyright (c) 2013-2015 winlin"
 #define RTMP_SIG_SRS_PRIMARY "winlin"
 #define RTMP_SIG_SRS_AUTHROS "wenjie.zhao"
 #define RTMP_SIG_SRS_CONTRIBUTORS_URL RTMP_SIG_SRS_URL"/blob/master/AUTHORS.txt"
@@ -233,7 +233,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -303,7 +303,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -462,7 +462,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -684,7 +684,7 @@ extern bool srs_is_client_gracefully_close(int error_code);
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -838,7 +838,7 @@ extern ISrsThreadContext* _srs_context;
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -996,7 +996,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1060,7 +1060,7 @@ extern bool srs_string_ends_with(std::string str, std::string flag);
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1239,7 +1239,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1439,7 +1439,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1534,7 +1534,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1825,7 +1825,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -2666,7 +2666,7 @@ namespace _srs_internal
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -2851,7 +2851,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -2931,7 +2931,6 @@ public:
     /**
     * 3bytes.
     * Three-byte field that contains a timestamp delta of the message.
-    * The 4 bytes are packed in the big-endian order.
     * @remark, only used for decoding message from chunk stream.
     */
     int32_t timestamp_delta;
@@ -2950,7 +2949,7 @@ public:
     /**
     * 4bytes.
     * Four-byte field that identifies the stream of the message. These
-    * bytes are set in big-endian format.
+    * bytes are set in little-endian format.
     */
     int32_t stream_id;
     
@@ -4593,7 +4592,7 @@ protected:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -5132,7 +5131,7 @@ private:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -5679,7 +5678,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -5811,7 +5810,7 @@ extern int srs_chunk_header_c3(
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -5888,7 +5887,7 @@ private:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -6065,7 +6064,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7101,7 +7100,7 @@ typedef void* srs_hijack_io_t;
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7180,7 +7179,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7271,7 +7270,7 @@ private:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7298,7 +7297,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7324,7 +7323,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7350,7 +7349,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7389,7 +7388,7 @@ bool srs_is_client_gracefully_close(int error_code)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7468,7 +7467,7 @@ int ISrsThreadContext::get_id()
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7724,7 +7723,7 @@ void SrsStream::write_bytes(char* data, int size)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7949,7 +7948,7 @@ bool srs_string_ends_with(string str, string flag)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -8264,6 +8263,7 @@ int SrsFlvDecoder::read_tag_header(char* ptype, int32_t* pdata_size, u_int32_t* 
     
     // DataSize UI24
     char* pp = (char*)pdata_size;
+    pp[3] = 0;
     pp[2] = th[1];
     pp[1] = th[2];
     pp[0] = th[3];
@@ -8480,7 +8480,7 @@ int SrsFlvVodStreamDecoder::lseek(int64_t offset)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -8594,7 +8594,7 @@ bool SrsFlvCodec::audio_is_aac(char* data, int size)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -8814,7 +8814,7 @@ int SrsFileReader::read(void* buf, size_t count, ssize_t* pnread)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -8841,7 +8841,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -10736,7 +10736,7 @@ namespace _srs_internal
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -10810,7 +10810,7 @@ ISrsProtocolReaderWriter::~ISrsProtocolReaderWriter()
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -10840,6 +10840,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //#include <srs_protocol_buffer.hpp>
 //#include <srs_protocol_utility.hpp>
 
+#include <unistd.h>
 #include <stdlib.h>
 using namespace std;
 
@@ -12087,15 +12088,15 @@ int SrsProtocol::recv_interlaced_message(SrsCommonMessage** pmsg)
     
     // not got an entire RTMP message, try next chunk.
     if (!msg) {
-        srs_verbose("get partial message success. chunk_payload_size=%d, size=%d, message(type=%d, size=%d, time=%"PRId64", sid=%d)",
-                payload_size, (msg? msg->size : (chunk->msg? chunk->msg->size : 0)), chunk->header.message_type, chunk->header.payload_length,
+        srs_verbose("get partial message success. size=%d, message(type=%d, size=%d, time=%"PRId64", sid=%d)",
+                (msg? msg->size : (chunk->msg? chunk->msg->size : 0)), chunk->header.message_type, chunk->header.payload_length,
                 chunk->header.timestamp, chunk->header.stream_id);
         return ret;
     }
     
     *pmsg = msg;
-    srs_info("get entire message success. chunk_payload_size=%d, size=%d, message(type=%d, size=%d, time=%"PRId64", sid=%d)",
-            payload_size, (msg? msg->size : (chunk->msg? chunk->msg->size : 0)), chunk->header.message_type, chunk->header.payload_length,
+    srs_info("get entire message success. size=%d, message(type=%d, size=%d, time=%"PRId64", sid=%d)",
+            (msg? msg->size : (chunk->msg? chunk->msg->size : 0)), chunk->header.message_type, chunk->header.payload_length,
             chunk->header.timestamp, chunk->header.stream_id);
             
     return ret;
@@ -12596,7 +12597,7 @@ int SrsProtocol::on_recv_message(SrsCommonMessage* msg)
             
             if (pkt->ackowledgement_window_size > 0) {
                 in_ack_size.ack_window_size = pkt->ackowledgement_window_size;
-                // @remakr, we ignore this message, for user noneed to care.
+                // @remark, we ignore this message, for user noneed to care.
                 // but it's important for dev, for client/server will block if required 
                 // ack msg not arrived.
                 srs_info("set ack window size to %d", pkt->ackowledgement_window_size);
@@ -14939,7 +14940,7 @@ int SrsUserControlPacket::encode_packet(SrsStream* stream)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -15226,7 +15227,7 @@ int SrsHandshakeBytes::create_s0s1s2(const char* c1)
     }
     stream.write_1bytes(0x03);
     stream.write_4bytes((int32_t)::time(NULL));
-    // s2 time2 copy from c1
+    // s1 time2 copy from c1
     if (c0c1) {
         stream.write_bytes(c0c1 + 1, 4);
     }
@@ -16061,10 +16062,10 @@ int SrsRtmpServer::start_play(int stream_id)
         pkt->data->set(StatusClientId, SrsAmf0Any::str(RTMP_SIG_CLIENT_ID));
         
         if ((ret = protocol->send_and_free_packet(pkt, stream_id)) != ERROR_SUCCESS) {
-            srs_error("send onStatus(NetStream.Play.Reset) message failed. ret=%d", ret);
+            srs_error("send onStatus(NetStream.Play.Start) message failed. ret=%d", ret);
             return ret;
         }
-        srs_info("send onStatus(NetStream.Play.Reset) message success.");
+        srs_info("send onStatus(NetStream.Play.Start) message success.");
     }
     
     // |RtmpSampleAccess(false, false)
@@ -16451,7 +16452,7 @@ int SrsRtmpServer::identify_play_client(SrsPlayPacket* req, SrsRtmpConnType& typ
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -17835,7 +17836,7 @@ int SrsComplexHandshake::handshake_with_server(SrsHandshakeBytes* hs_bytes, ISrs
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -18172,7 +18173,7 @@ int srs_chunk_header_c3(
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -18238,7 +18239,7 @@ void SrsMessageArray::zero(int count)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -18474,7 +18475,7 @@ void SrsFastBuffer::set_merge_read(bool v, IMergeReadHandler* handler)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -19398,7 +19399,7 @@ int __srs_write_aac_adts_frame(Context* context,
         // 7bits left.
         
         // channelConfiguration; 4 bslbf
-        ch |= (aac_channel << 3) & 0x70;
+        ch |= (aac_channel << 3) & 0x78;
         // 3bits left.
         
         // only support aac profile 1-4.
@@ -19412,11 +19413,11 @@ int __srs_write_aac_adts_frame(Context* context,
         // extensionFlag; 1 bslbf
         context->aac_specific_config += ch;
         
+        char* sh = (char*)context->aac_specific_config.data();
+        int nb_sh = (int)context->aac_specific_config.length();
         if ((ret = __srs_write_audio_raw_frame(context, 
             sound_format, sound_rate, sound_size, sound_type, 
-            0, (char*)context->aac_specific_config.data(), 
-            context->aac_specific_config.length(), 
-            timestamp)) != ERROR_SUCCESS
+            0, sh, nb_sh, timestamp)) != ERROR_SUCCESS
         ) {
             return ret;
         }
@@ -19538,10 +19539,15 @@ int __srs_write_aac_adts_frames(Context* context,
             return ERROR_AAC_ADTS_HEADER;
         }
         
+        // the profile = object_id + 1
+        // @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 78,
+        //      Table 1. A.9 – MPEG-2 Audio profiles and MPEG-4 Audio object types
+        char aac_profile = fh_Profile_ObjectType + 1;
+        
         char* raw_data = stream->data() + stream->pos();
         if ((ret = __srs_write_aac_adts_frame(context,
             sound_format, sound_rate, sound_size, sound_type,
-            fh_Profile_ObjectType, fh_sampling_frequency_index, fh_channel_configuration,
+            aac_profile, fh_sampling_frequency_index, fh_channel_configuration,
             raw_data, raw_data_size, timestamp)) != ERROR_SUCCESS
         ) {
             return ret;
@@ -20941,7 +20947,7 @@ srs_hijack_io_t srs_hijack_io_get(srs_rtmp_t rtmp)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -21322,7 +21328,7 @@ int SimpleSocketStream::write(void* buf, size_t size, ssize_t* nwrite)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

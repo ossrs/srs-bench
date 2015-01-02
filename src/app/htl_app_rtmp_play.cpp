@@ -37,6 +37,10 @@ using namespace std;
 #include <htl_app_rtmp_protocol.hpp>
 #include <htl_app_srs_hijack.hpp>
 
+#define SOCK_READ_BUFFER 4096
+#define SOCK_READV_NB 1024
+#define SOCK_MERGED_READ_MS 800
+
 StRtmpPlayClient::StRtmpPlayClient(){
     stream_id = 0;
     srs = NULL;
@@ -141,9 +145,6 @@ StRtmpPlayClientFast::StRtmpPlayClientFast(){
 StRtmpPlayClientFast::~StRtmpPlayClientFast(){
 }
 
-#define SOCK_READ_BUFFER 4096
-#define SOCK_READV_NB 1024
-
 int StRtmpPlayClientFast::DumpAV(){
     int ret = ERROR_SUCCESS;
 
@@ -167,6 +168,9 @@ int StRtmpPlayClientFast::DumpAV(){
         }
         
         Info("get message size=%d", size);
+
+        // merged read.
+        st_usleep(SOCK_MERGED_READ_MS * 1000);
     }
     
     return ret;

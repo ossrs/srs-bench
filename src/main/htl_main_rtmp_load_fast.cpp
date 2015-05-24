@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 winlin
+Copyright (c) 2013-2015 winlin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -72,7 +72,7 @@ int discovery_options(int argc, char** argv,
 }
 
 void help(char** argv){
-    printf("%s, Copyright (c) 2013 winlin\n", ProductRtmpName);
+    printf("%s, Copyright (c) 2013-2015 winlin\n", ProductRtmpName);
     printf("srs.librtmp %d.%d.%d (https://github.com/winlinvip/srs.librtmp)\n\n", 
         srs_version_major(), srs_version_minor(), srs_version_revision());
     

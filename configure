@@ -77,35 +77,35 @@ help:
 	@echo "  all        build the http/hls load test tool over st(state-threads)"
 
 clean: 
-	(cd ${GLOBAL_DIR_OBJS}; rm -rf src st_*_load)
+	(cd ${GLOBAL_DIR_OBJS}; rm -rf src sb_*_load)
 
 http: _prepare_dir
 	@echo "build the http load test tool over st(state-threads)"
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_http_load
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_http_load
 
 rtmp: _prepare_dir
 	@echo "build the http load test tool over st(state-threads)"
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_rtmp_load
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_rtmp_load_fast
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_rtmp_publish
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_rtmp_load
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_rtmp_load_fast
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_rtmp_publish
 
 hls: _prepare_dir
 	@echo "build the HLS load test tool over st(state-threads)"
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_hls_load
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_hls_load
 
 all: _prepare_dir
 	@echo "build the http/hls/rtmp load test tool over st(state-threads)"
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_http_load
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_hls_load
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_rtmp_load
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_rtmp_load_fast
-	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} st_rtmp_publish
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_http_load
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_hls_load
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_rtmp_load
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_rtmp_load_fast
+	\$(MAKE) -f ${GLOBAL_DIR_OBJS}/${GLOBAL_FILE_MAKEFILE} sb_rtmp_publish
 	@echo "build ok, you can:"
-	@echo "     ./objs/st_http_load"
-	@echo "     ./objs/st_hls_load"
-	@echo "     ./objs/st_rtmp_load"
-	@echo "     ./objs/st_rtmp_load_fast"
-	@echo "     ./objs/st_rtmp_publish"
+	@echo "     ./objs/sb_http_load"
+	@echo "     ./objs/sb_hls_load"
+	@echo "     ./objs/sb_rtmp_load"
+	@echo "     ./objs/sb_rtmp_load_fast"
+	@echo "     ./objs/sb_rtmp_publish"
 
 # the ./configure will generate it.
 _prepare_dir:
@@ -132,7 +132,7 @@ GCC = g++
 LINK = \$(GCC)
 AR = ar
 
-.PHONY: default st_http_load st_hls_load st_rtmp_load st_rtmp_load_fast st_rtmp_publish
+.PHONY: default sb_http_load sb_hls_load sb_rtmp_load sb_rtmp_load_fast sb_rtmp_publish
 
 default:
 
@@ -184,28 +184,28 @@ MAIN_ENTRANCES=("htl_main_hls_load" "htl_main_http_load" "htl_main_rtmp_load" "h
 # http load test tool over st(state-threads)
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
 MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${APP_OBJS[@]} ${MAIN_OBJS[@]}"
-BUILD_KEY="st_http_load" APP_MAIN="htl_main_http_load" APP_NAME="st_http_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
+BUILD_KEY="sb_http_load" APP_MAIN="htl_main_http_load" APP_NAME="sb_http_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 # rtmp play load test tool over st(state-threads)
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
 MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${APP_OBJS[@]} ${MAIN_OBJS[@]}"
-BUILD_KEY="st_rtmp_load" APP_MAIN="htl_main_rtmp_load" APP_NAME="st_rtmp_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
+BUILD_KEY="sb_rtmp_load" APP_MAIN="htl_main_rtmp_load" APP_NAME="sb_rtmp_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 # rtmp play load test tool over st(state-threads)
 # Remark, the fast algorithm may not work for other RTMP server, it's ok for SRS/GO-SRS.
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
 MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${APP_OBJS[@]} ${MAIN_OBJS[@]}"
-BUILD_KEY="st_rtmp_load_fast" APP_MAIN="htl_main_rtmp_load_fast" APP_NAME="st_rtmp_load_fast" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
+BUILD_KEY="sb_rtmp_load_fast" APP_MAIN="htl_main_rtmp_load_fast" APP_NAME="sb_rtmp_load_fast" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 # rtmp publish load test tool over st(state-threads)
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
 MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${APP_OBJS[@]} ${MAIN_OBJS[@]}"
-BUILD_KEY="st_rtmp_publish" APP_MAIN="htl_main_rtmp_publish" APP_NAME="st_rtmp_publish" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
+BUILD_KEY="sb_rtmp_publish" APP_MAIN="htl_main_rtmp_publish" APP_NAME="sb_rtmp_publish" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 # hls load test tool over direct TCP.
 ModuleLibFiles=(${LibSTfile} ${LibHttpParserfile})
 MODULE_OBJS="${CORE_OBJS[@]} ${OS_OBJS[@]} ${APP_OBJS[@]} ${MAIN_OBJS[@]}"
-BUILD_KEY="st_hls_load" APP_MAIN="htl_main_hls_load" APP_NAME="st_hls_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
+BUILD_KEY="sb_hls_load" APP_MAIN="htl_main_hls_load" APP_NAME="sb_hls_load" LINK_OPTIONS="-ldl" SO_PATH="" . auto/apps.sh
 
 echo 'configure ok! '
 

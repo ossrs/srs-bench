@@ -57,13 +57,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ERROR_RTMP_INVALID_RESPONSE 603
 #define ERROR_RTMP_OPEN_FLV 604
 
-#define ProductVersion "1.0.13"
-#define ProductHTTPName "Bravo HttpLoad/"ProductVersion
-#define ProductHLSName "Bravo HlsLoad/"ProductVersion
-#define ProductRtmpName "Bravo RtmpPlayLoad/"ProductVersion
-#define ProductRtmpPublishName "Bravo RtmpPublishLoad/"ProductVersion
+#define ProductVersion "1.0.14"
+#define ProductHTTPName "SB(SRS Bench) HttpLoad/"ProductVersion
+#define ProductHLSName "SB(SRS Bench) HlsLoad/"ProductVersion
+#define ProductRtmpName "SB(SRS Bench) RtmpPlayLoad/"ProductVersion
+#define ProductRtmpPublishName "SB(SRS Bench) RtmpPublishLoad/"ProductVersion
 #define BuildPlatform "linux"
-#define BugReportEmail "winterserver@126.com"
+#define BugReportEmail "winlin@vip.126.com"
 
 #define HTTP_HEADER_BUFFER 1024
 #define HTTP_BODY_BUFFER 32*1024

@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -41,7 +41,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * Windows SRS-LIBRTMP pre-declare
 **************************************************************
 *************************************************************/
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifdef _WIN32
     // include windows first.
     #include <windows.h>
@@ -86,6 +86,7 @@ extern int srs_version_revision();
 *************************************************************/
 // the RTMP handler.
 typedef void* srs_rtmp_t;
+typedef void* srs_amf0_t;
 
 /**
 * create/destroy a rtmp protocol stack.
@@ -130,18 +131,30 @@ extern void srs_rtmp_destroy(srs_rtmp_t rtmp);
 */
 /**
 * srs_rtmp_handshake equals to invoke:
-*       __srs_rtmp_dns_resolve()
-*       __srs_rtmp_connect_server()
-*       __srs_rtmp_do_simple_handshake()
+*       srs_rtmp_dns_resolve()
+*       srs_rtmp_connect_server()
+*       srs_rtmp_do_simple_handshake()
 * user can use these functions if needed.
 */
 extern int srs_rtmp_handshake(srs_rtmp_t rtmp);
 // parse uri, create socket, resolve host
-extern int __srs_rtmp_dns_resolve(srs_rtmp_t rtmp);
+extern int srs_rtmp_dns_resolve(srs_rtmp_t rtmp);
 // connect socket to server
-extern int __srs_rtmp_connect_server(srs_rtmp_t rtmp);
+extern int srs_rtmp_connect_server(srs_rtmp_t rtmp);
 // do simple handshake over socket.
-extern int __srs_rtmp_do_simple_handshake(srs_rtmp_t rtmp);
+extern int srs_rtmp_do_simple_handshake(srs_rtmp_t rtmp);
+// do complex handshake over socket.
+extern int srs_rtmp_do_complex_handshake(srs_rtmp_t rtmp);
+
+/**
+* set the args of connect packet for rtmp.
+* @param args, the extra amf0 object args.
+* @remark, all params can be NULL to ignore.
+* @remark, user should never free the args for we directly use it.
+*/
+extern int srs_rtmp_set_connect_args(srs_rtmp_t rtmp, 
+    const char* tcUrl, const char* swfUrl, const char* pageUrl, srs_amf0_t args
+);
 
 /**
 * connect to rtmp vhost/app
@@ -228,6 +241,7 @@ extern int srs_rtmp_bandwidth_check(srs_rtmp_t rtmp,
 *            SRS_RTMP_TYPE_AUDIO, FlvTagAudio
 *            SRS_RTMP_TYPE_VIDEO, FlvTagVideo
 *            SRS_RTMP_TYPE_SCRIPT, FlvTagScript
+*            otherswise, invalid type.
 * @param timestamp, in ms, overflow in 50days
 * @param data, the packet data, according to type:
 *             FlvTagAudio, @see "E.4.2.1 AUDIODATA"
@@ -249,6 +263,11 @@ extern int srs_rtmp_read_packet(srs_rtmp_t rtmp,
 extern int srs_rtmp_write_packet(srs_rtmp_t rtmp, 
     char type, u_int32_t timestamp, char* data, int size
 );
+
+/**
+* whether type is script data and the data is onMetaData.
+*/
+extern srs_bool srs_rtmp_is_onMetaData(char type, char* data, int size);
 
 /*************************************************************
 **************************************************************
@@ -301,7 +320,7 @@ extern int srs_rtmp_write_packet(srs_rtmp_t rtmp,
 * @remark for aac, only support profile 1-4, AAC main/LC/SSR/LTP,
 *       @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 23, 1.5.1.1 Audio object type
 *
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/212
+* @see https://github.com/simple-rtmp-server/srs/issues/212
 * @see E.4.2.1 AUDIODATA of video_file_format_spec_v10_1.pdf
 * 
 * @return 0, success; otherswise, failed.
@@ -357,7 +376,7 @@ extern int srs_aac_adts_frame_size(char* aac_raw_data, int ac_raw_size);
 * @remark, cts = pts - dts
 * @remark, use srs_h264_startswith_annexb to check whether frame is annexb format.
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/66
+* @see https://github.com/simple-rtmp-server/srs/issues/66
 * 
 * @return 0, success; otherswise, failed.
 *       for dvbsp error, @see srs_h264_is_dvbsp_error().
@@ -399,7 +418,7 @@ extern int srs_h264_write_raw_frames(srs_rtmp_t rtmp,
 /**
 * whether error_code is dvbsp(drop video before sps/pps/sequence-header) error.
 *
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/203
+* @see https://github.com/simple-rtmp-server/srs/issues/203
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 * @remark why drop video?
 *       some encoder, for example, ipcamera, will send sps/pps before each IFrame,
@@ -410,14 +429,14 @@ extern srs_bool srs_h264_is_dvbsp_error(int error_code);
 /**
 * whether error_code is duplicated sps error.
 * 
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/204
+* @see https://github.com/simple-rtmp-server/srs/issues/204
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 */
 extern srs_bool srs_h264_is_duplicated_sps_error(int error_code);
 /**
 * whether error_code is duplicated pps error.
 * 
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/204
+* @see https://github.com/simple-rtmp-server/srs/issues/204
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 */
 extern srs_bool srs_h264_is_duplicated_pps_error(int error_code);
@@ -546,7 +565,6 @@ extern srs_bool srs_flv_is_keyframe(char* data, int32_t size);
 **************************************************************
 *************************************************************/
 /* the output handler. */
-typedef void* srs_amf0_t;
 typedef double srs_amf0_number;
 /**
 * parse amf0 from data.
@@ -555,6 +573,7 @@ typedef double srs_amf0_number;
 * @remark user must free the parsed or created object by srs_amf0_free.
 */
 extern srs_amf0_t srs_amf0_parse(char* data, int size, int* nparsed);
+extern srs_amf0_t srs_amf0_create_string(const char* value);
 extern srs_amf0_t srs_amf0_create_number(srs_amf0_number value);
 extern srs_amf0_t srs_amf0_create_ecma_array();
 extern srs_amf0_t srs_amf0_create_strict_array();
@@ -636,6 +655,15 @@ extern int srs_utils_parse_timestamp(
     u_int32_t time, char type, char* data, int size,
     u_int32_t* ppts
 );
+    
+/**
+ * whether the flv tag specified by param type is ok.
+ * @return true when tag is video/audio/script-data; otherwise, false.
+ */
+extern srs_bool srs_utils_flv_tag_is_ok(char type);
+extern srs_bool srs_utils_flv_tag_is_audio(char type);
+extern srs_bool srs_utils_flv_tag_is_video(char type);
+extern srs_bool srs_utils_flv_tag_is_av(char type);
 
 /**
 * get the CodecID of video tag.
@@ -873,8 +901,9 @@ extern const char* srs_human_flv_audio_aac_packet_type2string(char aac_packet_ty
 * print the rtmp packet, use srs_human_trace/srs_human_verbose for packet,
 * and use srs_human_raw for script data body.
 * @return an error code for parse the timetstamp to dts and pts.
-*/
+ */
 extern int srs_human_print_rtmp_packet(char type, u_int32_t timestamp, char* data, int size);
+extern int srs_human_print_rtmp_packet2(char type, u_int32_t timestamp, char* data, int size, u_int32_t pre_timestamp);
 
 // log to console, for use srs-librtmp application.
 extern const char* srs_human_format_time();
@@ -993,7 +1022,7 @@ typedef void* srs_hijack_io_t;
 * Windows SRS-LIBRTMP solution
 **************************************************************
 *************************************************************/
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifdef _WIN32
     #define _CRT_SECURE_NO_WARNINGS
     #include <time.h>

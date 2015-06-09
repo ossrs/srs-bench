@@ -112,12 +112,12 @@ int StRtmpPublishClient::Connect(RtmpUrl* url){
     srs_rtmp_destroy(srs);
     srs = srs_rtmp_create(url->GetUrl());
 
-    if ((ret = __srs_rtmp_dns_resolve(srs)) != ERROR_SUCCESS){
+    if ((ret = srs_rtmp_dns_resolve(srs)) != ERROR_SUCCESS){
         Error("dns resolve failed. ret=%d", ret);
         return ret;
     }
     
-    if ((ret = __srs_rtmp_connect_server(srs)) != ERROR_SUCCESS){
+    if ((ret = srs_rtmp_connect_server(srs)) != ERROR_SUCCESS){
         Error("connect to server failed. ret=%d", ret);
         return ret;
     }
@@ -128,7 +128,7 @@ int StRtmpPublishClient::Connect(RtmpUrl* url){
 }
 
 int StRtmpPublishClient::Handshake(){
-    return __srs_rtmp_do_simple_handshake(srs);
+    return srs_rtmp_do_simple_handshake(srs);
 }
 
 int StRtmpPublishClient::ConnectApp(){

@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -60,20 +60,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef SRS_AUTO_HEADER_HPP
 #define SRS_AUTO_HEADER_HPP
 
-#define SRS_AUTO_BUILD_TS "1420160923"
-#define SRS_AUTO_BUILD_DATE "2015-01-02 09:08:43"
-#define SRS_AUTO_UNAME "Linux dev6 2.6.32-71.el6.x86_64 #1 SMP Fri May 20 03:51:51 BST 2011 x86_64 x86_64 x86_64 GNU/Linux"
-#define SRS_AUTO_USER_CONFIGURE "--x86-x64  --export-librtmp-single=/home/winlin/srs.librtmp/src/srs"
-#define SRS_AUTO_CONFIGURE "--prefix=/usr/local/srs --without-hls --without-dvr --without-nginx --without-ssl --without-ffmpeg --without-transcode --without-ingest --without-stat --without-http-callback --without-http-server --without-http-api --with-librtmp --with-research --without-utest --without-gperf --without-gmc --without-gmp --without-gcp --without-gprof --without-arm-ubuntu12 --without-mips-ubuntu12 --log-trace"
+#define SRS_AUTO_BUILD_TS "1433829743"
+#define SRS_AUTO_BUILD_DATE "2015-06-09 14:02:23"
+#define SRS_AUTO_UNAME "Darwin winlin.lan 14.3.0 Darwin Kernel Version 14.3.0: Mon Mar 23 11:59:05 PDT 2015; root:xnu-2782.20.48~5/RELEASE_X86_64 x86_64"
+#define SRS_AUTO_USER_CONFIGURE "--x86-x64  --export-librtmp-single=/Users/winlin/git/srs.librtmp/src/srs"
+#define SRS_AUTO_CONFIGURE "--prefix=/usr/local/srs --without-hls --without-hds --without-dvr --without-nginx --without-ssl --without-ffmpeg --without-transcode --without-ingest --without-stat --without-http-callback --without-http-server --without-stream-caster --without-http-api --with-librtmp --with-research --without-utest --without-gperf --without-gmc --without-gmp --without-gcp --without-gprof --without-arm-ubuntu12 --without-mips-ubuntu12 --log-trace"
+
+#define SRS_X86_X64
 
 #define SRS_AUTO_EMBEDED_TOOL_CHAIN "normal x86/x64 gcc"
 
-#undef SRS_AUTO_HTTP_PARSER
+#undef SRS_AUTO_HTTP_CORE
 #undef SRS_AUTO_HTTP_SERVER
+#undef SRS_AUTO_STREAM_CASTER
 #undef SRS_AUTO_HTTP_API
 #undef SRS_AUTO_NGINX
 #undef SRS_AUTO_DVR
 #undef SRS_AUTO_HLS
+#undef SRS_AUTO_HDS
 #undef SRS_AUTO_HTTP_CALLBACK
 #undef SRS_AUTO_SSL
 #undef SRS_AUTO_FFMPEG_TOOL
@@ -109,6 +113,9 @@ karthikeyan<keyanmca@gmail.com> \
 StevenLiu<lq@chinaffmpeg.org> \
 zhengfl<zhengfl_1989@126.com> \
 tufang14<breadbean1449@gmail.com> \
+allspace<allspace@gmail.com> \
+niesongsong<nie950@gmail.com> \
+rudeb0t<nimrod@themanxgroup.tw> \
 "
 
 #endif
@@ -117,7 +124,7 @@ tufang14<breadbean1449@gmail.com> \
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -147,30 +154,36 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // current release version
 #define VERSION_MAJOR       2
 #define VERSION_MINOR       0
-#define VERSION_REVISION    82
+#define VERSION_REVISION    173
+
 // server info.
 #define RTMP_SIG_SRS_KEY "SRS"
+#define RTMP_SIG_SRS_CODE "ZhouGuowen"
 #define RTMP_SIG_SRS_ROLE "origin/edge server"
 #define RTMP_SIG_SRS_NAME RTMP_SIG_SRS_KEY"(Simple RTMP Server)"
-#define RTMP_SIG_SRS_URL_SHORT "github.com/winlinvip/simple-rtmp-server"
+#define RTMP_SIG_SRS_URL_SHORT "github.com/simple-rtmp-server/srs"
 #define RTMP_SIG_SRS_URL "https://"RTMP_SIG_SRS_URL_SHORT
-#define RTMP_SIG_SRS_WEB "http://blog.csdn.net/win_lin"
+#define RTMP_SIG_SRS_WEB "http://ossrs.net"
 #define RTMP_SIG_SRS_EMAIL "winlin@vip.126.com"
 #define RTMP_SIG_SRS_LICENSE "The MIT License (MIT)"
-#define RTMP_SIG_SRS_COPYRIGHT "Copyright (c) 2013-2015 winlin"
-#define RTMP_SIG_SRS_PRIMARY "winlin"
-#define RTMP_SIG_SRS_AUTHROS "wenjie.zhao"
+#define RTMP_SIG_SRS_COPYRIGHT "Copyright (c) 2013-2015 SRS(simple-rtmp-server)"
+#define RTMP_SIG_SRS_PRIMARY "SRS/"VERSION_STABLE_BRANCH
+#define RTMP_SIG_SRS_AUTHROS "winlin,wenjie.zhao"
 #define RTMP_SIG_SRS_CONTRIBUTORS_URL RTMP_SIG_SRS_URL"/blob/master/AUTHORS.txt"
 #define RTMP_SIG_SRS_HANDSHAKE RTMP_SIG_SRS_KEY"("RTMP_SIG_SRS_VERSION")"
 #define RTMP_SIG_SRS_RELEASE RTMP_SIG_SRS_URL"/tree/1.0release"
-#define RTMP_SIG_SRS_HTTP_SERVER RTMP_SIG_SRS_URL"/wiki/v1_CN_HTTPServer#feature"
 #define RTMP_SIG_SRS_ISSUES(id) RTMP_SIG_SRS_URL"/issues/"#id
-#define RTMP_SIG_SRS_VERSION __SRS_XSTR(VERSION_MAJOR)"."__SRS_XSTR(VERSION_MINOR)"."__SRS_XSTR(VERSION_REVISION)
+#define RTMP_SIG_SRS_VERSION SRS_XSTR(VERSION_MAJOR)"."SRS_XSTR(VERSION_MINOR)"."SRS_XSTR(VERSION_REVISION)
+#define RTMP_SIG_SRS_SERVER RTMP_SIG_SRS_KEY"/"RTMP_SIG_SRS_VERSION"("RTMP_SIG_SRS_CODE")"
+
+// stable major version
+#define VERSION_STABLE 1
+#define VERSION_STABLE_BRANCH SRS_XSTR(VERSION_STABLE)".0release"
 
 // internal macros, covert macro values to str,
 // see: read https://gcc.gnu.org/onlinedocs/cpp/Stringification.html#Stringification
-#define __SRS_XSTR(v) __SRS_STR(v)
-#define __SRS_STR(v) #v
+#define SRS_XSTR(v) SRS_INTERNAL_STR(v)
+#define SRS_INTERNAL_STR(v) #v
 
 /**
 * the core provides the common defined macros, utilities,
@@ -189,7 +202,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     #define __STDC_FORMAT_MACROS
 #endif
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <inttypes.h>
 #endif
@@ -202,6 +215,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // generated by configure.
 //#include <srs_auto_headers.hpp>
+// important performance options.
+//#include <srs_core_performance.hpp>
 
 // free the p and set to NULL.
 // p must be a T*.
@@ -233,7 +248,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -273,9 +288,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *       SrsAutoFree(MyClass, po);
 */
 #define SrsAutoFree(className, instance) \
-    __SrsAutoFree<className> _auto_free_##instance(&instance)
+    impl__SrsAutoFree<className> _auto_free_##instance(&instance)
 template<class T>
-class __SrsAutoFree
+class impl__SrsAutoFree
 {
 private:
     T** ptr;
@@ -283,11 +298,11 @@ public:
     /**
     * auto delete the ptr.
     */
-    __SrsAutoFree(T** _ptr) {
+    impl__SrsAutoFree(T** _ptr) {
         ptr = _ptr;
     }
     
-    virtual ~__SrsAutoFree() {
+    virtual ~impl__SrsAutoFree() {
         if (ptr == NULL || *ptr == NULL) {
             return;
         }
@@ -303,7 +318,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -342,12 +357,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * that is, we merge some data to read together.
 * @see SrsConfig::get_mr_enabled()
 * @see SrsConfig::get_mr_sleep_ms()
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+* @see https://github.com/simple-rtmp-server/srs/issues/241
 * @example, for the default settings, this algorithm will use:
 *       that is, when got nread bytes smaller than 4KB, sleep(780ms).
 */
 /**
-* https://github.com/winlinvip/simple-rtmp-server/issues/241#issuecomment-65554690
+* https://github.com/simple-rtmp-server/srs/issues/241#issuecomment-65554690
 * The merged read algorithm is ok and can be simplified for:
 *   1. Suppose the client network is ok. All algorithm go wrong when netowrk is not ok.
 *   2. Suppose the client send each packet one by one. Although send some together, it's same.
@@ -373,7 +388,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * @remark this largely improve performance, from 3.5k+ to 7.5k+.
 *       the latency+ when cache+.
 * @remark the socket send buffer default to 185KB, it large enough.
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/194
+* @see https://github.com/simple-rtmp-server/srs/issues/194
 * @see SrsConfig::get_mw_sleep_ms()
 * @remark the mw sleep and msgs to send, maybe:
 *       mw_sleep        msgs        iovs
@@ -408,23 +423,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /**
 * whether set the socket send buffer size.
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/251
+* @see https://github.com/simple-rtmp-server/srs/issues/251
 */
-#undef SRS_PERF_MW_SO_SNDBUF
+#define SRS_PERF_MW_SO_SNDBUF
+
 /**
 * whether set the socket recv buffer size.
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/251
+* @see https://github.com/simple-rtmp-server/srs/issues/251
 */
 #undef SRS_PERF_MW_SO_RCVBUF
 /**
 * whether enable the fast vector for qeueue.
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/251
+* @see https://github.com/simple-rtmp-server/srs/issues/251
 */
 #define SRS_PERF_QUEUE_FAST_VECTOR
 /**
 * whether use cond wait to send messages.
 * @remark this improve performance for large connectios.
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/251
+* @see https://github.com/simple-rtmp-server/srs/issues/251
 */
 #define SRS_PERF_QUEUE_COND_WAIT
 #ifdef SRS_PERF_QUEUE_COND_WAIT
@@ -436,14 +452,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * for min latence mode:
 * 1. disable the mr for vhost.
 * 2. use timeout for cond wait for consumer queue.
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/257
+* @see https://github.com/simple-rtmp-server/srs/issues/257
 */
 #define SRS_PERF_MIN_LATENCY_ENABLED false
 
 /**
 * how many chunk stream to cache, [0, N].
 * to imporove about 10% performance when chunk size small, and 5% for large chunk.
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/249
+* @see https://github.com/simple-rtmp-server/srs/issues/249
 * @remark 0 to disable the chunk stream cache.
 */
 #define SRS_PERF_CHUNK_STREAM_CACHE 16
@@ -456,13 +472,103 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // in seconds, the live queue length.
 #define SRS_PERF_PLAY_QUEUE 30
 
+/**
+* whether always use complex send algorithm.
+* for some network does not support the complex send,
+* @see https://github.com/simple-rtmp-server/srs/issues/320
+*/
+//#undef SRS_PERF_COMPLEX_SEND
+#define SRS_PERF_COMPLEX_SEND
+/**
+* whether enable the TCP_NODELAY
+* user maybe need send small tcp packet for some network.
+* @see https://github.com/simple-rtmp-server/srs/issues/320
+*/
+//#define SRS_PERF_TCP_NODELAY
+#undef SRS_PERF_TCP_NODELAY
+/**
+* set the socket send buffer,
+* to force the server to send smaller tcp packet.
+* @see https://github.com/simple-rtmp-server/srs/issues/320
+* @remark undef it to auto calc it by merged write sleep ms.
+* @remark only apply it when SRS_PERF_MW_SO_RCVBUF is defined.
+*/
+#ifdef SRS_PERF_MW_SO_SNDBUF
+    //#define SRS_PERF_SO_SNDBUF_SIZE 1024
+    #undef SRS_PERF_SO_SNDBUF_SIZE
+#endif
+
+/**
+ * define the following macro to enable the fast flv encoder.
+ * @see https://github.com/simple-rtmp-server/srs/issues/405
+ */
+#undef SRS_PERF_FAST_FLV_ENCODER
+#define SRS_PERF_FAST_FLV_ENCODER
+
+/**
+ * whether enable the special memory watcher.
+ * which used for memory leak debug and hurts performance.
+ */
+#define SRS_MEM_WATCH
+#undef SRS_MEM_WATCH
+
+#endif
+
+// following is generated by src/core/srs_core_mem_watch.hpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef SRS_CORE_MEM_WATCH_HPP
+#define SRS_CORE_MEM_WATCH_HPP
+
+/*
+//#include <srs_core_mem_watch.hpp>
+*/
+
+//#include <srs_core.hpp>
+
+#ifdef SRS_MEM_WATCH
+
+#include <string>
+
+// watch the specified memory.
+extern void srs_memory_watch(void* ptr, std::string category, int size);
+
+// unwatch the specified memory.
+extern void srs_memory_unwatch(void* ptr);
+
+// report the memory watch.
+extern void srs_memory_report();
+
+#endif
+
 #endif
 
 // following is generated by src/kernel/srs_kernel_error.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -491,7 +597,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_core.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #define ERROR_SUCCESS                       0
 #endif
@@ -551,6 +657,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ERROR_SYSTEM_FILE_SEEK              1049
 #define ERROR_SYSTEM_IO_INVALID             1050
 #define ERROR_ST_EXCEED_THREADS             1051
+#define ERROR_SYSTEM_SECURITY               1052
+#define ERROR_SYSTEM_SECURITY_DENY          1053
+#define ERROR_SYSTEM_SECURITY_ALLOW         1054
+#define ERROR_SYSTEM_TIME                   1055
+#define ERROR_SYSTEM_DIR_EXISTS             1056
+#define ERROR_SYSTEM_CREATE_DIR             1057
+#define ERROR_SYSTEM_KILL                   1058
 
 ///////////////////////////////////////////////////////
 // RTMP protocol error.
@@ -597,6 +710,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ERROR_OpenSslComputeSharedKey       2039
 #define ERROR_RTMP_MIC_CHUNKSIZE_CHANGED    2040
 #define ERROR_RTMP_MIC_CACHE_OVERFLOW       2041
+#define ERROR_RTSP_TOKEN_NOT_NORMAL         2042
+#define ERROR_RTSP_REQUEST_HEADER_EOF       2043
+#define ERROR_RTP_HEADER_CORRUPT            2044
+#define ERROR_RTP_TYPE96_CORRUPT            2045
+#define ERROR_RTP_TYPE97_CORRUPT            2046
+#define ERROR_RTSP_AUDIO_CONFIG             2047
 //                                           
 // system control message, 
 // not an error, but special control logic.
@@ -610,7 +729,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////
 #define ERROR_HLS_METADATA                  3000
 #define ERROR_HLS_DECODE_ERROR              3001
-#define ERROR_HLS_CREATE_DIR                3002
+//#define ERROR_HLS_CREATE_DIR                3002
 #define ERROR_HLS_OPEN_FAILED               3003
 #define ERROR_HLS_WRITE_FAILED              3004
 #define ERROR_HLS_AAC_FRAME_LENGTH          3005
@@ -621,8 +740,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ERROR_HTTP_HANDLER_MATCH_URL        3010
 #define ERROR_HTTP_HANDLER_INVALID          3011
 #define ERROR_HTTP_API_LOGS                 3012
-#define ERROR_HTTP_FLV_SEQUENCE_HEADER      3013
-#define ERROR_HTTP_FLV_OFFSET_OVERFLOW      3014
+#define ERROR_HTTP_REMUX_SEQUENCE_HEADER      3013
+#define ERROR_HTTP_REMUX_OFFSET_OVERFLOW      3014
 #define ERROR_ENCODER_VCODEC                3015
 #define ERROR_ENCODER_OUTPUT                3016
 #define ERROR_ENCODER_ACHANNELS             3017
@@ -657,6 +776,64 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define ERROR_AAC_REQUIRED_ADTS             3046
 #define ERROR_AAC_ADTS_HEADER               3047
 #define ERROR_AAC_DATA_INVALID              3048
+#define ERROR_HLS_TRY_MP3                   3049
+#define ERROR_HTTP_DVR_DISABLED             3050
+#define ERROR_HTTP_DVR_REQUEST              3051
+#define ERROR_HTTP_JSON_REQUIRED            3052
+#define ERROR_HTTP_DVR_CREATE_REQUEST       3053
+#define ERROR_HTTP_DVR_NO_TAEGET            3054
+#define ERROR_ADTS_ID_NOT_AAC               3055
+#define ERROR_HDS_OPEN_F4M_FAILED           3056
+#define ERROR_HDS_WRITE_F4M_FAILED          3057
+#define ERROR_HDS_OPEN_BOOTSTRAP_FAILED     3058
+#define ERROR_HDS_WRITE_BOOTSTRAP_FAILED    3059
+#define ERROR_HDS_OPEN_FRAGMENT_FAILED      3060
+#define ERROR_HDS_WRITE_FRAGMENT_FAILED     3061
+#define ERROR_HLS_NO_STREAM                 3062
+#define ERROR_JSON_LOADS                    3063
+#define ERROR_RESPONSE_CODE                 3064
+
+///////////////////////////////////////////////////////
+// HTTP/StreamCaster protocol error.
+///////////////////////////////////////////////////////
+#define ERROR_HTTP_PATTERN_EMPTY            4000
+#define ERROR_HTTP_PATTERN_DUPLICATED       4001
+#define ERROR_HTTP_URL_NOT_CLEAN            4002
+#define ERROR_HTTP_CONTENT_LENGTH           4003
+#define ERROR_HTTP_LIVE_STREAM_EXT          4004
+#define ERROR_HTTP_STATUS_INVLIAD           4005
+#define ERROR_KERNEL_AAC_STREAM_CLOSED      4006
+#define ERROR_AAC_DECODE_ERROR              4007
+#define ERROR_KERNEL_MP3_STREAM_CLOSED      4008
+#define ERROR_MP3_DECODE_ERROR              4009
+#define ERROR_STREAM_CASTER_ENGINE          4010
+#define ERROR_STREAM_CASTER_PORT            4011
+#define ERROR_STREAM_CASTER_TS_HEADER       4012
+#define ERROR_STREAM_CASTER_TS_SYNC_BYTE    4013
+#define ERROR_STREAM_CASTER_TS_AF           4014
+#define ERROR_STREAM_CASTER_TS_CRC32        4015
+#define ERROR_STREAM_CASTER_TS_PSI          4016
+#define ERROR_STREAM_CASTER_TS_PAT          4017
+#define ERROR_STREAM_CASTER_TS_PMT          4018
+#define ERROR_STREAM_CASTER_TS_PSE          4019
+#define ERROR_STREAM_CASTER_TS_ES           4020
+#define ERROR_STREAM_CASTER_TS_CODEC        4021
+#define ERROR_STREAM_CASTER_AVC_SPS         4022
+#define ERROR_STREAM_CASTER_AVC_PPS         4023
+#define ERROR_STREAM_CASTER_FLV_TAG         4024
+#define ERROR_HTTP_RESPONSE_EOF             4025
+#define ERROR_HTTP_INVALID_CHUNK_HEADER     4026
+#define ERROR_AVC_NALU_UEV                  4027
+#define ERROR_AAC_BYTES_INVALID             4028
+#define ERROR_HTTP_REQUEST_EOF              4029
+
+///////////////////////////////////////////////////////
+// user-define error.
+///////////////////////////////////////////////////////
+#define ERROR_USER_START                    9000
+#define ERROR_USER_DISCONNECT               9001
+#define ERROR_SOURCE_NOT_FOUND              9002
+#define ERROR_USER_END                      9999
 
 /**
 * whether the error code is an system control error.
@@ -684,7 +861,7 @@ extern bool srs_is_client_gracefully_close(int error_code);
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -785,7 +962,7 @@ public:
     ISrsThreadContext();
     virtual ~ISrsThreadContext();
 public:
-    virtual void generate_id();
+    virtual int generate_id();
     virtual int get_id();
 };
 
@@ -838,7 +1015,7 @@ extern ISrsThreadContext* _srs_context;
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -991,12 +1168,30 @@ public:
     virtual void write_bytes(char* data, int size);
 };
 
+/**
+ * the bit stream.
+ */
+class SrsBitStream
+{
+private:
+    int8_t cb;
+    u_int8_t cb_left;
+    SrsStream* stream;
+public:
+    SrsBitStream();
+    virtual ~SrsBitStream();
+public:
+    virtual int initialize(SrsStream* s);
+    virtual bool empty();
+    virtual int8_t read_bit();
+};
+
 #endif
 // following is generated by src/kernel/srs_kernel_utility.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1027,9 +1222,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <string>
 
+class SrsStream;
+class SrsBitStream;
+
 // compare
 #define srs_min(a, b) (((a) < (b))? (a) : (b))
 #define srs_max(a, b) (((a) < (b))? (b) : (a))
+
+// read nalu uev.
+extern int srs_avc_nalu_read_uev(SrsBitStream* stream, int32_t& v);
+extern int srs_avc_nalu_read_bit(SrsBitStream* stream, int8_t& v);
 
 // get current system time in ms, use cache to avoid performance problem
 extern int64_t srs_get_system_time_ms();
@@ -1053,6 +1255,101 @@ extern std::string srs_string_trim_start(std::string str, std::string trim_chars
 extern std::string srs_string_remove(std::string str, std::string remove_chars);
 // whether string end with
 extern bool srs_string_ends_with(std::string str, std::string flag);
+// whether string starts with
+extern bool srs_string_starts_with(std::string str, std::string flag);
+// whether string contains with
+extern bool srs_string_contains(std::string str, std::string flag);
+
+// create dir recursively
+extern int srs_create_dir_recursively(std::string dir);
+
+// whether path exists.
+extern bool srs_path_exists(std::string path);
+// get the dirname of path
+extern std::string srs_path_dirname(std::string path);
+// get the basename of path
+extern std::string srs_path_basename(std::string path);
+
+/**
+* whether stream starts with the avc NALU in "AnnexB" 
+* from H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
+* start code must be "N[00] 00 00 01" where N>=0
+* @param pnb_start_code output the size of start code, must >=3. 
+*       NULL to ignore.
+*/
+extern bool srs_avc_startswith_annexb(SrsStream* stream, int* pnb_start_code = NULL);
+
+/**
+* whether stream starts with the aac ADTS 
+* from aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 75, 1.A.2.2 ADTS.
+* start code must be '1111 1111 1111'B, that is 0xFFF
+*/
+extern bool srs_aac_startswith_adts(SrsStream* stream);
+
+/**
+* cacl the crc32 of bytes in buf.
+*/
+extern u_int32_t srs_crc32(const void* buf, int size);
+
+/**
+* Decode a base64-encoded string.
+*
+* @param out      buffer for decoded data
+* @param in       null-terminated input string
+* @param out_size size in bytes of the out buffer, must be at
+*                 least 3/4 of the length of in
+* @return         number of bytes written, or a negative value in case of
+*                 invalid input
+*/
+extern int srs_av_base64_decode(u_int8_t* out, const char* in, int out_size);
+
+/**
+* Encode data to base64 and null-terminate.
+*
+* @param out      buffer for encoded data
+* @param out_size size in bytes of the out buffer (including the
+*                 null terminator), must be at least AV_BASE64_SIZE(in_size)
+* @param in       input buffer containing the data to encode
+* @param in_size  size in bytes of the in buffer
+* @return         out or NULL in case of error
+*/
+extern char* srs_av_base64_encode(char* out, int out_size, const u_int8_t* in, int in_size);
+
+/**
+ * Calculate the output size needed to base64-encode x bytes to a
+ * null-terminated string.
+ */
+#define SRS_AV_BASE64_SIZE(x)  (((x)+2) / 3 * 4 + 1)
+
+/**
+* convert hex string to data.
+* for example, p=config='139056E5A0'
+* output hex to data={0x13, 0x90, 0x56, 0xe5, 0xa0}
+*/
+extern int ff_hex_to_data(u_int8_t* data, const char* p);
+
+/**
+ * generate the c0 chunk header for msg.
+ * @param cache, the cache to write header.
+ * @param nb_cache, the size of cache.
+ * @return the size of header. 0 if cache not enough.
+ */
+extern int srs_chunk_header_c0(
+    int perfer_cid, u_int32_t timestamp, int32_t payload_length,
+    int8_t message_type, int32_t stream_id,
+    char* cache, int nb_cache
+    );
+
+/**
+ * generate the c3 chunk header for msg.
+ * @param cache, the cache to write header.
+ * @param nb_cache, the size of cache.
+ * @return the size of header. 0 if cache not enough.
+ */
+extern int srs_chunk_header_c3(
+    int perfer_cid, u_int32_t timestamp,
+    char* cache, int nb_cache
+    );
 
 #endif
 
@@ -1060,7 +1357,7 @@ extern bool srs_string_ends_with(std::string str, std::string flag);
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1090,9 +1387,402 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <string>
 
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+#include <sys/uio.h>
+#endif
+
 class SrsStream;
 class SrsFileWriter;
 class SrsFileReader;
+
+#define SRS_FLV_TAG_HEADER_SIZE 11
+#define SRS_FLV_PREVIOUS_TAG_SIZE 4
+
+/****************************************************************************
+ *****************************************************************************
+ ****************************************************************************/
+/**
+ 5. Protocol Control Messages
+ RTMP reserves message type IDs 1-7 for protocol control messages.
+ These messages contain information needed by the RTM Chunk Stream
+ protocol or RTMP itself. Protocol messages with IDs 1 & 2 are
+ reserved for usage with RTM Chunk Stream protocol. Protocol messages
+ with IDs 3-6 are reserved for usage of RTMP. Protocol message with ID
+ 7 is used between edge server and origin server.
+ */
+#define RTMP_MSG_SetChunkSize                   0x01
+#define RTMP_MSG_AbortMessage                   0x02
+#define RTMP_MSG_Acknowledgement                0x03
+#define RTMP_MSG_UserControlMessage             0x04
+#define RTMP_MSG_WindowAcknowledgementSize      0x05
+#define RTMP_MSG_SetPeerBandwidth               0x06
+#define RTMP_MSG_EdgeAndOriginServerCommand     0x07
+/**
+ 3. Types of messages
+ The server and the client send messages over the network to
+ communicate with each other. The messages can be of any type which
+ includes audio messages, video messages, command messages, shared
+ object messages, data messages, and user control messages.
+ 3.1. Command message
+ Command messages carry the AMF-encoded commands between the client
+ and the server. These messages have been assigned message type value
+ of 20 for AMF0 encoding and message type value of 17 for AMF3
+ encoding. These messages are sent to perform some operations like
+ connect, createStream, publish, play, pause on the peer. Command
+ messages like onstatus, result etc. are used to inform the sender
+ about the status of the requested commands. A command message
+ consists of command name, transaction ID, and command object that
+ contains related parameters. A client or a server can request Remote
+ Procedure Calls (RPC) over streams that are communicated using the
+ command messages to the peer.
+ */
+#define RTMP_MSG_AMF3CommandMessage             17 // 0x11
+#define RTMP_MSG_AMF0CommandMessage             20 // 0x14
+/**
+ 3.2. Data message
+ The client or the server sends this message to send Metadata or any
+ user data to the peer. Metadata includes details about the
+ data(audio, video etc.) like creation time, duration, theme and so
+ on. These messages have been assigned message type value of 18 for
+ AMF0 and message type value of 15 for AMF3.
+ */
+#define RTMP_MSG_AMF0DataMessage                18 // 0x12
+#define RTMP_MSG_AMF3DataMessage                15 // 0x0F
+/**
+ 3.3. Shared object message
+ A shared object is a Flash object (a collection of name value pairs)
+ that are in synchronization across multiple clients, instances, and
+ so on. The message types kMsgContainer=19 for AMF0 and
+ kMsgContainerEx=16 for AMF3 are reserved for shared object events.
+ Each message can contain multiple events.
+ */
+#define RTMP_MSG_AMF3SharedObject               16 // 0x10
+#define RTMP_MSG_AMF0SharedObject               19 // 0x13
+/**
+ 3.4. Audio message
+ The client or the server sends this message to send audio data to the
+ peer. The message type value of 8 is reserved for audio messages.
+ */
+#define RTMP_MSG_AudioMessage                   8 // 0x08
+/* *
+ 3.5. Video message
+ The client or the server sends this message to send video data to the
+ peer. The message type value of 9 is reserved for video messages.
+ These messages are large and can delay the sending of other type of
+ messages. To avoid such a situation, the video message is assigned
+ the lowest priority.
+ */
+#define RTMP_MSG_VideoMessage                   9 // 0x09
+/**
+ 3.6. Aggregate message
+ An aggregate message is a single message that contains a list of submessages.
+ The message type value of 22 is reserved for aggregate
+ messages.
+ */
+#define RTMP_MSG_AggregateMessage               22 // 0x16
+
+/****************************************************************************
+ *****************************************************************************
+ ****************************************************************************/
+/**
+ * the chunk stream id used for some under-layer message,
+ * for example, the PC(protocol control) message.
+ */
+#define RTMP_CID_ProtocolControl                0x02
+/**
+ * the AMF0/AMF3 command message, invoke method and return the result, over NetConnection.
+ * generally use 0x03.
+ */
+#define RTMP_CID_OverConnection                 0x03
+/**
+ * the AMF0/AMF3 command message, invoke method and return the result, over NetConnection,
+ * the midst state(we guess).
+ * rarely used, e.g. onStatus(NetStream.Play.Reset).
+ */
+#define RTMP_CID_OverConnection2                0x04
+/**
+ * the stream message(amf0/amf3), over NetStream.
+ * generally use 0x05.
+ */
+#define RTMP_CID_OverStream                     0x05
+/**
+ * the stream message(amf0/amf3), over NetStream, the midst state(we guess).
+ * rarely used, e.g. play("mp4:mystram.f4v")
+ */
+#define RTMP_CID_OverStream2                    0x08
+/**
+ * the stream message(video), over NetStream
+ * generally use 0x06.
+ */
+#define RTMP_CID_Video                          0x06
+/**
+ * the stream message(audio), over NetStream.
+ * generally use 0x07.
+ */
+#define RTMP_CID_Audio                          0x07
+
+/**
+ * 6.1. Chunk Format
+ * Extended timestamp: 0 or 4 bytes
+ * This field MUST be sent when the normal timsestamp is set to
+ * 0xffffff, it MUST NOT be sent if the normal timestamp is set to
+ * anything else. So for values less than 0xffffff the normal
+ * timestamp field SHOULD be used in which case the extended timestamp
+ * MUST NOT be present. For values greater than or equal to 0xffffff
+ * the normal timestamp field MUST NOT be used and MUST be set to
+ * 0xffffff and the extended timestamp MUST be sent.
+ */
+#define RTMP_EXTENDED_TIMESTAMP                 0xFFFFFF
+
+/**
+ * 4.1. Message Header
+ */
+class SrsMessageHeader
+{
+public:
+    /**
+     * 3bytes.
+     * Three-byte field that contains a timestamp delta of the message.
+     * @remark, only used for decoding message from chunk stream.
+     */
+    int32_t timestamp_delta;
+    /**
+     * 3bytes.
+     * Three-byte field that represents the size of the payload in bytes.
+     * It is set in big-endian format.
+     */
+    int32_t payload_length;
+    /**
+     * 1byte.
+     * One byte field to represent the message type. A range of type IDs
+     * (1-7) are reserved for protocol control messages.
+     */
+    int8_t message_type;
+    /**
+     * 4bytes.
+     * Four-byte field that identifies the stream of the message. These
+     * bytes are set in little-endian format.
+     */
+    int32_t stream_id;
+    
+    /**
+     * Four-byte field that contains a timestamp of the message.
+     * The 4 bytes are packed in the big-endian order.
+     * @remark, used as calc timestamp when decode and encode time.
+     * @remark, we use 64bits for large time for jitter detect and hls.
+     */
+    int64_t timestamp;
+public:
+    /**
+     * get the perfered cid(chunk stream id) which sendout over.
+     * set at decoding, and canbe used for directly send message,
+     * for example, dispatch to all connections.
+     */
+    int perfer_cid;
+public:
+    SrsMessageHeader();
+    virtual ~SrsMessageHeader();
+public:
+    bool is_audio();
+    bool is_video();
+    bool is_amf0_command();
+    bool is_amf0_data();
+    bool is_amf3_command();
+    bool is_amf3_data();
+    bool is_window_ackledgement_size();
+    bool is_ackledgement();
+    bool is_set_chunk_size();
+    bool is_user_control_message();
+    bool is_set_peer_bandwidth();
+    bool is_aggregate();
+public:
+    /**
+     * create a amf0 script header, set the size and stream_id.
+     */
+    void initialize_amf0_script(int size, int stream);
+    /**
+     * create a audio header, set the size, timestamp and stream_id.
+     */
+    void initialize_audio(int size, u_int32_t time, int stream);
+    /**
+     * create a video header, set the size, timestamp and stream_id.
+     */
+    void initialize_video(int size, u_int32_t time, int stream);
+};
+
+/**
+ * message is raw data RTMP message, bytes oriented,
+ * protcol always recv RTMP message, and can send RTMP message or RTMP packet.
+ * the common message is read from underlay protocol sdk.
+ * while the shared ptr message used to copy and send.
+ */
+class SrsCommonMessage
+{
+    // 4.1. Message Header
+public:
+    SrsMessageHeader header;
+    // 4.2. Message Payload
+public:
+    /**
+     * current message parsed size,
+     *       size <= header.payload_length
+     * for the payload maybe sent in multiple chunks.
+     */
+    int size;
+    /**
+     * the payload of message, the SrsCommonMessage never know about the detail of payload,
+     * user must use SrsProtocol.decode_message to get concrete packet.
+     * @remark, not all message payload can be decoded to packet. for example,
+     *       video/audio packet use raw bytes, no video/audio packet.
+     */
+    char* payload;
+public:
+    SrsCommonMessage();
+    virtual ~SrsCommonMessage();
+public:
+    /**
+     * alloc the payload to specified size of bytes.
+     */
+    virtual void create_payload(int size);
+};
+
+/**
+ * the message header for shared ptr message.
+ * only the message for all msgs are same.
+ */
+struct SrsSharedMessageHeader
+{
+    /**
+     * 3bytes.
+     * Three-byte field that represents the size of the payload in bytes.
+     * It is set in big-endian format.
+     */
+    int32_t payload_length;
+    /**
+     * 1byte.
+     * One byte field to represent the message type. A range of type IDs
+     * (1-7) are reserved for protocol control messages.
+     */
+    int8_t message_type;
+    /**
+     * get the perfered cid(chunk stream id) which sendout over.
+     * set at decoding, and canbe used for directly send message,
+     * for example, dispatch to all connections.
+     */
+    int perfer_cid;
+};
+
+/**
+ * shared ptr message.
+ * for audio/video/data message that need less memory copy.
+ * and only for output.
+ *
+ * create first object by constructor and create(),
+ * use copy if need reference count message.
+ *
+ */
+class SrsSharedPtrMessage
+{
+    // 4.1. Message Header
+public:
+    // the header can shared, only set the timestamp and stream id.
+    // @see https://github.com/simple-rtmp-server/srs/issues/251
+    //SrsSharedMessageHeader header;
+    /**
+     * Four-byte field that contains a timestamp of the message.
+     * The 4 bytes are packed in the big-endian order.
+     * @remark, used as calc timestamp when decode and encode time.
+     * @remark, we use 64bits for large time for jitter detect and hls.
+     */
+    int64_t timestamp;
+    /**
+     * 4bytes.
+     * Four-byte field that identifies the stream of the message. These
+     * bytes are set in big-endian format.
+     */
+    int32_t stream_id;
+    // 4.2. Message Payload
+public:
+    /**
+     * current message parsed size,
+     *       size <= header.payload_length
+     * for the payload maybe sent in multiple chunks.
+     */
+    int size;
+    /**
+     * the payload of message, the SrsCommonMessage never know about the detail of payload,
+     * user must use SrsProtocol.decode_message to get concrete packet.
+     * @remark, not all message payload can be decoded to packet. for example,
+     *       video/audio packet use raw bytes, no video/audio packet.
+     */
+    char* payload;
+private:
+    class SrsSharedPtrPayload
+    {
+    public:
+        // shared message header.
+        // @see https://github.com/simple-rtmp-server/srs/issues/251
+        SrsSharedMessageHeader header;
+        // actual shared payload.
+        char* payload;
+        // size of payload.
+        int size;
+        // the reference count
+        int shared_count;
+    public:
+        SrsSharedPtrPayload();
+        virtual ~SrsSharedPtrPayload();
+    };
+    SrsSharedPtrPayload* ptr;
+public:
+    SrsSharedPtrMessage();
+    virtual ~SrsSharedPtrMessage();
+public:
+    /**
+     * create shared ptr message,
+     * copy header, manage the payload of msg,
+     * set the payload to NULL to prevent double free.
+     * @remark payload of msg set to NULL if success.
+     */
+    virtual int create(SrsCommonMessage* msg);
+    /**
+     * create shared ptr message,
+     * from the header and payload.
+     * @remark user should never free the payload.
+     * @param pheader, the header to copy to the message. NULL to ignore.
+     */
+    virtual int create(SrsMessageHeader* pheader, char* payload, int size);
+    /**
+     * get current reference count.
+     * when this object created, count set to 0.
+     * if copy() this object, count increase 1.
+     * if this or copy deleted, free payload when count is 0, or count--.
+     * @remark, assert object is created.
+     */
+    virtual int count();
+    /**
+     * check perfer cid and stream id.
+     * @return whether stream id already set.
+     */
+    virtual bool check(int stream_id);
+public:
+    virtual bool is_av();
+    virtual bool is_audio();
+    virtual bool is_video();
+public:
+    /**
+     * generate the chunk header to cache.
+     * @return the size of header.
+     */
+    virtual int chunk_header(char* cache, int nb_cache, bool c0);
+public:
+    /**
+     * copy current shared ptr message, use ref-count.
+     * @remark, assert object is created.
+     */
+    virtual SrsSharedPtrMessage* copy();
+};
 
 /**
 * encode data to flv file.
@@ -1103,6 +1793,7 @@ private:
     SrsFileWriter* _fs;
 private:
     SrsStream* tag_stream;
+    char tag_header[SRS_FLV_TAG_HEADER_SIZE];
 public:
     SrsFlvEncoder();
     virtual ~SrsFlvEncoder();
@@ -1125,12 +1816,14 @@ public:
     virtual int write_header(char flv_header[9]);
     /**
     * write flv metadata. 
+    * @param type, the type of data, or other message type.
+    *       @see SrsCodecFlvTag
     * @param data, the amf0 metadata which serialize from:
     *   AMF0 string: onMetaData,
     *   AMF0 object: the metadata object.
     * @remark assert data is not NULL.
     */
-    virtual int write_metadata(char* data, int size);
+    virtual int write_metadata(char type, char* data, int size);
     /**
     * write audio/video packet.
     * @remark assert data is not NULL.
@@ -1144,7 +1837,28 @@ public:
     * @remark assert data_size is not negative.
     */
     static int size_tag(int data_size);
+#ifdef SRS_PERF_FAST_FLV_ENCODER
 private:
+    // cache tag header.
+    int nb_tag_headers;
+    char* tag_headers;
+    // cache pps(previous tag size)
+    int nb_ppts;
+    char* ppts;
+    // cache iovss.
+    int nb_iovss_cache;
+    iovec* iovss_cache;
+public:
+    /**
+     * write the tags in a time.
+     */
+    virtual int write_tags(SrsSharedPtrMessage** msgs, int count);
+#endif
+private:
+    virtual int write_metadata_to_cache(char type, char* data, int size, char* cache);
+    virtual int write_audio_to_cache(int64_t timestamp, char* data, int size, char* cache);
+    virtual int write_video_to_cache(int64_t timestamp, char* data, int size, char* cache);
+    virtual int write_pts_to_cache(int size, char* cache);
     virtual int write_tag(char* header, int header_size, char* tag, int tag_size);
 };
 
@@ -1239,7 +1953,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1268,6 +1982,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_core.hpp>
 
+#include <string>
+
+class SrsStream;
+
 // AACPacketType IF SoundFormat == 10 UI8
 // The following values are defined:
 //     0 = AAC sequence header
@@ -1291,7 +2009,7 @@ enum SrsCodecAudioType
 //     5 = video info/command frame
 enum SrsCodecVideoAVCFrame
 {
-    // set to the max value to reserved, for array map.
+    // set to the zero to reserved, for array map.
     SrsCodecVideoAVCFrameReserved                    = 0,
     SrsCodecVideoAVCFrameReserved1                    = 6,
     
@@ -1329,10 +2047,13 @@ enum SrsCodecVideoAVCType
 //     7 = AVC
 enum SrsCodecVideo
 {
-    // set to the max value to reserved, for array map.
+    // set to the zero to reserved, for array map.
     SrsCodecVideoReserved                = 0,
     SrsCodecVideoReserved1                = 1,
-    SrsCodecVideoReserved2                = 8,
+    SrsCodecVideoReserved2                = 9,
+    
+    // for user to disable video, for example, use pure audio hls.
+    SrsCodecVideoDisabled                = 8,
     
     SrsCodecVideoSorensonH263             = 2,
     SrsCodecVideoScreenVideo             = 3,
@@ -1341,6 +2062,7 @@ enum SrsCodecVideo
     SrsCodecVideoScreenVideoVersion2     = 6,
     SrsCodecVideoAVC                     = 7,
 };
+std::string srs_codec_video2str(SrsCodecVideo codec);
 
 // SoundFormat UB [4] 
 // Format of SoundData. The following values are defined:
@@ -1366,6 +2088,9 @@ enum SrsCodecAudio
     // set to the max value to reserved, for array map.
     SrsCodecAudioReserved1                = 16,
     
+    // for user to disable audio, for example, use pure video hls.
+    SrsCodecAudioDisabled                   = 17,
+    
     SrsCodecAudioLinearPCMPlatformEndian             = 0,
     SrsCodecAudioADPCM                                 = 1,
     SrsCodecAudioMP3                                 = 2,
@@ -1381,6 +2106,7 @@ enum SrsCodecAudio
     SrsCodecAudioReservedMP3_8kHz                     = 14,
     SrsCodecAudioReservedDeviceSpecificSound         = 15,
 };
+std::string srs_codec_audio2str(SrsCodecAudio codec);
 
 /**
 * the FLV/RTMP supported audio sample rate.
@@ -1399,6 +2125,22 @@ enum SrsCodecAudioSampleRate
     SrsCodecAudioSampleRate11025                    = 1,
     SrsCodecAudioSampleRate22050                    = 2,
     SrsCodecAudioSampleRate44100                    = 3,
+};
+
+/**
+* E.4.1 FLV Tag, page 75
+*/
+enum SrsCodecFlvTag
+{
+    // set to the zero to reserved, for array map.
+    SrsCodecFlvTagReserved = 0,
+
+    // 8 = audio
+    SrsCodecFlvTagAudio = 8,
+    // 9 = video
+    SrsCodecFlvTagVideo = 9,
+    // 18 = script data
+    SrsCodecFlvTagScript = 18,
 };
 
 /**
@@ -1432,6 +2174,437 @@ public:
     * check codec aac.
     */
     static bool audio_is_aac(char* data, int size);
+    /**
+     * check the video RTMP/flv header info,
+     * @return true if video RTMP/flv header is ok.
+     * @remark all type of audio is possible, no need to check audio.
+     */
+    static bool video_is_acceptable(char* data, int size);
+};
+
+/**
+* the public data, event HLS disable, others can use it.
+*/
+/**
+* the flv sample rate map
+*/
+extern int flv_sample_rates[];
+
+/**
+* the aac sample rate map
+*/
+extern int aac_sample_rates[];
+
+#define SRS_SRS_MAX_CODEC_SAMPLE 128
+#define SRS_AAC_SAMPLE_RATE_UNSET 15
+
+// in ms, for HLS aac flush the audio
+#define SRS_CONF_DEFAULT_AAC_DELAY 60
+
+// max PES packets size to flush the video.
+#define SRS_AUTO_HLS_AUDIO_CACHE_SIZE 128 * 1024
+
+/**
+* the FLV/RTMP supported audio sample size.
+* Size of each audio sample. This parameter only pertains to
+* uncompressed formats. Compressed formats always decode
+* to 16 bits internally.
+* 0 = 8-bit samples
+* 1 = 16-bit samples
+*/
+enum SrsCodecAudioSampleSize
+{
+    // set to the max value to reserved, for array map.
+    SrsCodecAudioSampleSizeReserved                 = 2,
+    
+    SrsCodecAudioSampleSize8bit                     = 0,
+    SrsCodecAudioSampleSize16bit                    = 1,
+};
+
+/**
+* the FLV/RTMP supported audio sound type/channel.
+* Mono or stereo sound
+* 0 = Mono sound
+* 1 = Stereo sound
+*/
+enum SrsCodecAudioSoundType
+{
+    // set to the max value to reserved, for array map.
+    SrsCodecAudioSoundTypeReserved                  = 2, 
+    
+    SrsCodecAudioSoundTypeMono                      = 0,
+    SrsCodecAudioSoundTypeStereo                    = 1,
+};
+
+/**
+ * Table 7-1 - NAL unit type codes, syntax element categories, and NAL unit type classes
+ * H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 83.
+ */
+enum SrsAvcNaluType
+{
+    // Unspecified
+    SrsAvcNaluTypeReserved = 0,
+    
+    // Coded slice of a non-IDR picture slice_layer_without_partitioning_rbsp( )
+    SrsAvcNaluTypeNonIDR = 1,
+    // Coded slice data partition A slice_data_partition_a_layer_rbsp( )
+    SrsAvcNaluTypeDataPartitionA = 2,
+    // Coded slice data partition B slice_data_partition_b_layer_rbsp( )
+    SrsAvcNaluTypeDataPartitionB = 3,
+    // Coded slice data partition C slice_data_partition_c_layer_rbsp( )
+    SrsAvcNaluTypeDataPartitionC = 4,
+    // Coded slice of an IDR picture slice_layer_without_partitioning_rbsp( )
+    SrsAvcNaluTypeIDR = 5,
+    // Supplemental enhancement information (SEI) sei_rbsp( )
+    SrsAvcNaluTypeSEI = 6,
+    // Sequence parameter set seq_parameter_set_rbsp( )
+    SrsAvcNaluTypeSPS = 7,
+    // Picture parameter set pic_parameter_set_rbsp( )
+    SrsAvcNaluTypePPS = 8,
+    // Access unit delimiter access_unit_delimiter_rbsp( )
+    SrsAvcNaluTypeAccessUnitDelimiter = 9,
+    // End of sequence end_of_seq_rbsp( )
+    SrsAvcNaluTypeEOSequence = 10,
+    // End of stream end_of_stream_rbsp( )
+    SrsAvcNaluTypeEOStream = 11,
+    // Filler data filler_data_rbsp( )
+    SrsAvcNaluTypeFilterData = 12,
+    // Sequence parameter set extension seq_parameter_set_extension_rbsp( )
+    SrsAvcNaluTypeSPSExt = 13,
+    // Prefix NAL unit prefix_nal_unit_rbsp( )
+    SrsAvcNaluTypePrefixNALU = 14,
+    // Subset sequence parameter set subset_seq_parameter_set_rbsp( )
+    SrsAvcNaluTypeSubsetSPS = 15,
+    // Coded slice of an auxiliary coded picture without partitioning slice_layer_without_partitioning_rbsp( )
+    SrsAvcNaluTypeLayerWithoutPartition = 19,
+    // Coded slice extension slice_layer_extension_rbsp( )
+    SrsAvcNaluTypeCodedSliceExt = 20,
+};
+std::string srs_codec_avc_nalu2str(SrsAvcNaluType nalu_type);
+
+/**
+* the codec sample unit.
+* for h.264 video packet, a NALU is a sample unit.
+* for aac raw audio packet, a NALU is the entire aac raw data.
+* for sequence header, it's not a sample unit.
+*/
+class SrsCodecSampleUnit
+{
+public:
+    /**
+    * the sample bytes is directly ptr to packet bytes,
+    * user should never use it when packet destroyed.
+    */
+    int size;
+    char* bytes;
+public:
+    SrsCodecSampleUnit();
+    virtual ~SrsCodecSampleUnit();
+};
+
+/**
+* the samples in the flv audio/video packet.
+* the sample used to analysis a video/audio packet,
+* split the h.264 NALUs to buffers, or aac raw data to a buffer,
+* and decode the video/audio specified infos.
+* 
+* the sample unit:
+*       a video packet codec in h.264 contains many NALUs, each is a sample unit.
+*       a audio packet codec in aac is a sample unit.
+* @remark, the video/audio sequence header is not sample unit,
+*       all sequence header stores as extra data, 
+*       @see SrsAvcAacCodec.avc_extra_data and SrsAvcAacCodec.aac_extra_data
+* @remark, user must clear all samples before decode a new video/audio packet.
+*/
+class SrsCodecSample
+{
+public:
+    /**
+    * each audio/video raw data packet will dumps to one or multiple buffers,
+    * the buffers will write to hls and clear to reset.
+    * generally, aac audio packet corresponding to one buffer,
+    * where avc/h264 video packet may contains multiple buffer.
+    */
+    int nb_sample_units;
+    SrsCodecSampleUnit sample_units[SRS_SRS_MAX_CODEC_SAMPLE];
+public:
+    /**
+    * whether the sample is video sample which demux from video packet.
+    */
+    bool is_video;
+    /**
+    * CompositionTime, video_file_format_spec_v10_1.pdf, page 78.
+    * cts = pts - dts, where dts = flvheader->timestamp.
+    */
+    int32_t cts;
+public:
+    // video specified
+    SrsCodecVideoAVCFrame frame_type;
+    SrsCodecVideoAVCType avc_packet_type;
+    // whether sample_units contains IDR frame.
+    bool has_idr;
+    SrsAvcNaluType first_nalu_type;
+public:
+    // audio specified
+    SrsCodecAudio acodec;
+    // audio aac specified.
+    SrsCodecAudioSampleRate sound_rate;
+    SrsCodecAudioSampleSize sound_size;
+    SrsCodecAudioSoundType sound_type;
+    SrsCodecAudioType aac_packet_type;
+public:
+    SrsCodecSample();
+    virtual ~SrsCodecSample();
+public:
+    /**
+    * clear all samples.
+    * the sample units never copy the bytes, it directly use the ptr,
+    * so when video/audio packet is destroyed, the sample must be clear.
+    * in a word, user must clear sample before demux it.
+    * @remark demux sample use SrsAvcAacCodec.audio_aac_demux or video_avc_demux.
+    */
+    void clear();
+    /**
+    * add the a sample unit, it's a h.264 NALU or aac raw data.
+    * the sample unit directly use the ptr of packet bytes,
+    * so user must never use sample unit when packet is destroyed.
+    * in a word, user must clear sample before demux it.
+    */
+    int add_sample_unit(char* bytes, int size);
+};
+
+/**
+* the avc payload format, must be ibmf or annexb format.
+* we guess by annexb first, then ibmf for the first time,
+* and we always use the guessed format for the next time.
+*/
+enum SrsAvcPayloadFormat
+{
+    SrsAvcPayloadFormatGuess = 0,
+    SrsAvcPayloadFormatAnnexb,
+    SrsAvcPayloadFormatIbmf,
+};
+
+/**
+* the aac profile, for ADTS(HLS/TS)
+* @see https://github.com/simple-rtmp-server/srs/issues/310
+*/
+enum SrsAacProfile
+{
+    SrsAacProfileReserved = 3,
+    
+    // @see 7.1 Profiles, aac-iso-13818-7.pdf, page 40
+    SrsAacProfileMain = 0,
+    SrsAacProfileLC = 1,
+    SrsAacProfileSSR = 2,
+};
+std::string srs_codec_aac_profile2str(SrsAacProfile aac_profile);
+
+/**
+* the aac object type, for RTMP sequence header
+* for AudioSpecificConfig, @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 33
+* for audioObjectType, @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 23
+*/
+enum SrsAacObjectType
+{
+    SrsAacObjectTypeReserved = 0,
+    
+    // Table 1.1 - Audio Object Type definition
+    // @see @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 23
+    SrsAacObjectTypeAacMain = 1,
+    SrsAacObjectTypeAacLC = 2,
+    SrsAacObjectTypeAacSSR = 3,
+    
+    // AAC HE = LC+SBR
+    SrsAacObjectTypeAacHE = 5,
+    // AAC HEv2 = LC+SBR+PS
+    SrsAacObjectTypeAacHEV2 = 29,
+};
+std::string srs_codec_aac_object2str(SrsAacObjectType aac_object);
+// ts/hls/adts audio header profile to RTMP sequence header object type.
+SrsAacObjectType srs_codec_aac_ts2rtmp(SrsAacProfile profile);
+// RTMP sequence header object type to ts/hls/adts audio header profile.
+SrsAacProfile srs_codec_aac_rtmp2ts(SrsAacObjectType object_type);
+
+/**
+* the profile for avc/h.264.
+* @see Annex A Profiles and levels, H.264-AVC-ISO_IEC_14496-10.pdf, page 205.
+*/
+enum SrsAvcProfile
+{
+    SrsAvcProfileReserved = 0,
+    
+    // @see ffmpeg, libavcodec/avcodec.h:2713
+    SrsAvcProfileBaseline = 66,
+    // FF_PROFILE_H264_CONSTRAINED  (1<<9)  // 8+1; constraint_set1_flag
+    // FF_PROFILE_H264_CONSTRAINED_BASELINE (66|FF_PROFILE_H264_CONSTRAINED)
+    SrsAvcProfileConstrainedBaseline = 578,
+    SrsAvcProfileMain = 77,
+    SrsAvcProfileExtended = 88,
+    SrsAvcProfileHigh = 100,
+    SrsAvcProfileHigh10 = 110,
+    SrsAvcProfileHigh10Intra = 2158,
+    SrsAvcProfileHigh422 = 122,
+    SrsAvcProfileHigh422Intra = 2170,
+    SrsAvcProfileHigh444 = 144,
+    SrsAvcProfileHigh444Predictive = 244,
+    SrsAvcProfileHigh444Intra = 2192,
+};
+std::string srs_codec_avc_profile2str(SrsAvcProfile profile);
+
+/**
+* the level for avc/h.264.
+* @see Annex A Profiles and levels, H.264-AVC-ISO_IEC_14496-10.pdf, page 207.
+*/
+enum SrsAvcLevel
+{
+    SrsAvcLevelReserved = 0,
+    
+    SrsAvcLevel_1 = 10,
+    SrsAvcLevel_11 = 11,
+    SrsAvcLevel_12 = 12,
+    SrsAvcLevel_13 = 13,
+    SrsAvcLevel_2 = 20,
+    SrsAvcLevel_21 = 21,
+    SrsAvcLevel_22 = 22,
+    SrsAvcLevel_3 = 30,
+    SrsAvcLevel_31 = 31,
+    SrsAvcLevel_32 = 32,
+    SrsAvcLevel_4 = 40,
+    SrsAvcLevel_41 = 41,
+    SrsAvcLevel_5 = 50,
+    SrsAvcLevel_51 = 51,
+};
+std::string srs_codec_avc_level2str(SrsAvcLevel level);
+
+/**
+* the h264/avc and aac codec, for media stream.
+*
+* to demux the FLV/RTMP video/audio packet to sample,
+* add each NALUs of h.264 as a sample unit to sample,
+* while the entire aac raw data as a sample unit.
+*
+* for sequence header,
+* demux it and save it in the avc_extra_data and aac_extra_data,
+* 
+* for the codec info, such as audio sample rate,
+* decode from FLV/RTMP header, then use codec info in sequence 
+* header to override it.
+*/
+class SrsAvcAacCodec
+{
+private:
+    SrsStream* stream;
+public:
+    /**
+    * metadata specified
+    */
+    int             duration;
+    int             width;
+    int             height;
+    int             frame_rate;
+    // @see: SrsCodecVideo
+    int             video_codec_id;
+    int             video_data_rate; // in bps
+    // @see: SrsCod ecAudioType
+    int             audio_codec_id;
+    int             audio_data_rate; // in bps
+public:
+    /**
+    * video specified
+    */
+    // profile_idc, H.264-AVC-ISO_IEC_14496-10.pdf, page 45.
+    SrsAvcProfile   avc_profile; 
+    // level_idc, H.264-AVC-ISO_IEC_14496-10.pdf, page 45.
+    SrsAvcLevel     avc_level; 
+    // lengthSizeMinusOne, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+    int8_t          NAL_unit_length;
+    u_int16_t       sequenceParameterSetLength;
+    char*           sequenceParameterSetNALUnit;
+    u_int16_t       pictureParameterSetLength;
+    char*           pictureParameterSetNALUnit;
+private:
+    // the avc payload format.
+    SrsAvcPayloadFormat payload_format;
+public:
+    /**
+    * audio specified
+    * audioObjectType, in 1.6.2.1 AudioSpecificConfig, page 33,
+    * 1.5.1.1 Audio object type definition, page 23,
+    *           in aac-mp4a-format-ISO_IEC_14496-3+2001.pdf.
+    */
+    SrsAacObjectType    aac_object;
+    /**
+    * samplingFrequencyIndex
+    */
+    u_int8_t        aac_sample_rate;
+    /**
+    * channelConfiguration
+    */
+    u_int8_t        aac_channels;
+public:
+    /**
+    * the avc extra data, the AVC sequence header,
+    * without the flv codec header,
+    * @see: ffmpeg, AVCodecContext::extradata
+    */
+    int             avc_extra_size;
+    char*           avc_extra_data;
+    /**
+    * the aac extra data, the AAC sequence header,
+    * without the flv codec header,
+    * @see: ffmpeg, AVCodecContext::extradata
+    */
+    int             aac_extra_size;
+    char*           aac_extra_data;
+public:
+    SrsAvcAacCodec();
+    virtual ~SrsAvcAacCodec();
+// the following function used for hls to build the sample and codec.
+public:
+    /**
+    * demux the audio packet in aac codec.
+    * the packet mux in FLV/RTMP format defined in flv specification.
+    * demux the audio speicified data(sound_format, sound_size, ...) to sample.
+    * demux the aac specified data(aac_profile, ...) to codec from sequence header.
+    * demux the aac raw to sample units.
+    */
+    virtual int audio_aac_demux(char* data, int size, SrsCodecSample* sample);
+    virtual int audio_mp3_demux(char* data, int size, SrsCodecSample* sample);
+    /**
+    * demux the video packet in h.264 codec.
+    * the packet mux in FLV/RTMP format defined in flv specification.
+    * demux the video specified data(frame_type, codec_id, ...) to sample.
+    * demux the h.264 sepcified data(avc_profile, ...) to codec from sequence header.
+    * demux the h.264 NALUs to sampe units.
+    */
+    virtual int video_avc_demux(char* data, int size, SrsCodecSample* sample);
+public:
+    /**
+    * directly demux the sequence header, without RTMP packet header.
+    */
+    virtual int audio_aac_sequence_header_demux(char* data, int size);
+private:
+    /**
+    * when avc packet type is SrsCodecVideoAVCTypeSequenceHeader,
+    * decode the sps and pps.
+    */
+    virtual int avc_demux_sps_pps(SrsStream* stream);
+    /**
+     * decode the sps rbsp stream.
+     */
+    virtual int avc_demux_sps();
+    virtual int avc_demux_sps_rbsp(char* rbsp, int nb_rbsp);
+    /**
+    * demux the avc NALU in "AnnexB" 
+    * from H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
+    */
+    virtual int avc_demux_annexb_format(SrsStream* stream, SrsCodecSample* sample);
+    /**
+    * demux the avc NALU in "ISO Base Media File Format" 
+    * from H.264-AVC-ISO_IEC_14496-15.pdf, page 20
+    */
+    virtual int avc_demux_ibmf_format(SrsStream* stream, SrsCodecSample* sample);
 };
 
 #endif
@@ -1439,7 +2612,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1469,6 +2642,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <string>
 
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+#include <sys/uio.h>
+#endif
+
 /**
 * file writer, to write to file.
 */
@@ -1485,9 +2663,14 @@ public:
     * open file writer, can open then close then open...
     */
     virtual int open(std::string file);
+    /**
+    * open file writer in append mode.
+    */
+    virtual int open_append(std::string file);
     virtual void close();
 public:
     virtual bool is_open();
+    virtual void lseek(int64_t offset);
     virtual int64_t tellg();
 public:
     /**
@@ -1495,6 +2678,11 @@ public:
     * @param pnwrite the output nb_write, NULL to ignore.
     */
     virtual int write(void* buf, size_t count, ssize_t* pnwrite);
+    /**
+     * for the HTTP FLV, to writev to improve performance.
+     * @see https://github.com/simple-rtmp-server/srs/issues/405
+     */
+    virtual int writev(iovec* iov, int iovcnt, ssize_t* pnwrite);
 };
 
 /**
@@ -1515,6 +2703,7 @@ public:
     virtual int open(std::string file);
     virtual void close();
 public:
+    // TODO: FIXME: extract interface.
     virtual bool is_open();
     virtual int64_t tellg();
     virtual void skip(int64_t size);
@@ -1534,7 +2723,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1607,6 +2796,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // the timeout to wait client data,
 // if timeout, close the connection.
 #define SRS_CONSTS_RTMP_RECV_TIMEOUT_US (int64_t)(30*1000*1000LL)
+// the timeout for publish recv.
+// we must use more smaller timeout, for the recv never know the status
+// of underlayer socket.
+#define SRS_CONSTS_RTMP_PUBLISHER_RECV_TIMEOUT_US (int64_t)(3*1000*1000LL)
 
 // the timeout to wait for client control message,
 // if timeout, we generally ignore and send the data to client,
@@ -1633,7 +2826,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /**
 * for performance issue, 
-* the iovs cache, @see https://github.com/winlinvip/simple-rtmp-server/issues/194
+* the iovs cache, @see https://github.com/simple-rtmp-server/srs/issues/194
 * iovs cache for multiple messages for each connections.
 * suppose the chunk size is 64k, each message send in a chunk which needs only 2 iovec,
 * so the iovs max should be (SRS_PERF_MW_MSGS * 2)
@@ -1643,7 +2836,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_CONSTS_IOVS_MAX (SRS_PERF_MW_MSGS * 2)
 /**
 * for performance issue, 
-* the c0c3 cache, @see https://github.com/winlinvip/simple-rtmp-server/issues/194
+* the c0c3 cache, @see https://github.com/simple-rtmp-server/srs/issues/194
 * c0c3 cache for multiple messages for each connections.
 * each c0 <= 16byes, suppose the chunk size is 64k,
 * each message send in a chunk which needs only a c0 header,
@@ -1695,6 +2888,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_CONSTS_LOG_HLS "HLS"
 // encoder log id.
 #define SRS_CONSTS_LOG_ENCODER "ENC"
+// http stream log id.
+#define SRS_CONSTS_LOG_HTTP_STREAM "HTS"
+// http stream cache log id.
+#define SRS_CONSTS_LOG_HTTP_STREAM_CACHE "HTC"
+// stream caster log id.
+#define SRS_CONSTS_LOG_STREAM_CASTER "SCS"
 
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
@@ -1704,29 +2903,21 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
-// pithy-print consts values
+// RTMP consts values
 ///////////////////////////////////////////////////////////
-// the pithy stage for all play clients.
-#define SRS_CONSTS_STAGE_PLAY_USER 1
-// the pithy stage for all publish clients.
-#define SRS_CONSTS_STAGE_PUBLISH_USER 2
-// the pithy stage for all forward clients.
-#define SRS_CONSTS_STAGE_FORWARDER 3
-// the pithy stage for all encoders.
-#define SRS_CONSTS_STAGE_ENCODER 4
-// the pithy stage for all hls.
-#define SRS_CONSTS_STAGE_HLS 5
-// the pithy stage for all ingesters.
-#define SRS_CONSTS_STAGE_INGESTER 6
-// the pithy stage for all edge.
-#define SRS_CONSTS_STAGE_EDGE 7
+#define SRS_CONSTS_RTMP_SET_DATAFRAME            "@setDataFrame"
+#define SRS_CONSTS_RTMP_ON_METADATA              "onMetaData"
 
 ///////////////////////////////////////////////////////////
+// HTTP/HLS consts values
 ///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
+// @see hls-m3u8-draft-pantos-http-live-streaming-12.pdf, page 4
+// Lines are terminated by either a single LF character or a CR
+// character followed by an LF character.
+// CR             = <US-ASCII CR, carriage return (13)>
+#define SRS_CONSTS_CR '\r' // 0x0D
+// LF             = <US-ASCII LF, linefeed (10)>
+#define SRS_CONSTS_LF '\n' // 0x0A
 
 ///////////////////////////////////////////////////////////
 // HTTP consts values
@@ -1735,6 +2926,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_CONSTS_HTTP_PATH_SEP '/'
 // query string seprator
 #define SRS_CONSTS_HTTP_QUERY_SEP '?'
+
+// the default recv timeout.
+#define SRS_HTTP_RECV_TIMEOUT_US 60 * 1000 * 1000
 
 // 6.1.1 Status Code and Reason Phrase
 #define SRS_CONSTS_HTTP_Continue                       100
@@ -1781,51 +2975,2021 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_CONSTS_HTTP_Continue_str                           "Continue"
 #define SRS_CONSTS_HTTP_SwitchingProtocols_str                 "Switching Protocols"
 #define SRS_CONSTS_HTTP_OK_str                                 "OK"
-#define SRS_CONSTS_HTTP_Created_str                            "Created "
+#define SRS_CONSTS_HTTP_Created_str                            "Created"
 #define SRS_CONSTS_HTTP_Accepted_str                           "Accepted"
-#define SRS_CONSTS_HTTP_NonAuthoritativeInformation_str        "Non Authoritative Information "
-#define SRS_CONSTS_HTTP_NoContent_str                          "No Content "
+#define SRS_CONSTS_HTTP_NonAuthoritativeInformation_str        "Non Authoritative Information"
+#define SRS_CONSTS_HTTP_NoContent_str                          "No Content"
 #define SRS_CONSTS_HTTP_ResetContent_str                       "Reset Content"
 #define SRS_CONSTS_HTTP_PartialContent_str                     "Partial Content"
-#define SRS_CONSTS_HTTP_MultipleChoices_str                    "Multiple Choices "
+#define SRS_CONSTS_HTTP_MultipleChoices_str                    "Multiple Choices"
 #define SRS_CONSTS_HTTP_MovedPermanently_str                   "Moved Permanently"
 #define SRS_CONSTS_HTTP_Found_str                              "Found"
 #define SRS_CONSTS_HTTP_SeeOther_str                           "See Other"
-#define SRS_CONSTS_HTTP_NotModified_str                        "Not Modified "
+#define SRS_CONSTS_HTTP_NotModified_str                        "Not Modified"
 #define SRS_CONSTS_HTTP_UseProxy_str                           "Use Proxy"
-#define SRS_CONSTS_HTTP_TemporaryRedirect_str                  "Temporary Redirect "
+#define SRS_CONSTS_HTTP_TemporaryRedirect_str                  "Temporary Redirect"
 #define SRS_CONSTS_HTTP_BadRequest_str                         "Bad Request"
 #define SRS_CONSTS_HTTP_Unauthorized_str                       "Unauthorized"
-#define SRS_CONSTS_HTTP_PaymentRequired_str                    "Payment Required "
-#define SRS_CONSTS_HTTP_Forbidden_str                          "Forbidden "
+#define SRS_CONSTS_HTTP_PaymentRequired_str                    "Payment Required"
+#define SRS_CONSTS_HTTP_Forbidden_str                          "Forbidden"
 #define SRS_CONSTS_HTTP_NotFound_str                           "Not Found"
 #define SRS_CONSTS_HTTP_MethodNotAllowed_str                   "Method Not Allowed"
-#define SRS_CONSTS_HTTP_NotAcceptable_str                      "Not Acceptable "
-#define SRS_CONSTS_HTTP_ProxyAuthenticationRequired_str        "Proxy Authentication Required "
+#define SRS_CONSTS_HTTP_NotAcceptable_str                      "Not Acceptable"
+#define SRS_CONSTS_HTTP_ProxyAuthenticationRequired_str        "Proxy Authentication Required"
 #define SRS_CONSTS_HTTP_RequestTimeout_str                     "Request Timeout"
 #define SRS_CONSTS_HTTP_Conflict_str                           "Conflict"
 #define SRS_CONSTS_HTTP_Gone_str                               "Gone"
 #define SRS_CONSTS_HTTP_LengthRequired_str                     "Length Required"
 #define SRS_CONSTS_HTTP_PreconditionFailed_str                 "Precondition Failed"
-#define SRS_CONSTS_HTTP_RequestEntityTooLarge_str              "Request Entity Too Large "
+#define SRS_CONSTS_HTTP_RequestEntityTooLarge_str              "Request Entity Too Large"
 #define SRS_CONSTS_HTTP_RequestURITooLarge_str                 "Request URI Too Large"
 #define SRS_CONSTS_HTTP_UnsupportedMediaType_str               "Unsupported Media Type"
 #define SRS_CONSTS_HTTP_RequestedRangeNotSatisfiable_str       "Requested Range Not Satisfiable"
-#define SRS_CONSTS_HTTP_ExpectationFailed_str                  "Expectation Failed "
-#define SRS_CONSTS_HTTP_InternalServerError_str                "Internal Server Error "
+#define SRS_CONSTS_HTTP_ExpectationFailed_str                  "Expectation Failed"
+#define SRS_CONSTS_HTTP_InternalServerError_str                "Internal Server Error"
 #define SRS_CONSTS_HTTP_NotImplemented_str                     "Not Implemented"
 #define SRS_CONSTS_HTTP_BadGateway_str                         "Bad Gateway"
 #define SRS_CONSTS_HTTP_ServiceUnavailable_str                 "Service Unavailable"
 #define SRS_CONSTS_HTTP_GatewayTimeout_str                     "Gateway Timeout"
 #define SRS_CONSTS_HTTP_HTTPVersionNotSupported_str            "HTTP Version Not Supported"
 
+///////////////////////////////////////////////////////////
+// RTSP consts values
+///////////////////////////////////////////////////////////
+// 7.1.1 Status Code and Reason Phrase
+#define SRS_CONSTS_RTSP_Continue                       100
+#define SRS_CONSTS_RTSP_OK                             200
+#define SRS_CONSTS_RTSP_Created                        201
+#define SRS_CONSTS_RTSP_LowOnStorageSpace              250
+#define SRS_CONSTS_RTSP_MultipleChoices                300
+#define SRS_CONSTS_RTSP_MovedPermanently               301
+#define SRS_CONSTS_RTSP_MovedTemporarily               302
+#define SRS_CONSTS_RTSP_SeeOther                       303
+#define SRS_CONSTS_RTSP_NotModified                    304
+#define SRS_CONSTS_RTSP_UseProxy                       305
+#define SRS_CONSTS_RTSP_BadRequest                     400
+#define SRS_CONSTS_RTSP_Unauthorized                   401
+#define SRS_CONSTS_RTSP_PaymentRequired                402
+#define SRS_CONSTS_RTSP_Forbidden                      403
+#define SRS_CONSTS_RTSP_NotFound                       404
+#define SRS_CONSTS_RTSP_MethodNotAllowed               405
+#define SRS_CONSTS_RTSP_NotAcceptable                  406
+#define SRS_CONSTS_RTSP_ProxyAuthenticationRequired    407
+#define SRS_CONSTS_RTSP_RequestTimeout                 408
+#define SRS_CONSTS_RTSP_Gone                           410
+#define SRS_CONSTS_RTSP_LengthRequired                 411
+#define SRS_CONSTS_RTSP_PreconditionFailed             412
+#define SRS_CONSTS_RTSP_RequestEntityTooLarge          413
+#define SRS_CONSTS_RTSP_RequestURITooLarge             414
+#define SRS_CONSTS_RTSP_UnsupportedMediaType           415
+#define SRS_CONSTS_RTSP_ParameterNotUnderstood         451
+#define SRS_CONSTS_RTSP_ConferenceNotFound             452
+#define SRS_CONSTS_RTSP_NotEnoughBandwidth             453
+#define SRS_CONSTS_RTSP_SessionNotFound                454
+#define SRS_CONSTS_RTSP_MethodNotValidInThisState      455
+#define SRS_CONSTS_RTSP_HeaderFieldNotValidForResource 456
+#define SRS_CONSTS_RTSP_InvalidRange                   457
+#define SRS_CONSTS_RTSP_ParameterIsReadOnly            458
+#define SRS_CONSTS_RTSP_AggregateOperationNotAllowed   459
+#define SRS_CONSTS_RTSP_OnlyAggregateOperationAllowed  460
+#define SRS_CONSTS_RTSP_UnsupportedTransport           461
+#define SRS_CONSTS_RTSP_DestinationUnreachable         462
+#define SRS_CONSTS_RTSP_InternalServerError            500
+#define SRS_CONSTS_RTSP_NotImplemented                 501
+#define SRS_CONSTS_RTSP_BadGateway                     502
+#define SRS_CONSTS_RTSP_ServiceUnavailable             503
+#define SRS_CONSTS_RTSP_GatewayTimeout                 504
+#define SRS_CONSTS_RTSP_RTSPVersionNotSupported        505
+#define SRS_CONSTS_RTSP_OptionNotSupported             551
+
+#define SRS_CONSTS_RTSP_Continue_str                            "Continue"
+#define SRS_CONSTS_RTSP_OK_str                                  "OK"
+#define SRS_CONSTS_RTSP_Created_str                             "Created"
+#define SRS_CONSTS_RTSP_LowOnStorageSpace_str                   "Low on Storage Space"
+#define SRS_CONSTS_RTSP_MultipleChoices_str                     "Multiple Choices"
+#define SRS_CONSTS_RTSP_MovedPermanently_str                    "Moved Permanently"
+#define SRS_CONSTS_RTSP_MovedTemporarily_str                    "Moved Temporarily"
+#define SRS_CONSTS_RTSP_SeeOther_str                            "See Other"
+#define SRS_CONSTS_RTSP_NotModified_str                         "Not Modified"
+#define SRS_CONSTS_RTSP_UseProxy_str                            "Use Proxy"
+#define SRS_CONSTS_RTSP_BadRequest_str                          "Bad Request"
+#define SRS_CONSTS_RTSP_Unauthorized_str                        "Unauthorized"
+#define SRS_CONSTS_RTSP_PaymentRequired_str                     "Payment Required"
+#define SRS_CONSTS_RTSP_Forbidden_str                           "Forbidden"
+#define SRS_CONSTS_RTSP_NotFound_str                            "Not Found"
+#define SRS_CONSTS_RTSP_MethodNotAllowed_str                    "Method Not Allowed"
+#define SRS_CONSTS_RTSP_NotAcceptable_str                       "Not Acceptable"
+#define SRS_CONSTS_RTSP_ProxyAuthenticationRequired_str         "Proxy Authentication Required"
+#define SRS_CONSTS_RTSP_RequestTimeout_str                      "Request Timeout"
+#define SRS_CONSTS_RTSP_Gone_str                                "Gone"
+#define SRS_CONSTS_RTSP_LengthRequired_str                      "Length Required"
+#define SRS_CONSTS_RTSP_PreconditionFailed_str                  "Precondition Failed"
+#define SRS_CONSTS_RTSP_RequestEntityTooLarge_str               "Request Entity Too Large"
+#define SRS_CONSTS_RTSP_RequestURITooLarge_str                  "Request URI Too Large"
+#define SRS_CONSTS_RTSP_UnsupportedMediaType_str                "Unsupported Media Type"
+#define SRS_CONSTS_RTSP_ParameterNotUnderstood_str              "Invalid parameter"
+#define SRS_CONSTS_RTSP_ConferenceNotFound_str                  "Illegal Conference Identifier"
+#define SRS_CONSTS_RTSP_NotEnoughBandwidth_str                  "Not Enough Bandwidth"
+#define SRS_CONSTS_RTSP_SessionNotFound_str                     "Session Not Found"
+#define SRS_CONSTS_RTSP_MethodNotValidInThisState_str           "Method Not Valid In This State"
+#define SRS_CONSTS_RTSP_HeaderFieldNotValidForResource_str      "Header Field Not Valid"
+#define SRS_CONSTS_RTSP_InvalidRange_str                        "Invalid Range"
+#define SRS_CONSTS_RTSP_ParameterIsReadOnly_str                 "Parameter Is Read-Only"
+#define SRS_CONSTS_RTSP_AggregateOperationNotAllowed_str        "Aggregate Operation Not Allowed"
+#define SRS_CONSTS_RTSP_OnlyAggregateOperationAllowed_str       "Only Aggregate Operation Allowed"
+#define SRS_CONSTS_RTSP_UnsupportedTransport_str                "Unsupported Transport"
+#define SRS_CONSTS_RTSP_DestinationUnreachable_str              "Destination Unreachable"
+#define SRS_CONSTS_RTSP_InternalServerError_str                 "Internal Server Error"
+#define SRS_CONSTS_RTSP_NotImplemented_str                      "Not Implemented"
+#define SRS_CONSTS_RTSP_BadGateway_str                          "Bad Gateway"
+#define SRS_CONSTS_RTSP_ServiceUnavailable_str                  "Service Unavailable"
+#define SRS_CONSTS_RTSP_GatewayTimeout_str                      "Gateway Timeout"
+#define SRS_CONSTS_RTSP_RTSPVersionNotSupported_str             "RTSP Version Not Supported"
+#define SRS_CONSTS_RTSP_OptionNotSupported_str                  "Option not support"
+
 #endif
 
-// following is generated by src/rtmp/srs_protocol_amf0.hpp
+// following is generated by src/kernel/srs_kernel_aac.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef SRS_KERNEL_AAC_HPP
+#define SRS_KERNEL_AAC_HPP
+
+/*
+//#include <srs_kernel_aac.hpp>
+*/
+//#include <srs_core.hpp>
+
+#include <string>
+
+//#include <srs_kernel_codec.hpp>
+
+class SrsStream;
+class SrsFileWriter;
+class SrsFileReader;
+
+/**
+* encode data to aac file.
+*/
+class SrsAacEncoder
+{
+private:
+    SrsFileWriter* _fs;
+private:
+    SrsAacObjectType aac_object;
+    int8_t aac_sample_rate;
+    int8_t aac_channels;
+    bool got_sequence_header;
+private:
+    SrsStream* tag_stream;
+public:
+    SrsAacEncoder();
+    virtual ~SrsAacEncoder();
+public:
+    /**
+    * initialize the underlayer file stream.
+    * @remark user can initialize multiple times to encode multiple aac files.
+    * @remark, user must free the fs, aac encoder never close/free it.
+    */
+    virtual int initialize(SrsFileWriter* fs);
+public:
+    /**
+    * write audio/video packet.
+    * @remark assert data is not NULL.
+    */
+    virtual int write_audio(int64_t timestamp, char* data, int size);
+};
+
+#endif
+
+// following is generated by src/kernel/srs_kernel_mp3.hpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef SRS_KERNEL_MP3_HPP
+#define SRS_KERNEL_MP3_HPP
+
+/*
+//#include <srs_kernel_mp3.hpp>
+*/
+//#include <srs_core.hpp>
+
+#include <string>
+
+class SrsStream;
+class SrsFileWriter;
+class SrsFileReader;
+
+/**
+* encode data to aac file.
+*/
+class SrsMp3Encoder
+{
+private:
+    SrsFileWriter* _fs;
+private:
+    SrsStream* tag_stream;
+public:
+    SrsMp3Encoder();
+    virtual ~SrsMp3Encoder();
+public:
+    /**
+    * initialize the underlayer file stream.
+    * @remark user can initialize multiple times to encode multiple mp3 files.
+    * @remark, user must free the fs, mp3 encoder never close/free it.
+    */
+    virtual int initialize(SrsFileWriter* fs);
+public:
+    /**
+    * write mp3 id3 v2.3 header.
+    * @see mp3.id3v2.3.0.pdf, http://id3.org/id3v2.3.0
+    */
+    virtual int write_header();
+    /**
+    * write audio/video packet.
+    * @remark assert data is not NULL.
+    */
+    virtual int write_audio(int64_t timestamp, char* data, int size);
+};
+
+#endif
+
+// following is generated by src/kernel/srs_kernel_ts.hpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef SRS_KERNEL_TS_HPP
+#define SRS_KERNEL_TS_HPP
+
+/*
+//#include <srs_kernel_ts.hpp>
+*/
+//#include <srs_core.hpp>
+
+#include <string>
+#include <map>
+#include <vector>
+
+//#include <srs_kernel_codec.hpp>
+
+class SrsStream;
+class SrsTsCache;
+class SrsTSMuxer;
+class SrsFileWriter;
+class SrsFileReader;
+class SrsAvcAacCodec;
+class SrsCodecSample;
+class SrsSimpleBuffer;
+class SrsTsAdaptationField;
+class SrsTsPayload;
+class SrsTsMessage;
+class SrsTsPacket;
+class SrsTsContext;
+
+// Transport Stream packets are 188 bytes in length.
+#define SRS_TS_PACKET_SIZE          188
+
+/**
+* the pid of ts packet,
+* Table 2-3 - PID table, hls-mpeg-ts-iso13818-1.pdf, page 37
+* NOTE - The transport packets with PID values 0x0000, 0x0001, and 0x0010-0x1FFE are allowed to carry a PCR.
+*/
+enum SrsTsPid
+{
+    // Program Association Table(see Table 2-25).
+    SrsTsPidPAT             = 0x00,
+    // Conditional Access Table (see Table 2-27).
+    SrsTsPidCAT             = 0x01,
+    // Transport Stream Description Table
+    SrsTsPidTSDT            = 0x02,
+    // Reserved
+    SrsTsPidReservedStart   = 0x03,
+    SrsTsPidReservedEnd     = 0x0f,
+    // May be assigned as network_PID, Program_map_PID, elementary_PID, or for other purposes
+    SrsTsPidAppStart        = 0x10,
+    SrsTsPidAppEnd          = 0x1ffe,
+    // null packets (see Table 2-3)
+    SrsTsPidNULL    = 0x01FFF,
+};
+
+/**
+* the transport_scrambling_control of ts packet,
+* Table 2-4 - Scrambling control values, hls-mpeg-ts-iso13818-1.pdf, page 38
+*/
+enum SrsTsScrambled
+{
+    // Not scrambled
+    SrsTsScrambledDisabled      = 0x00,
+    // User-defined
+    SrsTsScrambledUserDefined1  = 0x01,
+    // User-defined
+    SrsTsScrambledUserDefined2  = 0x02,
+    // User-defined
+    SrsTsScrambledUserDefined3  = 0x03,
+};
+
+/**
+* the adaption_field_control of ts packet,
+* Table 2-5 - Adaptation field control values, hls-mpeg-ts-iso13818-1.pdf, page 38
+*/
+enum SrsTsAdaptationFieldType
+{
+    // Reserved for future use by ISO/IEC
+    SrsTsAdaptationFieldTypeReserved      = 0x00,
+    // No adaptation_field, payload only
+    SrsTsAdaptationFieldTypePayloadOnly   = 0x01,
+    // Adaptation_field only, no payload
+    SrsTsAdaptationFieldTypeAdaptionOnly  = 0x02,
+    // Adaptation_field followed by payload
+    SrsTsAdaptationFieldTypeBoth          = 0x03,
+};
+
+/**
+* the actually parsed ts pid,
+* @see SrsTsPid, some pid, for example, PMT/Video/Audio is specified by PAT or other tables.
+*/
+enum SrsTsPidApply
+{
+    SrsTsPidApplyReserved = 0, // TSPidTypeReserved, nothing parsed, used reserved.
+    
+    SrsTsPidApplyPAT, // Program associtate table
+    SrsTsPidApplyPMT, // Program map table.
+    
+    SrsTsPidApplyVideo, // for video
+    SrsTsPidApplyAudio, // vor audio
+};
+
+/**
+* Table 2-29 - Stream type assignments
+*/
+enum SrsTsStream
+{
+    // ITU-T | ISO/IEC Reserved
+    SrsTsStreamReserved         = 0x00,
+    // ISO/IEC 11172 Video
+    // ITU-T Rec. H.262 | ISO/IEC 13818-2 Video or ISO/IEC 11172-2 constrained parameter video stream
+    // ISO/IEC 11172 Audio
+    // ISO/IEC 13818-3 Audio
+    SrsTsStreamAudioMp3         = 0x04,
+    // ITU-T Rec. H.222.0 | ISO/IEC 13818-1 private_sections
+    // ITU-T Rec. H.222.0 | ISO/IEC 13818-1 PES packets containing private data
+    // ISO/IEC 13522 MHEG
+    // ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Annex A DSM-CC
+    // ITU-T Rec. H.222.1
+    // ISO/IEC 13818-6 type A
+    // ISO/IEC 13818-6 type B
+    // ISO/IEC 13818-6 type C
+    // ISO/IEC 13818-6 type D
+    // ITU-T Rec. H.222.0 | ISO/IEC 13818-1 auxiliary
+    // ISO/IEC 13818-7 Audio with ADTS transport syntax
+    SrsTsStreamAudioAAC        = 0x0f,
+    // ISO/IEC 14496-2 Visual
+    SrsTsStreamVideoMpeg4      = 0x10,
+    // ISO/IEC 14496-3 Audio with the LATM transport syntax as defined in ISO/IEC 14496-3 / AMD 1
+    SrsTsStreamAudioMpeg4      = 0x11,
+    // ISO/IEC 14496-1 SL-packetized stream or FlexMux stream carried in PES packets
+    // ISO/IEC 14496-1 SL-packetized stream or FlexMux stream carried in ISO/IEC14496_sections.
+    // ISO/IEC 13818-6 Synchronized Download Protocol
+    // ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved
+    // 0x15-0x7F
+    SrsTsStreamVideoH264       = 0x1b,
+    // User Private
+    // 0x80-0xFF
+    SrsTsStreamAudioAC3        = 0x81,
+    SrsTsStreamAudioDTS        = 0x8a,
+};
+std::string srs_ts_stream2string(SrsTsStream stream);
+
+/**
+* the ts channel.
+*/
+struct SrsTsChannel
+{
+    int pid;
+    SrsTsPidApply apply;
+    SrsTsStream stream;
+    SrsTsMessage* msg;
+    SrsTsContext* context;
+    // for encoder.
+    u_int8_t continuity_counter;
+
+    SrsTsChannel();
+    virtual ~SrsTsChannel();
+};
+
+/**
+* the stream_id of PES payload of ts packet.
+* Table 2-18 - Stream_id assignments, hls-mpeg-ts-iso13818-1.pdf, page 52.
+*/
+enum SrsTsPESStreamId
+{
+    // program_stream_map
+    SrsTsPESStreamIdProgramStreamMap            = 0xbc, // 0b10111100
+    // private_stream_1
+    SrsTsPESStreamIdPrivateStream1              = 0xbd, // 0b10111101
+    // padding_stream
+    SrsTsPESStreamIdPaddingStream               = 0xbe, // 0b10111110
+    // private_stream_2
+    SrsTsPESStreamIdPrivateStream2              = 0xbf, // 0b10111111
+
+    // 110x xxxx
+    // ISO/IEC 13818-3 or ISO/IEC 11172-3 or ISO/IEC 13818-7 or ISO/IEC
+    // 14496-3 audio stream number x xxxx
+    // ((sid >> 5) & 0x07) == SrsTsPESStreamIdAudio
+    // @remark, use SrsTsPESStreamIdAudioCommon as actually audio, SrsTsPESStreamIdAudio to check whether audio.
+    SrsTsPESStreamIdAudioChecker                = 0x06, // 0b110
+        SrsTsPESStreamIdAudioCommon             = 0xc0,
+
+    // 1110 xxxx
+    // ITU-T Rec. H.262 | ISO/IEC 13818-2 or ISO/IEC 11172-2 or ISO/IEC
+    // 14496-2 video stream number xxxx
+    // ((stream_id >> 4) & 0x0f) == SrsTsPESStreamIdVideo
+    // @remark, use SrsTsPESStreamIdVideoCommon as actually video, SrsTsPESStreamIdVideo to check whether video.
+    SrsTsPESStreamIdVideoChecker                = 0x0e, // 0b1110
+        SrsTsPESStreamIdVideoCommon             = 0xe0,
+
+    // ECM_stream
+    SrsTsPESStreamIdEcmStream                   = 0xf0, // 0b11110000
+    // EMM_stream
+    SrsTsPESStreamIdEmmStream                   = 0xf1, // 0b11110001
+    // DSMCC_stream
+    SrsTsPESStreamIdDsmccStream                 = 0xf2, // 0b11110010
+    // 13522_stream
+    SrsTsPESStreamId13522Stream                 = 0xf3, // 0b11110011
+    // H_222_1_type_A
+    SrsTsPESStreamIdH2221TypeA                  = 0xf4, // 0b11110100
+    // H_222_1_type_B
+    SrsTsPESStreamIdH2221TypeB                  = 0xf5, // 0b11110101
+    // H_222_1_type_C
+    SrsTsPESStreamIdH2221TypeC                  = 0xf6, // 0b11110110
+    // H_222_1_type_D
+    SrsTsPESStreamIdH2221TypeD                  = 0xf7, // 0b11110111
+    // H_222_1_type_E
+    SrsTsPESStreamIdH2221TypeE                  = 0xf8, // 0b11111000
+    // ancillary_stream
+    SrsTsPESStreamIdAncillaryStream             = 0xf9, // 0b11111001
+    // SL_packetized_stream
+    SrsTsPESStreamIdSlPacketizedStream          = 0xfa, // 0b11111010
+    // FlexMux_stream
+    SrsTsPESStreamIdFlexMuxStream               = 0xfb, // 0b11111011
+    // reserved data stream
+    // 1111 1100 ... 1111 1110
+    // program_stream_directory
+    SrsTsPESStreamIdProgramStreamDirectory      = 0xff, // 0b11111111
+};
+
+/**
+* the media audio/video message parsed from PES packet.
+*/
+class SrsTsMessage
+{
+public:
+    // decoder only,
+    // the ts messgae does not use them, 
+    // for user to get the channel and packet.
+    SrsTsChannel* channel;
+    SrsTsPacket* packet;
+public:
+    // the audio cache buffer start pts, to flush audio if full.
+    // @remark the pts is not the adjust one, it's the orignal pts.
+    int64_t start_pts;
+    // whether this message with pcr info,
+    // generally, the video IDR(I frame, the keyframe of h.264) carray the pcr info.
+    bool write_pcr;
+    // whether got discontinuity ts, for example, sequence header changed.
+    bool is_discontinuity;
+public:
+    // the timestamp in 90khz
+    int64_t dts;
+    int64_t pts;
+    // the id of pes stream to indicates the payload codec.
+    // @remark use is_audio() and is_video() to check it, and stream_number() to finger it out.
+    SrsTsPESStreamId sid;
+    // the size of payload, 0 indicates the length() of payload.
+    u_int16_t PES_packet_length;
+    // the chunk id.
+    u_int8_t continuity_counter;
+    // the payload bytes.
+    SrsSimpleBuffer* payload;
+public:
+    SrsTsMessage(SrsTsChannel* c = NULL, SrsTsPacket* p = NULL);
+    virtual ~SrsTsMessage();
+// decoder
+public:
+    /**
+    * dumps all bytes in stream to ts message.
+    */
+    virtual int dump(SrsStream* stream, int* pnb_bytes);
+    /**
+    * whether ts message is completed to reap.
+    * @param payload_unit_start_indicator whether new ts message start.
+    *       PES_packet_length is 0, the payload_unit_start_indicator=1 to reap ts message.
+    *       PES_packet_length > 0, the payload.length() == PES_packet_length to reap ts message.
+    * @remark when PES_packet_length>0, the payload_unit_start_indicator should never be 1 when not completed.
+    * @remark when fresh, the payload_unit_start_indicator should be 1.
+    */
+    virtual bool completed(int8_t payload_unit_start_indicator);
+    /**
+    * whether the message is fresh.
+    */
+    virtual bool fresh();
+public:
+    /**
+    * whether the sid indicates the elementary stream audio.
+    */
+    virtual bool is_audio();
+    /**
+    * whether the sid indicates the elementary stream video.
+    */
+    virtual bool is_video();
+    /**
+    * when audio or video, get the stream number which specifies the format of stream.
+    * @return the stream number for audio/video; otherwise, -1.
+    */
+    virtual int stream_number();
+public:
+    /**
+     * detach the ts message,
+     * for user maybe need to parse the message by queue.
+     * @remark we always use the payload of original message.
+     */
+    virtual SrsTsMessage* detach();
+};
+
+/**
+* the ts message handler.
+*/
+class ISrsTsHandler
+{
+public:
+    ISrsTsHandler();
+    virtual ~ISrsTsHandler();
+public:
+    /**
+    * when ts context got message, use handler to process it.
+    * @param msg the ts msg, user should never free it.
+    * @return an int error code.
+    */
+    virtual int on_ts_message(SrsTsMessage* msg) = 0;
+};
+
+/**
+* the context of ts, to decode the ts stream.
+*/
+class SrsTsContext
+{
+// codec
+private:
+    std::map<int, SrsTsChannel*> pids;
+    bool pure_audio;
+// encoder
+private:
+    // when any codec changed, write the PAT/PMT.
+    SrsCodecVideo vcodec;
+    SrsCodecAudio acodec;
+public:
+    SrsTsContext();
+    virtual ~SrsTsContext();
+public:
+    /**
+     * whether the hls stream is pure audio stream.
+     */
+    virtual bool is_pure_audio();
+    /**
+     * when PMT table parsed, we know some info about stream.
+     */
+    virtual void on_pmt_parsed();
+    /**
+     * reset the context for a new ts segment start.
+     */
+    virtual void reset();
+// codec
+public:
+    /**
+    * get the pid apply, the parsed pid.
+    * @return the apply channel; NULL for invalid.
+    */
+    virtual SrsTsChannel* get(int pid);
+    /**
+    * set the pid apply, the parsed pid.
+    */
+    virtual void set(int pid, SrsTsPidApply apply_pid, SrsTsStream stream = SrsTsStreamReserved);
+// decode methods
+public:
+    /**
+    * the stream contains only one ts packet.
+    * @param handler the ts message handler to process the msg.
+    * @remark we will consume all bytes in stream.
+    */
+    virtual int decode(SrsStream* stream, ISrsTsHandler* handler);
+// encode methods
+public:
+    /**
+    * write the PES packet, the video/audio stream.
+    * @param msg the video/audio msg to write to ts.
+    * @param vc the video codec, write the PAT/PMT table when changed.
+    * @param ac the audio codec, write the PAT/PMT table when changed.
+    */
+    virtual int encode(SrsFileWriter* writer, SrsTsMessage* msg, SrsCodecVideo vc, SrsCodecAudio ac);
+private:
+    virtual int encode_pat_pmt(SrsFileWriter* writer, int16_t vpid, SrsTsStream vs, int16_t apid, SrsTsStream as);
+    virtual int encode_pes(SrsFileWriter* writer, SrsTsMessage* msg, int16_t pid, SrsTsStream sid, bool pure_audio);
+};
+
+/**
+* the packet in ts stream,
+* 2.4.3.2 Transport Stream packet layer, hls-mpeg-ts-iso13818-1.pdf, page 36
+* Transport Stream packets shall be 188 bytes long.
+*/
+class SrsTsPacket
+{
+public:
+    // 1B
+    /**
+    * The sync_byte is a fixed 8-bit field whose value is '0100 0111' (0x47). Sync_byte emulation in the choice of
+    * values for other regularly occurring fields, such as PID, should be avoided.
+    */
+    int8_t sync_byte; //8bits
+
+    // 2B
+    /**
+    * The transport_error_indicator is a 1-bit flag. When set to '1' it indicates that at least
+    * 1 uncorrectable bit error exists in the associated Transport Stream packet. This bit may be set to '1' by entities external to
+    * the transport layer. When set to '1' this bit shall not be reset to '0' unless the bit value(s) in error have been corrected.
+    */
+    int8_t transport_error_indicator; //1bit
+    /**
+    * The payload_unit_start_indicator is a 1-bit flag which has normative meaning for
+    * Transport Stream packets that carry PES packets (refer to 2.4.3.6) or PSI data (refer to 2.4.4).
+    * 
+    * When the payload of the Transport Stream packet contains PES packet data, the payload_unit_start_indicator has the
+    * following significance: a '1' indicates that the payload of this Transport Stream packet will commence(start) with the first byte
+    * of a PES packet and a '0' indicates no PES packet shall start in this Transport Stream packet. If the
+    * payload_unit_start_indicator is set to '1', then one and only one PES packet starts in this Transport Stream packet. This
+    * also applies to private streams of stream_type 6 (refer to Table 2-29).
+    *
+    * When the payload of the Transport Stream packet contains PSI data, the payload_unit_start_indicator has the following
+    * significance: if the Transport Stream packet carries the first byte of a PSI section, the payload_unit_start_indicator value
+    * shall be '1', indicating that the first byte of the payload of this Transport Stream packet carries the pointer_field. If the
+    * Transport Stream packet does not carry the first byte of a PSI section, the payload_unit_start_indicator value shall be '0',
+    * indicating that there is no pointer_field in the payload. Refer to 2.4.4.1 and 2.4.4.2. This also applies to private streams of
+    * stream_type 5 (refer to Table 2-29).
+    * 
+    * For null packets the payload_unit_start_indicator shall be set to '0'.
+    * 
+    * The meaning of this bit for Transport Stream packets carrying only private data is not defined in this Specification.
+    */
+    int8_t payload_unit_start_indicator; //1bit
+    /**
+    * The transport_priority is a 1-bit indicator. When set to '1' it indicates that the associated packet is
+    * of greater priority than other packets having the same PID which do not have the bit set to '1'. The transport mechanism
+    * can use this to prioritize its data within an elementary stream. Depending on the application the transport_priority field
+    * may be coded regardless of the PID or within one PID only. This field may be changed by channel specific encoders or
+    * decoders.
+    */
+    int8_t transport_priority; //1bit
+    /**
+    * The PID is a 13-bit field, indicating the type of the data stored in the packet payload. PID value 0x0000 is
+    * reserved for the Program Association Table (see Table 2-25). PID value 0x0001 is reserved for the Conditional Access
+    * Table (see Table 2-27). PID values 0x0002 - 0x000F are reserved. PID value 0x1FFF is reserved for null packets (see
+    * Table 2-3).
+    */
+    SrsTsPid pid; //13bits
+
+    // 1B
+    /**
+    * This 2-bit field indicates the scrambling mode of the Transport Stream packet payload.
+    * The Transport Stream packet header, and the adaptation field when present, shall not be scrambled. In the case of a null
+    * packet the value of the transport_scrambling_control field shall be set to '00' (see Table 2-4).
+    */
+    SrsTsScrambled transport_scrambling_control; //2bits
+    /**
+    * This 2-bit field indicates whether this Transport Stream packet header is followed by an
+    * adaptation field and/or payload (see Table 2-5).
+    *
+    * ITU-T Rec. H.222.0 | ISO/IEC 13818-1 decoders shall discard Transport Stream packets with the
+    * adaptation_field_control field set to a value of '00'. In the case of a null packet the value of the adaptation_field_control
+    * shall be set to '01'.
+    */
+    SrsTsAdaptationFieldType adaption_field_control; //2bits
+    /**
+    * The continuity_counter is a 4-bit field incrementing with each Transport Stream packet with the
+    * same PID. The continuity_counter wraps around to 0 after its maximum value. The continuity_counter shall not be
+    * incremented when the adaptation_field_control of the packet equals '00'(reseverd) or '10'(adaptation field only).
+    * 
+    * In Transport Streams, duplicate packets may be sent as two, and only two, consecutive Transport Stream packets of the
+    * same PID. The duplicate packets shall have the same continuity_counter value as the original packet and the
+    * adaptation_field_control field shall be equal to '01'(payload only) or '11'(both). In duplicate packets each byte of the original packet shall be
+    * duplicated, with the exception that in the program clock reference fields, if present, a valid value shall be encoded.
+    *
+    * The continuity_counter in a particular Transport Stream packet is continuous when it differs by a positive value of one
+    * from the continuity_counter value in the previous Transport Stream packet of the same PID, or when either of the nonincrementing
+    * conditions (adaptation_field_control set to '00' or '10', or duplicate packets as described above) are met.
+    * The continuity counter may be discontinuous when the discontinuity_indicator is set to '1' (refer to 2.4.3.4). In the case of
+    * a null packet the value of the continuity_counter is undefined.
+    */
+    u_int8_t continuity_counter; //4bits
+private:
+    SrsTsAdaptationField* adaptation_field;
+    SrsTsPayload* payload;
+public:
+    SrsTsContext* context;
+public:
+    SrsTsPacket(SrsTsContext* c);
+    virtual ~SrsTsPacket();
+public:
+    virtual int decode(SrsStream* stream, SrsTsMessage** ppmsg);
+public:
+    virtual int size();
+    virtual int encode(SrsStream* stream);
+    virtual void padding(int nb_stuffings);
+public:
+    static SrsTsPacket* create_pat(SrsTsContext* context, 
+        int16_t pmt_number, int16_t pmt_pid
+    );
+    static SrsTsPacket* create_pmt(SrsTsContext* context, 
+        int16_t pmt_number, int16_t pmt_pid, int16_t vpid, SrsTsStream vs, 
+        int16_t apid, SrsTsStream as
+    );
+    static SrsTsPacket* create_pes_first(SrsTsContext* context, 
+        int16_t pid, SrsTsPESStreamId sid, u_int8_t continuity_counter, bool discontinuity, 
+        int64_t pcr, int64_t dts, int64_t pts, int size
+    );
+    static SrsTsPacket* create_pes_continue(SrsTsContext* context, 
+        int16_t pid, SrsTsPESStreamId sid, u_int8_t continuity_counter
+    );
+};
+
+/**
+* the adaption field of ts packet.
+* 2.4.3.5 Semantic definition of fields in adaptation field, hls-mpeg-ts-iso13818-1.pdf, page 39
+* Table 2-6 - Transport Stream adaptation field, hls-mpeg-ts-iso13818-1.pdf, page 40
+*/
+class SrsTsAdaptationField
+{
+public:
+    // 1B
+    /**
+    * The adaptation_field_length is an 8-bit field specifying the number of bytes in the
+    * adaptation_field immediately following the adaptation_field_length. The value 0 is for inserting a single stuffing byte in
+    * a Transport Stream packet. When the adaptation_field_control value is '11', the value of the adaptation_field_length shall
+    * be in the range 0 to 182. When the adaptation_field_control value is '10', the value of the adaptation_field_length shall
+    * be 183. For Transport Stream packets carrying PES packets, stuffing is needed when there is insufficient PES packet data
+    * to completely fill the Transport Stream packet payload bytes. Stuffing is accomplished by defining an adaptation field
+    * longer than the sum of the lengths of the data elements in it, so that the payload bytes remaining after the adaptation field
+    * exactly accommodates the available PES packet data. The extra space in the adaptation field is filled with stuffing bytes.
+    *
+    * This is the only method of stuffing allowed for Transport Stream packets carrying PES packets. For Transport Stream
+    * packets carrying PSI, an alternative stuffing method is described in 2.4.4.
+    */
+    u_int8_t adaption_field_length; //8bits
+    // 1B
+    /**
+    * This is a 1-bit field which when set to '1' indicates that the discontinuity state is true for the
+    * current Transport Stream packet. When the discontinuity_indicator is set to '0' or is not present, the discontinuity state is
+    * false. The discontinuity indicator is used to indicate two types of discontinuities, system time-base discontinuities and
+    * continuity_counter discontinuities.
+    * 
+    * A system time-base discontinuity is indicated by the use of the discontinuity_indicator in Transport Stream packets of a
+    * PID designated as a PCR_PID (refer to 2.4.4.9). When the discontinuity state is true for a Transport Stream packet of a
+    * PID designated as a PCR_PID, the next PCR in a Transport Stream packet with that same PID represents a sample of a
+    * new system time clock for the associated program. The system time-base discontinuity point is defined to be the instant
+    * in time when the first byte of a packet containing a PCR of a new system time-base arrives at the input of the T-STD.
+    * The discontinuity_indicator shall be set to '1' in the packet in which the system time-base discontinuity occurs. The
+    * discontinuity_indicator bit may also be set to '1' in Transport Stream packets of the same PCR_PID prior to the packet
+    * which contains the new system time-base PCR. In this case, once the discontinuity_indicator has been set to '1', it shall
+    * continue to be set to '1' in all Transport Stream packets of the same PCR_PID up to and including the Transport Stream
+    * packet which contains the first PCR of the new system time-base. After the occurrence of a system time-base
+    * discontinuity, no fewer than two PCRs for the new system time-base shall be received before another system time-base
+    * discontinuity can occur. Further, except when trick mode status is true, data from no more than two system time-bases
+    * shall be present in the set of T-STD buffers for one program at any time.
+    *
+    * Prior to the occurrence of a system time-base discontinuity, the first byte of a Transport Stream packet which contains a
+    * PTS or DTS which refers to the new system time-base shall not arrive at the input of the T-STD. After the occurrence of
+    * a system time-base discontinuity, the first byte of a Transport Stream packet which contains a PTS or DTS which refers
+    * to the previous system time-base shall not arrive at the input of the T-STD.
+    *
+    * A continuity_counter discontinuity is indicated by the use of the discontinuity_indicator in any Transport Stream packet.
+    * When the discontinuity state is true in any Transport Stream packet of a PID not designated as a PCR_PID, the
+    * continuity_counter in that packet may be discontinuous with respect to the previous Transport Stream packet of the same
+    * PID. When the discontinuity state is true in a Transport Stream packet of a PID that is designated as a PCR_PID, the
+    * continuity_counter may only be discontinuous in the packet in which a system time-base discontinuity occurs. A
+    * continuity counter discontinuity point occurs when the discontinuity state is true in a Transport Stream packet and the
+    * continuity_counter in the same packet is discontinuous with respect to the previous Transport Stream packet of the same
+    * PID. A continuity counter discontinuity point shall occur at most one time from the initiation of the discontinuity state
+    * until the conclusion of the discontinuity state. Furthermore, for all PIDs that are not designated as PCR_PIDs, when the
+    * discontinuity_indicator is set to '1' in a packet of a specific PID, the discontinuity_indicator may be set to '1' in the next
+    * Transport Stream packet of that same PID, but shall not be set to '1' in three consecutive Transport Stream packet of that
+    * same PID.
+    *
+    * For the purpose of this clause, an elementary stream access point is defined as follows:
+    *       Video - The first byte of a video sequence header.
+    *       Audio - The first byte of an audio frame.
+    *
+    * After a continuity counter discontinuity in a Transport packet which is designated as containing elementary stream data,
+    * the first byte of elementary stream data in a Transport Stream packet of the same PID shall be the first byte of an
+    * elementary stream access point or in the case of video, the first byte of an elementary stream access point or a
+    * sequence_end_code followed by an access point. Each Transport Stream packet which contains elementary stream data
+    * with a PID not designated as a PCR_PID, and in which a continuity counter discontinuity point occurs, and in which a
+    * PTS or DTS occurs, shall arrive at the input of the T-STD after the system time-base discontinuity for the associated
+    * program occurs. In the case where the discontinuity state is true, if two consecutive Transport Stream packets of the same
+    * PID occur which have the same continuity_counter value and have adaptation_field_control values set to '01' or '11', the
+    * second packet may be discarded. A Transport Stream shall not be constructed in such a way that discarding such a packet
+    * will cause the loss of PES packet payload data or PSI data.
+    *
+    * After the occurrence of a discontinuity_indicator set to '1' in a Transport Stream packet which contains PSI information,
+    * a single discontinuity in the version_number of PSI sections may occur. At the occurrence of such a discontinuity, a
+    * version of the TS_program_map_sections of the appropriate program shall be sent with section_length = = 13 and the
+    * current_next_indicator = = 1, such that there are no program_descriptors and no elementary streams described. This shall
+    * then be followed by a version of the TS_program_map_section for each affected program with the version_number
+    * incremented by one and the current_next_indicator = = 1, containing a complete program definition. This indicates a
+    * version change in PSI data.
+    */
+    int8_t discontinuity_indicator; //1bit
+    /**
+    * The random_access_indicator is a 1-bit field that indicates that the current Transport
+    * Stream packet, and possibly subsequent Transport Stream packets with the same PID, contain some information to aid
+    * random access at this point. Specifically, when the bit is set to '1', the next PES packet to start in the payload of Transport
+    * Stream packets with the current PID shall contain the first byte of a video sequence header if the PES stream type (refer
+    * to Table 2-29) is 1 or 2, or shall contain the first byte of an audio frame if the PES stream type is 3 or 4. In addition, in
+    * the case of video, a presentation timestamp shall be present in the PES packet containing the first picture following the
+    * sequence header. In the case of audio, the presentation timestamp shall be present in the PES packet containing the first
+    * byte of the audio frame. In the PCR_PID the random_access_indicator may only be set to '1' in Transport Stream packet
+    * containing the PCR fields.
+    */
+    int8_t random_access_indicator; //1bit
+    /**
+    * The elementary_stream_priority_indicator is a 1-bit field. It indicates, among
+    * packets with the same PID, the priority of the elementary stream data carried within the payload of this Transport Stream
+    * packet. A '1' indicates that the payload has a higher priority than the payloads of other Transport Stream packets. In the
+    * case of video, this field may be set to '1' only if the payload contains one or more bytes from an intra-coded slice. A
+    * value of '0' indicates that the payload has the same priority as all other packets which do not have this bit set to '1'.
+    */
+    int8_t elementary_stream_priority_indicator; //1bit
+    /**
+    * The PCR_flag is a 1-bit flag. A value of '1' indicates that the adaptation_field contains a PCR field coded in
+    * two parts. A value of '0' indicates that the adaptation field does not contain any PCR field.
+    */
+    int8_t PCR_flag; //1bit
+    /**
+    * The OPCR_flag is a 1-bit flag. A value of '1' indicates that the adaptation_field contains an OPCR field
+    * coded in two parts. A value of '0' indicates that the adaptation field does not contain any OPCR field.
+    */
+    int8_t OPCR_flag; //1bit
+    /**
+    * The splicing_point_flag is a 1-bit flag. When set to '1', it indicates that a splice_countdown field
+    * shall be present in the associated adaptation field, specifying the occurrence of a splicing point. A value of '0' indicates
+    * that a splice_countdown field is not present in the adaptation field.
+    */
+    int8_t splicing_point_flag; //1bit
+    /**
+    * The transport_private_data_flag is a 1-bit flag. A value of '1' indicates that the
+    * adaptation field contains one or more private_data bytes. A value of '0' indicates the adaptation field does not contain any
+    * private_data bytes.
+    */
+    int8_t transport_private_data_flag; //1bit
+    /**
+    * The adaptation_field_extension_flag is a 1-bit field which when set to '1' indicates
+    * the presence of an adaptation field extension. A value of '0' indicates that an adaptation field extension is not present in
+    * the adaptation field.
+    */
+    int8_t adaptation_field_extension_flag; //1bit
+    
+    // if PCR_flag, 6B
+    /**
+    * The program_clock_reference (PCR) is a
+    * 42-bit field coded in two parts. The first part, program_clock_reference_base, is a 33-bit field whose value is given by
+    * PCR_base(i), as given in equation 2-2. The second part, program_clock_reference_extension, is a 9-bit field whose value
+    * is given by PCR_ext(i), as given in equation 2-3. The PCR indicates the intended time of arrival of the byte containing
+    * the last bit of the program_clock_reference_base at the input of the system target decoder.
+    */
+    int64_t program_clock_reference_base; //33bits
+    /**
+    * 6bits reserved, must be '1'
+    */
+    int8_t const1_value0; // 6bits
+    int16_t program_clock_reference_extension; //9bits
+    
+    // if OPCR_flag, 6B
+    /**
+    * The optional original
+    * program reference (OPCR) is a 42-bit field coded in two parts. These two parts, the base and the extension, are coded
+    * identically to the two corresponding parts of the PCR field. The presence of the OPCR is indicated by the OPCR_flag.
+    * The OPCR field shall be coded only in Transport Stream packets in which the PCR field is present. OPCRs are permitted
+    * in both single program and multiple program Transport Streams.
+    *
+    * OPCR assists in the reconstruction of a single program Transport Stream from another Transport Stream. When
+    * reconstructing the original single program Transport Stream, the OPCR may be copied to the PCR field. The resulting
+    * PCR value is valid only if the original single program Transport Stream is reconstructed exactly in its entirety. This
+    * would include at least any PSI and private data packets which were present in the original Transport Stream and would
+    * possibly require other private arrangements. It also means that the OPCR must be an identical copy of its associated PCR
+    * in the original single program Transport Stream.
+    */
+    int64_t original_program_clock_reference_base; //33bits
+    /**
+    * 6bits reserved, must be '1'
+    */
+    int8_t const1_value2; // 6bits
+    int16_t original_program_clock_reference_extension; //9bits
+    
+    // if splicing_point_flag, 1B
+    /**
+    * The splice_countdown is an 8-bit field, representing a value which may be positive or negative. A
+    * positive value specifies the remaining number of Transport Stream packets, of the same PID, following the associated
+    * Transport Stream packet until a splicing point is reached. Duplicate Transport Stream packets and Transport Stream
+    * packets which only contain adaptation fields are excluded. The splicing point is located immediately after the last byte of
+    * the Transport Stream packet in which the associated splice_countdown field reaches zero. In the Transport Stream packet
+    * where the splice_countdown reaches zero, the last data byte of the Transport Stream packet payload shall be the last byte
+    * of a coded audio frame or a coded picture. In the case of video, the corresponding access unit may or may not be
+    * terminated by a sequence_end_code. Transport Stream packets with the same PID, which follow, may contain data from
+    * a different elementary stream of the same type.
+    *
+    * The payload of the next Transport Stream packet of the same PID (duplicate packets and packets without payload being
+    * excluded) shall commence with the first byte of a PES packet.In the case of audio, the PES packet payload shall
+    * commence with an access point. In the case of video, the PES packet payload shall commence with an access point, or
+    * with a sequence_end_code, followed by an access point. Thus, the previous coded audio frame or coded picture aligns
+    * with the packet boundary, or is padded to make this so. Subsequent to the splicing point, the countdown field may also
+    * be present. When the splice_countdown is a negative number whose value is minus n(-n), it indicates that the associated
+    * Transport Stream packet is the n-th packet following the splicing point (duplicate packets and packets without payload
+    * being excluded).
+    * 
+    * For the purposes of this subclause, an access point is defined as follows:
+    *       Video - The first byte of a video_sequence_header.
+    *       Audio - The first byte of an audio frame.
+    */
+    int8_t splice_countdown; //8bits
+    
+    // if transport_private_data_flag, 1+p[0] B
+    /**
+    * The transport_private_data_length is an 8-bit field specifying the number of
+    * private_data bytes immediately following the transport private_data_length field. The number of private_data bytes shall
+    * not be such that private data extends beyond the adaptation field.
+    */
+    u_int8_t transport_private_data_length; //8bits
+    char* transport_private_data; //[transport_private_data_length]bytes
+    
+    // if adaptation_field_extension_flag, 2+x B
+    /**
+    * The adaptation_field_extension_length is an 8-bit field. It indicates the number of
+    * bytes of the extended adaptation field data immediately following this field, including reserved bytes if present.
+    */
+    u_int8_t adaptation_field_extension_length; //8bits
+    /**
+    * This is a 1-bit field which when set to '1' indicates the presence of the ltw_offset
+    * field.
+    */
+    int8_t ltw_flag; //1bit
+    /**
+    * This is a 1-bit field which when set to '1' indicates the presence of the piecewise_rate field.
+    */
+    int8_t piecewise_rate_flag; //1bit
+    /**
+    * This is a 1-bit flag which when set to '1' indicates that the splice_type and DTS_next_AU fields
+    * are present. A value of '0' indicates that neither splice_type nor DTS_next_AU fields are present. This field shall not be
+    * set to '1' in Transport Stream packets in which the splicing_point_flag is not set to '1'. Once it is set to '1' in a Transport
+    * Stream packet in which the splice_countdown is positive, it shall be set to '1' in all the subsequent Transport Stream
+    * packets of the same PID that have the splicing_point_flag set to '1', until the packet in which the splice_countdown
+    * reaches zero (including this packet). When this flag is set, if the elementary stream carried in this PID is an audio stream,
+    * the splice_type field shall be set to '0000'. If the elementary stream carried in this PID is a video stream, it shall fulfil the
+    * constraints indicated by the splice_type value.
+    */
+    int8_t seamless_splice_flag; //1bit
+    /**
+    * reserved 5bits, must be '1'
+    */
+    int8_t const1_value1; //5bits
+    // if ltw_flag, 2B
+    /**
+    * (legal time window_valid_flag) - This is a 1-bit field which when set to '1' indicates that the value of the
+    * ltw_offset shall be valid. A value of '0' indicates that the value in the ltw_offset field is undefined.
+    */
+    int8_t ltw_valid_flag; //1bit
+    /**
+    * (legal time window offset) - This is a 15-bit field, the value of which is defined only if the ltw_valid flag has
+    * a value of '1'. When defined, the legal time window offset is in units of (300/fs) seconds, where fs is the system clock
+    * frequency of the program that this PID belongs to, and fulfils:
+    *       offset = t1(i) - t(i)
+    *       ltw_offset = offset//1
+    * where i is the index of the first byte of this Transport Stream packet, offset is the value encoded in this field, t(i) is the
+    * arrival time of byte i in the T-STD, and t1(i) is the upper bound in time of a time interval called the Legal Time Window
+    * which is associated with this Transport Stream packet.
+    */
+    int16_t ltw_offset; //15bits
+    // if piecewise_rate_flag, 3B
+    //2bits reserved
+    /**
+    * The meaning of this 22-bit field is only defined when both the ltw_flag and the ltw_valid_flag are set
+    * to '1'. When defined, it is a positive integer specifying a hypothetical bitrate R which is used to define the end times of
+    * the Legal Time Windows of Transport Stream packets of the same PID that follow this packet but do not include the
+    * legal_time_window_offset field.
+    */
+    int32_t piecewise_rate; //22bits
+    // if seamless_splice_flag, 5B
+    /**
+    * This is a 4-bit field. From the first occurrence of this field onwards, it shall have the same value in all the
+    * subsequent Transport Stream packets of the same PID in which it is present, until the packet in which the
+    * splice_countdown reaches zero (including this packet). If the elementary stream carried in that PID is an audio stream,
+    * this field shall have the value '0000'. If the elementary stream carried in that PID is a video stream, this field indicates the
+    * conditions that shall be respected by this elementary stream for splicing purposes. These conditions are defined as a
+    * function of profile, level and splice_type in Table 2-7 through Table 2-16.
+    */
+    int8_t splice_type; //4bits
+    /**
+    * (decoding time stamp next access unit) - This is a 33-bit field, coded in three parts. In the case of
+    * continuous and periodic decoding through this splicing point it indicates the decoding time of the first access unit
+    * following the splicing point. This decoding time is expressed in the time base which is valid in the Transport Stream
+    * packet in which the splice_countdown reaches zero. From the first occurrence of this field onwards, it shall have the
+    * same value in all the subsequent Transport Stream packets of the same PID in which it is present, until the packet in
+    * which the splice_countdown reaches zero (including this packet).
+    */
+    int8_t DTS_next_AU0; //3bits
+    int8_t marker_bit0; //1bit
+    int16_t DTS_next_AU1; //15bits
+    int8_t marker_bit1; //1bit
+    int16_t DTS_next_AU2; //15bits
+    int8_t marker_bit2; //1bit
+    // left bytes.
+    /**
+    * This is a fixed 8-bit value equal to '1111 1111' that can be inserted by the encoder. It is discarded by the
+    * decoder.
+    */
+    int nb_af_ext_reserved;
+    
+    // left bytes.
+    /**
+    * This is a fixed 8-bit value equal to '1111 1111' that can be inserted by the encoder. It is discarded by the
+    * decoder.
+    */
+    int nb_af_reserved;
+private:
+    SrsTsPacket* packet;
+public:
+    SrsTsAdaptationField(SrsTsPacket* pkt);
+    virtual ~SrsTsAdaptationField();
+public:
+    virtual int decode(SrsStream* stream);
+public:
+    virtual int size();
+    virtual int encode(SrsStream* stream);
+};
+
+/**
+* 2.4.4.4 Table_id assignments, hls-mpeg-ts-iso13818-1.pdf, page 62
+* The table_id field identifies the contents of a Transport Stream PSI section as shown in Table 2-26.
+*/
+enum SrsTsPsiId
+{
+    // program_association_section
+    SrsTsPsiIdPas               = 0x00,
+    // conditional_access_section (CA_section)
+    SrsTsPsiIdCas               = 0x01,
+    // TS_program_map_section
+    SrsTsPsiIdPms               = 0x02,
+    // TS_description_section
+    SrsTsPsiIdDs                = 0x03,
+    // ISO_IEC_14496_scene_description_section
+    SrsTsPsiIdSds               = 0x04,
+    // ISO_IEC_14496_object_descriptor_section
+    SrsTsPsiIdOds               = 0x05,
+    // ITU-T Rec. H.222.0 | ISO/IEC 13818-1 reserved
+    SrsTsPsiIdIso138181Start    = 0x06,
+    SrsTsPsiIdIso138181End      = 0x37,
+    // Defined in ISO/IEC 13818-6
+    SrsTsPsiIdIso138186Start    = 0x38,
+    SrsTsPsiIdIso138186End      = 0x3F,
+    // User private
+    SrsTsPsiIdUserStart         = 0x40,
+    SrsTsPsiIdUserEnd           = 0xFE,
+    // forbidden
+    SrsTsPsiIdForbidden         = 0xFF,
+};
+
+/**
+* the payload of ts packet, can be PES or PSI payload.
+*/
+class SrsTsPayload
+{
+protected:
+    SrsTsPacket* packet;
+public:
+    SrsTsPayload(SrsTsPacket* p);
+    virtual ~SrsTsPayload();
+public:
+    virtual int decode(SrsStream* stream, SrsTsMessage** ppmsg) = 0;
+public:
+    virtual int size() = 0;
+    virtual int encode(SrsStream* stream) = 0;
+};
+
+/**
+* the PES payload of ts packet.
+* 2.4.3.6 PES packet, hls-mpeg-ts-iso13818-1.pdf, page 49
+*/
+class SrsTsPayloadPES : public SrsTsPayload
+{
+public:
+    // 3B
+    /**
+    * The packet_start_code_prefix is a 24-bit code. Together with the stream_id that follows it
+    * constitutes a packet start code that identifies the beginning of a packet. The packet_start_code_prefix is the bit string
+    * '0000 0000 0000 0000 0000 0001' (0x000001).
+    */
+    int32_t packet_start_code_prefix; //24bits
+    // 1B
+    /**
+    * In Program Streams, the stream_id specifies the type and number of the elementary stream as defined by the
+    * stream_id Table 2-18. In Transport Streams, the stream_id may be set to any valid value which correctly describes the
+    * elementary stream type as defined in Table 2-18. In Transport Streams, the elementary stream type is specified in the
+    * Program Specific Information as specified in 2.4.4.
+    */
+    // @see SrsTsPESStreamId, value can be SrsTsPESStreamIdAudioCommon or SrsTsPESStreamIdVideoCommon.
+    u_int8_t stream_id; //8bits
+    // 2B
+    /**
+    * A 16-bit field specifying the number of bytes in the PES packet following the last byte of the
+    * field. A value of 0 indicates that the PES packet length is neither specified nor bounded and is allowed only in
+    * PES packets whose payload consists of bytes from a video elementary stream contained in Transport Stream packets.
+    */
+    u_int16_t PES_packet_length; //16bits
+
+    // 1B
+    /**
+    * 2bits const '10'
+    */
+    int8_t const2bits; //2bits
+    /**
+    * The 2-bit PES_scrambling_control field indicates the scrambling mode of the PES packet
+    * payload. When scrambling is performed at the PES level, the PES packet header, including the optional fields when
+    * present, shall not be scrambled (see Table 2-19).
+    */
+    int8_t PES_scrambling_control; //2bits
+    /**
+    * This is a 1-bit field indicating the priority of the payload in this PES packet. A '1' indicates a higher
+    * priority of the payload of the PES packet payload than a PES packet payload with this field set to '0'. A multiplexor can
+    * use the PES_priority bit to prioritize its data within an elementary stream. This field shall not be changed by the transport
+    * mechanism.
+    */
+    int8_t PES_priority; //1bit
+    /**
+    * This is a 1-bit flag. When set to a value of '1' it indicates that the PES packet header is
+    * immediately followed by the video start code or audio syncword indicated in the data_stream_alignment_descriptor
+    * in 2.6.10 if this descriptor is present. If set to a value of '1' and the descriptor is not present, alignment as indicated in
+    * alignment_type '01' in Table 2-47 and Table 2-48 is required. When set to a value of '0' it is not defined whether any such
+    * alignment occurs or not.
+    */
+    int8_t data_alignment_indicator; //1bit
+    /**
+    * This is a 1-bit field. When set to '1' it indicates that the material of the associated PES packet payload is
+    * protected by copyright. When set to '0' it is not defined whether the material is protected by copyright. A copyright
+    * descriptor described in 2.6.24 is associated with the elementary stream which contains this PES packet and the copyright
+    * flag is set to '1' if the descriptor applies to the material contained in this PES packet
+    */
+    int8_t copyright; //1bit
+    /**
+    * This is a 1-bit field. When set to '1' the contents of the associated PES packet payload is an original.
+    * When set to '0' it indicates that the contents of the associated PES packet payload is a copy.
+    */
+    int8_t original_or_copy; //1bit
+
+    // 1B
+    /**
+    * This is a 2-bit field. When the PTS_DTS_flags field is set to '10', the PTS fields shall be present in
+    * the PES packet header. When the PTS_DTS_flags field is set to '11', both the PTS fields and DTS fields shall be present
+    * in the PES packet header. When the PTS_DTS_flags field is set to '00' no PTS or DTS fields shall be present in the PES
+    * packet header. The value '01' is forbidden.
+    */
+    int8_t PTS_DTS_flags; //2bits
+    /**
+    * A 1-bit flag, which when set to '1' indicates that ESCR base and extension fields are present in the PES
+    * packet header. When set to '0' it indicates that no ESCR fields are present.
+    */
+    int8_t ESCR_flag; //1bit
+    /**
+    * A 1-bit flag, which when set to '1' indicates that the ES_rate field is present in the PES packet header.
+    * When set to '0' it indicates that no ES_rate field is present.
+    */
+    int8_t ES_rate_flag; //1bit
+    /**
+    * A 1-bit flag, which when set to '1' it indicates the presence of an 8-bit trick mode field. When
+    * set to '0' it indicates that this field is not present.
+    */
+    int8_t DSM_trick_mode_flag; //1bit
+    /**
+    * A 1-bit flag, which when set to '1' indicates the presence of the additional_copy_info field.
+    * When set to '0' it indicates that this field is not present.
+    */
+    int8_t additional_copy_info_flag; //1bit
+    /**
+    * A 1-bit flag, which when set to '1' indicates that a CRC field is present in the PES packet. When set to
+    * '0' it indicates that this field is not present.
+    */
+    int8_t PES_CRC_flag; //1bit
+    /**
+    * A 1-bit flag, which when set to '1' indicates that an extension field exists in this PES packet
+    * header. When set to '0' it indicates that this field is not present.
+    */
+    int8_t PES_extension_flag; //1bit
+
+    // 1B
+    /**
+    * An 8-bit field specifying the total number of bytes occupied by the optional fields and any
+    * stuffing bytes contained in this PES packet header. The presence of optional fields is indicated in the byte that precedes
+    * the PES_header_data_length field.
+    */
+    u_int8_t PES_header_data_length; //8bits
+
+    // 5B
+    /**
+    * Presentation times shall be related to decoding times as follows: The PTS is a 33-bit
+    * number coded in three separate fields. It indicates the time of presentation, tp n (k), in the system target decoder of a
+    * presentation unit k of elementary stream n. The value of PTS is specified in units of the period of the system clock
+    * frequency divided by 300 (yielding 90 kHz). The presentation time is derived from the PTS according to equation 2-11
+    * below. Refer to 2.7.4 for constraints on the frequency of coding presentation timestamps.
+    */
+    // ===========1B
+    // 4bits const
+    // 3bits PTS [32..30]
+    // 1bit const '1'
+    // ===========2B
+    // 15bits PTS [29..15]
+    // 1bit const '1'
+    // ===========2B
+    // 15bits PTS [14..0]
+    // 1bit const '1'
+    int64_t pts; // 33bits
+
+    // 5B
+    /**
+    * The DTS is a 33-bit number coded in three separate fields. It indicates the decoding time,
+    * td n (j), in the system target decoder of an access unit j of elementary stream n. The value of DTS is specified in units of
+    * the period of the system clock frequency divided by 300 (yielding 90 kHz).
+    */
+    // ===========1B
+    // 4bits const
+    // 3bits DTS [32..30]
+    // 1bit const '1'
+    // ===========2B
+    // 15bits DTS [29..15]
+    // 1bit const '1'
+    // ===========2B
+    // 15bits DTS [14..0]
+    // 1bit const '1'
+    int64_t dts; // 33bits
+
+    // 6B
+    /**
+    * The elementary stream clock reference is a 42-bit field coded in two parts. The first
+    * part, ESCR_base, is a 33-bit field whose value is given by ESCR_base(i), as given in equation 2-14. The second part,
+    * ESCR_ext, is a 9-bit field whose value is given by ESCR_ext(i), as given in equation 2-15. The ESCR field indicates the
+    * intended time of arrival of the byte containing the last bit of the ESCR_base at the input of the PES-STD for PES streams
+    * (refer to 2.5.2.4).
+    */
+    // 2bits reserved
+    // 3bits ESCR_base[32..30]
+    // 1bit const '1'
+    // 15bits ESCR_base[29..15]
+    // 1bit const '1'
+    // 15bits ESCR_base[14..0]
+    // 1bit const '1'
+    // 9bits ESCR_extension
+    // 1bit const '1'
+    int64_t ESCR_base; //33bits
+    int16_t ESCR_extension; //9bits
+
+    // 3B
+    /**
+    * The ES_rate field is a 22-bit unsigned integer specifying the rate at which the
+    * system target decoder receives bytes of the PES packet in the case of a PES stream. The ES_rate is valid in the PES
+    * packet in which it is included and in subsequent PES packets of the same PES stream until a new ES_rate field is
+    * encountered. The value of the ES_rate is measured in units of 50 bytes/second. The value 0 is forbidden. The value of the
+    * ES_rate is used to define the time of arrival of bytes at the input of a P-STD for PES streams defined in 2.5.2.4. The
+    * value encoded in the ES_rate field may vary from PES_packet to PES_packet.
+    */
+    // 1bit const '1'
+    // 22bits ES_rate
+    // 1bit const '1'
+    int32_t ES_rate; //22bits
+
+    // 1B
+    /**
+    * A 3-bit field that indicates which trick mode is applied to the associated video stream. In cases of
+    * other types of elementary streams, the meanings of this field and those defined by the following five bits are undefined.
+    * For the definition of trick_mode status, refer to the trick mode section of 2.4.2.3.
+    */
+    int8_t trick_mode_control; //3bits
+    int8_t trick_mode_value; //5bits
+
+    // 1B
+    // 1bit const '1'
+    /**
+    * This 7-bit field contains private data relating to copyright information.
+    */
+    int8_t additional_copy_info; //7bits
+
+    // 2B
+    /**
+    * The previous_PES_packet_CRC is a 16-bit field that contains the CRC value that yields
+    * a zero output of the 16 registers in the decoder similar to the one defined in Annex A,
+    */
+    int16_t previous_PES_packet_CRC; //16bits
+
+    // 1B
+    /**
+    * A 1-bit flag which when set to '1' indicates that the PES packet header contains private data.
+    * When set to a value of '0' it indicates that private data is not present in the PES header.
+    */
+    int8_t PES_private_data_flag; //1bit
+    /**
+    * A 1-bit flag which when set to '1' indicates that an ISO/IEC 11172-1 pack header or a
+    * Program Stream pack header is stored in this PES packet header. If this field is in a PES packet that is contained in a
+    * Program Stream, then this field shall be set to '0'. In a Transport Stream, when set to the value '0' it indicates that no pack
+    * header is present in the PES header.
+    */
+    int8_t pack_header_field_flag; //1bit
+    /**
+    * A 1-bit flag which when set to '1' indicates that the
+    * program_packet_sequence_counter, MPEG1_MPEG2_identifier, and original_stuff_length fields are present in this
+    * PES packet. When set to a value of '0' it indicates that these fields are not present in the PES header.
+    */
+    int8_t program_packet_sequence_counter_flag; //1bit
+    /**
+    * A 1-bit flag which when set to '1' indicates that the P-STD_buffer_scale and P-STD_buffer_size
+    * are present in the PES packet header. When set to a value of '0' it indicates that these fields are not present in the
+    * PES header.
+    */
+    int8_t P_STD_buffer_flag; //1bit
+    /**
+    * reverved value, must be '1'
+    */
+    int8_t const1_value0; //3bits
+    /**
+    * A 1-bit field which when set to '1' indicates the presence of the PES_extension_field_length
+    * field and associated fields. When set to a value of '0' this indicates that the PES_extension_field_length field and any
+    * associated fields are not present.
+    */
+    int8_t PES_extension_flag_2; //1bit
+
+    // 16B
+    /**
+    * This is a 16-byte field which contains private data. This data, combined with the fields before and
+    * after, shall not emulate the packet_start_code_prefix (0x000001).
+    */
+    char* PES_private_data; //128bits
+
+    // (1+x)B
+    /**
+    * This is an 8-bit field which indicates the length, in bytes, of the pack_header_field().
+    */
+    u_int8_t pack_field_length; //8bits
+    char* pack_field; //[pack_field_length] bytes
+
+    // 2B
+    // 1bit const '1'
+    /**
+    * The program_packet_sequence_counter field is a 7-bit field. It is an optional
+    * counter that increments with each successive PES packet from a Program Stream or from an ISO/IEC 11172-1 Stream or
+    * the PES packets associated with a single program definition in a Transport Stream, providing functionality similar to a
+    * continuity counter (refer to 2.4.3.2). This allows an application to retrieve the original PES packet sequence of a Program
+    * Stream or the original packet sequence of the original ISO/IEC 11172-1 stream. The counter will wrap around to 0 after
+    * its maximum value. Repetition of PES packets shall not occur. Consequently, no two consecutive PES packets in the
+    * program multiplex shall have identical program_packet_sequence_counter values.
+    */
+    int8_t program_packet_sequence_counter; //7bits
+    // 1bit const '1'
+    /**
+    * A 1-bit flag which when set to '1' indicates that this PES packet carries information from
+    * an ISO/IEC 11172-1 stream. When set to '0' it indicates that this PES packet carries information from a Program Stream.
+    */
+    int8_t MPEG1_MPEG2_identifier; //1bit
+    /**
+    * This 6-bit field specifies the number of stuffing bytes used in the original ITU-T
+    * Rec. H.222.0 | ISO/IEC 13818-1 PES packet header or in the original ISO/IEC 11172-1 packet header.
+    */
+    int8_t original_stuff_length; //6bits
+
+    // 2B
+    // 2bits const '01'
+    /**
+    * The P-STD_buffer_scale is a 1-bit field, the meaning of which is only defined if this PES packet
+    * is contained in a Program Stream. It indicates the scaling factor used to interpret the subsequent P-STD_buffer_size field.
+    * If the preceding stream_id indicates an audio stream, P-STD_buffer_scale shall have the value '0'. If the preceding
+    * stream_id indicates a video stream, P-STD_buffer_scale shall have the value '1'. For all other stream types, the value
+    * may be either '1' or '0'.
+    */
+    int8_t P_STD_buffer_scale; //1bit
+    /**
+    * The P-STD_buffer_size is a 13-bit unsigned integer, the meaning of which is only defined if this
+    * PES packet is contained in a Program Stream. It defines the size of the input buffer, BS n , in the P-STD. If
+    * P-STD_buffer_scale has the value '0', then the P-STD_buffer_size measures the buffer size in units of 128 bytes. If
+    * P-STD_buffer_scale has the value '1', then the P-STD_buffer_size measures the buffer size in units of 1024 bytes.
+    */
+    int16_t P_STD_buffer_size; //13bits
+
+    // (1+x)B
+    // 1bit const '1'
+    /**
+    * This is a 7-bit field which specifies the length, in bytes, of the data following this field in
+    * the PES extension field up to and including any reserved bytes.
+    */
+    u_int8_t PES_extension_field_length; //7bits
+    char* PES_extension_field; //[PES_extension_field_length] bytes
+
+    // NB
+    /**
+    * This is a fixed 8-bit value equal to '1111 1111' that can be inserted by the encoder, for example to meet
+    * the requirements of the channel. It is discarded by the decoder. No more than 32 stuffing bytes shall be present in one
+    * PES packet header.
+    */
+    int nb_stuffings;
+
+    // NB
+    /**
+    * PES_packet_data_bytes shall be contiguous bytes of data from the elementary stream
+    * indicated by the packet's stream_id or PID. When the elementary stream data conforms to ITU-T
+    * Rec. H.262 | ISO/IEC 13818-2 or ISO/IEC 13818-3, the PES_packet_data_bytes shall be byte aligned to the bytes of this
+    * Recommendation | International Standard. The byte-order of the elementary stream shall be preserved. The number of
+    * PES_packet_data_bytes, N, is specified by the PES_packet_length field. N shall be equal to the value indicated in the
+    * PES_packet_length minus the number of bytes between the last byte of the PES_packet_length field and the first
+    * PES_packet_data_byte.
+    *
+    * In the case of a private_stream_1, private_stream_2, ECM_stream, or EMM_stream, the contents of the
+    * PES_packet_data_byte field are user definable and will not be specified by ITU-T | ISO/IEC in the future.
+    */
+    int nb_bytes;
+
+    // NB
+    /**
+    * This is a fixed 8-bit value equal to '1111 1111'. It is discarded by the decoder.
+    */
+    int nb_paddings;
+public:
+    SrsTsPayloadPES(SrsTsPacket* p);
+    virtual ~SrsTsPayloadPES();
+public:
+    virtual int decode(SrsStream* stream, SrsTsMessage** ppmsg);
+public:
+    virtual int size();
+    virtual int encode(SrsStream* stream);
+private:
+    virtual int decode_33bits_dts_pts(SrsStream* stream, int64_t* pv);
+    virtual int encode_33bits_dts_pts(SrsStream* stream, u_int8_t fb, int64_t v);
+};
+
+/**
+* the PSI payload of ts packet.
+* 2.4.4 Program specific information, hls-mpeg-ts-iso13818-1.pdf, page 59
+*/
+class SrsTsPayloadPSI : public SrsTsPayload
+{
+public:
+    // 1B
+    /**
+    * This is an 8-bit field whose value shall be the number of bytes, immediately following the pointer_field
+    * until the first byte of the first section that is present in the payload of the Transport Stream packet (so a value of 0x00 in
+    * the pointer_field indicates that the section starts immediately after the pointer_field). When at least one section begins in
+    * a given Transport Stream packet, then the payload_unit_start_indicator (refer to 2.4.3.2) shall be set to 1 and the first
+    * byte of the payload of that Transport Stream packet shall contain the pointer. When no section begins in a given
+    * Transport Stream packet, then the payload_unit_start_indicator shall be set to 0 and no pointer shall be sent in the
+    * payload of that packet.
+    */
+    int8_t pointer_field;
+public:
+    // 1B
+    /**
+    * This is an 8-bit field, which shall be set to 0x00 as shown in Table 2-26.
+    */
+    SrsTsPsiId table_id; //8bits
+    
+    // 2B
+    /**
+    * The section_syntax_indicator is a 1-bit field which shall be set to '1'.
+    */
+    int8_t section_syntax_indicator; //1bit
+    /**
+    * const value, must be '0'
+    */
+    int8_t const0_value; //1bit
+    /**
+    * reverved value, must be '1'
+    */
+    int8_t const1_value; //2bits
+    /**
+    * This is a 12-bit field, the first two bits of which shall be '00'. The remaining 10 bits specify the number
+    * of bytes of the section, starting immediately following the section_length field, and including the CRC. The value in this
+    * field shall not exceed 1021 (0x3FD).
+    */
+    u_int16_t section_length; //12bits
+public:
+    // the specified psi info, for example, PAT fields.
+public:
+    // 4B
+    /**
+    * This is a 32-bit field that contains the CRC value that gives a zero output of the registers in the decoder
+    * defined in Annex A after processing the entire section.
+    * @remark crc32(bytes without pointer field, before crc32 field)
+    */
+    int32_t CRC_32; //32bits
+public:
+    SrsTsPayloadPSI(SrsTsPacket* p);
+    virtual ~SrsTsPayloadPSI();
+public:
+    virtual int decode(SrsStream* stream, SrsTsMessage** ppmsg);
+public:
+    virtual int size();
+    virtual int encode(SrsStream* stream);
+protected:
+    virtual int psi_size() = 0;
+    virtual int psi_encode(SrsStream* stream) = 0;
+    virtual int psi_decode(SrsStream* stream) = 0;
+};
+
+/**
+* the program of PAT of PSI ts packet.
+*/
+class SrsTsPayloadPATProgram
+{
+public:
+    // 4B
+    /**
+    * Program_number is a 16-bit field. It specifies the program to which the program_map_PID is
+    * applicable. When set to 0x0000, then the following PID reference shall be the network PID. For all other cases the value
+    * of this field is user defined. This field shall not take any single value more than once within one version of the Program
+    * Association Table.
+    */
+    int16_t number; // 16bits
+    /**
+    * reverved value, must be '1'
+    */
+    int8_t const1_value; //3bits
+    /**
+    * program_map_PID/network_PID 13bits
+    * network_PID - The network_PID is a 13-bit field, which is used only in conjunction with the value of the
+    * program_number set to 0x0000, specifies the PID of the Transport Stream packets which shall contain the Network
+    * Information Table. The value of the network_PID field is defined by the user, but shall only take values as specified in
+    * Table 2-3. The presence of the network_PID is optional.
+    */
+    int16_t pid; //13bits
+public:
+    SrsTsPayloadPATProgram(int16_t n = 0, int16_t p = 0);
+    virtual ~SrsTsPayloadPATProgram();
+public:
+    virtual int decode(SrsStream* stream);
+public:
+    virtual int size();
+    virtual int encode(SrsStream* stream);
+};
+
+/**
+* the PAT payload of PSI ts packet.
+* 2.4.4.3 Program association Table, hls-mpeg-ts-iso13818-1.pdf, page 61
+* The Program Association Table provides the correspondence between a program_number and the PID value of the
+* Transport Stream packets which carry the program definition. The program_number is the numeric label associated with
+* a program.
+*/
+class SrsTsPayloadPAT : public SrsTsPayloadPSI
+{
+public:
+    // 2B
+    /**
+    * This is a 16-bit field which serves as a label to identify this Transport Stream from any other
+    * multiplex within a network. Its value is defined by the user.
+    */
+    u_int16_t transport_stream_id; //16bits
+    
+    // 1B
+    /**
+    * reverved value, must be '1'
+    */
+    int8_t const3_value; //2bits
+    /**
+    * This 5-bit field is the version number of the whole Program Association Table. The version number
+    * shall be incremented by 1 modulo 32 whenever the definition of the Program Association Table changes. When the
+    * current_next_indicator is set to '1', then the version_number shall be that of the currently applicable Program Association
+    * Table. When the current_next_indicator is set to '0', then the version_number shall be that of the next applicable Program
+    * Association Table.
+    */
+    int8_t version_number; //5bits
+    /**
+    * A 1-bit indicator, which when set to '1' indicates that the Program Association Table sent is
+    * currently applicable. When the bit is set to '0', it indicates that the table sent is not yet applicable and shall be the next
+    * table to become valid.
+    */
+    int8_t current_next_indicator; //1bit
+    
+    // 1B
+    /**
+    * This 8-bit field gives the number of this section. The section_number of the first section in the
+    * Program Association Table shall be 0x00. It shall be incremented by 1 with each additional section in the Program
+    * Association Table.
+    */
+    u_int8_t section_number; //8bits
+    
+    // 1B
+    /**
+    * This 8-bit field specifies the number of the last section (that is, the section with the highest
+    * section_number) of the complete Program Association Table.
+    */
+    u_int8_t last_section_number; //8bits
+    
+    // multiple 4B program data.
+    std::vector<SrsTsPayloadPATProgram*> programs;
+public:
+    SrsTsPayloadPAT(SrsTsPacket* p);
+    virtual ~SrsTsPayloadPAT();
+protected:
+    virtual int psi_decode(SrsStream* stream);
+protected:
+    virtual int psi_size();
+    virtual int psi_encode(SrsStream* stream);
+};
+
+/**
+* the esinfo for PMT program.
+*/
+class SrsTsPayloadPMTESInfo
+{
+public:
+    // 1B
+    /**
+    * This is an 8-bit field specifying the type of program element carried within the packets with the PID
+    * whose value is specified by the elementary_PID. The values of stream_type are specified in Table 2-29.
+    */
+    SrsTsStream stream_type; //8bits
+    
+    // 2B
+    /**
+    * reverved value, must be '1'
+    */
+    int8_t const1_value0; //3bits
+    /**
+    * This is a 13-bit field specifying the PID of the Transport Stream packets which carry the associated
+    * program element.
+    */
+    int16_t elementary_PID; //13bits
+    
+    // (2+x)B
+    /**
+    * reverved value, must be '1'
+    */
+    int8_t const1_value1; //4bits
+    /**
+    * This is a 12-bit field, the first two bits of which shall be '00'. The remaining 10 bits specify the number
+    * of bytes of the descriptors of the associated program element immediately following the ES_info_length field.
+    */
+    int16_t ES_info_length; //12bits
+    char* ES_info; //[ES_info_length] bytes.
+public:
+    SrsTsPayloadPMTESInfo(SrsTsStream st = SrsTsStreamReserved, int16_t epid = 0);
+    virtual ~SrsTsPayloadPMTESInfo();
+public:
+    virtual int decode(SrsStream* stream);
+public:
+    virtual int size();
+    virtual int encode(SrsStream* stream);
+};
+
+/**
+* the PMT payload of PSI ts packet.
+* 2.4.4.8 Program Map Table, hls-mpeg-ts-iso13818-1.pdf, page 64
+* The Program Map Table provides the mappings between program numbers and the program elements that comprise
+* them. A single instance of such a mapping is referred to as a "program definition". The program map table is the
+* complete collection of all program definitions for a Transport Stream. This table shall be transmitted in packets, the PID
+* values of which are selected by the encoder. More than one PID value may be used, if desired. The table is contained in
+* one or more sections with the following syntax. It may be segmented to occupy multiple sections. In each section, the
+* section number field shall be set to zero. Sections are identified by the program_number field.
+*/
+class SrsTsPayloadPMT : public SrsTsPayloadPSI
+{
+public:
+    // 2B
+    /**
+    * program_number is a 16-bit field. It specifies the program to which the program_map_PID is
+    * applicable. One program definition shall be carried within only one TS_program_map_section. This implies that a
+    * program definition is never longer than 1016 (0x3F8). See Informative Annex C for ways to deal with the cases when
+    * that length is not sufficient. The program_number may be used as a designation for a broadcast channel, for example. By
+    * describing the different program elements belonging to a program, data from different sources (e.g. sequential events)
+    * can be concatenated together to form a continuous set of streams using a program_number. For examples of applications
+    * refer to Annex C.
+    */
+    u_int16_t program_number; //16bits
+    
+    // 1B
+    /**
+    * reverved value, must be '1'
+    */
+    int8_t const1_value0; //2bits
+    /**
+    * This 5-bit field is the version number of the TS_program_map_section. The version number shall be
+    * incremented by 1 modulo 32 when a change in the information carried within the section occurs. Version number refers
+    * to the definition of a single program, and therefore to a single section. When the current_next_indicator is set to '1', then
+    * the version_number shall be that of the currently applicable TS_program_map_section. When the current_next_indicator
+    * is set to '0', then the version_number shall be that of the next applicable TS_program_map_section.
+    */
+    int8_t version_number; //5bits
+    /**
+    * A 1-bit field, which when set to '1' indicates that the TS_program_map_section sent is
+    * currently applicable. When the bit is set to '0', it indicates that the TS_program_map_section sent is not yet applicable
+    * and shall be the next TS_program_map_section to become valid.
+    */
+    int8_t current_next_indicator; //1bit
+    
+    // 1B
+    /**
+    * The value of this 8-bit field shall be 0x00.
+    */
+    u_int8_t section_number; //8bits
+    
+    // 1B
+    /**
+    * The value of this 8-bit field shall be 0x00.
+    */
+    u_int8_t last_section_number; //8bits
+    
+    // 2B
+    /**
+    * reverved value, must be '1'
+    */
+    int8_t const1_value1; //3bits
+    /**
+    * This is a 13-bit field indicating the PID of the Transport Stream packets which shall contain the PCR fields
+    * valid for the program specified by program_number. If no PCR is associated with a program definition for private
+    * streams, then this field shall take the value of 0x1FFF. Refer to the semantic definition of PCR in 2.4.3.5 and Table 2-3
+    * for restrictions on the choice of PCR_PID value.
+    */
+    int16_t PCR_PID; //13bits
+    
+    // 2B
+    int8_t const1_value2; //4bits
+    /**
+    * This is a 12-bit field, the first two bits of which shall be '00'. The remaining 10 bits specify the
+    * number of bytes of the descriptors immediately following the program_info_length field.
+    */
+    u_int16_t program_info_length; //12bits
+    char* program_info_desc; //[program_info_length]bytes
+    
+    // array of TSPMTESInfo.
+    std::vector<SrsTsPayloadPMTESInfo*> infos;
+public:
+    SrsTsPayloadPMT(SrsTsPacket* p);
+    virtual ~SrsTsPayloadPMT();
+protected:
+    virtual int psi_decode(SrsStream* stream);
+protected:
+    virtual int psi_size();
+    virtual int psi_encode(SrsStream* stream);
+};
+
+/**
+* write data from frame(header info) and buffer(data) to ts file.
+* it's a simple object wrapper for utility from nginx-rtmp: SrsMpegtsWriter
+*/
+class SrsTSMuxer
+{
+private:
+    SrsCodecVideo vcodec;
+    SrsCodecAudio acodec;
+private:
+    SrsTsContext* context;
+    SrsFileWriter* writer;
+    std::string path;
+public:
+    SrsTSMuxer(SrsFileWriter* w, SrsTsContext* c, SrsCodecAudio ac, SrsCodecVideo vc);
+    virtual ~SrsTSMuxer();
+public:
+    /**
+    * open the writer, donot write the PSI of ts.
+    */
+    virtual int open(std::string _path);
+    /**
+    * when open ts, we donot write the header(PSI),
+    * for user may need to update the acodec to mp3 or others,
+    * so we use delay write PSI, when write audio or video.
+    * @remark for audio aac codec, for example, SRS1, it's ok to write PSI when open ts.
+    * @see https://github.com/simple-rtmp-server/srs/issues/301
+    */
+    virtual int update_acodec(SrsCodecAudio ac);
+    /**
+    * write an audio frame to ts, 
+    */
+    virtual int write_audio(SrsTsMessage* audio);
+    /**
+    * write a video frame to ts, 
+    */
+    virtual int write_video(SrsTsMessage* video);
+    /**
+    * close the writer.
+    */
+    virtual void close();
+};
+
+/**
+* ts stream cache, 
+* use to cache ts stream.
+* 
+* about the flv tbn problem:
+*   flv tbn is 1/1000, ts tbn is 1/90000,
+*   when timestamp convert to flv tbn, it will loose precise,
+*   so we must gather audio frame together, and recalc the timestamp @see SrsTsAacJitter,
+*   we use a aac jitter to correct the audio pts.
+*/
+class SrsTsCache
+{
+public:
+    // current ts message.
+    SrsTsMessage* audio;
+    SrsTsMessage* video;
+public:
+    SrsTsCache();
+    virtual ~SrsTsCache();
+public:
+    /**
+    * write audio to cache
+    */
+    virtual int cache_audio(SrsAvcAacCodec* codec, int64_t dts, SrsCodecSample* sample);
+    /**
+    * write video to muxer.
+    */
+    virtual int cache_video(SrsAvcAacCodec* codec, int64_t dts, SrsCodecSample* sample);
+private:
+    virtual int do_cache_mp3(SrsAvcAacCodec* codec, SrsCodecSample* sample);
+    virtual int do_cache_aac(SrsAvcAacCodec* codec, SrsCodecSample* sample);
+    virtual int do_cache_avc(SrsAvcAacCodec* codec, SrsCodecSample* sample);
+};
+
+/**
+* encode data to ts file.
+*/
+class SrsTsEncoder
+{
+private:
+    SrsFileWriter* _fs;
+private:
+    SrsAvcAacCodec* codec;
+    SrsCodecSample* sample;
+    SrsTsCache* cache;
+    SrsTSMuxer* muxer;
+    SrsTsContext* context;
+public:
+    SrsTsEncoder();
+    virtual ~SrsTsEncoder();
+public:
+    /**
+    * initialize the underlayer file stream.
+    */
+    virtual int initialize(SrsFileWriter* fs);
+public:
+    /**
+    * write audio/video packet.
+    * @remark assert data is not NULL.
+    */
+    virtual int write_audio(int64_t timestamp, char* data, int size);
+    virtual int write_video(int64_t timestamp, char* data, int size);
+private:
+    virtual int flush_audio();
+    virtual int flush_video();
+};
+
+#endif
+
+// following is generated by src/kernel/srs_kernel_buffer.hpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef SRS_KERNEL_BUFFER_HPP
+#define SRS_KERNEL_BUFFER_HPP
+
+/*
+//#include <srs_kernel_buffer.hpp>
+*/
+
+//#include <srs_core.hpp>
+
+#include <vector>
+
+/**
+* the simple buffer use vector to append bytes,
+* it's for hls and http, and need to be refined in future.
+*/
+class SrsSimpleBuffer
+{
+private:
+    std::vector<char> data;
+public:
+    SrsSimpleBuffer();
+    virtual ~SrsSimpleBuffer();
+public:
+    /**
+    * get the length of buffer. empty if zero.
+    * @remark assert length() is not negative.
+    */
+    virtual int length();
+    /**
+    * get the buffer bytes.
+    * @return the bytes, NULL if empty.
+    */
+    virtual char* bytes();
+    /**
+    * erase size of bytes from begin.
+    * @param size to erase size of bytes. 
+    *       clear if size greater than or equals to length()
+    * @remark ignore size is not positive.
+    */
+    virtual void erase(int size);
+    /**
+    * append specified bytes to buffer.
+    * @param size the size of bytes
+    * @remark assert size is positive.
+    */
+    virtual void append(const char* bytes, int size);
+};
+
+#endif
+// following is generated by src/protocol/srs_rtmp_amf0.hpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -1849,7 +5013,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_RTMP_PROTOCOL_AMF0_HPP
 
 /*
-//#include <srs_protocol_amf0.hpp>
+//#include <srs_rtmp_amf0.hpp>
 */
 
 //#include <srs_core.hpp>
@@ -2519,7 +5683,7 @@ namespace _srs_internal
     * 2.13 Date Type
     * time-zone = S16 ; reserved, not supported should be set to 0x0000
     * date-type = date-marker DOUBLE time-zone
-    * @see: https://github.com/winlinvip/simple-rtmp-server/issues/185
+    * @see: https://github.com/simple-rtmp-server/srs/issues/185
     */
     class SrsAmf0Date : public SrsAmf0Any
     {
@@ -2618,6 +5782,10 @@ namespace _srs_internal
         virtual std::string key_at(int index);
         virtual const char* key_raw_at(int index);
         virtual SrsAmf0Any* value_at(int index);
+        /**
+        * set the value of hashtable.
+        * @param value, the value to set. NULL to delete the property.
+        */
         virtual void set(std::string key, SrsAmf0Any* value);
     public:
         virtual SrsAmf0Any* get_property(std::string name);
@@ -2662,11 +5830,11 @@ namespace _srs_internal
 };
 
 #endif
-// following is generated by src/rtmp/srs_protocol_io.hpp
+// following is generated by src/protocol/srs_rtmp_io.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -2690,12 +5858,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_RTMP_PROTOCOL_IO_HPP
 
 /*
-//#include <srs_protocol_io.hpp>
+//#include <srs_rtmp_io.hpp>
 */
 
 //#include <srs_core.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <sys/uio.h>
 #endif
@@ -2847,11 +6015,11 @@ public:
 
 #endif
 
-// following is generated by src/rtmp/srs_protocol_stack.hpp
+// following is generated by src/protocol/srs_rtmp_stack.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -2875,7 +6043,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_RTMP_PROTOCOL_STACK_HPP
 
 /*
-//#include <srs_protocol_stack.hpp>
+//#include <srs_rtmp_stack.hpp>
 */
 
 //#include <srs_core.hpp>
@@ -2884,7 +6052,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <vector>
 #include <string>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <sys/uio.h>
 #endif
@@ -2893,6 +6061,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //#include <srs_kernel_error.hpp>
 //#include <srs_kernel_consts.hpp>
 //#include <srs_core_performance.hpp>
+//#include <srs_kernel_flv.hpp>
 
 class ISrsProtocolReaderWriter;
 class SrsFastBuffer;
@@ -2907,263 +6076,82 @@ class SrsSharedPtrMessage;
 class IMergeReadHandler;
 
 /****************************************************************************
+ *****************************************************************************
+ ****************************************************************************/
+/**
+ * amf0 command message, command name macros
+ */
+#define RTMP_AMF0_COMMAND_CONNECT               "connect"
+#define RTMP_AMF0_COMMAND_CREATE_STREAM         "createStream"
+#define RTMP_AMF0_COMMAND_CLOSE_STREAM          "closeStream"
+#define RTMP_AMF0_COMMAND_PLAY                  "play"
+#define RTMP_AMF0_COMMAND_PAUSE                 "pause"
+#define RTMP_AMF0_COMMAND_ON_BW_DONE            "onBWDone"
+#define RTMP_AMF0_COMMAND_ON_STATUS             "onStatus"
+#define RTMP_AMF0_COMMAND_RESULT                "_result"
+#define RTMP_AMF0_COMMAND_ERROR                 "_error"
+#define RTMP_AMF0_COMMAND_RELEASE_STREAM        "releaseStream"
+#define RTMP_AMF0_COMMAND_FC_PUBLISH            "FCPublish"
+#define RTMP_AMF0_COMMAND_UNPUBLISH             "FCUnpublish"
+#define RTMP_AMF0_COMMAND_PUBLISH               "publish"
+#define RTMP_AMF0_DATA_SAMPLE_ACCESS            "|RtmpSampleAccess"
+
+/****************************************************************************
 *****************************************************************************
 ****************************************************************************/
-/**
-* 6.1. Chunk Format
-* Extended timestamp: 0 or 4 bytes
-* This field MUST be sent when the normal timsestamp is set to
-* 0xffffff, it MUST NOT be sent if the normal timestamp is set to
-* anything else. So for values less than 0xffffff the normal
-* timestamp field SHOULD be used in which case the extended timestamp
-* MUST NOT be present. For values greater than or equal to 0xffffff
-* the normal timestamp field MUST NOT be used and MUST be set to
-* 0xffffff and the extended timestamp MUST be sent.
-*/
-#define RTMP_EXTENDED_TIMESTAMP                 0xFFFFFF
 
 /**
-* 4.1. Message Header
-*/
-class SrsMessageHeader
+ * the decoded message payload.
+ * @remark we seperate the packet from message,
+ *        for the packet focus on logic and domain data,
+ *        the message bind to the protocol and focus on protocol, such as header.
+ *         we can merge the message and packet, using OOAD hierachy, packet extends from message,
+ *         it's better for me to use components -- the message use the packet as payload.
+ */
+class SrsPacket
 {
 public:
-    /**
-    * 3bytes.
-    * Three-byte field that contains a timestamp delta of the message.
-    * @remark, only used for decoding message from chunk stream.
-    */
-    int32_t timestamp_delta;
-    /**
-    * 3bytes.
-    * Three-byte field that represents the size of the payload in bytes.
-    * It is set in big-endian format.
-    */
-    int32_t payload_length;
-    /**
-    * 1byte.
-    * One byte field to represent the message type. A range of type IDs
-    * (1-7) are reserved for protocol control messages.
-    */
-    int8_t message_type;
-    /**
-    * 4bytes.
-    * Four-byte field that identifies the stream of the message. These
-    * bytes are set in little-endian format.
-    */
-    int32_t stream_id;
-    
-    /**
-    * Four-byte field that contains a timestamp of the message.
-    * The 4 bytes are packed in the big-endian order.
-    * @remark, used as calc timestamp when decode and encode time.
-    * @remark, we use 64bits for large time for jitter detect and hls.
-    */
-    int64_t timestamp;
+    SrsPacket();
+    virtual ~SrsPacket();
 public:
     /**
-    * get the perfered cid(chunk stream id) which sendout over.
-    * set at decoding, and canbe used for directly send message,
-    * for example, dispatch to all connections.
-    */
-    int perfer_cid;
-public:
-    SrsMessageHeader();
-    virtual ~SrsMessageHeader();
-public:
-    bool is_audio();
-    bool is_video();
-    bool is_amf0_command();
-    bool is_amf0_data();
-    bool is_amf3_command();
-    bool is_amf3_data();
-    bool is_window_ackledgement_size();
-    bool is_ackledgement();
-    bool is_set_chunk_size();
-    bool is_user_control_message();
-    bool is_set_peer_bandwidth();
-    bool is_aggregate();
+     * the subpacket can override this encode,
+     * for example, video and audio will directly set the payload withou memory copy,
+     * other packet which need to serialize/encode to bytes by override the
+     * get_size and encode_packet.
+     */
+    virtual int encode(int& size, char*& payload);
+    // decode functions for concrete packet to override.
 public:
     /**
-    * create a amf0 script header, set the size and stream_id.
-    */
-    void initialize_amf0_script(int size, int stream);
-    /**
-    * create a audio header, set the size, timestamp and stream_id.
-    */
-    void initialize_audio(int size, u_int32_t time, int stream);
-    /**
-    * create a video header, set the size, timestamp and stream_id.
-    */
-    void initialize_video(int size, u_int32_t time, int stream);
-};
-
-/**
-* message is raw data RTMP message, bytes oriented,
-* protcol always recv RTMP message, and can send RTMP message or RTMP packet.
-* the common message is read from underlay protocol sdk.
-* while the shared ptr message used to copy and send.
-*/
-class SrsCommonMessage
-{
-// 4.1. Message Header
-public:
-    SrsMessageHeader header;
-// 4.2. Message Payload
+     * subpacket must override to decode packet from stream.
+     * @remark never invoke the super.decode, it always failed.
+     */
+    virtual int decode(SrsStream* stream);
+    // encode functions for concrete packet to override.
 public:
     /**
-    * current message parsed size,
-    *       size <= header.payload_length
-    * for the payload maybe sent in multiple chunks.
-    */
-    int size;
+     * the cid(chunk id) specifies the chunk to send data over.
+     * generally, each message perfer some cid, for example,
+     * all protocol control messages perfer RTMP_CID_ProtocolControl,
+     * SrsSetWindowAckSizePacket is protocol control message.
+     */
+    virtual int get_prefer_cid();
     /**
-    * the payload of message, the SrsCommonMessage never know about the detail of payload,
-    * user must use SrsProtocol.decode_message to get concrete packet.
-    * @remark, not all message payload can be decoded to packet. for example, 
-    *       video/audio packet use raw bytes, no video/audio packet.
-    */
-    char* payload;
-public:
-    SrsCommonMessage();
-public:
-    virtual ~SrsCommonMessage();
-};
-
-/**
-* the message header for shared ptr message.
-* only the message for all msgs are same.
-*/
-struct SrsSharedMessageHeader
-{
+     * subpacket must override to provide the right message type.
+     * the message type set the RTMP message type in header.
+     */
+    virtual int get_message_type();
+protected:
     /**
-    * 3bytes.
-    * Three-byte field that represents the size of the payload in bytes.
-    * It is set in big-endian format.
-    */
-    int32_t payload_length;
+     * subpacket can override to calc the packet size.
+     */
+    virtual int get_size();
     /**
-    * 1byte.
-    * One byte field to represent the message type. A range of type IDs
-    * (1-7) are reserved for protocol control messages.
-    */
-    int8_t message_type;
-    /**
-    * get the perfered cid(chunk stream id) which sendout over.
-    * set at decoding, and canbe used for directly send message,
-    * for example, dispatch to all connections.
-    */
-    int perfer_cid;
-};
-
-/**
-* shared ptr message.
-* for audio/video/data message that need less memory copy.
-* and only for output.
-*
-* create first object by constructor and create(),
-* use copy if need reference count message.
-*
-*/
-class SrsSharedPtrMessage
-{
-// 4.1. Message Header
-public:
-    // the header can shared, only set the timestamp and stream id.
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/251
-    //SrsSharedMessageHeader header;
-    /**
-    * Four-byte field that contains a timestamp of the message.
-    * The 4 bytes are packed in the big-endian order.
-    * @remark, used as calc timestamp when decode and encode time.
-    * @remark, we use 64bits for large time for jitter detect and hls.
-    */
-    int64_t timestamp;
-    /**
-    * 4bytes.
-    * Four-byte field that identifies the stream of the message. These
-    * bytes are set in big-endian format.
-    */
-    int32_t stream_id;
-// 4.2. Message Payload
-public:
-    /**
-    * current message parsed size,
-    *       size <= header.payload_length
-    * for the payload maybe sent in multiple chunks.
-    */
-    int size;
-    /**
-    * the payload of message, the SrsCommonMessage never know about the detail of payload,
-    * user must use SrsProtocol.decode_message to get concrete packet.
-    * @remark, not all message payload can be decoded to packet. for example,
-    *       video/audio packet use raw bytes, no video/audio packet.
-    */
-    char* payload;
-private:
-    class __SrsSharedPtr
-    {
-    public:
-        // shared message header.
-        // @see https://github.com/winlinvip/simple-rtmp-server/issues/251
-        SrsSharedMessageHeader header;
-        // actual shared payload.
-        char* payload;
-        // size of payload.
-        int size;
-        // the reference count
-        int shared_count;
-    public:
-        __SrsSharedPtr();
-        virtual ~__SrsSharedPtr();
-    };
-    __SrsSharedPtr* ptr;
-public:
-    SrsSharedPtrMessage();
-    virtual ~SrsSharedPtrMessage();
-public:
-    /**
-    * create shared ptr message,
-    * copy header, manage the payload of msg,
-    * set the payload to NULL to prevent double free.
-    * @remark payload of msg set to NULL if success.
-    */
-    virtual int create(SrsCommonMessage* msg);
-    /**
-    * create shared ptr message,
-    * from the header and payload.
-    * @remark user should never free the payload.
-    */
-    virtual int create(SrsMessageHeader* pheader, char* payload, int size);
-    /**
-    * get current reference count.
-    * when this object created, count set to 0.
-    * if copy() this object, count increase 1.
-    * if this or copy deleted, free payload when count is 0, or count--.
-    * @remark, assert object is created.
-    */
-    virtual int count();
-    /**
-    * check perfer cid and stream id.
-    * @return whether stream id already set.
-    */
-    virtual bool check(int stream_id);
-public:
-    virtual bool is_av();
-    virtual bool is_audio();
-    virtual bool is_video();
-public:
-    /**
-    * generate the chunk header to cache.
-    * @return the size of header.
-    */
-    virtual int chunk_header(char* cache, int nb_cache, bool c0);
-public:
-    /**
-    * copy current shared ptr message, use ref-count.
-    * @remark, assert object is created.
-    */
-    virtual SrsSharedPtrMessage* copy();
+     * subpacket can override to encode the payload to stream.
+     * @remark never invoke the super.encode_packet, it always failed.
+     */
+    virtual int encode_packet(SrsStream* stream);
 };
 
 /**
@@ -3203,7 +6191,7 @@ private:
     /**
     * cache some frequently used chunk header.
     * cs_cache, the chunk stream cache.
-    * @see https://github.com/winlinvip/simple-rtmp-server/issues/249
+    * @see https://github.com/simple-rtmp-server/srs/issues/249
     */
     SrsChunkStream** cs_cache;
     /**
@@ -3221,7 +6209,7 @@ private:
     /**
     * whether auto response when recv messages.
     * default to true for it's very easy to use the protocol stack.
-    * @see: https://github.com/winlinvip/simple-rtmp-server/issues/217
+    * @see: https://github.com/simple-rtmp-server/srs/issues/217
     */
     bool auto_response_when_recv;
     /**
@@ -3259,7 +6247,7 @@ public:
     /**
     * set the auto response message when recv for protocol stack.
     * @param v, whether auto response message when recv message.
-    * @see: https://github.com/winlinvip/simple-rtmp-server/issues/217
+    * @see: https://github.com/simple-rtmp-server/srs/issues/217
     */
     virtual void set_auto_response(bool v);
     /**
@@ -3277,7 +6265,7 @@ public:
     * that is, we merge some data to read together.
     * @param v true to ename merged read.
     * @param handler the handler when merge read is enabled.
-    * @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+    * @see https://github.com/simple-rtmp-server/srs/issues/241
     */
     virtual void set_merge_read(bool v, IMergeReadHandler* handler);
     /**
@@ -3285,7 +6273,7 @@ public:
     * @param buffer the size of buffer.
     * @remark when MR(SRS_PERF_MERGED_READ) disabled, always set to 8K.
     * @remark when buffer changed, the previous ptr maybe invalid.
-    * @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+    * @see https://github.com/simple-rtmp-server/srs/issues/241
     */
     virtual void set_recv_buffer(int buffer_size);
 #endif
@@ -3512,60 +6500,6 @@ public:
 };
 
 /**
-* the decoded message payload.
-* @remark we seperate the packet from message,
-*        for the packet focus on logic and domain data,
-*        the message bind to the protocol and focus on protocol, such as header.
-*         we can merge the message and packet, using OOAD hierachy, packet extends from message,
-*         it's better for me to use components -- the message use the packet as payload.
-*/
-class SrsPacket
-{
-public:
-    SrsPacket();
-    virtual ~SrsPacket();
-public:
-    /**
-    * the subpacket can override this encode,
-    * for example, video and audio will directly set the payload withou memory copy,
-    * other packet which need to serialize/encode to bytes by override the 
-    * get_size and encode_packet.
-    */
-    virtual int encode(int& size, char*& payload);
-// decode functions for concrete packet to override.
-public:
-    /**
-    * subpacket must override to decode packet from stream.
-    * @remark never invoke the super.decode, it always failed.
-    */
-    virtual int decode(SrsStream* stream);
-// encode functions for concrete packet to override.
-public:
-    /**
-    * the cid(chunk id) specifies the chunk to send data over.
-    * generally, each message perfer some cid, for example, 
-    * all protocol control messages perfer RTMP_CID_ProtocolControl,
-    * SrsSetWindowAckSizePacket is protocol control message.
-    */
-    virtual int get_prefer_cid();
-    /**
-    * subpacket must override to provide the right message type.
-    * the message type set the RTMP message type in header.
-    */
-    virtual int get_message_type();
-protected:
-    /**
-    * subpacket can override to calc the packet size.
-    */
-    virtual int get_size();
-    /**
-    * subpacket can override to encode the payload to stream.
-    * @remark never invoke the super.encode_packet, it always failed.
-    */
-    virtual int encode_packet(SrsStream* stream);
-};
-
-/**
 * 4.1.1. connect
 * The client sends the connect command to the server to request
 * connection to a server application instance.
@@ -3574,7 +6508,7 @@ class SrsConnectAppPacket : public SrsPacket
 {
 public:
     /**
-    * Name of the command. Set to “connect”.
+    * Name of the command. Set to "connect".
     */
     std::string command_name;
     /**
@@ -3627,8 +6561,8 @@ public:
     */
     SrsAmf0Object* props;
     /**
-    * Name-value pairs that describe the response from|the server. ‘code’,
-    * ‘level’, ‘description’ are names of few among such information.
+    * Name-value pairs that describe the response from|the server. 'code',
+    * 'level', 'description' are names of few among such information.
     * @remark, never be NULL.
     */
     SrsAmf0Object* info;
@@ -3736,7 +6670,7 @@ class SrsCreateStreamPacket : public SrsPacket
 {
 public:
     /**
-    * Name of the command. Set to “createStream”.
+    * Name of the command. Set to "createStream".
     */
     std::string command_name;
     /**
@@ -3807,7 +6741,7 @@ class SrsCloseStreamPacket : public SrsPacket
 {
 public:
     /**
-    * Name of the command, set to “closeStream”.
+    * Name of the command, set to "closeStream".
     */
     std::string command_name;
     /**
@@ -3918,7 +6852,7 @@ class SrsPublishPacket : public SrsPacket
 {
 public:
     /**
-    * Name of the command, set to “publish”.
+    * Name of the command, set to "publish".
     */
     std::string command_name;
     /**
@@ -3935,7 +6869,7 @@ public:
     */
     std::string stream_name;
     /**
-    * Type of publishing. Set to “live”, “record”, or “append”.
+    * Type of publishing. Set to "live", "record", or "append".
     *   record: The stream is published and the data is recorded to a new file.The file
     *           is stored on the server in a subdirectory within the directory that
     *           contains the server application. If the file already exists, it is 
@@ -3971,7 +6905,7 @@ class SrsPausePacket : public SrsPacket
 {
 public:
     /**
-    * Name of the command, set to “pause”.
+    * Name of the command, set to "pause".
     */
     std::string command_name;
     /**
@@ -4010,7 +6944,7 @@ class SrsPlayPacket : public SrsPacket
 {
 public:
     /**
-    * Name of the command. Set to “play”.
+    * Name of the command. Set to "play".
     */
     std::string command_name;
     /**
@@ -4174,7 +7108,7 @@ public:
     SrsAmf0Any* args; // null
     /**
     * Name-value pairs that describe the response from the server. 
-    * ‘code’,‘level’, ‘description’ are names of few among such information.
+    * 'code','level', 'description' are names of few among such information.
     * @remark, never be NULL, an AMF0 object instance.
     */
     SrsAmf0Object* data;
@@ -4216,7 +7150,7 @@ public:
     SrsAmf0Any* args; // null
     /**
     * Name-value pairs that describe the response from the server.
-    * ‘code’,‘level’, ‘description’ are names of few among such information.
+    * 'code','level', 'description' are names of few among such information.
     * @remark, never be NULL, an AMF0 object instance.
     */
     SrsAmf0Object* data;
@@ -4274,7 +7208,7 @@ public:
     std::string command_name;
     /**
     * Name-value pairs that describe the response from the server.
-    * ‘code’, are names of few among such information.
+    * 'code', are names of few among such information.
     * @remark, never be NULL, an AMF0 object instance.
     */
     SrsAmf0Object* data;
@@ -4303,13 +7237,13 @@ public:
     std::string command_name;
     /**
     * whether allow access the sample of video.
-    * @see: https://github.com/winlinvip/simple-rtmp-server/issues/49
+    * @see: https://github.com/simple-rtmp-server/srs/issues/49
     * @see: http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/net/NetStream.html#videoSampleAccess
     */
     bool video_sample_access;
     /**
     * whether allow access the sample of audio.
-    * @see: https://github.com/winlinvip/simple-rtmp-server/issues/49
+    * @see: https://github.com/simple-rtmp-server/srs/issues/49
     * @see: http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/net/NetStream.html#audioSampleAccess
     */
     bool audio_sample_access;
@@ -4556,7 +7490,7 @@ enum SrcPCUCEventType
 * +------------------------------+-------------------------
 * | Event Type ( 2- bytes ) | Event Data
 * +------------------------------+-------------------------
-* Figure 5 Pay load for the ‘User Control Message’.
+* Figure 5 Pay load for the 'User Control Message'.
 */
 class SrsUserControlPacket : public SrsPacket
 {
@@ -4588,11 +7522,11 @@ protected:
 
 #endif
 
-// following is generated by src/rtmp/srs_protocol_rtmp.hpp
+// following is generated by src/protocol/srs_rtmp_sdk.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -4616,14 +7550,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_RTMP_PROTOCOL_RTMP_HPP
 
 /*
-//#include <srs_protocol_rtmp.hpp>
+//#include <srs_rtmp_sdk.hpp>
 */
 
 //#include <srs_core.hpp>
 
 #include <string>
 
-//#include <srs_protocol_stack.hpp>
+//#include <srs_rtmp_stack.hpp>
 //#include <srs_core_performance.hpp>
 
 class SrsProtocol;
@@ -4640,10 +7574,43 @@ class SrsAmf0Object;
 class IMergeReadHandler;
 
 /**
+ * the signature for packets to client.
+ */
+#define RTMP_SIG_FMS_VER                        "3,5,3,888"
+#define RTMP_SIG_AMF0_VER                       0
+#define RTMP_SIG_CLIENT_ID                      "ASAICiss"
+
+/**
+ * onStatus consts.
+ */
+#define StatusLevel                             "level"
+#define StatusCode                              "code"
+#define StatusDescription                       "description"
+#define StatusDetails                           "details"
+#define StatusClientId                          "clientid"
+// status value
+#define StatusLevelStatus                       "status"
+// status error
+#define StatusLevelError                        "error"
+// code value
+#define StatusCodeConnectSuccess                "NetConnection.Connect.Success"
+#define StatusCodeConnectRejected               "NetConnection.Connect.Rejected"
+#define StatusCodeStreamReset                   "NetStream.Play.Reset"
+#define StatusCodeStreamStart                   "NetStream.Play.Start"
+#define StatusCodeStreamPause                   "NetStream.Pause.Notify"
+#define StatusCodeStreamUnpause                 "NetStream.Unpause.Notify"
+#define StatusCodePublishStart                  "NetStream.Publish.Start"
+#define StatusCodeDataStart                     "NetStream.Data.Start"
+#define StatusCodeUnpublishSuccess              "NetStream.Unpublish.Success"
+
+/**
 * the original request from client.
 */
 class SrsRequest
 {
+public:
+    // client ip.
+    std::string ip;
 public:
     /**
     * tcUrl: rtmp://request_vhost:port/app/stream
@@ -4673,12 +7640,12 @@ public:
     std::string stream;
     // for play live stream, 
     // used to specified the stop when exceed the duration.
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/45
+    // @see https://github.com/simple-rtmp-server/srs/issues/45
     // in ms.
     double duration;
     // the token in the connect request,
     // used for edge traverse to origin authentication,
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/104
+    // @see https://github.com/simple-rtmp-server/srs/issues/104
     SrsAmf0Object* args;
 public:
     SrsRequest();
@@ -4931,7 +7898,7 @@ public:
     /**
     * set the auto response message when recv for protocol stack.
     * @param v, whether auto response message when recv message.
-    * @see: https://github.com/winlinvip/simple-rtmp-server/issues/217
+    * @see: https://github.com/simple-rtmp-server/srs/issues/217
     */
     virtual void set_auto_response(bool v);
 #ifdef SRS_PERF_MERGED_READ
@@ -4941,7 +7908,7 @@ public:
     * that is, we merge some data to read together.
     * @param v true to ename merged read.
     * @param handler the handler when merge read is enabled.
-    * @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+    * @see https://github.com/simple-rtmp-server/srs/issues/241
     */
     virtual void set_merge_read(bool v, IMergeReadHandler* handler);
     /**
@@ -4949,7 +7916,7 @@ public:
     * @param buffer the size of buffer.
     * @remark when MR(SRS_PERF_MERGED_READ) disabled, always set to 8K.
     * @remark when buffer changed, the previous ptr maybe invalid.
-    * @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+    * @see https://github.com/simple-rtmp-server/srs/issues/241
     */
     virtual void set_recv_buffer(int buffer_size);
 #endif
@@ -5004,7 +7971,7 @@ public:
     * @param stream_id, the stream id of packet to send over, 0 for control message.
     *
     * @remark performance issue, to support 6k+ 250kbps client,
-    *       @see https://github.com/winlinvip/simple-rtmp-server/issues/194
+    *       @see https://github.com/simple-rtmp-server/srs/issues/194
     */
     virtual int send_and_free_messages(SrsSharedPtrMessage** msgs, int nb_msgs, int stream_id);
     /**
@@ -5127,11 +8094,11 @@ private:
 
 #endif
 
-// following is generated by src/rtmp/srs_protocol_handshake.hpp
+// following is generated by src/protocol/srs_rtmp_handshake.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -5155,7 +8122,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_RTMP_PROTOCOL_HANDSHKAE_HPP
 
 /*
-//#include <srs_protocol_handshake.hpp>
+//#include <srs_rtmp_handshake.hpp>
 */
 
 //#include <srs_core.hpp>
@@ -5173,7 +8140,7 @@ class SrsStream;
 namespace _srs_internal
 {
     // the digest key generate size.
-    #define __SRS_OpensslHashSize 512
+    #define SRS_OpensslHashSize 512
     extern u_int8_t SrsGenuineFMSKey[];
     extern u_int8_t SrsGenuineFPKey[];
     int openssl_HMACsha256(const void* key, int key_size, const void* data, int data_size, void* digest);
@@ -5674,11 +8641,11 @@ public:
 };
 
 #endif
-// following is generated by src/rtmp/srs_protocol_utility.hpp
+// following is generated by src/protocol/srs_rtmp_utility.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -5702,16 +8669,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_RTMP_PROTOCOL_CONSTS_HPP
 
 /*
-//#include <srs_protocol_utility.hpp>
+//#include <srs_rtmp_utility.hpp>
 */
 //#include <srs_core.hpp>
+
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+#include <sys/uio.h>
+#endif
 
 #include <string>
 
 //#include <srs_kernel_consts.hpp>
 
-class SrsStream;
 class SrsMessageHeader;
+class SrsSharedPtrMessage;
+class ISrsProtocolReaderWriter;
 
 /**
 * parse the tcUrl, output the schema, host, vhost, app and port.
@@ -5740,7 +8713,9 @@ extern void srs_discovery_tc_url(
 *   app...vhost...request_vhost
 * @param param, the query, for example, ?vhost=xxx
 */ 
-extern void srs_vhost_resolve(std::string& vhost, std::string& app, std::string& param);
+extern void srs_vhost_resolve(
+    std::string& vhost, std::string& app, std::string& param
+);
 
 /**
 * generate ramdom data for handshake.
@@ -5766,51 +8741,25 @@ extern std::string srs_generate_tc_url(
 extern bool srs_bytes_equals(void* pa, void* pb, int size);
 
 /**
-* whether stream starts with the avc NALU in "AnnexB" 
-* from H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
-* start code must be "N[00] 00 00 01" where N>=0
-* @param pnb_start_code output the size of start code, must >=3. 
-*       NULL to ignore.
+* create shared ptr message from bytes.
+* @param data the packet bytes. user should never free it.
+* @param ppmsg output the shared ptr message. user should free it.
 */
-extern bool srs_avc_startswith_annexb(SrsStream* stream, int* pnb_start_code = NULL);
+extern int srs_rtmp_create_msg(char type, u_int32_t timestamp, char* data, int size, int stream_id, SrsSharedPtrMessage** ppmsg);
 
-/**
-* whether stream starts with the aac ADTS 
-* from aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 75, 1.A.2.2 ADTS.
-* start code must be '1111 1111 1111'B, that is 0xFFF
-*/
-extern bool srs_aac_startswith_adts(SrsStream* stream);
+// get the stream identify, vhost/app/stream.
+extern std::string srs_generate_stream_url(std::string vhost, std::string app, std::string stream);
 
-/**
-* generate the c0 chunk header for msg.
-* @param cache, the cache to write header.
-* @param nb_cache, the size of cache.
-* @return the size of header. 0 if cache not enough.
-*/
-extern int srs_chunk_header_c0(
-    int perfer_cid, u_int32_t timestamp, int32_t payload_length,
-    int8_t message_type, int32_t stream_id,
-    char* cache, int nb_cache
-);
-
-/**
-* generate the c3 chunk header for msg.
-* @param cache, the cache to write header.
-* @param nb_cache, the size of cache.
-* @return the size of header. 0 if cache not enough.
-*/
-extern int srs_chunk_header_c3(
-    int perfer_cid, u_int32_t timestamp, 
-    char* cache, int nb_cache
-);
+// write large numbers of iovs.
+extern int srs_write_large_iovs(ISrsProtocolReaderWriter* skt, iovec* iovs, int size, ssize_t* pnwrite = NULL);
 
 #endif
 
-// following is generated by src/rtmp/srs_protocol_msg_array.hpp
+// following is generated by src/protocol/srs_rtmp_msg_array.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -5834,7 +8783,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SRS_RTMP_PROTOCOL_MSG_ARRAY_HPP
 
 /*
-//#include <srs_protocol_msg_array.hpp>
+//#include <srs_rtmp_msg_array.hpp>
 */
 
 //#include <srs_core.hpp>
@@ -5883,11 +8832,11 @@ private:
 
 #endif
 
-// following is generated by src/rtmp/srs_protocol_buffer.hpp
+// following is generated by src/protocol/srs_protocol_buffer.hpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -5916,54 +8865,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_core.hpp>
 
-#include <vector>
-
-//#include <srs_protocol_io.hpp>
+//#include <srs_rtmp_io.hpp>
 //#include <srs_core_performance.hpp>
-
-/**
-* the simple buffer use vector to append bytes,
-* it's for hls and http, and need to be refined in future.
-*/
-class SrsSimpleBuffer
-{
-private:
-    std::vector<char> data;
-public:
-    SrsSimpleBuffer();
-    virtual ~SrsSimpleBuffer();
-public:
-    /**
-    * get the length of buffer. empty if zero.
-    * @remark assert length() is not negative.
-    */
-    virtual int length();
-    /**
-    * get the buffer bytes.
-    * @return the bytes, NULL if empty.
-    */
-    virtual char* bytes();
-    /**
-    * erase size of bytes from begin.
-    * @param size to erase size of bytes. 
-    *       clear if size greater than or equals to length()
-    * @remark ignore size is not positive.
-    */
-    virtual void erase(int size);
-    /**
-    * append specified bytes to buffer.
-    * @param size the size of bytes
-    * @remark assert size is positive.
-    */
-    virtual void append(const char* bytes, int size);
-};
+//#include <srs_kernel_buffer.hpp>
 
 #ifdef SRS_PERF_MERGED_READ
 /**
 * to improve read performance, merge some packets then read,
 * when it on and read small bytes, we sleep to wait more data.,
 * that is, we merge some data to read together.
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+* @see https://github.com/simple-rtmp-server/srs/issues/241
 */
 class IMergeReadHandler
 {
@@ -5983,6 +8894,12 @@ public:
 /**
 * the buffer provices bytes cache for protocol. generally, 
 * protocol recv data from socket, put into buffer, decode to RTMP message.
+* Usage:
+*       ISrsBufferReader* r = ......;
+*       SrsFastBuffer* fb = ......;
+*       fb->grow(r, 1024);
+*       char* header = fb->read_slice(100);
+*       char* payload = fb->read_payload(924);
 */
 // TODO: FIXME: add utest for it.
 class SrsFastBuffer
@@ -5995,7 +8912,7 @@ private:
 #endif
     // the user-space buffer to fill by reader,
     // which use fast index and reset when chunk body read ok.
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/248
+    // @see https://github.com/simple-rtmp-server/srs/issues/248
     // ptr to the current read position.
     char* p;
     // ptr to the content end.
@@ -6003,18 +8920,28 @@ private:
     // ptr to the buffer.
     //      buffer <= p <= end <= buffer+nb_buffer
     char* buffer;
-    // the max size of buffer.
+    // the size of buffer.
     int nb_buffer;
 public:
     SrsFastBuffer();
     virtual ~SrsFastBuffer();
 public:
     /**
+    * get the size of current bytes in buffer.
+    */
+    virtual int size();
+    /**
+    * get the current bytes in buffer.
+    * @remark user should use read_slice() if possible, 
+    *       the bytes() is used to test bytes, for example, to detect the bytes schema.
+    */
+    virtual char* bytes();
+    /**
     * create buffer with specifeid size.
-    * @param buffer the size of buffer.
+    * @param buffer the size of buffer. ignore when smaller than SRS_MAX_SOCKET_BUFFER.
     * @remark when MR(SRS_PERF_MERGED_READ) disabled, always set to 8K.
     * @remark when buffer changed, the previous ptr maybe invalid.
-    * @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+    * @see https://github.com/simple-rtmp-server/srs/issues/241
     */
     virtual void set_buffer(int buffer_size);
 public:
@@ -6026,14 +8953,16 @@ public:
     /**
     * read a slice in size bytes, move to next bytes.
     * user can use this char* ptr directly, and should never free it.
-    * @remark assert buffer already grow(size).
-    * @remark the ptr returned maybe invalid after grow(x).
+    * @remark user can use the returned ptr util grow(size),
+    *       for the ptr returned maybe invalid after grow(x).
     */
     virtual char* read_slice(int size);
     /**
     * skip some bytes in buffer.
     * @param size the bytes to skip. positive to next; negative to previous.
     * @remark assert buffer already grow(size).
+    * @remark always use read_slice to consume bytes, which will reset for EOF.
+    *       while skip never consume bytes.
     */
     virtual void skip(int size);
 public:
@@ -6053,10 +8982,1616 @@ public:
     * that is, we merge some data to read together.
     * @param v true to ename merged read.
     * @param handler the handler when merge read is enabled.
-    * @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+    * @see https://github.com/simple-rtmp-server/srs/issues/241
+    * @remark the merged read is optional, ignore if not specifies.
     */
     virtual void set_merge_read(bool v, IMergeReadHandler* handler);
 #endif
+};
+
+#endif
+// following is generated by src/protocol/srs_raw_avc.hpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef SRS_PROTOCOL_RAW_AVC_HPP
+#define SRS_PROTOCOL_RAW_AVC_HPP
+
+/*
+//#include <srs_raw_avc.hpp>
+*/
+
+//#include <srs_core.hpp>
+
+#include <string>
+
+//#include <srs_kernel_codec.hpp>
+
+class SrsStream;
+
+/**
+* the raw h.264 stream, in annexb.
+*/
+class SrsRawH264Stream
+{
+public:
+    SrsRawH264Stream();
+    virtual ~SrsRawH264Stream();
+public:
+    /**
+    * demux the stream in annexb format.
+    * @param stream the input stream bytes.
+    * @param pframe the output h.264 frame in stream. user should never free it.
+    * @param pnb_frame the output h.264 frame size.
+    */
+    virtual int annexb_demux(SrsStream* stream, char** pframe, int* pnb_frame);
+    /**
+    * whether the frame is sps or pps.
+    */
+    virtual bool is_sps(char* frame, int nb_frame);
+    virtual bool is_pps(char* frame, int nb_frame);
+    /**
+    * demux the sps or pps to string.
+    * @param sps/pps output the sps/pps.
+    */
+    virtual int sps_demux(char* frame, int nb_frame, std::string& sps);
+    virtual int pps_demux(char* frame, int nb_frame, std::string& pps);
+public:
+    /**
+    * h264 raw data to h264 packet, without flv payload header.
+    * mux the sps/pps to flv sequence header packet.
+    * @param sh output the sequence header.
+    */
+    virtual int mux_sequence_header(std::string sps, std::string pps, u_int32_t dts, u_int32_t pts, std::string& sh);
+    /**
+    * h264 raw data to h264 packet, without flv payload header.
+    * mux the ibp to flv ibp packet.
+    * @param ibp output the packet.
+    * @param frame_type output the frame type.
+    */
+    virtual int mux_ipb_frame(char* frame, int nb_frame, std::string& ibp);
+    /**
+    * mux the avc video packet to flv video packet.
+    * @param frame_type, SrsCodecVideoAVCFrameKeyFrame or SrsCodecVideoAVCFrameInterFrame.
+    * @param avc_packet_type, SrsCodecVideoAVCTypeSequenceHeader or SrsCodecVideoAVCTypeNALU.
+    * @param video the h.264 raw data.
+    * @param flv output the muxed flv packet.
+    * @param nb_flv output the muxed flv size.
+    */
+    virtual int mux_avc2flv(std::string video, int8_t frame_type, int8_t avc_packet_type, u_int32_t dts, u_int32_t pts, char** flv, int* nb_flv);
+};
+
+/**
+* the header of adts sample.
+*/
+struct SrsRawAacStreamCodec
+{
+    int8_t protection_absent;
+    SrsAacObjectType aac_object;
+    int8_t sampling_frequency_index;
+    int8_t channel_configuration;
+    int16_t frame_length;
+
+    char sound_format;
+    char sound_rate;
+    char sound_size;
+    char sound_type;
+    // 0 for sh; 1 for raw data.
+    int8_t aac_packet_type;
+};
+
+/**
+* the raw aac stream, in adts.
+*/
+class SrsRawAacStream
+{
+public:
+    SrsRawAacStream();
+    virtual ~SrsRawAacStream();
+public:
+    /**
+    * demux the stream in adts format.
+    * @param stream the input stream bytes.
+    * @param pframe the output aac frame in stream. user should never free it.
+    * @param pnb_frame the output aac frame size.
+    * @param codec the output codec info.
+    */
+    virtual int adts_demux(SrsStream* stream, char** pframe, int* pnb_frame, SrsRawAacStreamCodec& codec);
+    /**
+    * aac raw data to aac packet, without flv payload header.
+    * mux the aac specific config to flv sequence header packet.
+    * @param sh output the sequence header.
+    */
+    virtual int mux_sequence_header(SrsRawAacStreamCodec* codec, std::string& sh);
+    /**
+    * mux the aac audio packet to flv audio packet.
+    * @param frame the aac raw data.
+    * @param nb_frame the count of aac frame.
+    * @param codec the codec info of aac.
+    * @param flv output the muxed flv packet.
+    * @param nb_flv output the muxed flv size.
+    */
+    virtual int mux_aac2flv(char* frame, int nb_frame, SrsRawAacStreamCodec* codec, u_int32_t dts, char** flv, int* nb_flv);
+};
+
+#endif
+// following is generated by src/protocol/srs_rtsp_stack.hpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef SRS_PROTOCOL_RTSP_STACK_HPP
+#define SRS_PROTOCOL_RTSP_STACK_HPP
+
+/*
+//#include <srs_rtsp_stack.hpp>
+*/
+
+//#include <srs_core.hpp>
+
+#include <string>
+#include <sstream>
+
+//#include <srs_kernel_consts.hpp>
+
+#ifdef SRS_AUTO_STREAM_CASTER
+
+class SrsStream;
+class SrsSimpleBuffer;
+class SrsCodecSample;
+class ISrsProtocolReaderWriter;
+
+// rtsp specification
+// CR             = <US-ASCII CR, carriage return (13)>
+#define SRS_RTSP_CR SRS_CONSTS_CR // 0x0D
+// LF             = <US-ASCII LF, linefeed (10)>
+#define SRS_RTSP_LF SRS_CONSTS_LF // 0x0A
+// SP             = <US-ASCII SP, space (32)>
+#define SRS_RTSP_SP ' ' // 0x20
+
+// 4 RTSP Message, @see rtsp-rfc2326-1998.pdf, page 37
+// Lines are terminated by CRLF, but
+// receivers should be prepared to also interpret CR and LF by
+// themselves as line terminators.
+#define SRS_RTSP_CRLF "\r\n" // 0x0D0A
+#define SRS_RTSP_CRLFCRLF "\r\n\r\n" // 0x0D0A0D0A
+
+// RTSP token
+#define SRS_RTSP_TOKEN_CSEQ "CSeq"
+#define SRS_RTSP_TOKEN_PUBLIC "Public"
+#define SRS_RTSP_TOKEN_CONTENT_TYPE "Content-Type"
+#define SRS_RTSP_TOKEN_CONTENT_LENGTH "Content-Length"
+#define SRS_RTSP_TOKEN_TRANSPORT "Transport"
+#define SRS_RTSP_TOKEN_SESSION "Session"
+
+// RTSP methods
+#define SRS_METHOD_OPTIONS            "OPTIONS"
+#define SRS_METHOD_DESCRIBE           "DESCRIBE"
+#define SRS_METHOD_ANNOUNCE           "ANNOUNCE"
+#define SRS_METHOD_SETUP              "SETUP"
+#define SRS_METHOD_PLAY               "PLAY"
+#define SRS_METHOD_PAUSE              "PAUSE"
+#define SRS_METHOD_TEARDOWN           "TEARDOWN"
+#define SRS_METHOD_GET_PARAMETER      "GET_PARAMETER"
+#define SRS_METHOD_SET_PARAMETER      "SET_PARAMETER"
+#define SRS_METHOD_REDIRECT           "REDIRECT"
+#define SRS_METHOD_RECORD             "RECORD"
+// Embedded (Interleaved) Binary Data
+
+// RTSP-Version
+#define SRS_RTSP_VERSION "RTSP/1.0"
+
+/**
+* the rtsp sdp parse state.
+*/
+enum SrsRtspSdpState
+{
+    /**
+    * other sdp properties.
+    */
+    SrsRtspSdpStateOthers,
+    /**
+    * parse sdp audio state.
+    */
+    SrsRtspSdpStateAudio,
+    /**
+    * parse sdp video state.
+    */
+    SrsRtspSdpStateVideo,
+};
+
+/**
+* 10 Method Definitions, @see rtsp-rfc2326-1998.pdf, page 57
+* The method token indicates the method to be performed on the resource
+* identified by the Request-URI. The method is case-sensitive. New
+* methods may be defined in the future. Method names may not start with
+* a $ character (decimal 24) and must be a token. Methods are
+* summarized in Table 2.
+* Notes on Table 2: PAUSE is recommended, but not required in that a
+* fully functional server can be built that does not support this
+* method, for example, for live feeds. If a server does not support a
+* particular method, it MUST return "501 Not Implemented" and a client
+* SHOULD not try this method again for this server.
+*/
+enum SrsRtspMethod
+{
+    SrsRtspMethodDescribe           = 0x0001,
+    SrsRtspMethodAnnounce           = 0x0002,
+    SrsRtspMethodGetParameter       = 0x0004,
+    SrsRtspMethodOptions            = 0x0008,
+    SrsRtspMethodPause              = 0x0010,
+    SrsRtspMethodPlay               = 0x0020,
+    SrsRtspMethodRecord             = 0x0040,
+    SrsRtspMethodRedirect           = 0x0080,
+    SrsRtspMethodSetup              = 0x0100,
+    SrsRtspMethodSetParameter       = 0x0200,
+    SrsRtspMethodTeardown           = 0x0400,
+};
+
+/**
+* the state of rtsp token.
+*/
+enum SrsRtspTokenState
+{
+    /**
+    * parse token failed, default state.
+    */
+    SrsRtspTokenStateError = 100,
+    /**
+    * when SP follow the token.
+    */
+    SrsRtspTokenStateNormal = 101,
+    /**
+    * when CRLF follow the token.
+    */
+    SrsRtspTokenStateEOF = 102,
+};
+
+/**
+* the rtp packet.
+* 5. RTP Data Transfer Protocol, @see rtp-rfc3550-2003.pdf, page 12
+*/
+class SrsRtpPacket
+{
+public:
+    /**
+    * version (V): 2 bits
+    * This eld identies the version of RTP. The version dened by this specication is two (2).
+    * (The value 1 is used by the rst draft version of RTP and the value 0 is used by the protocol
+    * initially implemented in the \vat" audio tool.)
+    */
+    int8_t version; //2bits
+    /**
+    * padding (P): 1 bit
+    * If the padding bit is set, the packet contains one or more additional padding octets at the
+    * end which are not part of the payload. The last octet of the padding contains a count of
+    * how many padding octets should be ignored, including itself. Padding may be needed by
+    * some encryption algorithms with xed block sizes or for carrying several RTP packets in a
+    * lower-layer protocol data unit.
+    */
+    int8_t padding; //1bit
+    /**
+    * extension (X): 1 bit
+    * If the extension bit is set, the xed header must be followed by exactly one header extension,
+    * with a format dened in Section 5.3.1.
+    */
+    int8_t extension; //1bit
+    /**
+    * CSRC count (CC): 4 bits
+    * The CSRC count contains the number of CSRC identiers that follow the xed header.
+    */
+    int8_t csrc_count; //4bits
+    /**
+    * marker (M): 1 bit
+    * The interpretation of the marker is dened by a prole. It is intended to allow signicant
+    * events such as frame boundaries to be marked in the packet stream. A prole may dene
+    * additional marker bits or specify that there is no marker bit by changing the number of bits
+    * in the payload type eld (see Section 5.3).
+    */
+    int8_t marker; //1bit
+    /**
+    * payload type (PT): 7 bits
+    * This eld identies the format of the RTP payload and determines its interpretation by the
+    * application. A prole may specify a default static mapping of payload type codes to payload
+    * formats. Additional payload type codes may be dened dynamically through non-RTP means
+    * (see Section 3). A set of default mappings for audio and video is specied in the companion
+    * RFC 3551 [1]. An RTP source may change the payload type during a session, but this eld
+    * should not be used for multiplexing separate media streams (see Section 5.2).
+    * A receiver must ignore packets with payload types that it does not understand.
+    */
+    int8_t payload_type; //7bits
+    /**
+    * sequence number: 16 bits
+    * The sequence number increments by one for each RTP data packet sent, and may be used
+    * by the receiver to detect packet loss and to restore packet sequence. The initial value of the
+    * sequence number should be random (unpredictable) to make known-plaintext attacks on
+    * encryption more dicult, even if the source itself does not encrypt according to the method
+    * in Section 9.1, because the packets may flow through a translator that does. Techniques for
+    * choosing unpredictable numbers are discussed in [17].
+    */
+    u_int16_t sequence_number; //16bits
+    /**
+    * timestamp: 32 bits
+    * The timestamp reflects the sampling instant of the rst octet in the RTP data packet. The
+    * sampling instant must be derived from a clock that increments monotonically and linearly
+    * in time to allow synchronization and jitter calculations (see Section 6.4.1). The resolution
+    * of the clock must be sucient for the desired synchronization accuracy and for measuring
+    * packet arrival jitter (one tick per video frame is typically not sucient). The clock frequency
+    * is dependent on the format of data carried as payload and is specied statically in the prole
+    * or payload format specication that denes the format, or may be specied dynamically for
+    * payload formats dened through non-RTP means. If RTP packets are generated periodically,
+    * the nominal sampling instant as determined from the sampling clock is to be used, not a
+    * reading of the system clock. As an example, for xed-rate audio the timestamp clock would
+    * likely increment by one for each sampling period. If an audio application reads blocks covering
+    * 160 sampling periods from the input device, the timestamp would be increased by 160 for
+    * each such block, regardless of whether the block is transmitted in a packet or dropped as
+    * silent.
+    *
+    * The initial value of the timestamp should be random, as for the sequence number. Several
+    * consecutive RTP packets will have equal timestamps if they are (logically) generated at once,
+    * e.g., belong to the same video frame. Consecutive RTP packets may contain timestamps that
+    * are not monotonic if the data is not transmitted in the order it was sampled, as in the case
+    * of MPEG interpolated video frames. (The sequence numbers of the packets as transmitted
+    * will still be monotonic.)
+    * 
+    * RTP timestamps from dierent media streams may advance at dierent rates and usually
+    * have independent, random osets. Therefore, although these timestamps are sucient to
+    * reconstruct the timing of a single stream, directly comparing RTP timestamps from dierent
+    * media is not eective for synchronization. Instead, for each medium the RTP timestamp
+    * is related to the sampling instant by pairing it with a timestamp from a reference clock
+    * (wallclock) that represents the time when the data corresponding to the RTP timestamp was
+    * sampled. The reference clock is shared by all media to be synchronized. The timestamp
+    * pairs are not transmitted in every data packet, but at a lower rate in RTCP SR packets as
+    * described in Section 6.4.
+    * 
+    * The sampling instant is chosen as the point of reference for the RTP timestamp because it is
+    * known to the transmitting endpoint and has a common denition for all media, independent
+    * of encoding delays or other processing. The purpose is to allow synchronized presentation of
+    * all media sampled at the same time.
+    * 
+    * Applications transmitting stored data rather than data sampled in real time typically use a
+    * virtual presentation timeline derived from wallclock time to determine when the next frame
+    * or other unit of each medium in the stored data should be presented. In this case, the RTP
+    * timestamp would reflect the presentation time for each unit. That is, the RTP timestamp for
+    * each unit would be related to the wallclock time at which the unit becomes current on the
+    * virtual presentation timeline. Actual presentation occurs some time later as determined by
+    * the receiver.
+    * 
+    * An example describing live audio narration of prerecorded video illustrates the signicance
+    * of choosing the sampling instant as the reference point. In this scenario, the video would
+    * be presented locally for the narrator to view and would be simultaneously transmitted using
+    * RTP. The \sampling instant" of a video frame transmitted in RTP would be established by
+    * referencing its timestamp to the wallclock time when that video frame was presented to the
+    * narrator. The sampling instant for the audio RTP packets containing the narrator's speech
+    * would be established by referencing the same wallclock time when the audio was sampled.
+    * The audio and video may even be transmitted by dierent hosts if the reference clocks on
+    * the two hosts are synchronized by some means such as NTP. A receiver can then synchronize
+    * presentation of the audio and video packets by relating their RTP timestamps using the
+    * timestamp pairs in RTCP SR packets.
+    */
+    u_int32_t timestamp; //32bits
+    /**
+    * SSRC: 32 bits
+    * The SSRC eld identies the synchronization source. This identier should be chosen
+    * randomly, with the intent that no two synchronization sources within the same RTP session
+    * will have the same SSRC identier. An example algorithm for generating a random identier
+    * is presented in Appendix A.6. Although the probability of multiple sources choosing the same
+    * identier is low, all RTP implementations must be prepared to detect and resolve collisions.
+    * Section 8 describes the probability of collision along with a mechanism for resolving collisions
+    * and detecting RTP-level forwarding loops based on the uniqueness of the SSRC identier. If
+    * a source changes its source transport address, it must also choose a new SSRC identier to
+    * avoid being interpreted as a looped source (see Section 8.2).
+    */
+    u_int32_t ssrc; //32bits
+
+    // the payload.
+    SrsSimpleBuffer* payload;
+    // whether transport in chunked payload.
+    bool chunked;
+    // whether message is completed.
+    // normal message always completed.
+    // while chunked completed when the last chunk arriaved.
+    bool completed;
+
+    /**
+    * the audio samples, one rtp packets may contains multiple audio samples.
+    */
+    SrsCodecSample* audio_samples;
+public:
+    SrsRtpPacket();
+    virtual ~SrsRtpPacket();
+public:
+    /**
+    * copy the header from src.
+    */
+    virtual void copy(SrsRtpPacket* src);
+    /**
+    * reap the src to this packet, reap the payload.
+    */
+    virtual void reap(SrsRtpPacket* src);
+    /**
+    * decode rtp packet from stream.
+    */
+    virtual int decode(SrsStream* stream);
+private:
+    virtual int decode_97(SrsStream* stream);
+    virtual int decode_96(SrsStream* stream);
+};
+
+/**
+* the sdp in announce, @see rtsp-rfc2326-1998.pdf, page 159
+* Appendix C: Use of SDP for RTSP Session Descriptions
+* The Session Description Protocol (SDP, RFC 2327 [6]) may be used to
+* describe streams or presentations in RTSP.
+*/
+class SrsRtspSdp
+{
+private:
+    SrsRtspSdpState state;
+public:
+    /**
+    * the version of sdp.
+    */
+    std::string version;
+    /**
+    * the owner/creator of sdp.
+    */
+    std::string owner_username;
+    std::string owner_session_id;
+    std::string owner_session_version;
+    std::string owner_network_type;
+    std::string owner_address_type;
+    std::string owner_address;
+    /**
+    * the session name of sdp.
+    */
+    std::string session_name;
+    /**
+    * the connection info of sdp.
+    */
+    std::string connection_network_type;
+    std::string connection_address_type;
+    std::string connection_address;
+    /**
+    * the tool attribute of sdp.
+    */
+    std::string tool;
+    /**
+    * the video attribute of sdp.
+    */
+    std::string video_port;
+    std::string video_protocol;
+    std::string video_transport_format;
+    std::string video_bandwidth_kbps;
+    std::string video_codec;
+    std::string video_sample_rate;
+    std::string video_stream_id;
+    // fmtp
+    std::string video_packetization_mode;
+    std::string video_sps; // sequence header: sps.
+    std::string video_pps; // sequence header: pps.
+    /**
+    * the audio attribute of sdp.
+    */
+    std::string audio_port;
+    std::string audio_protocol;
+    std::string audio_transport_format;
+    std::string audio_bandwidth_kbps;
+    std::string audio_codec;
+    std::string audio_sample_rate;
+    std::string audio_channel;
+    std::string audio_stream_id;
+    // fmtp
+    std::string audio_profile_level_id;
+    std::string audio_mode;
+    std::string audio_size_length;
+    std::string audio_index_length;
+    std::string audio_index_delta_length;
+    std::string audio_sh; // sequence header.
+public:
+    SrsRtspSdp();
+    virtual ~SrsRtspSdp();
+public:
+    /**
+    * parse a line of token for sdp.
+    */
+    virtual int parse(std::string token);
+private:
+    /**
+    * generally, the fmtp is the sequence header for video or audio.
+    */
+    virtual int parse_fmtp_attribute(std::string attr);
+    /**
+    * generally, the control is the stream info for video or audio.
+    */
+    virtual int parse_control_attribute(std::string attr);
+    /**
+    * decode the string by base64.
+    */
+    virtual std::string base64_decode(std::string value);
+};
+
+/**
+* the rtsp transport.
+* 12.39 Transport, @see rtsp-rfc2326-1998.pdf, page 115
+* This request header indicates which transport protocol is to be used
+* and configures its parameters such as destination address,
+* compression, multicast time-to-live and destination port for a single
+* stream. It sets those values not already determined by a presentation
+* description.
+*/
+class SrsRtspTransport
+{
+public:
+    // The syntax for the transport specifier is
+    //      transport/profile/lower-transport
+    std::string transport;
+    std::string profile;
+    std::string lower_transport;
+    // unicast | multicast
+    // mutually exclusive indication of whether unicast or multicast
+    // delivery will be attempted. Default value is multicast.
+    // Clients that are capable of handling both unicast and
+    // multicast transmission MUST indicate such capability by
+    // including two full transport-specs with separate parameters
+    // for each.
+    std::string cast_type;
+    // The mode parameter indicates the methods to be supported for
+    // this session. Valid values are PLAY and RECORD. If not
+    // provided, the default is PLAY.
+    std::string mode;
+    // This parameter provides the unicast RTP/RTCP port pair on
+    // which the client has chosen to receive media data and control
+    // information. It is specified as a range, e.g.,
+    //      client_port=3456-3457.
+    // where client will use port in:
+    //      [client_port_min, client_port_max)
+    int client_port_min;
+    int client_port_max;
+public:
+    SrsRtspTransport();
+    virtual ~SrsRtspTransport();
+public:
+    /**
+    * parse a line of token for transport.
+    */
+    virtual int parse(std::string attr);
+};
+
+/**
+* the rtsp request message.
+* 6 Request, @see rtsp-rfc2326-1998.pdf, page 39
+* A request message from a client to a server or vice versa includes,
+* within the first line of that message, the method to be applied to
+* the resource, the identifier of the resource, and the protocol
+* version in use.
+* Request = Request-Line ; Section 6.1
+*           *( general-header ; Section 5
+*           | request-header ; Section 6.2
+*           | entity-header ) ; Section 8.1
+*           CRLF
+*           [ message-body ] ; Section 4.3
+*/
+class SrsRtspRequest
+{
+public:
+    /**
+    * 6.1 Request Line
+    * Request-Line = Method SP Request-URI SP RTSP-Version CRLF
+    */
+    std::string method;
+    std::string uri;
+    std::string version;
+    /**
+    * 12.17 CSeq
+    * The CSeq field specifies the sequence number for an RTSP requestresponse
+    * pair. This field MUST be present in all requests and
+    * responses. For every RTSP request containing the given sequence
+    * number, there will be a corresponding response having the same
+    * number. Any retransmitted request must contain the same sequence
+    * number as the original (i.e. the sequence number is not incremented
+    * for retransmissions of the same request).
+    */
+    long seq;
+    /**
+    * 12.16 Content-Type, @see rtsp-rfc2326-1998.pdf, page 99
+    * See [H14.18]. Note that the content types suitable for RTSP are
+    * likely to be restricted in practice to presentation descriptions and
+    * parameter-value types.
+    */
+    std::string content_type;
+    /**
+    * 12.14 Content-Length, @see rtsp-rfc2326-1998.pdf, page 99
+    * This field contains the length of the content of the method (i.e.
+    * after the double CRLF following the last header). Unlike HTTP, it
+    * MUST be included in all messages that carry content beyond the header
+    * portion of the message. If it is missing, a default value of zero is
+    * assumed. It is interpreted according to [H14.14].
+    */
+    long content_length;
+    /**
+    * the session id.
+    */
+    std::string session;
+
+    /**
+    * the sdp in announce, NULL for no sdp.
+    */
+    SrsRtspSdp* sdp;
+    /**
+    * the transport in setup, NULL for no transport.
+    */
+    SrsRtspTransport* transport;
+    /**
+    * for setup message, parse the stream id from uri.
+    */
+    int stream_id;
+public:
+    SrsRtspRequest();
+    virtual ~SrsRtspRequest();
+public:
+    virtual bool is_options();
+    virtual bool is_announce();
+    virtual bool is_setup();
+    virtual bool is_record();
+};
+
+/**
+* the rtsp response message.
+* 7 Response, @see rtsp-rfc2326-1998.pdf, page 43
+* [H6] applies except that HTTP-Version is replaced by RTSP-Version.
+* Also, RTSP defines additional status codes and does not define some
+* HTTP codes. The valid response codes and the methods they can be used
+* with are defined in Table 1.
+* After receiving and interpreting a request message, the recipient
+* responds with an RTSP response message.
+*       Response = Status-Line ; Section 7.1
+*                   *( general-header ; Section 5
+*                   | response-header ; Section 7.1.2
+*                   | entity-header ) ; Section 8.1
+*                   CRLF
+*                   [ message-body ] ; Section 4.3
+*/
+class SrsRtspResponse
+{
+public:
+    /**
+    * 7.1 Status-Line
+    * The first line of a Response message is the Status-Line, consisting
+    * of the protocol version followed by a numeric status code, and the
+    * textual phrase associated with the status code, with each element
+    * separated by SP characters. No CR or LF is allowed except in the
+    * final CRLF sequence.
+    *       Status-Line = RTSP-Version SP Status-Code SP Reason-Phrase CRLF
+    */
+    // @see about the version of rtsp, see SRS_RTSP_VERSION
+    // @see about the status of rtsp, see SRS_CONSTS_RTSP_OK
+    int status;
+    /**
+    * 12.17 CSeq, @see rtsp-rfc2326-1998.pdf, page 99
+    * The CSeq field specifies the sequence number for an RTSP requestresponse
+    * pair. This field MUST be present in all requests and
+    * responses. For every RTSP request containing the given sequence
+    * number, there will be a corresponding response having the same
+    * number. Any retransmitted request must contain the same sequence
+    * number as the original (i.e. the sequence number is not incremented
+    * for retransmissions of the same request).
+    */
+    long seq;
+    /**
+    * the session id.
+    */
+    std::string session;
+public:
+    SrsRtspResponse(int cseq);
+    virtual ~SrsRtspResponse();
+public:
+    /**
+    * encode message to string.
+    */
+    virtual int encode(std::stringstream& ss);
+protected:
+    /**
+    * sub classes override this to encode the headers.
+    */
+    virtual int encode_header(std::stringstream& ss);
+};
+
+/**
+* 10.1 OPTIONS, @see rtsp-rfc2326-1998.pdf, page 59
+* The behavior is equivalent to that described in [H9.2]. An OPTIONS
+* request may be issued at any time, e.g., if the client is about to
+* try a nonstandard request. It does not influence server state.
+*/
+class SrsRtspOptionsResponse : public SrsRtspResponse
+{
+public:
+    /**
+    * join of SrsRtspMethod
+    */
+    SrsRtspMethod methods;
+public:
+    SrsRtspOptionsResponse(int cseq);
+    virtual ~SrsRtspOptionsResponse();
+protected:
+    virtual int encode_header(std::stringstream& ss);
+};
+
+/**
+* 10.4 SETUP, @see rtsp-rfc2326-1998.pdf, page 65
+* The SETUP request for a URI specifies the transport mechanism to be
+* used for the streamed media. A client can issue a SETUP request for a
+* stream that is already playing to change transport parameters, which
+* a server MAY allow. If it does not allow this, it MUST respond with
+* error "455 Method Not Valid In This State". For the benefit of any
+* intervening firewalls, a client must indicate the transport
+* parameters even if it has no influence over these parameters, for
+* example, where the server advertises a fixed multicast address.
+*/
+class SrsRtspSetupResponse : public SrsRtspResponse
+{
+public:
+    // the client specified port.
+    int client_port_min;
+    int client_port_max;
+    // client will use the port in:
+    //      [local_port_min, local_port_max)
+    int local_port_min;
+    int local_port_max;
+    // session.
+    std::string session;
+public:
+    SrsRtspSetupResponse(int cseq);
+    virtual ~SrsRtspSetupResponse();
+protected:
+    virtual int encode_header(std::stringstream& ss);
+};
+
+/**
+* the rtsp protocol stack to parse the rtsp packets.
+*/
+class SrsRtspStack
+{
+private:
+    /**
+    * cached bytes buffer.
+    */
+    SrsSimpleBuffer* buf;
+    /**
+    * underlayer socket object, send/recv bytes.
+    */
+    ISrsProtocolReaderWriter* skt;
+public:
+    SrsRtspStack(ISrsProtocolReaderWriter* s);
+    virtual ~SrsRtspStack();
+public:
+    /**
+    * recv rtsp message from underlayer io.
+    * @param preq the output rtsp request message, which user must free it.
+    * @return an int error code. 
+    *       ERROR_RTSP_REQUEST_HEADER_EOF indicates request header EOF.
+    */
+    virtual int recv_message(SrsRtspRequest** preq);
+    /**
+    * send rtsp message over underlayer io.
+    * @param res the rtsp response message, which user should never free it.
+    * @return an int error code.
+    */
+    virtual int send_message(SrsRtspResponse* res);
+private:
+    /**
+    * recv the rtsp message.
+    */
+    virtual int do_recv_message(SrsRtspRequest* req);
+    /**
+    * read a normal token from io, error when token state is not normal.
+    */
+    virtual int recv_token_normal(std::string& token);
+    /**
+    * read a normal token from io, error when token state is not eof.
+    */
+    virtual int recv_token_eof(std::string& token);
+    /**
+    * read the token util got eof, for example, to read the response status Reason-Phrase
+    * @param pconsumed, output the token parsed length. NULL to ignore.
+    */
+    virtual int recv_token_util_eof(std::string& token, int* pconsumed = NULL);
+    /**
+    * read a token from io, split by SP, endswith CRLF:
+    *       token1 SP token2 SP ... tokenN CRLF
+    * @param token, output the read token.
+    * @param state, output the token parse state.
+    * @param normal_ch, the char to indicates the normal token. 
+    *       the SP use to indicates the normal token, @see SRS_RTSP_SP
+    *       the 0x00 use to ignore normal token flag. @see recv_token_util_eof
+    * @param pconsumed, output the token parsed length. NULL to ignore.
+    */
+    virtual int recv_token(std::string& token, SrsRtspTokenState& state, char normal_ch = SRS_RTSP_SP, int* pconsumed = NULL);
+};
+
+#endif
+
+#endif
+
+// following is generated by src/protocol/srs_http_stack.hpp
+/*
+ The MIT License (MIT)
+ 
+ Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#ifndef SRS_PROTOCOL_HTTP_HPP
+#define SRS_PROTOCOL_HTTP_HPP
+
+/*
+ //#include <srs_http_stack.hpp>
+ */
+//#include <srs_core.hpp>
+
+#include <map>
+#include <string>
+#include <vector>
+
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+#include <sys/uio.h>
+#endif
+
+class SrsFileReader;
+class SrsHttpHeader;
+class ISrsHttpMessage;
+class SrsHttpMuxEntry;
+class ISrsHttpResponseWriter;
+
+// http specification
+// CR             = <US-ASCII CR, carriage return (13)>
+#define SRS_HTTP_CR SRS_CONSTS_CR // 0x0D
+// LF             = <US-ASCII LF, linefeed (10)>
+#define SRS_HTTP_LF SRS_CONSTS_LF // 0x0A
+// SP             = <US-ASCII SP, space (32)>
+#define SRS_HTTP_SP ' ' // 0x20
+// HT             = <US-ASCII HT, horizontal-tab (9)>
+#define SRS_HTTP_HT '\x09' // 0x09
+
+// HTTP/1.1 defines the sequence CR LF as the end-of-line marker for all
+// protocol elements except the entity-body (see appendix 19.3 for
+// tolerant applications).
+#define SRS_HTTP_CRLF "\r\n" // 0x0D0A
+#define SRS_HTTP_CRLFCRLF "\r\n\r\n" // 0x0D0A0D0A
+
+// @see ISrsHttpMessage._http_ts_send_buffer
+#define SRS_HTTP_TS_SEND_BUFFER_SIZE 4096
+
+// for ead all of http body, read each time.
+#define SRS_HTTP_READ_CACHE_BYTES 4096
+
+// default http listen port.
+#define SRS_DEFAULT_HTTP_PORT 80
+
+// for http parser macros
+#define SRS_CONSTS_HTTP_OPTIONS HTTP_OPTIONS
+#define SRS_CONSTS_HTTP_GET HTTP_GET
+#define SRS_CONSTS_HTTP_POST HTTP_POST
+#define SRS_CONSTS_HTTP_PUT HTTP_PUT
+#define SRS_CONSTS_HTTP_DELETE HTTP_DELETE
+
+// helper function: response in json format.
+extern int srs_http_response_json(ISrsHttpResponseWriter* w, std::string data);
+
+// get the status text of code.
+extern std::string srs_generate_http_status_text(int status);
+
+// bodyAllowedForStatus reports whether a given response status code
+// permits a body.  See RFC2616, section 4.4.
+extern bool srs_go_http_body_allowd(int status);
+
+// DetectContentType implements the algorithm described
+// at http://mimesniff.spec.whatwg.org/ to determine the
+// Content-Type of the given data.  It considers at most the
+// first 512 bytes of data.  DetectContentType always returns
+// a valid MIME type: if it cannot determine a more specific one, it
+// returns "application/octet-stream".
+extern std::string srs_go_http_detect(char* data, int size);
+
+// state of message
+enum SrsHttpParseState {
+    SrsHttpParseStateInit = 0,
+    SrsHttpParseStateStart,
+    SrsHttpParseStateHeaderComplete,
+    SrsHttpParseStateMessageComplete
+};
+
+// A Header represents the key-value pairs in an HTTP header.
+class SrsHttpHeader
+{
+private:
+    std::map<std::string, std::string> headers;
+public:
+    SrsHttpHeader();
+    virtual ~SrsHttpHeader();
+public:
+    // Add adds the key, value pair to the header.
+    // It appends to any existing values associated with key.
+    virtual void set(std::string key, std::string value);
+    // Get gets the first value associated with the given key.
+    // If there are no values associated with the key, Get returns "".
+    // To access multiple values of a key, access the map directly
+    // with CanonicalHeaderKey.
+    virtual std::string get(std::string key);
+public:
+    /**
+     * get the content length. -1 if not set.
+     */
+    virtual int64_t content_length();
+    /**
+     * set the content length by header "Content-Length"
+     */
+    virtual void set_content_length(int64_t size);
+public:
+    /**
+     * get the content type. empty string if not set.
+     */
+    virtual std::string content_type();
+    /**
+     * set the content type by header "Content-Type"
+     */
+    virtual void set_content_type(std::string ct);
+public:
+    /**
+     * write all headers to string stream.
+     */
+    virtual void write(std::stringstream& ss);
+};
+
+// A ResponseWriter interface is used by an HTTP handler to
+// construct an HTTP response.
+// Usage 1, response with specified length content:
+//      ISrsHttpResponseWriter* w; // create or get response.
+//      std::string msg = "Hello, HTTP!";
+//      w->header()->set_content_type("text/plain; charset=utf-8");
+//      w->header()->set_content_length(msg.length());
+//      w->write_header(SRS_CONSTS_HTTP_OK);
+//      w->write((char*)msg.data(), (int)msg.length());
+//      w->final_request(); // optional flush.
+// Usage 2, response with HTTP code only, zero content length.
+//      ISrsHttpResponseWriter* w; // create or get response.
+//      w->header()->set_content_length(0);
+//      w->write_header(SRS_CONSTS_HTTP_OK);
+//      w->final_request();
+// Usage 3, response in chunked encoding.
+//      ISrsHttpResponseWriter* w; // create or get response.
+//      std::string msg = "Hello, HTTP!";
+//      w->header()->set_content_type("application/octet-stream");
+//      w->write_header(SRS_CONSTS_HTTP_OK);
+//      w->write((char*)msg.data(), (int)msg.length());
+//      w->write((char*)msg.data(), (int)msg.length());
+//      w->write((char*)msg.data(), (int)msg.length());
+//      w->write((char*)msg.data(), (int)msg.length());
+//      w->final_request(); // required to end the chunked and flush.
+class ISrsHttpResponseWriter
+{
+public:
+    ISrsHttpResponseWriter();
+    virtual ~ISrsHttpResponseWriter();
+public:
+    // when chunked mode,
+    // final the request to complete the chunked encoding.
+    // for no-chunked mode,
+    // final to send request, for example, content-length is 0.
+    virtual int final_request() = 0;
+    
+    // Header returns the header map that will be sent by WriteHeader.
+    // Changing the header after a call to WriteHeader (or Write) has
+    // no effect.
+    virtual SrsHttpHeader* header() = 0;
+    
+    // Write writes the data to the connection as part of an HTTP reply.
+    // If WriteHeader has not yet been called, Write calls WriteHeader(http.StatusOK)
+    // before writing the data.  If the Header does not contain a
+    // Content-Type line, Write adds a Content-Type set to the result of passing
+    // the initial 512 bytes of written data to DetectContentType.
+    // @param data, the data to send. NULL to flush header only.
+    virtual int write(char* data, int size) = 0;
+    /**
+     * for the HTTP FLV, to writev to improve performance.
+     * @see https://github.com/simple-rtmp-server/srs/issues/405
+     */
+    virtual int writev(iovec* iov, int iovcnt, ssize_t* pnwrite) = 0;
+    
+    // WriteHeader sends an HTTP response header with status code.
+    // If WriteHeader is not called explicitly, the first call to Write
+    // will trigger an implicit WriteHeader(http.StatusOK).
+    // Thus explicit calls to WriteHeader are mainly used to
+    // send error codes.
+    // @remark, user must set header then write or write_header.
+    virtual void write_header(int code) = 0;
+};
+
+/**
+ * the reader interface for http response.
+ */
+class ISrsHttpResponseReader
+{
+public:
+    ISrsHttpResponseReader();
+    virtual ~ISrsHttpResponseReader();
+public:
+    /**
+     * whether response read EOF.
+     */
+    virtual bool eof() = 0;
+    /**
+     * read from the response body.
+     * @param data, the buffer to read data buffer to.
+     * @param nb_data, the max size of data buffer.
+     * @param nb_read, the actual read size of bytes. NULL to ignore.
+     * @remark when eof(), return error.
+     */
+    virtual int read(char* data, int nb_data, int* nb_read) = 0;
+};
+
+// Objects implementing the Handler interface can be
+// registered to serve a particular path or subtree
+// in the HTTP server.
+//
+// ServeHTTP should write reply headers and data to the ResponseWriter
+// and then return.  Returning signals that the request is finished
+// and that the HTTP server can move on to the next request on
+// the connection.
+class ISrsHttpHandler
+{
+public:
+    SrsHttpMuxEntry* entry;
+public:
+    ISrsHttpHandler();
+    virtual ~ISrsHttpHandler();
+public:
+    virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r) = 0;
+};
+
+// Redirect to a fixed URL
+class SrsHttpRedirectHandler : public ISrsHttpHandler
+{
+private:
+    std::string url;
+    int code;
+public:
+    SrsHttpRedirectHandler(std::string u, int c);
+    virtual ~SrsHttpRedirectHandler();
+public:
+    virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
+};
+
+// NotFound replies to the request with an HTTP 404 not found error.
+class SrsHttpNotFoundHandler : public ISrsHttpHandler
+{
+public:
+    SrsHttpNotFoundHandler();
+    virtual ~SrsHttpNotFoundHandler();
+public:
+    virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
+};
+
+// FileServer returns a handler that serves HTTP requests
+// with the contents of the file system rooted at root.
+//
+// To use the operating system's file system implementation,
+// use http.Dir:
+//
+//     http.Handle("/", SrsHttpFileServer("/tmp"))
+//     http.Handle("/", SrsHttpFileServer("static-dir"))
+class SrsHttpFileServer : public ISrsHttpHandler
+{
+protected:
+    std::string dir;
+public:
+    SrsHttpFileServer(std::string root_dir);
+    virtual ~SrsHttpFileServer();
+public:
+    virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
+private:
+    /**
+     * serve the file by specified path
+     */
+    virtual int serve_file(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, std::string fullpath);
+    virtual int serve_flv_file(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, std::string fullpath);
+    virtual int serve_mp4_file(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, std::string fullpath);
+protected:
+    /**
+     * when access flv file with x.flv?start=xxx
+     */
+    virtual int serve_flv_stream(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, std::string fullpath, int offset);
+    /**
+     * when access mp4 file with x.mp4?range=start-end
+     * @param start the start offset in bytes.
+     * @param end the end offset in bytes. -1 to end of file.
+     * @remark response data in [start, end].
+     */
+    virtual int serve_mp4_stream(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, std::string fullpath, int start, int end);
+protected:
+    /**
+     * copy the fs to response writer in size bytes.
+     */
+    virtual int copy(ISrsHttpResponseWriter* w, SrsFileReader* fs, ISrsHttpMessage* r, int size);
+};
+
+// the mux entry for server mux.
+// the matcher info, for example, the pattern and handler.
+class SrsHttpMuxEntry
+{
+public:
+    bool explicit_match;
+    ISrsHttpHandler* handler;
+    std::string pattern;
+    bool enabled;
+public:
+    SrsHttpMuxEntry();
+    virtual ~SrsHttpMuxEntry();
+};
+
+/**
+ * the hijacker for http pattern match.
+ */
+class ISrsHttpMatchHijacker
+{
+public:
+    ISrsHttpMatchHijacker();
+    virtual ~ISrsHttpMatchHijacker();
+public:
+    /**
+     * when match the request failed, no handler to process request.
+     * @param request the http request message to match the handler.
+     * @param ph the already matched handler, hijack can rewrite it.
+     */
+    virtual int hijack(ISrsHttpMessage* request, ISrsHttpHandler** ph) = 0;
+};
+
+// ServeMux is an HTTP request multiplexer.
+// It matches the URL of each incoming request against a list of registered
+// patterns and calls the handler for the pattern that
+// most closely matches the URL.
+//
+// Patterns name fixed, rooted paths, like "/favicon.ico",
+// or rooted subtrees, like "/images/" (note the trailing slash).
+// Longer patterns take precedence over shorter ones, so that
+// if there are handlers registered for both "/images/"
+// and "/images/thumbnails/", the latter handler will be
+// called for paths beginning "/images/thumbnails/" and the
+// former will receive requests for any other paths in the
+// "/images/" subtree.
+//
+// Note that since a pattern ending in a slash names a rooted subtree,
+// the pattern "/" matches all paths not matched by other registered
+// patterns, not just the URL with Path == "/".
+//
+// Patterns may optionally begin with a host name, restricting matches to
+// URLs on that host only.  Host-specific patterns take precedence over
+// general patterns, so that a handler might register for the two patterns
+// "/codesearch" and "codesearch.google.com/" without also taking over
+// requests for "http://www.google.com/".
+//
+// ServeMux also takes care of sanitizing the URL request path,
+// redirecting any request containing . or .. elements to an
+// equivalent .- and ..-free URL.
+class SrsHttpServeMux
+{
+private:
+    // the pattern handler, to handle the http request.
+    std::map<std::string, SrsHttpMuxEntry*> entries;
+    // the vhost handler.
+    // when find the handler to process the request,
+    // append the matched vhost when pattern not starts with /,
+    // for example, for pattern /live/livestream.flv of vhost ossrs.net,
+    // the path will rewrite to ossrs.net/live/livestream.flv
+    std::map<std::string, ISrsHttpHandler*> vhosts;
+    // all hijackers for http match.
+    // for example, the hstrs(http stream trigger rtmp source)
+    // can hijack and install handler when request incoming and no handler.
+    std::vector<ISrsHttpMatchHijacker*> hijackers;
+public:
+    SrsHttpServeMux();
+    virtual ~SrsHttpServeMux();
+public:
+    /**
+     * initialize the http serve mux.
+     */
+    virtual int initialize();
+    /**
+     * hijack the http match.
+     */
+    virtual void hijack(ISrsHttpMatchHijacker* h);
+    virtual void unhijack(ISrsHttpMatchHijacker* h);
+public:
+    // Handle registers the handler for the given pattern.
+    // If a handler already exists for pattern, Handle panics.
+    virtual int handle(std::string pattern, ISrsHttpHandler* handler);
+    // interface ISrsHttpHandler
+public:
+    virtual int serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r);
+private:
+    virtual int find_handler(ISrsHttpMessage* r, ISrsHttpHandler** ph);
+    virtual int match(ISrsHttpMessage* r, ISrsHttpHandler** ph);
+    virtual bool path_match(std::string pattern, std::string path);
+};
+
+// for http header.
+typedef std::pair<std::string, std::string> SrsHttpHeaderField;
+
+// A Request represents an HTTP request received by a server
+// or to be sent by a client.
+//
+// The field semantics differ slightly between client and server
+// usage. In addition to the notes on the fields below, see the
+// documentation for Request.Write and RoundTripper.
+/**
+ * the http message, request or response.
+ */
+class ISrsHttpMessage
+{
+private:
+    /**
+     * use a buffer to read and send ts file.
+     */
+    // TODO: FIXME: remove it.
+    char* _http_ts_send_buffer;
+public:
+    ISrsHttpMessage();
+    virtual ~ISrsHttpMessage();
+public:
+    /**
+     * the http request level cache.
+     */
+    virtual char* http_ts_send_buffer();
+public:
+    virtual u_int8_t method() = 0;
+    virtual u_int16_t status_code() = 0;
+    /**
+     * method helpers.
+     */
+    virtual std::string method_str() = 0;
+    virtual bool is_http_get() = 0;
+    virtual bool is_http_put() = 0;
+    virtual bool is_http_post() = 0;
+    virtual bool is_http_delete() = 0;
+    virtual bool is_http_options() = 0;
+public:
+    /**
+     * whether should keep the connection alive.
+     */
+    virtual bool is_keep_alive() = 0;
+    /**
+     * the uri contains the host and path.
+     */
+    virtual std::string uri() = 0;
+    /**
+     * the url maybe the path.
+     */
+    virtual std::string url() = 0;
+    virtual std::string host() = 0;
+    virtual std::string path() = 0;
+    virtual std::string ext() = 0;
+public:
+    /**
+     * read body to string.
+     * @remark for small http body.
+     */
+    virtual int body_read_all(std::string& body) = 0;
+    /**
+     * get the body reader, to read one by one.
+     * @remark when body is very large, or chunked, use this.
+     */
+    virtual ISrsHttpResponseReader* body_reader() = 0;
+    /**
+     * the content length, -1 for chunked or not set.
+     */
+    virtual int64_t content_length() = 0;
+public:
+    /**
+     * get the param in query string,
+     * for instance, query is "start=100&end=200",
+     * then query_get("start") is "100", and query_get("end") is "200"
+     */
+    virtual std::string query_get(std::string key) = 0;
+    /**
+     * get the headers.
+     */
+    virtual int request_header_count() = 0;
+    virtual std::string request_header_key_at(int index) = 0;
+    virtual std::string request_header_value_at(int index) = 0;
+};
+
+#endif
+// following is generated by src/protocol/srs_protocol_kbps.hpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#ifndef SRS_PROTOCOL_KBPS_HPP
+#define SRS_PROTOCOL_KBPS_HPP
+
+/*
+//#include <srs_protocol_kbps.hpp>
+*/
+
+//#include <srs_core.hpp>
+
+//#include <srs_rtmp_io.hpp>
+
+/**
+* a kbps sample, for example, 1minute kbps, 
+* 10minute kbps sample.
+*/
+class SrsKbpsSample
+{
+public:
+    int64_t bytes;
+    int64_t time;
+    int kbps;
+public:
+    SrsKbpsSample();
+};
+
+/**
+* a slice of kbps statistic, for input or output.
+* a slice contains a set of sessions, which has a base offset of bytes,
+* where a slice is:
+*       starttime(oldest session startup time)
+*               bytes(total bytes of previous sessions)
+*               io_bytes_base(bytes offset of current session)
+*                       last_bytes(bytes of current session)
+* so, the total send bytes now is:
+*       send_bytes = bytes + last_bytes - io_bytes_base
+* so, the bytes sent duration current session is:
+*       send_bytes = last_bytes - io_bytes_base
+* @remark use set_io to start new session.
+* @remakr the slice is a data collection object driven by SrsKbps.
+*/
+class SrsKbpsSlice
+{
+private:
+    union slice_io {
+        ISrsProtocolStatistic* in;
+        ISrsProtocolStatistic* out;
+    };
+public:
+    // the slice io used for SrsKbps to invoke,
+    // the SrsKbpsSlice itself never use it.
+    slice_io io;
+    // session startup bytes
+    // @remark, use total_bytes() to get the total bytes of slice.
+    int64_t bytes;
+    // slice starttime, the first time to record bytes.
+    int64_t starttime;
+    // session startup bytes number for io when set it,
+    // the base offset of bytes for io.
+    int64_t io_bytes_base;
+    // last updated bytes number,
+    // cache for io maybe freed.
+    int64_t last_bytes;
+    // samples
+    SrsKbpsSample sample_30s;
+    SrsKbpsSample sample_1m;
+    SrsKbpsSample sample_5m;
+    SrsKbpsSample sample_60m;
+public:
+    // for the delta bytes.
+    int64_t delta_bytes;
+public:
+    SrsKbpsSlice();
+    virtual ~SrsKbpsSlice();
+public:
+    /**
+    * get current total bytes.
+    */
+    virtual int64_t get_total_bytes();
+    /**
+    * resample all samples.
+    */
+    virtual void sample();
+};
+
+/**
+* the interface which provices delta of bytes.
+* for a delta, for example, a live stream connection, we can got the delta by:
+*       IKbpsDelta* delta = ...;
+*       delta->resample();
+*       kbps->add_delta(delta);
+*       delta->cleanup();
+*/
+class IKbpsDelta
+{
+public:
+    IKbpsDelta();
+    virtual ~IKbpsDelta();
+public:
+    /**
+    * resample to generate the value of delta bytes.
+    */
+    virtual void resample() = 0;
+    /**
+    * get the send or recv bytes delta.
+    */
+    virtual int64_t get_send_bytes_delta() = 0;
+    virtual int64_t get_recv_bytes_delta() = 0;
+    /**
+    * cleanup the value of delta bytes.
+    */
+    virtual void cleanup() = 0;
+};
+
+/**
+ * to statistic the kbps of io.
+ * itself can be a statistic source, for example, used for SRS bytes stat.
+ * there are some usage scenarios:
+ * 1. connections to calc kbps by sample():
+ *       SrsKbps* kbps = ...;
+ *       kbps->set_io(in, out)
+ *       kbps->sample()
+ *       kbps->get_xxx_kbps().
+ *   the connections know how many bytes already send/recv.
+ * 2. server to calc kbps by add_delta():
+ *       SrsKbps* kbps = ...;
+ *       kbps->set_io(NULL, NULL)
+ *       for each connection in connections:
+ *           IKbpsDelta* delta = connection; // where connection implements IKbpsDelta
+ *           delta->resample()
+ *           kbps->add_delta(delta)
+ *           delta->cleanup()
+ *       kbps->sample()
+ *       kbps->get_xxx_kbps().
+ * 3. kbps used as IKbpsDelta, to provides delta bytes:
+ *      SrsKbps* kbps = ...;
+ *      kbps->set_io(in, out);
+ *      IKbpsDelta* delta = (IKbpsDelta*)kbps;
+ *      delta->resample();
+ *      printf("delta is %d/%d", delta->get_send_bytes_delta(), delta->get_recv_bytes_delta());
+ *      delta->cleanup();
+ *   the server never know how many bytes already send/recv, for the connection maybe closed.
+ */
+class SrsKbps : public virtual ISrsProtocolStatistic, public virtual IKbpsDelta
+{
+private:
+    SrsKbpsSlice is;
+    SrsKbpsSlice os;
+public:
+    SrsKbps();
+    virtual ~SrsKbps();
+public:
+    /**
+    * set io to start new session.
+    * set the underlayer reader/writer,
+    * if the io destroied, for instance, the forwarder reconnect,
+    * user must set the io of SrsKbps to NULL to continue to use the kbps object.
+    * @param in the input stream statistic. can be NULL.
+    * @param out the output stream statistic. can be NULL.
+    * @remark if in/out is NULL, use the cached data for kbps.
+    */
+    virtual void set_io(ISrsProtocolStatistic* in, ISrsProtocolStatistic* out);
+public:
+    /**
+    * get total kbps, duration is from the startup of io.
+    * @remark, use sample() to update data.
+    */
+    virtual int get_send_kbps();
+    virtual int get_recv_kbps();
+    // 30s
+    virtual int get_send_kbps_30s();
+    virtual int get_recv_kbps_30s();
+    // 5m
+    virtual int get_send_kbps_5m();
+    virtual int get_recv_kbps_5m();
+public:
+    /**
+    * get the total send/recv bytes, from the startup of the oldest io.
+    * @remark, use sample() to update data.
+    */
+    virtual int64_t get_send_bytes();
+    virtual int64_t get_recv_bytes();
+public:
+    /**
+    * resample to get the delta.
+    */
+    virtual void resample();
+    /**
+    * get the delta of send/recv bytes.
+    */
+    virtual int64_t get_send_bytes_delta();
+    virtual int64_t get_recv_bytes_delta();
+    /**
+    * cleanup the delta.
+    */
+    virtual void cleanup();
+public:
+    /**
+    * add delta to kbps clac mechenism.
+    * we donot know the total bytes, but know the delta, for instance, 
+    * for rtmp server to calc total bytes and kbps.
+    * @remark user must invoke sample() to calc result after invoke this method.
+    * @param delta, assert should never be NULL.
+    */
+    virtual void add_delta(IKbpsDelta* delta);
+    /**
+    * resample all samples, ignore if in/out is NULL.
+    * used for user to calc the kbps, to sample new kbps value.
+    * @remark if user, for instance, the rtmp server to calc the total bytes,
+    *       use the add_delta() is better solutions.
+    */
+    virtual void sample();
 };
 
 #endif
@@ -6064,7 +10599,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -6104,7 +10639,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * Windows SRS-LIBRTMP pre-declare
 **************************************************************
 *************************************************************/
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifdef _WIN32
     // include windows first.
     #include <windows.h>
@@ -6149,6 +10684,7 @@ extern int srs_version_revision();
 *************************************************************/
 // the RTMP handler.
 typedef void* srs_rtmp_t;
+typedef void* srs_amf0_t;
 
 /**
 * create/destroy a rtmp protocol stack.
@@ -6193,18 +10729,30 @@ extern void srs_rtmp_destroy(srs_rtmp_t rtmp);
 */
 /**
 * srs_rtmp_handshake equals to invoke:
-*       __srs_rtmp_dns_resolve()
-*       __srs_rtmp_connect_server()
-*       __srs_rtmp_do_simple_handshake()
+*       srs_rtmp_dns_resolve()
+*       srs_rtmp_connect_server()
+*       srs_rtmp_do_simple_handshake()
 * user can use these functions if needed.
 */
 extern int srs_rtmp_handshake(srs_rtmp_t rtmp);
 // parse uri, create socket, resolve host
-extern int __srs_rtmp_dns_resolve(srs_rtmp_t rtmp);
+extern int srs_rtmp_dns_resolve(srs_rtmp_t rtmp);
 // connect socket to server
-extern int __srs_rtmp_connect_server(srs_rtmp_t rtmp);
+extern int srs_rtmp_connect_server(srs_rtmp_t rtmp);
 // do simple handshake over socket.
-extern int __srs_rtmp_do_simple_handshake(srs_rtmp_t rtmp);
+extern int srs_rtmp_do_simple_handshake(srs_rtmp_t rtmp);
+// do complex handshake over socket.
+extern int srs_rtmp_do_complex_handshake(srs_rtmp_t rtmp);
+
+/**
+* set the args of connect packet for rtmp.
+* @param args, the extra amf0 object args.
+* @remark, all params can be NULL to ignore.
+* @remark, user should never free the args for we directly use it.
+*/
+extern int srs_rtmp_set_connect_args(srs_rtmp_t rtmp, 
+    const char* tcUrl, const char* swfUrl, const char* pageUrl, srs_amf0_t args
+);
 
 /**
 * connect to rtmp vhost/app
@@ -6291,6 +10839,7 @@ extern int srs_rtmp_bandwidth_check(srs_rtmp_t rtmp,
 *            SRS_RTMP_TYPE_AUDIO, FlvTagAudio
 *            SRS_RTMP_TYPE_VIDEO, FlvTagVideo
 *            SRS_RTMP_TYPE_SCRIPT, FlvTagScript
+*            otherswise, invalid type.
 * @param timestamp, in ms, overflow in 50days
 * @param data, the packet data, according to type:
 *             FlvTagAudio, @see "E.4.2.1 AUDIODATA"
@@ -6312,6 +10861,11 @@ extern int srs_rtmp_read_packet(srs_rtmp_t rtmp,
 extern int srs_rtmp_write_packet(srs_rtmp_t rtmp, 
     char type, u_int32_t timestamp, char* data, int size
 );
+
+/**
+* whether type is script data and the data is onMetaData.
+*/
+extern srs_bool srs_rtmp_is_onMetaData(char type, char* data, int size);
 
 /*************************************************************
 **************************************************************
@@ -6364,7 +10918,7 @@ extern int srs_rtmp_write_packet(srs_rtmp_t rtmp,
 * @remark for aac, only support profile 1-4, AAC main/LC/SSR/LTP,
 *       @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 23, 1.5.1.1 Audio object type
 *
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/212
+* @see https://github.com/simple-rtmp-server/srs/issues/212
 * @see E.4.2.1 AUDIODATA of video_file_format_spec_v10_1.pdf
 * 
 * @return 0, success; otherswise, failed.
@@ -6420,7 +10974,7 @@ extern int srs_aac_adts_frame_size(char* aac_raw_data, int ac_raw_size);
 * @remark, cts = pts - dts
 * @remark, use srs_h264_startswith_annexb to check whether frame is annexb format.
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/66
+* @see https://github.com/simple-rtmp-server/srs/issues/66
 * 
 * @return 0, success; otherswise, failed.
 *       for dvbsp error, @see srs_h264_is_dvbsp_error().
@@ -6462,7 +11016,7 @@ extern int srs_h264_write_raw_frames(srs_rtmp_t rtmp,
 /**
 * whether error_code is dvbsp(drop video before sps/pps/sequence-header) error.
 *
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/203
+* @see https://github.com/simple-rtmp-server/srs/issues/203
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 * @remark why drop video?
 *       some encoder, for example, ipcamera, will send sps/pps before each IFrame,
@@ -6473,14 +11027,14 @@ extern srs_bool srs_h264_is_dvbsp_error(int error_code);
 /**
 * whether error_code is duplicated sps error.
 * 
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/204
+* @see https://github.com/simple-rtmp-server/srs/issues/204
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 */
 extern srs_bool srs_h264_is_duplicated_sps_error(int error_code);
 /**
 * whether error_code is duplicated pps error.
 * 
-* @see https://github.com/winlinvip/simple-rtmp-server/issues/204
+* @see https://github.com/simple-rtmp-server/srs/issues/204
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 */
 extern srs_bool srs_h264_is_duplicated_pps_error(int error_code);
@@ -6609,7 +11163,6 @@ extern srs_bool srs_flv_is_keyframe(char* data, int32_t size);
 **************************************************************
 *************************************************************/
 /* the output handler. */
-typedef void* srs_amf0_t;
 typedef double srs_amf0_number;
 /**
 * parse amf0 from data.
@@ -6618,6 +11171,7 @@ typedef double srs_amf0_number;
 * @remark user must free the parsed or created object by srs_amf0_free.
 */
 extern srs_amf0_t srs_amf0_parse(char* data, int size, int* nparsed);
+extern srs_amf0_t srs_amf0_create_string(const char* value);
 extern srs_amf0_t srs_amf0_create_number(srs_amf0_number value);
 extern srs_amf0_t srs_amf0_create_ecma_array();
 extern srs_amf0_t srs_amf0_create_strict_array();
@@ -6699,6 +11253,15 @@ extern int srs_utils_parse_timestamp(
     u_int32_t time, char type, char* data, int size,
     u_int32_t* ppts
 );
+    
+/**
+ * whether the flv tag specified by param type is ok.
+ * @return true when tag is video/audio/script-data; otherwise, false.
+ */
+extern srs_bool srs_utils_flv_tag_is_ok(char type);
+extern srs_bool srs_utils_flv_tag_is_audio(char type);
+extern srs_bool srs_utils_flv_tag_is_video(char type);
+extern srs_bool srs_utils_flv_tag_is_av(char type);
 
 /**
 * get the CodecID of video tag.
@@ -6936,8 +11499,9 @@ extern const char* srs_human_flv_audio_aac_packet_type2string(char aac_packet_ty
 * print the rtmp packet, use srs_human_trace/srs_human_verbose for packet,
 * and use srs_human_raw for script data body.
 * @return an error code for parse the timetstamp to dts and pts.
-*/
+ */
 extern int srs_human_print_rtmp_packet(char type, u_int32_t timestamp, char* data, int size);
+extern int srs_human_print_rtmp_packet2(char type, u_int32_t timestamp, char* data, int size, u_int32_t pre_timestamp);
 
 // log to console, for use srs-librtmp application.
 extern const char* srs_human_format_time();
@@ -7056,7 +11620,7 @@ typedef void* srs_hijack_io_t;
 * Windows SRS-LIBRTMP solution
 **************************************************************
 *************************************************************/
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifdef _WIN32
     #define _CRT_SECURE_NO_WARNINGS
     #include <time.h>
@@ -7100,7 +11664,7 @@ typedef void* srs_hijack_io_t;
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7129,10 +11693,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_core.hpp>
 
-//#include <srs_protocol_io.hpp>
+//#include <srs_rtmp_io.hpp>
 //#include <srs_librtmp.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
     #define SOCKET int
 #endif
@@ -7179,7 +11743,7 @@ public:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7270,7 +11834,7 @@ private:
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7297,7 +11861,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7323,7 +11887,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7345,11 +11909,97 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_core_performance.hpp>
 
+// following is generated by src/core/srs_core_mem_watch.cpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+//#include <srs_core_mem_watch.hpp>
+
+#ifdef SRS_MEM_WATCH
+
+#include <map>
+#include <stdio.h>
+using namespace std;
+
+struct SrsMemoryObject
+{
+    void* ptr;
+    std::string category;
+    int size;
+};
+
+std::map<void*, SrsMemoryObject*> _srs_ptrs;
+
+void srs_memory_watch(void* ptr, string category, int size)
+{
+    SrsMemoryObject* obj = NULL;
+    
+    std::map<void*, SrsMemoryObject*>::iterator it;
+    if ((it = _srs_ptrs.find(ptr)) != _srs_ptrs.end()) {
+        obj = it->second;
+    } else {
+        obj = new SrsMemoryObject();
+        _srs_ptrs[ptr] = obj;
+    }
+    
+    obj->ptr = ptr;
+    obj->category = category;
+    obj->size = size;
+}
+
+void srs_memory_unwatch(void* ptr)
+{
+    std::map<void*, SrsMemoryObject*>::iterator it;
+    if ((it = _srs_ptrs.find(ptr)) != _srs_ptrs.end()) {
+        SrsMemoryObject* obj = it->second;
+        srs_freep(obj);
+        
+        _srs_ptrs.erase(it);
+    }
+}
+
+void srs_memory_report()
+{
+    printf("srs memory leak report:\n");
+    
+    int total = 0;
+    std::map<void*, SrsMemoryObject*>::iterator it;
+    for (it = _srs_ptrs.begin(); it != _srs_ptrs.end(); ++it) {
+        SrsMemoryObject* obj = it->second;
+        printf("    %s: %#"PRIx64", %dB\n", obj->category.c_str(), (int64_t)obj->ptr, obj->size);
+        total += obj->size;
+    }
+    
+    printf("%d objects leak %dKB.\n", (int)_srs_ptrs.size(), total / 1024);
+}
+
+#endif
+
 // following is generated by src/kernel/srs_kernel_error.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7381,14 +12031,15 @@ bool srs_is_client_gracefully_close(int error_code)
 {
     return error_code == ERROR_SOCKET_READ
         || error_code == ERROR_SOCKET_READ_FULLY
-        || error_code == ERROR_SOCKET_WRITE;
+        || error_code == ERROR_SOCKET_WRITE
+        || error_code == ERROR_SOCKET_TIMEOUT;
 }
 
 // following is generated by src/kernel/srs_kernel_log.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7453,8 +12104,9 @@ ISrsThreadContext::~ISrsThreadContext()
 {
 }
 
-void ISrsThreadContext::generate_id()
+int ISrsThreadContext::generate_id()
 {
+    return 0;
 }
 
 int ISrsThreadContext::get_id()
@@ -7467,7 +12119,7 @@ int ISrsThreadContext::get_id()
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7718,12 +12370,46 @@ void SrsStream::write_bytes(char* data, int size)
     p += size;
 }
 
+SrsBitStream::SrsBitStream()
+{
+    cb = 0;
+    cb_left = 0;
+    stream = NULL;
+}
+
+SrsBitStream::~SrsBitStream()
+{
+}
+
+int SrsBitStream::initialize(SrsStream* s) {
+    stream = s;
+    return ERROR_SUCCESS;
+}
+
+bool SrsBitStream::empty() {
+    if (cb_left) {
+        return false;
+    }
+    return stream->empty();
+}
+
+int8_t SrsBitStream::read_bit() {
+    if (!cb_left) {
+        srs_assert(!stream->empty());
+        cb = stream->read_1bytes();
+        cb_left = 8;
+    }
+    
+    int8_t v = (cb >> (cb_left - 1)) & 0x01;
+    cb_left--;
+    return v;
+}
 
 // following is generated by src/kernel/srs_kernel_utility.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7745,7 +12431,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_kernel_utility.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <unistd.h>
 #include <netdb.h>
@@ -7754,15 +12440,67 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 #include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 using namespace std;
 
 //#include <srs_kernel_log.hpp>
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_stream.hpp>
+//#include <srs_kernel_flv.hpp>
 
 // this value must:
 // equals to (SRS_SYS_CYCLE_INTERVAL*SRS_SYS_TIME_RESOLUTION_MS_TIMES)*1000
 // @see SRS_SYS_TIME_RESOLUTION_MS_TIMES
 #define SYS_TIME_RESOLUTION_US 300*1000
+
+int srs_avc_nalu_read_uev(SrsBitStream* stream, int32_t& v)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if (stream->empty()) {
+        return ERROR_AVC_NALU_UEV;
+    }
+    
+    // ue(v) in 9.1 Parsing process for Exp-Golomb codes
+    // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 227.
+    // Syntax elements coded as ue(v), me(v), or se(v) are Exp-Golomb-coded.
+    //      leadingZeroBits = -1;
+    //      for( b = 0; !b; leadingZeroBits++ )
+    //          b = read_bits( 1 )
+    // The variable codeNum is then assigned as follows:
+    //      codeNum = (2<<leadingZeroBits) - 1 + read_bits( leadingZeroBits )
+    int leadingZeroBits = -1;
+    for (int8_t b = 0; !b && !stream->empty(); leadingZeroBits++) {
+        b = stream->read_bit();
+    }
+    
+    if (leadingZeroBits >= 31) {
+        return ERROR_AVC_NALU_UEV;
+    }
+    
+    v = (1 << leadingZeroBits) - 1;
+    for (int i = 0; i < leadingZeroBits; i++) {
+        int32_t b = stream->read_bit();
+        v += b << (leadingZeroBits - 1);
+    }
+    
+    return ret;
+}
+
+int srs_avc_nalu_read_bit(SrsBitStream* stream, int8_t& v)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if (stream->empty()) {
+        return ERROR_AVC_NALU_UEV;
+    }
+    
+    v = stream->read_bit();
+    
+    return ret;
+}
 
 static int64_t _srs_system_time_us_cache = 0;
 static int64_t _srs_system_time_startup_time = 0;
@@ -7792,7 +12530,7 @@ int64_t srs_update_system_time_ms()
         return -1;
     }
 
-    // @see: https://github.com/winlinvip/simple-rtmp-server/issues/35
+    // @see: https://github.com/simple-rtmp-server/srs/issues/35
     // we must convert the tv_sec/tv_usec to int64_t.
     int64_t now_us = ((int64_t)now.tv_sec) * 1000 * 1000 + (int64_t)now.tv_usec;
     
@@ -7805,7 +12543,7 @@ int64_t srs_update_system_time_ms()
     if (_srs_system_time_us_cache <= 0) {
         _srs_system_time_us_cache = now_us;
         _srs_system_time_startup_time = now_us;
-        return _srs_system_time_us_cache;
+        return _srs_system_time_us_cache / 1000;
     }
     
     // use relative time.
@@ -7814,7 +12552,7 @@ int64_t srs_update_system_time_ms()
     if (diff < 0 || diff > 1000 * SYS_TIME_RESOLUTION_US) {
         srs_warn("system time jump, history=%"PRId64"us, now=%"PRId64"us, diff=%"PRId64"us", 
             _srs_system_time_us_cache, now_us, diff);
-        // @see: https://github.com/winlinvip/simple-rtmp-server/issues/109
+        // @see: https://github.com/simple-rtmp-server/srs/issues/109
         _srs_system_time_startup_time += diff;
     }
     
@@ -7822,7 +12560,7 @@ int64_t srs_update_system_time_ms()
     srs_info("system time updated, startup=%"PRId64"us, now=%"PRId64"us", 
         _srs_system_time_startup_time, _srs_system_time_us_cache);
     
-    return _srs_system_time_us_cache;
+    return _srs_system_time_us_cache / 1000;
 }
 
 string srs_dns_resolve(string host)
@@ -7944,11 +12682,625 @@ bool srs_string_ends_with(string str, string flag)
     return str.rfind(flag) == str.length() - flag.length();
 }
 
+bool srs_string_starts_with(string str, string flag)
+{
+    return str.find(flag) == 0;
+}
+
+bool srs_string_contains(string str, string flag)
+{
+    return str.find(flag) != string::npos;
+}
+
+int srs_do_create_dir_recursively(string dir)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // stat current dir, if exists, return error.
+    if (srs_path_exists(dir)) {
+        return ERROR_SYSTEM_DIR_EXISTS;
+    }
+    
+    // create parent first.
+    size_t pos;
+    if ((pos = dir.rfind("/")) != std::string::npos) {
+        std::string parent = dir.substr(0, pos);
+        ret = srs_do_create_dir_recursively(parent);
+        // return for error.
+        if (ret != ERROR_SUCCESS && ret != ERROR_SYSTEM_DIR_EXISTS) {
+            return ret;
+        }
+        // parent exists, set to ok.
+        ret = ERROR_SUCCESS;
+    }
+    
+    // create curren dir.
+    mode_t mode = S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP|S_IXGRP|S_IROTH|S_IXOTH;
+    if (::mkdir(dir.c_str(), mode) < 0) {
+        if (errno == EEXIST) {
+            return ERROR_SYSTEM_DIR_EXISTS;
+        }
+        
+        ret = ERROR_SYSTEM_CREATE_DIR;
+        srs_error("create dir %s failed. ret=%d", dir.c_str(), ret);
+        return ret;
+    }
+    srs_info("create dir %s success.", dir.c_str());
+    
+    return ret;
+}
+
+int srs_create_dir_recursively(string dir)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ret = srs_do_create_dir_recursively(dir);
+    
+    if (ret == ERROR_SYSTEM_DIR_EXISTS) {
+        return ERROR_SUCCESS;
+    }
+    
+    return ret;
+}
+
+bool srs_path_exists(std::string path)
+{
+    struct stat st;
+    
+    // stat current dir, if exists, return error.
+    if (stat(path.c_str(), &st) == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+string srs_path_dirname(string path)
+{
+    std::string dirname = path;
+    size_t pos = string::npos;
+    
+    if ((pos = dirname.rfind("/")) != string::npos) {
+        if (pos == 0) {
+            return "/";
+        }
+        dirname = dirname.substr(0, pos);
+    }
+    
+    return dirname;
+}
+
+string srs_path_basename(string path)
+{
+    std::string dirname = path;
+    size_t pos = string::npos;
+    
+    if ((pos = dirname.rfind("/")) != string::npos) {
+        // the basename("/") is "/"
+        if (dirname.length() == 1) {
+            return dirname;
+        }
+        dirname = dirname.substr(pos + 1);
+    }
+    
+    return dirname;
+}
+
+bool srs_avc_startswith_annexb(SrsStream* stream, int* pnb_start_code)
+{
+    char* bytes = stream->data() + stream->pos();
+    char* p = bytes;
+    
+    for (;;) {
+        if (!stream->require(p - bytes + 3)) {
+            return false;
+        }
+        
+        // not match
+        if (p[0] != (char)0x00 || p[1] != (char)0x00) {
+            return false;
+        }
+        
+        // match N[00] 00 00 01, where N>=0
+        if (p[2] == (char)0x01) {
+            if (pnb_start_code) {
+                *pnb_start_code = (int)(p - bytes) + 3;
+            }
+            return true;
+        }
+        
+        p++;
+    }
+    
+    return false;
+}
+
+bool srs_aac_startswith_adts(SrsStream* stream)
+{
+    char* bytes = stream->data() + stream->pos();
+    char* p = bytes;
+    
+    if (!stream->require((int)(p - bytes) + 2)) {
+        return false;
+    }
+    
+    // matched 12bits 0xFFF,
+    // @remark, we must cast the 0xff to char to compare.
+    if (p[0] != (char)0xff || (char)(p[1] & 0xf0) != (char)0xf0) {
+        return false;
+    }
+    
+    return true;
+}
+
+/*
+ * MPEG2 transport stream (aka DVB) mux
+ * Copyright (c) 2003 Fabrice Bellard.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+static const u_int32_t crc_table[256] = {
+	0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
+	0x1a864db2, 0x1e475005, 0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61,
+	0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd, 0x4c11db70, 0x48d0c6c7,
+	0x4593e01e, 0x4152fda9, 0x5f15adac, 0x5bd4b01b, 0x569796c2, 0x52568b75,
+	0x6a1936c8, 0x6ed82b7f, 0x639b0da6, 0x675a1011, 0x791d4014, 0x7ddc5da3,
+	0x709f7b7a, 0x745e66cd, 0x9823b6e0, 0x9ce2ab57, 0x91a18d8e, 0x95609039,
+	0x8b27c03c, 0x8fe6dd8b, 0x82a5fb52, 0x8664e6e5, 0xbe2b5b58, 0xbaea46ef,
+	0xb7a96036, 0xb3687d81, 0xad2f2d84, 0xa9ee3033, 0xa4ad16ea, 0xa06c0b5d,
+	0xd4326d90, 0xd0f37027, 0xddb056fe, 0xd9714b49, 0xc7361b4c, 0xc3f706fb,
+	0xceb42022, 0xca753d95, 0xf23a8028, 0xf6fb9d9f, 0xfbb8bb46, 0xff79a6f1,
+	0xe13ef6f4, 0xe5ffeb43, 0xe8bccd9a, 0xec7dd02d, 0x34867077, 0x30476dc0,
+	0x3d044b19, 0x39c556ae, 0x278206ab, 0x23431b1c, 0x2e003dc5, 0x2ac12072,
+	0x128e9dcf, 0x164f8078, 0x1b0ca6a1, 0x1fcdbb16, 0x018aeb13, 0x054bf6a4,
+	0x0808d07d, 0x0cc9cdca, 0x7897ab07, 0x7c56b6b0, 0x71159069, 0x75d48dde,
+	0x6b93dddb, 0x6f52c06c, 0x6211e6b5, 0x66d0fb02, 0x5e9f46bf, 0x5a5e5b08,
+	0x571d7dd1, 0x53dc6066, 0x4d9b3063, 0x495a2dd4, 0x44190b0d, 0x40d816ba,
+	0xaca5c697, 0xa864db20, 0xa527fdf9, 0xa1e6e04e, 0xbfa1b04b, 0xbb60adfc,
+	0xb6238b25, 0xb2e29692, 0x8aad2b2f, 0x8e6c3698, 0x832f1041, 0x87ee0df6,
+	0x99a95df3, 0x9d684044, 0x902b669d, 0x94ea7b2a, 0xe0b41de7, 0xe4750050,
+	0xe9362689, 0xedf73b3e, 0xf3b06b3b, 0xf771768c, 0xfa325055, 0xfef34de2,
+	0xc6bcf05f, 0xc27dede8, 0xcf3ecb31, 0xcbffd686, 0xd5b88683, 0xd1799b34,
+	0xdc3abded, 0xd8fba05a, 0x690ce0ee, 0x6dcdfd59, 0x608edb80, 0x644fc637,
+	0x7a089632, 0x7ec98b85, 0x738aad5c, 0x774bb0eb, 0x4f040d56, 0x4bc510e1,
+	0x46863638, 0x42472b8f, 0x5c007b8a, 0x58c1663d, 0x558240e4, 0x51435d53,
+	0x251d3b9e, 0x21dc2629, 0x2c9f00f0, 0x285e1d47, 0x36194d42, 0x32d850f5,
+	0x3f9b762c, 0x3b5a6b9b, 0x0315d626, 0x07d4cb91, 0x0a97ed48, 0x0e56f0ff,
+	0x1011a0fa, 0x14d0bd4d, 0x19939b94, 0x1d528623, 0xf12f560e, 0xf5ee4bb9,
+	0xf8ad6d60, 0xfc6c70d7, 0xe22b20d2, 0xe6ea3d65, 0xeba91bbc, 0xef68060b,
+	0xd727bbb6, 0xd3e6a601, 0xdea580d8, 0xda649d6f, 0xc423cd6a, 0xc0e2d0dd,
+	0xcda1f604, 0xc960ebb3, 0xbd3e8d7e, 0xb9ff90c9, 0xb4bcb610, 0xb07daba7,
+	0xae3afba2, 0xaafbe615, 0xa7b8c0cc, 0xa379dd7b, 0x9b3660c6, 0x9ff77d71,
+	0x92b45ba8, 0x9675461f, 0x8832161a, 0x8cf30bad, 0x81b02d74, 0x857130c3,
+	0x5d8a9099, 0x594b8d2e, 0x5408abf7, 0x50c9b640, 0x4e8ee645, 0x4a4ffbf2,
+	0x470cdd2b, 0x43cdc09c, 0x7b827d21, 0x7f436096, 0x7200464f, 0x76c15bf8,
+	0x68860bfd, 0x6c47164a, 0x61043093, 0x65c52d24, 0x119b4be9, 0x155a565e,
+	0x18197087, 0x1cd86d30, 0x029f3d35, 0x065e2082, 0x0b1d065b, 0x0fdc1bec,
+	0x3793a651, 0x3352bbe6, 0x3e119d3f, 0x3ad08088, 0x2497d08d, 0x2056cd3a,
+	0x2d15ebe3, 0x29d4f654, 0xc5a92679, 0xc1683bce, 0xcc2b1d17, 0xc8ea00a0,
+	0xd6ad50a5, 0xd26c4d12, 0xdf2f6bcb, 0xdbee767c, 0xe3a1cbc1, 0xe760d676,
+	0xea23f0af, 0xeee2ed18, 0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4,
+	0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662,
+	0x933eb0bb, 0x97ffad0c, 0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668,
+	0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
+};
+
+// @see http://www.stmc.edu.hk/~vincent/ffmpeg_0.4.9-pre1/libavformat/mpegtsenc.c
+unsigned int mpegts_crc32(const u_int8_t *data, int len)
+{
+    register int i;
+    unsigned int crc = 0xffffffff;
+    
+    for (i=0; i<len; i++)
+        crc = (crc << 8) ^ crc_table[((crc >> 24) ^ *data++) & 0xff];
+    
+    return crc;
+}
+
+u_int32_t srs_crc32(const void* buf, int size)
+{
+    return mpegts_crc32((const u_int8_t*)buf, size);
+}
+
+/*
+ * Copyright (c) 2006 Ryan Martell. (rdm4@martellventures.com)
+ *
+ * This file is part of FFmpeg.
+ *
+ * FFmpeg is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * FFmpeg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with FFmpeg; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+#ifndef UINT_MAX
+#define UINT_MAX 0xffffffff
+#endif
+
+#ifndef AV_RB32
+#   define AV_RB32(x)                                \
+    (((uint32_t)((const u_int8_t*)(x))[0] << 24) |    \
+               (((const u_int8_t*)(x))[1] << 16) |    \
+               (((const u_int8_t*)(x))[2] <<  8) |    \
+                ((const u_int8_t*)(x))[3])
+#endif
+
+#ifndef AV_WL32
+#   define AV_WL32(p, darg) do {                \
+        unsigned d = (darg);                    \
+        ((u_int8_t*)(p))[0] = (d);               \
+        ((u_int8_t*)(p))[1] = (d)>>8;            \
+        ((u_int8_t*)(p))[2] = (d)>>16;           \
+        ((u_int8_t*)(p))[3] = (d)>>24;           \
+    } while(0)
+#endif
+
+#   define AV_WN(s, p, v) AV_WL##s(p, v)
+
+#   if    defined(AV_WN32) && !defined(AV_WL32)
+#       define AV_WL32(p, v) AV_WN32(p, v)
+#   elif !defined(AV_WN32) &&  defined(AV_WL32)
+#       define AV_WN32(p, v) AV_WL32(p, v)
+#   endif
+
+#ifndef AV_WN32
+#   define AV_WN32(p, v) AV_WN(32, p, v)
+#endif
+
+#define AV_BSWAP16C(x) (((x) << 8 & 0xff00)  | ((x) >> 8 & 0x00ff))
+#define AV_BSWAP32C(x) (AV_BSWAP16C(x) << 16 | AV_BSWAP16C((x) >> 16))
+
+#ifndef av_bswap32
+static const u_int32_t av_bswap32(u_int32_t x)
+{
+    return AV_BSWAP32C(x);
+}
+#endif
+
+#define av_be2ne32(x) av_bswap32(x)
+
+/**
+ * @file
+ * @brief Base64 encode/decode
+ * @author Ryan Martell <rdm4@martellventures.com> (with lots of Michael)
+ */
+
+/* ---------------- private code */
+static const u_int8_t map2[256] =
+{
+    0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff,
+
+    0x3e, 0xff, 0xff, 0xff, 0x3f, 0x34, 0x35, 0x36,
+    0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0xff,
+    0xff, 0xff, 0xfe, 0xff, 0xff, 0xff, 0x00, 0x01,
+    0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+    0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11,
+    0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x1a, 0x1b,
+    0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23,
+    0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+    0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33,
+
+                      0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+};
+
+#define BASE64_DEC_STEP(i) do { \
+    bits = map2[in[i]]; \
+    if (bits & 0x80) \
+        goto out ## i; \
+    v = i ? (v << 6) + bits : bits; \
+} while(0)
+
+int srs_av_base64_decode(u_int8_t* out, const char* in_str, int out_size)
+{
+    u_int8_t *dst = out;
+    u_int8_t *end = out + out_size;
+    // no sign extension
+    const u_int8_t *in = (const u_int8_t*)in_str;
+    unsigned bits = 0xff;
+    unsigned v;
+
+    while (end - dst > 3) {
+        BASE64_DEC_STEP(0);
+        BASE64_DEC_STEP(1);
+        BASE64_DEC_STEP(2);
+        BASE64_DEC_STEP(3);
+        // Using AV_WB32 directly confuses compiler
+        v = av_be2ne32(v << 8);
+        AV_WN32(dst, v);
+        dst += 3;
+        in += 4;
+    }
+    if (end - dst) {
+        BASE64_DEC_STEP(0);
+        BASE64_DEC_STEP(1);
+        BASE64_DEC_STEP(2);
+        BASE64_DEC_STEP(3);
+        *dst++ = v >> 16;
+        if (end - dst)
+            *dst++ = v >> 8;
+        if (end - dst)
+            *dst++ = v;
+        in += 4;
+    }
+    while (1) {
+        BASE64_DEC_STEP(0);
+        in++;
+        BASE64_DEC_STEP(0);
+        in++;
+        BASE64_DEC_STEP(0);
+        in++;
+        BASE64_DEC_STEP(0);
+        in++;
+    }
+
+out3:
+    *dst++ = v >> 10;
+    v <<= 2;
+out2:
+    *dst++ = v >> 4;
+out1:
+out0:
+    return bits & 1 ? -1 : dst - out;
+}
+
+/*****************************************************************************
+* b64_encode: Stolen from VLC's http.c.
+* Simplified by Michael.
+* Fixed edge cases and made it work from data (vs. strings) by Ryan.
+*****************************************************************************/
+
+char* srs_av_base64_encode(char* out, int out_size, const u_int8_t* in, int in_size)
+{
+    static const char b64[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    char *ret, *dst;
+    unsigned i_bits = 0;
+    int i_shift = 0;
+    int bytes_remaining = in_size;
+
+    if (in_size >= (int)(UINT_MAX / 4) ||
+        out_size < SRS_AV_BASE64_SIZE(in_size))
+        return NULL;
+    ret = dst = out;
+    while (bytes_remaining > 3) {
+        i_bits = AV_RB32(in);
+        in += 3; bytes_remaining -= 3;
+        *dst++ = b64[ i_bits>>26        ];
+        *dst++ = b64[(i_bits>>20) & 0x3F];
+        *dst++ = b64[(i_bits>>14) & 0x3F];
+        *dst++ = b64[(i_bits>>8 ) & 0x3F];
+    }
+    i_bits = 0;
+    while (bytes_remaining) {
+        i_bits = (i_bits << 8) + *in++;
+        bytes_remaining--;
+        i_shift += 8;
+    }
+    while (i_shift > 0) {
+        *dst++ = b64[(i_bits << 6 >> i_shift) & 0x3f];
+        i_shift -= 6;
+    }
+    while ((dst - ret) & 3)
+        *dst++ = '=';
+    *dst = '\0';
+
+    return ret;
+}
+
+#define SPACE_CHARS " \t\r\n"
+
+int av_toupper(int c)
+{
+    if (c >= 'a' && c <= 'z') {
+        c ^= 0x20;
+    }
+    return c;
+}
+
+int ff_hex_to_data(u_int8_t* data, const char* p)
+{
+    int c, len, v;
+
+    len = 0;
+    v = 1;
+    for (;;) {
+        p += strspn(p, SPACE_CHARS);
+        if (*p == '\0')
+            break;
+        c = av_toupper((unsigned char) *p++);
+        if (c >= '0' && c <= '9')
+            c = c - '0';
+        else if (c >= 'A' && c <= 'F')
+            c = c - 'A' + 10;
+        else
+            break;
+        v = (v << 4) | c;
+        if (v & 0x100) {
+            if (data)
+                data[len] = v;
+            len++;
+            v = 1;
+        }
+    }
+    return len;
+}
+
+int srs_chunk_header_c0(
+    int perfer_cid, u_int32_t timestamp, int32_t payload_length,
+    int8_t message_type, int32_t stream_id,
+    char* cache, int nb_cache
+) {
+    // to directly set the field.
+    char* pp = NULL;
+    
+    // generate the header.
+    char* p = cache;
+    
+    // no header.
+    if (nb_cache < SRS_CONSTS_RTMP_MAX_FMT0_HEADER_SIZE) {
+        return 0;
+    }
+    
+    // write new chunk stream header, fmt is 0
+    *p++ = 0x00 | (perfer_cid & 0x3F);
+    
+    // chunk message header, 11 bytes
+    // timestamp, 3bytes, big-endian
+    if (timestamp < RTMP_EXTENDED_TIMESTAMP) {
+        pp = (char*)&timestamp;
+        *p++ = pp[2];
+        *p++ = pp[1];
+        *p++ = pp[0];
+    } else {
+        *p++ = 0xFF;
+        *p++ = 0xFF;
+        *p++ = 0xFF;
+    }
+    
+    // message_length, 3bytes, big-endian
+    pp = (char*)&payload_length;
+    *p++ = pp[2];
+    *p++ = pp[1];
+    *p++ = pp[0];
+    
+    // message_type, 1bytes
+    *p++ = message_type;
+    
+    // stream_id, 4bytes, little-endian
+    pp = (char*)&stream_id;
+    *p++ = pp[0];
+    *p++ = pp[1];
+    *p++ = pp[2];
+    *p++ = pp[3];
+    
+    // for c0
+    // chunk extended timestamp header, 0 or 4 bytes, big-endian
+    //
+    // for c3:
+    // chunk extended timestamp header, 0 or 4 bytes, big-endian
+    // 6.1.3. Extended Timestamp
+    // This field is transmitted only when the normal time stamp in the
+    // chunk message header is set to 0x00ffffff. If normal time stamp is
+    // set to any value less than 0x00ffffff, this field MUST NOT be
+    // present. This field MUST NOT be present if the timestamp field is not
+    // present. Type 3 chunks MUST NOT have this field.
+    // adobe changed for Type3 chunk:
+    //        FMLE always sendout the extended-timestamp,
+    //        must send the extended-timestamp to FMS,
+    //        must send the extended-timestamp to flash-player.
+    // @see: ngx_rtmp_prepare_message
+    // @see: http://blog.csdn.net/win_lin/article/details/13363699
+    // TODO: FIXME: extract to outer.
+    if (timestamp >= RTMP_EXTENDED_TIMESTAMP) {
+        pp = (char*)&timestamp;
+        *p++ = pp[3];
+        *p++ = pp[2];
+        *p++ = pp[1];
+        *p++ = pp[0];
+    }
+    
+    // always has header
+    return p - cache;
+}
+
+int srs_chunk_header_c3(
+    int perfer_cid, u_int32_t timestamp,
+    char* cache, int nb_cache
+) {
+    // to directly set the field.
+    char* pp = NULL;
+    
+    // generate the header.
+    char* p = cache;
+    
+    // no header.
+    if (nb_cache < SRS_CONSTS_RTMP_MAX_FMT3_HEADER_SIZE) {
+        return 0;
+    }
+    
+    // write no message header chunk stream, fmt is 3
+    // @remark, if perfer_cid > 0x3F, that is, use 2B/3B chunk header,
+    // SRS will rollback to 1B chunk header.
+    *p++ = 0xC0 | (perfer_cid & 0x3F);
+    
+    // for c0
+    // chunk extended timestamp header, 0 or 4 bytes, big-endian
+    //
+    // for c3:
+    // chunk extended timestamp header, 0 or 4 bytes, big-endian
+    // 6.1.3. Extended Timestamp
+    // This field is transmitted only when the normal time stamp in the
+    // chunk message header is set to 0x00ffffff. If normal time stamp is
+    // set to any value less than 0x00ffffff, this field MUST NOT be
+    // present. This field MUST NOT be present if the timestamp field is not
+    // present. Type 3 chunks MUST NOT have this field.
+    // adobe changed for Type3 chunk:
+    //        FMLE always sendout the extended-timestamp,
+    //        must send the extended-timestamp to FMS,
+    //        must send the extended-timestamp to flash-player.
+    // @see: ngx_rtmp_prepare_message
+    // @see: http://blog.csdn.net/win_lin/article/details/13363699
+    // TODO: FIXME: extract to outer.
+    if (timestamp >= RTMP_EXTENDED_TIMESTAMP) {
+        pp = (char*)&timestamp;
+        *p++ = pp[3];
+        *p++ = pp[2];
+        *p++ = pp[1];
+        *p++ = pp[0];
+    }
+    
+    // always has header
+    return p - cache;
+}
+
 // following is generated by src/kernel/srs_kernel_flv.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -7970,7 +13322,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_kernel_flv.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -7983,19 +13335,324 @@ using namespace std;
 //#include <srs_kernel_error.hpp>
 //#include <srs_kernel_stream.hpp>
 //#include <srs_kernel_file.hpp>
+//#include <srs_kernel_codec.hpp>
+//#include <srs_kernel_utility.hpp>
+//#include <srs_core_mem_watch.hpp>
 
-#define SRS_FLV_TAG_HEADER_SIZE 11
-#define SRS_FLV_PREVIOUS_TAG_SIZE 4
+SrsMessageHeader::SrsMessageHeader()
+{
+    message_type = 0;
+    payload_length = 0;
+    timestamp_delta = 0;
+    stream_id = 0;
+    
+    timestamp = 0;
+    // we always use the connection chunk-id
+    perfer_cid = RTMP_CID_OverConnection;
+}
+
+SrsMessageHeader::~SrsMessageHeader()
+{
+}
+
+bool SrsMessageHeader::is_audio()
+{
+    return message_type == RTMP_MSG_AudioMessage;
+}
+
+bool SrsMessageHeader::is_video()
+{
+    return message_type == RTMP_MSG_VideoMessage;
+}
+
+bool SrsMessageHeader::is_amf0_command()
+{
+    return message_type == RTMP_MSG_AMF0CommandMessage;
+}
+
+bool SrsMessageHeader::is_amf0_data()
+{
+    return message_type == RTMP_MSG_AMF0DataMessage;
+}
+
+bool SrsMessageHeader::is_amf3_command()
+{
+    return message_type == RTMP_MSG_AMF3CommandMessage;
+}
+
+bool SrsMessageHeader::is_amf3_data()
+{
+    return message_type == RTMP_MSG_AMF3DataMessage;
+}
+
+bool SrsMessageHeader::is_window_ackledgement_size()
+{
+    return message_type == RTMP_MSG_WindowAcknowledgementSize;
+}
+
+bool SrsMessageHeader::is_ackledgement()
+{
+    return message_type == RTMP_MSG_Acknowledgement;
+}
+
+bool SrsMessageHeader::is_set_chunk_size()
+{
+    return message_type == RTMP_MSG_SetChunkSize;
+}
+
+bool SrsMessageHeader::is_user_control_message()
+{
+    return message_type == RTMP_MSG_UserControlMessage;
+}
+
+bool SrsMessageHeader::is_set_peer_bandwidth()
+{
+    return message_type == RTMP_MSG_SetPeerBandwidth;
+}
+
+bool SrsMessageHeader::is_aggregate()
+{
+    return message_type == RTMP_MSG_AggregateMessage;
+}
+
+void SrsMessageHeader::initialize_amf0_script(int size, int stream)
+{
+    message_type = RTMP_MSG_AMF0DataMessage;
+    payload_length = (int32_t)size;
+    timestamp_delta = (int32_t)0;
+    timestamp = (int64_t)0;
+    stream_id = (int32_t)stream;
+    
+    // amf0 script use connection2 chunk-id
+    perfer_cid = RTMP_CID_OverConnection2;
+}
+
+void SrsMessageHeader::initialize_audio(int size, u_int32_t time, int stream)
+{
+    message_type = RTMP_MSG_AudioMessage;
+    payload_length = (int32_t)size;
+    timestamp_delta = (int32_t)time;
+    timestamp = (int64_t)time;
+    stream_id = (int32_t)stream;
+    
+    // audio chunk-id
+    perfer_cid = RTMP_CID_Audio;
+}
+
+void SrsMessageHeader::initialize_video(int size, u_int32_t time, int stream)
+{
+    message_type = RTMP_MSG_VideoMessage;
+    payload_length = (int32_t)size;
+    timestamp_delta = (int32_t)time;
+    timestamp = (int64_t)time;
+    stream_id = (int32_t)stream;
+    
+    // video chunk-id
+    perfer_cid = RTMP_CID_Video;
+}
+
+SrsCommonMessage::SrsCommonMessage()
+{
+    payload = NULL;
+    size = 0;
+}
+
+SrsCommonMessage::~SrsCommonMessage()
+{
+#ifdef SRS_MEM_WATCH
+    srs_memory_unwatch(payload);
+#endif
+    srs_freep(payload);
+}
+
+void SrsCommonMessage::create_payload(int size)
+{
+    srs_freep(payload);
+    
+    payload = new char[size];
+    srs_verbose("create payload for RTMP message. size=%d", size);
+    
+#ifdef SRS_MEM_WATCH
+    srs_memory_watch(payload, "RTMP.msg.payload", size);
+#endif
+}
+
+SrsSharedPtrMessage::SrsSharedPtrPayload::SrsSharedPtrPayload()
+{
+    payload = NULL;
+    size = 0;
+    shared_count = 0;
+}
+
+SrsSharedPtrMessage::SrsSharedPtrPayload::~SrsSharedPtrPayload()
+{
+#ifdef SRS_MEM_WATCH
+    srs_memory_unwatch(payload);
+#endif
+    srs_freep(payload);
+}
+
+SrsSharedPtrMessage::SrsSharedPtrMessage()
+{
+    ptr = NULL;
+}
+
+SrsSharedPtrMessage::~SrsSharedPtrMessage()
+{
+    if (ptr) {
+        if (ptr->shared_count == 0) {
+            srs_freep(ptr);
+        } else {
+            ptr->shared_count--;
+        }
+    }
+}
+
+int SrsSharedPtrMessage::create(SrsCommonMessage* msg)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if ((ret = create(&msg->header, msg->payload, msg->size)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // to prevent double free of payload:
+    // initialize already attach the payload of msg,
+    // detach the payload to transfer the owner to shared ptr.
+    msg->payload = NULL;
+    msg->size = 0;
+    
+    return ret;
+}
+
+int SrsSharedPtrMessage::create(SrsMessageHeader* pheader, char* payload, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if (ptr) {
+        ret = ERROR_SYSTEM_ASSERT_FAILED;
+        srs_error("should not set the payload twice. ret=%d", ret);
+        srs_assert(false);
+        
+        return ret;
+    }
+    
+    ptr = new SrsSharedPtrPayload();
+    
+    // direct attach the data.
+    if (pheader) {
+        ptr->header.message_type = pheader->message_type;
+        ptr->header.payload_length = size;
+        ptr->header.perfer_cid = pheader->perfer_cid;
+        this->timestamp = pheader->timestamp;
+        this->stream_id = pheader->stream_id;
+    }
+    ptr->payload = payload;
+    ptr->size = size;
+    
+    // message can access it.
+    this->payload = ptr->payload;
+    this->size = ptr->size;
+    
+    return ret;
+}
+
+int SrsSharedPtrMessage::count()
+{
+    srs_assert(ptr);
+    return ptr->shared_count;
+}
+
+bool SrsSharedPtrMessage::check(int stream_id)
+{
+    // we donot use the complex basic header,
+    // ensure the basic header is 1bytes.
+    if (ptr->header.perfer_cid < 2) {
+        srs_info("change the chunk_id=%d to default=%d",
+            ptr->header.perfer_cid, RTMP_CID_ProtocolControl);
+        ptr->header.perfer_cid = RTMP_CID_ProtocolControl;
+    }
+    
+    // we assume that the stream_id in a group must be the same.
+    if (this->stream_id == stream_id) {
+        return true;
+    }
+    this->stream_id = stream_id;
+    
+    return false;
+}
+
+bool SrsSharedPtrMessage::is_av()
+{
+    return ptr->header.message_type == RTMP_MSG_AudioMessage
+        || ptr->header.message_type == RTMP_MSG_VideoMessage;
+}
+
+bool SrsSharedPtrMessage::is_audio()
+{
+    return ptr->header.message_type == RTMP_MSG_AudioMessage;
+}
+
+bool SrsSharedPtrMessage::is_video()
+{
+    return ptr->header.message_type == RTMP_MSG_VideoMessage;
+}
+
+int SrsSharedPtrMessage::chunk_header(char* cache, int nb_cache, bool c0)
+{
+    if (c0) {
+        return srs_chunk_header_c0(
+            ptr->header.perfer_cid, timestamp, ptr->header.payload_length,
+            ptr->header.message_type, stream_id,
+            cache, nb_cache);
+    } else {
+        return srs_chunk_header_c3(
+            ptr->header.perfer_cid, timestamp,
+            cache, nb_cache);
+    }
+}
+
+SrsSharedPtrMessage* SrsSharedPtrMessage::copy()
+{
+    srs_assert(ptr);
+    
+    SrsSharedPtrMessage* copy = new SrsSharedPtrMessage();
+    
+    copy->ptr = ptr;
+    ptr->shared_count++;
+    
+    copy->timestamp = timestamp;
+    copy->stream_id = stream_id;
+    copy->payload = ptr->payload;
+    copy->size = ptr->size;
+    
+    return copy;
+}
 
 SrsFlvEncoder::SrsFlvEncoder()
 {
     _fs = NULL;
     tag_stream = new SrsStream();
+    
+#ifdef SRS_PERF_FAST_FLV_ENCODER
+    nb_tag_headers = 0;
+    tag_headers = NULL;
+    nb_iovss_cache = 0;
+    iovss_cache = NULL;
+    nb_ppts = 0;
+    ppts = NULL;
+#endif
 }
 
 SrsFlvEncoder::~SrsFlvEncoder()
 {
     srs_freep(tag_stream);
+    
+#ifdef SRS_PERF_FAST_FLV_ENCODER
+    srs_freep(tag_headers);
+    srs_freep(iovss_cache);
+    srs_freep(ppts);
+#endif
 }
 
 int SrsFlvEncoder::initialize(SrsFileWriter* fs)
@@ -8006,7 +13663,7 @@ int SrsFlvEncoder::initialize(SrsFileWriter* fs)
     
     if (!fs->is_open()) {
         ret = ERROR_KERNEL_FLV_STREAM_CLOSED;
-        srs_warn("stream is not open for decoder. ret=%d", ret);
+        srs_warn("stream is not open for encoder. ret=%d", ret);
         return ret;
     }
     
@@ -8020,7 +13677,7 @@ int SrsFlvEncoder::write_header()
     int ret = ERROR_SUCCESS;
     
     // 9bytes header and 4bytes first previous-tag-size
-    static char flv_header[] = {
+    char flv_header[] = {
         'F', 'L', 'V', // Signatures "FLV"
         (char)0x01, // File version (for example, 0x01 for FLV version 1)
         (char)0x00, // 4, audio; 1, video; 5 audio+video.
@@ -8049,6 +13706,7 @@ int SrsFlvEncoder::write_header(char flv_header[9])
         return ret;
     }
     
+    // previous tag size.
     char pts[] = { (char)0x00, (char)0x00, (char)0x00, (char)0x00 };
     if ((ret = _fs->write(pts, 4, NULL)) != ERROR_SUCCESS) {
         return ret;
@@ -8057,29 +13715,20 @@ int SrsFlvEncoder::write_header(char flv_header[9])
     return ret;
 }
 
-int SrsFlvEncoder::write_metadata(char* data, int size)
+int SrsFlvEncoder::write_metadata(char type, char* data, int size)
 {
     int ret = ERROR_SUCCESS;
     
     srs_assert(data);
     
-    // 11 bytes tag header
-    static char tag_header[] = {
-        (char)18, // TagType UB [5], 18 = script data
-        (char)0x00, (char)0x00, (char)0x00, // DataSize UI24 Length of the message.
-        (char)0x00, (char)0x00, (char)0x00, // Timestamp UI24 Time in milliseconds at which the data in this tag applies.
-        (char)0x00, // TimestampExtended UI8
-        (char)0x00, (char)0x00, (char)0x00, // StreamID UI24 Always 0.
-    };
-    
-    // write data size.
-    if ((ret = tag_stream->initialize(tag_header + 1, 3)) != ERROR_SUCCESS) {
+    if ((ret = write_metadata_to_cache(type, data, size, tag_header)) != ERROR_SUCCESS) {
         return ret;
     }
-    tag_stream->write_3bytes(size);
     
     if ((ret = write_tag(tag_header, sizeof(tag_header), data, size)) != ERROR_SUCCESS) {
-        srs_error("write flv data tag failed. ret=%d", ret);
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("write flv data tag failed. ret=%d", ret);
+        }
         return ret;
     }
     
@@ -8092,28 +13741,14 @@ int SrsFlvEncoder::write_audio(int64_t timestamp, char* data, int size)
     
     srs_assert(data);
     
-    timestamp &= 0x7fffffff;
-    
-    // 11bytes tag header
-    static char tag_header[] = {
-        (char)8, // TagType UB [5], 8 = audio
-        (char)0x00, (char)0x00, (char)0x00, // DataSize UI24 Length of the message.
-        (char)0x00, (char)0x00, (char)0x00, // Timestamp UI24 Time in milliseconds at which the data in this tag applies.
-        (char)0x00, // TimestampExtended UI8
-        (char)0x00, (char)0x00, (char)0x00, // StreamID UI24 Always 0.
-    };
-    
-    // write data size.
-    if ((ret = tag_stream->initialize(tag_header + 1, 7)) != ERROR_SUCCESS) {
+    if ((ret = write_audio_to_cache(timestamp, data, size, tag_header)) != ERROR_SUCCESS) {
         return ret;
     }
-    tag_stream->write_3bytes(size);
-    tag_stream->write_3bytes((int32_t)timestamp);
-    // default to little-endian
-    tag_stream->write_1bytes((timestamp >> 24) & 0xFF);
     
     if ((ret = write_tag(tag_header, sizeof(tag_header), data, size)) != ERROR_SUCCESS) {
-        srs_error("write flv audio tag failed. ret=%d", ret);
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("write flv audio tag failed. ret=%d", ret);
+        }
         return ret;
     }
     
@@ -8126,25 +13761,9 @@ int SrsFlvEncoder::write_video(int64_t timestamp, char* data, int size)
     
     srs_assert(data);
     
-    timestamp &= 0x7fffffff;
-    
-    // 11bytes tag header
-    static char tag_header[] = {
-        (char)9, // TagType UB [5], 9 = video
-        (char)0x00, (char)0x00, (char)0x00, // DataSize UI24 Length of the message.
-        (char)0x00, (char)0x00, (char)0x00, // Timestamp UI24 Time in milliseconds at which the data in this tag applies.
-        (char)0x00, // TimestampExtended UI8
-        (char)0x00, (char)0x00, (char)0x00, // StreamID UI24 Always 0.
-    };
-    
-    // write data size.
-    if ((ret = tag_stream->initialize(tag_header + 1, 7)) != ERROR_SUCCESS) {
+    if ((ret = write_video_to_cache(timestamp, data, size, tag_header)) != ERROR_SUCCESS) {
         return ret;
     }
-    tag_stream->write_3bytes(size);
-    tag_stream->write_3bytes((int32_t)timestamp);
-    // default to little-endian
-    tag_stream->write_1bytes((timestamp >> 24) & 0xFF);
     
     if ((ret = write_tag(tag_header, sizeof(tag_header), data, size)) != ERROR_SUCCESS) {
         srs_error("write flv video tag failed. ret=%d", ret);
@@ -8160,30 +13779,213 @@ int SrsFlvEncoder::size_tag(int data_size)
     return SRS_FLV_TAG_HEADER_SIZE + data_size + SRS_FLV_PREVIOUS_TAG_SIZE;
 }
 
+#ifdef SRS_PERF_FAST_FLV_ENCODER
+int SrsFlvEncoder::write_tags(SrsSharedPtrMessage** msgs, int count)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // realloc the iovss.
+    int nb_iovss = 3 * count;
+    iovec* iovss = iovss_cache;
+    if (nb_iovss_cache < nb_iovss) {
+        srs_freep(iovss_cache);
+        
+        nb_iovss_cache = nb_iovss;
+        iovss = iovss_cache = new iovec[nb_iovss];
+    }
+    
+    // realloc the tag headers.
+    char* cache = tag_headers;
+    if (nb_tag_headers < count) {
+        srs_freep(tag_headers);
+        
+        nb_tag_headers = count;
+        cache = tag_headers = new char[SRS_FLV_TAG_HEADER_SIZE * count];
+    }
+    
+    // realloc the pts.
+    char* pts = ppts;
+    if (nb_ppts < count) {
+        srs_freep(ppts);
+        
+        nb_ppts = count;
+        pts = ppts = new char[SRS_FLV_PREVIOUS_TAG_SIZE * count];
+    }
+    
+    // the cache is ok, write each messages.
+    iovec* iovs = iovss;
+    for (int i = 0; i < count; i++) {
+        SrsSharedPtrMessage* msg = msgs[i];
+        
+        // cache all flv header.
+        if (msg->is_audio()) {
+            if ((ret = write_audio_to_cache(msg->timestamp, msg->payload, msg->size, cache)) != ERROR_SUCCESS) {
+                return ret;
+            }
+        } else if (msg->is_video()) {
+            if ((ret = write_video_to_cache(msg->timestamp, msg->payload, msg->size, cache)) != ERROR_SUCCESS) {
+                return ret;
+            }
+        } else {
+            if ((ret = write_metadata_to_cache(SrsCodecFlvTagScript, msg->payload, msg->size, cache)) != ERROR_SUCCESS) {
+                return ret;
+            }
+        }
+        
+        // cache all pts.
+        if ((ret = write_pts_to_cache(SRS_FLV_TAG_HEADER_SIZE + msg->size, pts)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        // all ioves.
+        iovs[0].iov_base = cache;
+        iovs[0].iov_len = SRS_FLV_TAG_HEADER_SIZE;
+        iovs[1].iov_base = msg->payload;
+        iovs[1].iov_len = msg->size;
+        iovs[2].iov_base = pts;
+        iovs[2].iov_len = SRS_FLV_PREVIOUS_TAG_SIZE;
+        
+        // move next.
+        cache += SRS_FLV_TAG_HEADER_SIZE;
+        pts += SRS_FLV_PREVIOUS_TAG_SIZE;
+        iovs += 3;
+    }
+    
+    if ((ret = _fs->writev(iovss, nb_iovss, NULL)) != ERROR_SUCCESS) {
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("write flv tags failed. ret=%d", ret);
+        }
+        return ret;
+    }
+    
+    return ret;
+}
+#endif
+
+int SrsFlvEncoder::write_metadata_to_cache(char type, char* data, int size, char* cache)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(data);
+    
+    // 11 bytes tag header
+    /*char tag_header[] = {
+     (char)type, // TagType UB [5], 18 = script data
+     (char)0x00, (char)0x00, (char)0x00, // DataSize UI24 Length of the message.
+     (char)0x00, (char)0x00, (char)0x00, // Timestamp UI24 Time in milliseconds at which the data in this tag applies.
+     (char)0x00, // TimestampExtended UI8
+     (char)0x00, (char)0x00, (char)0x00, // StreamID UI24 Always 0.
+     };*/
+    
+    // write data size.
+    if ((ret = tag_stream->initialize(cache, 11)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    tag_stream->write_1bytes(type);
+    tag_stream->write_3bytes(size);
+    tag_stream->write_3bytes(0x00);
+    tag_stream->write_1bytes(0x00);
+    tag_stream->write_3bytes(0x00);
+    
+    return ret;
+}
+
+int SrsFlvEncoder::write_audio_to_cache(int64_t timestamp, char* data, int size, char* cache)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(data);
+    
+    timestamp &= 0x7fffffff;
+    
+    // 11bytes tag header
+    /*char tag_header[] = {
+     (char)SrsCodecFlvTagAudio, // TagType UB [5], 8 = audio
+     (char)0x00, (char)0x00, (char)0x00, // DataSize UI24 Length of the message.
+     (char)0x00, (char)0x00, (char)0x00, // Timestamp UI24 Time in milliseconds at which the data in this tag applies.
+     (char)0x00, // TimestampExtended UI8
+     (char)0x00, (char)0x00, (char)0x00, // StreamID UI24 Always 0.
+     };*/
+    
+    // write data size.
+    if ((ret = tag_stream->initialize(cache, 11)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    tag_stream->write_1bytes(SrsCodecFlvTagAudio);
+    tag_stream->write_3bytes(size);
+    tag_stream->write_3bytes((int32_t)timestamp);
+    // default to little-endian
+    tag_stream->write_1bytes((timestamp >> 24) & 0xFF);
+    tag_stream->write_3bytes(0x00);
+    
+    return ret;
+}
+
+int SrsFlvEncoder::write_video_to_cache(int64_t timestamp, char* data, int size, char* cache)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(data);
+    
+    timestamp &= 0x7fffffff;
+    
+    // 11bytes tag header
+    /*char tag_header[] = {
+     (char)SrsCodecFlvTagVideo, // TagType UB [5], 9 = video
+     (char)0x00, (char)0x00, (char)0x00, // DataSize UI24 Length of the message.
+     (char)0x00, (char)0x00, (char)0x00, // Timestamp UI24 Time in milliseconds at which the data in this tag applies.
+     (char)0x00, // TimestampExtended UI8
+     (char)0x00, (char)0x00, (char)0x00, // StreamID UI24 Always 0.
+     };*/
+    
+    // write data size.
+    if ((ret = tag_stream->initialize(cache, 11)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    tag_stream->write_1bytes(SrsCodecFlvTagVideo);
+    tag_stream->write_3bytes(size);
+    tag_stream->write_3bytes((int32_t)timestamp);
+    // default to little-endian
+    tag_stream->write_1bytes((timestamp >> 24) & 0xFF);
+    tag_stream->write_3bytes(0x00);
+    
+    return ret;
+}
+
+int SrsFlvEncoder::write_pts_to_cache(int size, char* cache)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if ((ret = tag_stream->initialize(cache, SRS_FLV_PREVIOUS_TAG_SIZE)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    tag_stream->write_4bytes(size);
+    
+    return ret;
+}
+
 int SrsFlvEncoder::write_tag(char* header, int header_size, char* tag, int tag_size)
 {
     int ret = ERROR_SUCCESS;
     
-    // write tag header.
-    if ((ret = _fs->write(header, header_size, NULL)) != ERROR_SUCCESS) {
-        srs_error("write flv tag header failed. ret=%d", ret);
-        return ret;
-    }
-    
-    // write tag data.
-    if ((ret = _fs->write(tag, tag_size, NULL)) != ERROR_SUCCESS) {
-        srs_error("write flv tag failed. ret=%d", ret);
-        return ret;
-    }
-    
     // PreviousTagSizeN UI32 Size of last tag, including its header, in bytes.
-    static char pre_size[SRS_FLV_PREVIOUS_TAG_SIZE];
-    if ((ret = tag_stream->initialize(pre_size, SRS_FLV_PREVIOUS_TAG_SIZE)) != ERROR_SUCCESS) {
+    char pre_size[SRS_FLV_PREVIOUS_TAG_SIZE];
+    if ((ret = write_pts_to_cache(tag_size + header_size, pre_size)) != ERROR_SUCCESS) {
         return ret;
     }
-    tag_stream->write_4bytes(tag_size + header_size);
-    if ((ret = _fs->write(pre_size, sizeof(pre_size), NULL)) != ERROR_SUCCESS) {
-        srs_error("write flv previous tag size failed. ret=%d", ret);
+    
+    iovec iovs[3];
+    iovs[0].iov_base = header;
+    iovs[0].iov_len = header_size;
+    iovs[1].iov_base = tag;
+    iovs[1].iov_len = tag_size;
+    iovs[2].iov_base = pre_size;
+    iovs[2].iov_len = SRS_FLV_PREVIOUS_TAG_SIZE;
+    
+    if ((ret = _fs->writev(iovs, 3, NULL)) != ERROR_SUCCESS) {
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("write flv tag failed. ret=%d", ret);
+        }
         return ret;
     }
     
@@ -8372,7 +14174,7 @@ int SrsFlvVodStreamDecoder::read_sequence_header_summary(int64_t* pstart, int* p
     // and must be a sequence video and audio.
     
     // 11bytes tag header
-    static char tag_header[] = {
+    char tag_header[] = {
         (char)0x00, // TagType UB [5], 9 = video, 8 = audio, 18 = script data
         (char)0x00, (char)0x00, (char)0x00, // DataSize UI24 Length of the message.
         (char)0x00, (char)0x00, (char)0x00, // Timestamp UI24 Time in milliseconds at which the data in this tag applies.
@@ -8480,7 +14282,7 @@ int SrsFlvVodStreamDecoder::lseek(int64_t offset)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -8504,6 +14306,161 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <string.h>
 #include <stdlib.h>
+using namespace std;
+
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_log.hpp>
+//#include <srs_kernel_stream.hpp>
+//#include <srs_kernel_utility.hpp>
+//#include <srs_core_autofree.hpp>
+
+string srs_codec_video2str(SrsCodecVideo codec)
+{
+    switch (codec) {
+        case SrsCodecVideoAVC: 
+            return "H264";
+        case SrsCodecVideoOn2VP6:
+        case SrsCodecVideoOn2VP6WithAlphaChannel:
+            return "VP6";
+        case SrsCodecVideoReserved:
+        case SrsCodecVideoReserved1:
+        case SrsCodecVideoReserved2:
+        case SrsCodecVideoDisabled:
+        case SrsCodecVideoSorensonH263:
+        case SrsCodecVideoScreenVideo:
+        case SrsCodecVideoScreenVideoVersion2:
+        default:
+            return "Other";
+    }
+}
+
+string srs_codec_audio2str(SrsCodecAudio codec)
+{
+    switch (codec) {
+        case SrsCodecAudioAAC:
+            return "AAC";
+        case SrsCodecAudioMP3:
+            return "MP3";
+        case SrsCodecAudioReserved1:
+        case SrsCodecAudioLinearPCMPlatformEndian:
+        case SrsCodecAudioADPCM:
+        case SrsCodecAudioLinearPCMLittleEndian:
+        case SrsCodecAudioNellymoser16kHzMono:
+        case SrsCodecAudioNellymoser8kHzMono:
+        case SrsCodecAudioNellymoser:
+        case SrsCodecAudioReservedG711AlawLogarithmicPCM:
+        case SrsCodecAudioReservedG711MuLawLogarithmicPCM:
+        case SrsCodecAudioReserved:
+        case SrsCodecAudioSpeex:
+        case SrsCodecAudioReservedMP3_8kHz:
+        case SrsCodecAudioReservedDeviceSpecificSound:
+        default:
+            return "Other";
+    }
+}
+
+string srs_codec_aac_profile2str(SrsAacProfile aac_profile)
+{
+    switch (aac_profile) {
+        case SrsAacProfileMain: return "Main";
+        case SrsAacProfileLC: return "LC";
+        case SrsAacProfileSSR: return "SSR";
+        default: return "Other";
+    }
+}
+
+string srs_codec_aac_object2str(SrsAacObjectType aac_object)
+{
+    switch (aac_object) {
+        case SrsAacObjectTypeAacMain: return "Main";
+        case SrsAacObjectTypeAacHE: return "HE";
+        case SrsAacObjectTypeAacHEV2: return "HEv2";
+        case SrsAacObjectTypeAacLC: return "LC";
+        case SrsAacObjectTypeAacSSR: return "SSR";
+        default: return "Other";
+    }
+}
+
+SrsAacObjectType srs_codec_aac_ts2rtmp(SrsAacProfile profile)
+{
+    switch (profile) {
+        case SrsAacProfileMain: return SrsAacObjectTypeAacMain;
+        case SrsAacProfileLC: return SrsAacObjectTypeAacLC;
+        case SrsAacProfileSSR: return SrsAacObjectTypeAacSSR;
+        default: return SrsAacObjectTypeReserved;
+    }
+}
+
+SrsAacProfile srs_codec_aac_rtmp2ts(SrsAacObjectType object_type)
+{
+    switch (object_type) {
+        case SrsAacObjectTypeAacMain: return SrsAacProfileMain;
+        case SrsAacObjectTypeAacHE:
+        case SrsAacObjectTypeAacHEV2:
+        case SrsAacObjectTypeAacLC: return SrsAacProfileLC;
+        case SrsAacObjectTypeAacSSR: return SrsAacProfileSSR;
+        default: return SrsAacProfileReserved;
+    }
+}
+
+string srs_codec_avc_profile2str(SrsAvcProfile profile)
+{
+    switch (profile) {
+        case SrsAvcProfileBaseline: return "Baseline";
+        case SrsAvcProfileConstrainedBaseline: return "Baseline(Constrained)";
+        case SrsAvcProfileMain: return "Main";
+        case SrsAvcProfileExtended: return "Extended";
+        case SrsAvcProfileHigh: return "High";
+        case SrsAvcProfileHigh10: return "High(10)";
+        case SrsAvcProfileHigh10Intra: return "High(10+Intra)";
+        case SrsAvcProfileHigh422: return "High(422)";
+        case SrsAvcProfileHigh422Intra: return "High(422+Intra)";
+        case SrsAvcProfileHigh444: return "High(444)";
+        case SrsAvcProfileHigh444Predictive: return "High(444+Predictive)";
+        case SrsAvcProfileHigh444Intra: return "High(444+Intra)";
+        default: return "Other";
+    }
+}
+
+string srs_codec_avc_level2str(SrsAvcLevel level)
+{
+    switch (level) {
+        case SrsAvcLevel_1: return "1";
+        case SrsAvcLevel_11: return "1.1";
+        case SrsAvcLevel_12: return "1.2";
+        case SrsAvcLevel_13: return "1.3";
+        case SrsAvcLevel_2: return "2";
+        case SrsAvcLevel_21: return "2.1";
+        case SrsAvcLevel_22: return "2.2";
+        case SrsAvcLevel_3: return "3";
+        case SrsAvcLevel_31: return "3.1";
+        case SrsAvcLevel_32: return "3.2";
+        case SrsAvcLevel_4: return "4";
+        case SrsAvcLevel_41: return "4.1";
+        case SrsAvcLevel_5: return "5";
+        case SrsAvcLevel_51: return "5.1";
+        default: return "Other";
+    }
+}
+
+/**
+* the public data, event HLS disable, others can use it.
+*/
+// 0 = 5.5 kHz = 5512 Hz
+// 1 = 11 kHz = 11025 Hz
+// 2 = 22 kHz = 22050 Hz
+// 3 = 44 kHz = 44100 Hz
+int flv_sample_rates[] = {5512, 11025, 22050, 44100};
+
+// the sample rates in the codec,
+// in the sequence header.
+int aac_sample_rates[] = 
+{
+    96000, 88200, 64000, 48000,
+    44100, 32000, 24000, 22050,
+    16000, 12000, 11025,  8000,
+    7350,     0,     0,    0
+};
 
 SrsFlvCodec::SrsFlvCodec()
 {
@@ -8590,11 +14547,945 @@ bool SrsFlvCodec::audio_is_aac(char* data, int size)
     return sound_format == SrsCodecAudioAAC;
 }
 
+bool SrsFlvCodec::video_is_acceptable(char* data, int size)
+{
+    // 1bytes required.
+    if (size < 1) {
+        return false;
+    }
+    
+    char frame_type = data[0];
+    char codec_id = frame_type & 0x0f;
+    frame_type = (frame_type >> 4) & 0x0f;
+    
+    if (frame_type < 1 || frame_type > 5) {
+        return false;
+    }
+    
+    if (codec_id < 2 || codec_id > 7) {
+        return false;
+    }
+    
+    return true;
+}
+
+string srs_codec_avc_nalu2str(SrsAvcNaluType nalu_type)
+{
+    switch (nalu_type) {
+        case SrsAvcNaluTypeNonIDR: return "NonIDR";
+        case SrsAvcNaluTypeDataPartitionA: return "DataPartitionA";
+        case SrsAvcNaluTypeDataPartitionB: return "DataPartitionB";
+        case SrsAvcNaluTypeDataPartitionC: return "DataPartitionC";
+        case SrsAvcNaluTypeIDR: return "IDR";
+        case SrsAvcNaluTypeSEI: return "SEI";
+        case SrsAvcNaluTypeSPS: return "SPS";
+        case SrsAvcNaluTypePPS: return "PPS";
+        case SrsAvcNaluTypeAccessUnitDelimiter: return "AccessUnitDelimiter";
+        case SrsAvcNaluTypeEOSequence: return "EOSequence";
+        case SrsAvcNaluTypeEOStream: return "EOStream";
+        case SrsAvcNaluTypeFilterData: return "FilterData";
+        case SrsAvcNaluTypeSPSExt: return "SPSExt";
+        case SrsAvcNaluTypePrefixNALU: return "PrefixNALU";
+        case SrsAvcNaluTypeSubsetSPS: return "SubsetSPS";
+        case SrsAvcNaluTypeLayerWithoutPartition: return "LayerWithoutPartition";
+        case SrsAvcNaluTypeCodedSliceExt: return "CodedSliceExt";
+        case SrsAvcNaluTypeReserved: default: return "Other";
+    }
+}
+
+SrsCodecSampleUnit::SrsCodecSampleUnit()
+{
+    size = 0;
+    bytes = NULL;
+}
+
+SrsCodecSampleUnit::~SrsCodecSampleUnit()
+{
+}
+
+SrsCodecSample::SrsCodecSample()
+{
+    clear();
+}
+
+SrsCodecSample::~SrsCodecSample()
+{
+}
+
+void SrsCodecSample::clear()
+{
+    is_video = false;
+    nb_sample_units = 0;
+
+    cts = 0;
+    frame_type = SrsCodecVideoAVCFrameReserved;
+    avc_packet_type = SrsCodecVideoAVCTypeReserved;
+    has_idr = false;
+    first_nalu_type = SrsAvcNaluTypeReserved;
+    
+    acodec = SrsCodecAudioReserved1;
+    sound_rate = SrsCodecAudioSampleRateReserved;
+    sound_size = SrsCodecAudioSampleSizeReserved;
+    sound_type = SrsCodecAudioSoundTypeReserved;
+    aac_packet_type = SrsCodecAudioTypeReserved;
+}
+
+int SrsCodecSample::add_sample_unit(char* bytes, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if (nb_sample_units >= SRS_SRS_MAX_CODEC_SAMPLE) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("hls decode samples error, "
+            "exceed the max count: %d, ret=%d", SRS_SRS_MAX_CODEC_SAMPLE, ret);
+        return ret;
+    }
+    
+    SrsCodecSampleUnit* sample_unit = &sample_units[nb_sample_units++];
+    sample_unit->bytes = bytes;
+    sample_unit->size = size;
+    
+    // for video, parse the nalu type, set the IDR flag.
+    if (is_video) {
+        SrsAvcNaluType nal_unit_type = (SrsAvcNaluType)(bytes[0] & 0x1f);
+        
+        if (nal_unit_type == SrsAvcNaluTypeIDR) {
+            has_idr = true;
+        }
+    
+        if (first_nalu_type == SrsAvcNaluTypeReserved) {
+            first_nalu_type = nal_unit_type;
+        }
+    }
+    
+    return ret;
+}
+
+SrsAvcAacCodec::SrsAvcAacCodec()
+{
+    width                       = 0;
+    height                      = 0;
+    duration                    = 0;
+    NAL_unit_length             = 0;
+    frame_rate                  = 0;
+
+    video_data_rate             = 0;
+    video_codec_id              = 0;
+
+    audio_data_rate             = 0;
+    audio_codec_id              = 0;
+
+    avc_profile                 = SrsAvcProfileReserved;
+    avc_level                   = SrsAvcLevelReserved;
+    aac_object                  = SrsAacObjectTypeReserved;
+    aac_sample_rate             = SRS_AAC_SAMPLE_RATE_UNSET; // sample rate ignored
+    aac_channels                = 0;
+    avc_extra_size              = 0;
+    avc_extra_data              = NULL;
+    aac_extra_size              = 0;
+    aac_extra_data              = NULL;
+
+    sequenceParameterSetLength  = 0;
+    sequenceParameterSetNALUnit = NULL;
+    pictureParameterSetLength   = 0;
+    pictureParameterSetNALUnit  = NULL;
+
+    payload_format = SrsAvcPayloadFormatGuess;
+    stream = new SrsStream();
+}
+
+SrsAvcAacCodec::~SrsAvcAacCodec()
+{
+    srs_freep(avc_extra_data);
+    srs_freep(aac_extra_data);
+
+    srs_freep(stream);
+    srs_freep(sequenceParameterSetNALUnit);
+    srs_freep(pictureParameterSetNALUnit);
+}
+
+int SrsAvcAacCodec::audio_aac_demux(char* data, int size, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+    
+    sample->is_video = false;
+    
+    if (!data || size <= 0) {
+        srs_trace("no audio present, ignore it.");
+        return ret;
+    }
+    
+    if ((ret = stream->initialize(data, size)) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    // audio decode
+    if (!stream->require(1)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("audio codec decode sound_format failed. ret=%d", ret);
+        return ret;
+    }
+    
+    // @see: E.4.2 Audio Tags, video_file_format_spec_v10_1.pdf, page 76
+    int8_t sound_format = stream->read_1bytes();
+    
+    int8_t sound_type = sound_format & 0x01;
+    int8_t sound_size = (sound_format >> 1) & 0x01;
+    int8_t sound_rate = (sound_format >> 2) & 0x03;
+    sound_format = (sound_format >> 4) & 0x0f;
+    
+    audio_codec_id = sound_format;
+    sample->acodec = (SrsCodecAudio)audio_codec_id;
+
+    sample->sound_type = (SrsCodecAudioSoundType)sound_type;
+    sample->sound_rate = (SrsCodecAudioSampleRate)sound_rate;
+    sample->sound_size = (SrsCodecAudioSampleSize)sound_size;
+
+    // we support h.264+mp3 for hls.
+    if (audio_codec_id == SrsCodecAudioMP3) {
+        return ERROR_HLS_TRY_MP3;
+    }
+    
+    // only support aac
+    if (audio_codec_id != SrsCodecAudioAAC) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("audio codec only support mp3/aac codec. actual=%d, ret=%d", audio_codec_id, ret);
+        return ret;
+    }
+
+    if (!stream->require(1)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("audio codec decode aac_packet_type failed. ret=%d", ret);
+        return ret;
+    }
+    
+    int8_t aac_packet_type = stream->read_1bytes();
+    sample->aac_packet_type = (SrsCodecAudioType)aac_packet_type;
+    
+    if (aac_packet_type == SrsCodecAudioTypeSequenceHeader) {
+        // AudioSpecificConfig
+        // 1.6.2.1 AudioSpecificConfig, in aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 33.
+        aac_extra_size = stream->size() - stream->pos();
+        if (aac_extra_size > 0) {
+            srs_freep(aac_extra_data);
+            aac_extra_data = new char[aac_extra_size];
+            memcpy(aac_extra_data, stream->data() + stream->pos(), aac_extra_size);
+
+            // demux the sequence header.
+            if ((ret = audio_aac_sequence_header_demux(aac_extra_data, aac_extra_size)) != ERROR_SUCCESS) {
+                return ret;
+            }
+        }
+    } else if (aac_packet_type == SrsCodecAudioTypeRawData) {
+        // ensure the sequence header demuxed
+        if (aac_extra_size <= 0 || !aac_extra_data) {
+            ret = ERROR_HLS_DECODE_ERROR;
+            srs_error("audio codec decode aac failed, sequence header not found. ret=%d", ret);
+            return ret;
+        }
+        
+        // Raw AAC frame data in UI8 []
+        // 6.3 Raw Data, aac-iso-13818-7.pdf, page 28
+        if ((ret = sample->add_sample_unit(stream->data() + stream->pos(), stream->size() - stream->pos())) != ERROR_SUCCESS) {
+            srs_error("audio codec add sample failed. ret=%d", ret);
+            return ret;
+        }
+    } else {
+        // ignored.
+    }
+    
+    // reset the sample rate by sequence header
+    if (aac_sample_rate != SRS_AAC_SAMPLE_RATE_UNSET) {
+        static int aac_sample_rates[] = {
+            96000, 88200, 64000, 48000,
+            44100, 32000, 24000, 22050,
+            16000, 12000, 11025,  8000,
+            7350,     0,     0,    0
+        };
+        switch (aac_sample_rates[aac_sample_rate]) {
+            case 11025:
+                sample->sound_rate = SrsCodecAudioSampleRate11025;
+                break;
+            case 22050:
+                sample->sound_rate = SrsCodecAudioSampleRate22050;
+                break;
+            case 44100:
+                sample->sound_rate = SrsCodecAudioSampleRate44100;
+                break;
+            default:
+                break;
+        };
+    }
+    
+    srs_info("audio decoded, type=%d, codec=%d, asize=%d, rate=%d, format=%d, size=%d", 
+        sound_type, audio_codec_id, sound_size, sound_rate, sound_format, size);
+    
+    return ret;
+}
+
+int SrsAvcAacCodec::audio_mp3_demux(char* data, int size, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+
+    // we always decode aac then mp3.
+    srs_assert(sample->acodec == SrsCodecAudioMP3);
+    
+    // @see: E.4.2 Audio Tags, video_file_format_spec_v10_1.pdf, page 76
+    if (!data || size <= 1) {
+        srs_trace("no mp3 audio present, ignore it.");
+        return ret;
+    }
+
+    // mp3 payload.
+    if ((ret = sample->add_sample_unit(data + 1, size - 1)) != ERROR_SUCCESS) {
+        srs_error("audio codec add mp3 sample failed. ret=%d", ret);
+        return ret;
+    }
+    
+    srs_info("audio decoded, type=%d, codec=%d, asize=%d, rate=%d, format=%d, size=%d", 
+        sample->sound_type, audio_codec_id, sample->sound_size, sample->sound_rate, sample->acodec, size);
+    
+    return ret;
+}
+
+int SrsAvcAacCodec::audio_aac_sequence_header_demux(char* data, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if ((ret = stream->initialize(data, size)) != ERROR_SUCCESS) {
+        return ret;
+    }
+        
+    // only need to decode the first 2bytes:
+    //      audioObjectType, aac_profile, 5bits.
+    //      samplingFrequencyIndex, aac_sample_rate, 4bits.
+    //      channelConfiguration, aac_channels, 4bits
+    if (!stream->require(2)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("audio codec decode aac sequence header failed. ret=%d", ret);
+        return ret;
+    }
+    u_int8_t profile_ObjectType = stream->read_1bytes();
+    u_int8_t samplingFrequencyIndex = stream->read_1bytes();
+        
+    aac_channels = (samplingFrequencyIndex >> 3) & 0x0f;
+    samplingFrequencyIndex = ((profile_ObjectType << 1) & 0x0e) | ((samplingFrequencyIndex >> 7) & 0x01);
+    profile_ObjectType = (profile_ObjectType >> 3) & 0x1f;
+
+    // set the aac sample rate.
+    aac_sample_rate = samplingFrequencyIndex;
+
+    // convert the object type in sequence header to aac profile of ADTS.
+    aac_object = (SrsAacObjectType)profile_ObjectType;
+    if (aac_object == SrsAacObjectTypeReserved) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("audio codec decode aac sequence header failed, "
+            "adts object=%d invalid. ret=%d", profile_ObjectType, ret);
+        return ret;
+    }
+        
+    // TODO: FIXME: to support aac he/he-v2, see: ngx_rtmp_codec_parse_aac_header
+    // @see: https://github.com/winlinvip/nginx-rtmp-module/commit/3a5f9eea78fc8d11e8be922aea9ac349b9dcbfc2
+    // 
+    // donot force to LC, @see: https://github.com/simple-rtmp-server/srs/issues/81
+    // the source will print the sequence header info.
+    //if (aac_profile > 3) {
+        // Mark all extended profiles as LC
+        // to make Android as happy as possible.
+        // @see: ngx_rtmp_hls_parse_aac_header
+        //aac_profile = 1;
+    //}
+
+    return ret;
+}
+
+int SrsAvcAacCodec::video_avc_demux(char* data, int size, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+    
+    sample->is_video = true;
+    
+    if (!data || size <= 0) {
+        srs_trace("no video present, ignore it.");
+        return ret;
+    }
+    
+    if ((ret = stream->initialize(data, size)) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    // video decode
+    if (!stream->require(1)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("video codec decode frame_type failed. ret=%d", ret);
+        return ret;
+    }
+    
+    // @see: E.4.3 Video Tags, video_file_format_spec_v10_1.pdf, page 78
+    int8_t frame_type = stream->read_1bytes();
+    int8_t codec_id = frame_type & 0x0f;
+    frame_type = (frame_type >> 4) & 0x0f;
+    
+    sample->frame_type = (SrsCodecVideoAVCFrame)frame_type;
+    
+    // ignore info frame without error,
+    // @see https://github.com/simple-rtmp-server/srs/issues/288#issuecomment-69863909
+    if (sample->frame_type == SrsCodecVideoAVCFrameVideoInfoFrame) {
+        srs_warn("video codec igone the info frame, ret=%d", ret);
+        return ret;
+    }
+    
+    // only support h.264/avc
+    if (codec_id != SrsCodecVideoAVC) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("video codec only support video h.264/avc codec. actual=%d, ret=%d", codec_id, ret);
+        return ret;
+    }
+    video_codec_id = codec_id;
+    
+    if (!stream->require(4)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("video codec decode avc_packet_type failed. ret=%d", ret);
+        return ret;
+    }
+    int8_t avc_packet_type = stream->read_1bytes();
+    int32_t composition_time = stream->read_3bytes();
+    
+    // pts = dts + cts.
+    sample->cts = composition_time;
+    sample->avc_packet_type = (SrsCodecVideoAVCType)avc_packet_type;
+    
+    if (avc_packet_type == SrsCodecVideoAVCTypeSequenceHeader) {
+        if ((ret = avc_demux_sps_pps(stream)) != ERROR_SUCCESS) {
+            return ret;
+        }
+    } else if (avc_packet_type == SrsCodecVideoAVCTypeNALU){
+        // ensure the sequence header demuxed
+        if (avc_extra_size <= 0 || !avc_extra_data) {
+            ret = ERROR_HLS_DECODE_ERROR;
+            srs_error("avc decode failed, sequence header not found. ret=%d", ret);
+            return ret;
+        }
+
+        // guess for the first time.
+        if (payload_format == SrsAvcPayloadFormatGuess) {
+            // One or more NALUs (Full frames are required)
+            // try  "AnnexB" from H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
+            if ((ret = avc_demux_annexb_format(stream, sample)) != ERROR_SUCCESS) {
+                // stop try when system error.
+                if (ret != ERROR_HLS_AVC_TRY_OTHERS) {
+                    srs_error("avc demux for annexb failed. ret=%d", ret);
+                    return ret;
+                }
+                
+                // try "ISO Base Media File Format" from H.264-AVC-ISO_IEC_14496-15.pdf, page 20
+                if ((ret = avc_demux_ibmf_format(stream, sample)) != ERROR_SUCCESS) {
+                    return ret;
+                } else {
+                    payload_format = SrsAvcPayloadFormatIbmf;
+                    srs_info("hls guess avc payload is ibmf format.");
+                }
+            } else {
+                payload_format = SrsAvcPayloadFormatAnnexb;
+                srs_info("hls guess avc payload is annexb format.");
+            }
+        } else if (payload_format == SrsAvcPayloadFormatIbmf) {
+            // try "ISO Base Media File Format" from H.264-AVC-ISO_IEC_14496-15.pdf, page 20
+            if ((ret = avc_demux_ibmf_format(stream, sample)) != ERROR_SUCCESS) {
+                return ret;
+            }
+            srs_info("hls decode avc payload in ibmf format.");
+        } else {
+            // One or more NALUs (Full frames are required)
+            // try  "AnnexB" from H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
+            if ((ret = avc_demux_annexb_format(stream, sample)) != ERROR_SUCCESS) {
+                // ok, we guess out the payload is annexb, but maybe changed to ibmf.
+                if (ret != ERROR_HLS_AVC_TRY_OTHERS) {
+                    srs_error("avc demux for annexb failed. ret=%d", ret);
+                    return ret;
+                }
+                
+                // try "ISO Base Media File Format" from H.264-AVC-ISO_IEC_14496-15.pdf, page 20
+                if ((ret = avc_demux_ibmf_format(stream, sample)) != ERROR_SUCCESS) {
+                    return ret;
+                } else {
+                    payload_format = SrsAvcPayloadFormatIbmf;
+                    srs_warn("hls avc payload change from annexb to ibmf format.");
+                }
+            }
+            srs_info("hls decode avc payload in annexb format.");
+        }
+    } else {
+        // ignored.
+    }
+    
+    srs_info("video decoded, type=%d, codec=%d, avc=%d, cts=%d, size=%d", 
+        frame_type, video_codec_id, avc_packet_type, composition_time, size);
+    
+    return ret;
+}
+
+int SrsAvcAacCodec::avc_demux_sps_pps(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // AVCDecoderConfigurationRecord
+    // 5.2.4.1.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+    avc_extra_size = stream->size() - stream->pos();
+    if (avc_extra_size > 0) {
+        srs_freep(avc_extra_data);
+        avc_extra_data = new char[avc_extra_size];
+        memcpy(avc_extra_data, stream->data() + stream->pos(), avc_extra_size);
+    }
+    
+    if (!stream->require(6)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header failed. ret=%d", ret);
+        return ret;
+    }
+    //int8_t configurationVersion = stream->read_1bytes();
+    stream->read_1bytes();
+    //int8_t AVCProfileIndication = stream->read_1bytes();
+    avc_profile = (SrsAvcProfile)stream->read_1bytes();
+    //int8_t profile_compatibility = stream->read_1bytes();
+    stream->read_1bytes();
+    //int8_t AVCLevelIndication = stream->read_1bytes();
+    avc_level = (SrsAvcLevel)stream->read_1bytes();
+    
+    // parse the NALU size.
+    int8_t lengthSizeMinusOne = stream->read_1bytes();
+    lengthSizeMinusOne &= 0x03;
+    NAL_unit_length = lengthSizeMinusOne;
+    
+    // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+    // 5.2.4.1 AVC decoder configuration record
+    // 5.2.4.1.2 Semantics
+    // The value of this field shall be one of 0, 1, or 3 corresponding to a
+    // length encoded with 1, 2, or 4 bytes, respectively.
+    if (NAL_unit_length == 2) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("sps lengthSizeMinusOne should never be 2. ret=%d", ret);
+        return ret;
+    }
+    
+    // 1 sps, 7.3.2.1 Sequence parameter set RBSP syntax
+    // H.264-AVC-ISO_IEC_14496-10.pdf, page 45.
+    if (!stream->require(1)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header sps failed. ret=%d", ret);
+        return ret;
+    }
+    int8_t numOfSequenceParameterSets = stream->read_1bytes();
+    numOfSequenceParameterSets &= 0x1f;
+    if (numOfSequenceParameterSets != 1) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header sps failed. ret=%d", ret);
+        return ret;
+    }
+    if (!stream->require(2)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header sps size failed. ret=%d", ret);
+        return ret;
+    }
+    sequenceParameterSetLength = stream->read_2bytes();
+    if (!stream->require(sequenceParameterSetLength)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header sps data failed. ret=%d", ret);
+        return ret;
+    }
+    if (sequenceParameterSetLength > 0) {
+        srs_freep(sequenceParameterSetNALUnit);
+        sequenceParameterSetNALUnit = new char[sequenceParameterSetLength];
+        stream->read_bytes(sequenceParameterSetNALUnit, sequenceParameterSetLength);
+    }
+    // 1 pps
+    if (!stream->require(1)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header pps failed. ret=%d", ret);
+        return ret;
+    }
+    int8_t numOfPictureParameterSets = stream->read_1bytes();
+    numOfPictureParameterSets &= 0x1f;
+    if (numOfPictureParameterSets != 1) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header pps failed. ret=%d", ret);
+        return ret;
+    }
+    if (!stream->require(2)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header pps size failed. ret=%d", ret);
+        return ret;
+    }
+    pictureParameterSetLength = stream->read_2bytes();
+    if (!stream->require(pictureParameterSetLength)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sequenc header pps data failed. ret=%d", ret);
+        return ret;
+    }
+    if (pictureParameterSetLength > 0) {
+        srs_freep(pictureParameterSetNALUnit);
+        pictureParameterSetNALUnit = new char[pictureParameterSetLength];
+        stream->read_bytes(pictureParameterSetNALUnit, pictureParameterSetLength);
+    }
+    
+    return avc_demux_sps();
+}
+
+int SrsAvcAacCodec::avc_demux_sps()
+{
+    int ret = ERROR_SUCCESS;
+    
+    if (!sequenceParameterSetLength) {
+        return ret;
+    }
+    
+    SrsStream stream;
+    if ((ret = stream.initialize(sequenceParameterSetNALUnit, sequenceParameterSetLength)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // for NALU, 7.3.1 NAL unit syntax
+    // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 61.
+    if (!stream.require(1)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("avc decode sps failed. ret=%d", ret);
+        return ret;
+    }
+    int8_t nutv = stream.read_1bytes();
+    
+    // forbidden_zero_bit shall be equal to 0.
+    int8_t forbidden_zero_bit = (nutv >> 7) & 0x01;
+    if (forbidden_zero_bit) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("forbidden_zero_bit shall be equal to 0. ret=%d", ret);
+        return ret;
+    }
+    
+    // nal_ref_idc not equal to 0 specifies that the content of the NAL unit contains a sequence parameter set or a picture
+    // parameter set or a slice of a reference picture or a slice data partition of a reference picture.
+    int8_t nal_ref_idc = (nutv >> 5) & 0x03;
+    if (!nal_ref_idc) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("for sps, nal_ref_idc shall be not be equal to 0. ret=%d", ret);
+        return ret;
+    }
+    
+    // 7.4.1 NAL unit semantics
+    // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 61.
+    // nal_unit_type specifies the type of RBSP data structure contained in the NAL unit as specified in Table 7-1.
+    SrsAvcNaluType nal_unit_type = (SrsAvcNaluType)(nutv & 0x1f);
+    if (nal_unit_type != 7) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("for sps, nal_unit_type shall be equal to 7. ret=%d", ret);
+        return ret;
+    }
+    
+    // decode the rbsp from sps.
+    // rbsp[ i ] a raw byte sequence payload is specified as an ordered sequence of bytes.
+    int8_t* rbsp = new int8_t[sequenceParameterSetLength];
+    SrsAutoFree(int8_t, rbsp);
+    
+    int nb_rbsp = 0;
+    while (!stream.empty()) {
+        rbsp[nb_rbsp] = stream.read_1bytes();
+        
+        // XX 00 00 03 XX, the 03 byte should be drop.
+        if (nb_rbsp > 2 && rbsp[nb_rbsp - 2] == 0 && rbsp[nb_rbsp - 1] == 0 && rbsp[nb_rbsp] == 3) {
+            // read 1byte more.
+            if (stream.empty()) {
+                break;
+            }
+            rbsp[nb_rbsp] = stream.read_1bytes();
+            nb_rbsp++;
+            
+            continue;
+        }
+        
+        nb_rbsp++;
+    }
+    
+    return avc_demux_sps_rbsp((char*)rbsp, nb_rbsp);
+}
+
+
+int SrsAvcAacCodec::avc_demux_sps_rbsp(char* rbsp, int nb_rbsp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // reparse the rbsp.
+    SrsStream stream;
+    if ((ret = stream.initialize(rbsp, nb_rbsp)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // for SPS, 7.3.2.1.1 Sequence parameter set data syntax
+    // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 62.
+    if (!stream.require(3)) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("sps shall atleast 3bytes. ret=%d", ret);
+        return ret;
+    }
+    u_int8_t profile_idc = stream.read_1bytes();
+    if (!profile_idc) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("sps the profile_idc invalid. ret=%d", ret);
+        return ret;
+    }
+    
+    int8_t flags = stream.read_1bytes();
+    if (flags & 0x03) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("sps the flags invalid. ret=%d", ret);
+        return ret;
+    }
+    
+    u_int8_t level_idc = stream.read_1bytes();
+    if (!level_idc) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("sps the level_idc invalid. ret=%d", ret);
+        return ret;
+    }
+    
+    SrsBitStream bs;
+    if ((ret = bs.initialize(&stream)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    int32_t seq_parameter_set_id = -1;
+    if ((ret = srs_avc_nalu_read_uev(&bs, seq_parameter_set_id)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    if (seq_parameter_set_id < 0) {
+        ret = ERROR_HLS_DECODE_ERROR;
+        srs_error("sps the seq_parameter_set_id invalid. ret=%d", ret);
+        return ret;
+    }
+    srs_info("sps parse profile=%d, level=%d, sps_id=%d", profile_idc, level_idc, seq_parameter_set_id);
+    
+    if (profile_idc == 100 || profile_idc == 110 || profile_idc == 122 || profile_idc == 244
+        || profile_idc == 44 || profile_idc == 83 || profile_idc == 86 || profile_idc == 118
+        || profile_idc == 128
+    ) {
+        int32_t chroma_format_idc = -1;
+        if ((ret = srs_avc_nalu_read_uev(&bs, chroma_format_idc)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        if (chroma_format_idc == 3) {
+            int8_t separate_colour_plane_flag = -1;
+            if ((ret = srs_avc_nalu_read_bit(&bs, separate_colour_plane_flag)) != ERROR_SUCCESS) {
+                return ret;
+            }
+        }
+        
+        int32_t bit_depth_luma_minus8 = -1;
+        if ((ret = srs_avc_nalu_read_uev(&bs, bit_depth_luma_minus8)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        int32_t bit_depth_chroma_minus8 = -1;
+        if ((ret = srs_avc_nalu_read_uev(&bs, bit_depth_chroma_minus8)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        int8_t qpprime_y_zero_transform_bypass_flag = -1;
+        if ((ret = srs_avc_nalu_read_bit(&bs, qpprime_y_zero_transform_bypass_flag)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        int8_t seq_scaling_matrix_present_flag = -1;
+        if ((ret = srs_avc_nalu_read_bit(&bs, seq_scaling_matrix_present_flag)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        if (seq_scaling_matrix_present_flag) {
+            ret = ERROR_HLS_DECODE_ERROR;
+            srs_error("sps the seq_scaling_matrix_present_flag invalid. ret=%d", ret);
+            return ret;
+        }
+    }
+    
+    int32_t log2_max_frame_num_minus4 = -1;
+    if ((ret = srs_avc_nalu_read_uev(&bs, log2_max_frame_num_minus4)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    int32_t pic_order_cnt_type = -1;
+    if ((ret = srs_avc_nalu_read_uev(&bs, pic_order_cnt_type)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    if (pic_order_cnt_type == 0) {
+        int32_t log2_max_pic_order_cnt_lsb_minus4 = -1;
+        if ((ret = srs_avc_nalu_read_uev(&bs, log2_max_pic_order_cnt_lsb_minus4)) != ERROR_SUCCESS) {
+            return ret;
+        }
+    } else if (pic_order_cnt_type == 1) {
+        int8_t delta_pic_order_always_zero_flag = -1;
+        if ((ret = srs_avc_nalu_read_bit(&bs, delta_pic_order_always_zero_flag)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        int32_t offset_for_non_ref_pic = -1;
+        if ((ret = srs_avc_nalu_read_uev(&bs, offset_for_non_ref_pic)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        int32_t offset_for_top_to_bottom_field = -1;
+        if ((ret = srs_avc_nalu_read_uev(&bs, offset_for_top_to_bottom_field)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        
+        int32_t num_ref_frames_in_pic_order_cnt_cycle = -1;
+        if ((ret = srs_avc_nalu_read_uev(&bs, num_ref_frames_in_pic_order_cnt_cycle)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        if (num_ref_frames_in_pic_order_cnt_cycle) {
+            ret = ERROR_HLS_DECODE_ERROR;
+            srs_error("sps the num_ref_frames_in_pic_order_cnt_cycle invalid. ret=%d", ret);
+            return ret;
+        }
+    }
+    
+    int32_t max_num_ref_frames = -1;
+    if ((ret = srs_avc_nalu_read_uev(&bs, max_num_ref_frames)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    int8_t gaps_in_frame_num_value_allowed_flag = -1;
+    if ((ret = srs_avc_nalu_read_bit(&bs, gaps_in_frame_num_value_allowed_flag)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    int32_t pic_width_in_mbs_minus1 = -1;
+    if ((ret = srs_avc_nalu_read_uev(&bs, pic_width_in_mbs_minus1)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    int32_t pic_height_in_map_units_minus1 = -1;
+    if ((ret = srs_avc_nalu_read_uev(&bs, pic_height_in_map_units_minus1)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    width = (int)(pic_width_in_mbs_minus1 + 1) * 16;
+    height = (int)(pic_height_in_map_units_minus1 + 1) * 16;
+    
+    return ret;
+}
+
+int SrsAvcAacCodec::avc_demux_annexb_format(SrsStream* stream, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // not annexb, try others
+    if (!srs_avc_startswith_annexb(stream, NULL)) {
+        return ERROR_HLS_AVC_TRY_OTHERS;
+    }
+    
+    // AnnexB
+    // B.1.1 Byte stream NAL unit syntax,
+    // H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
+    while (!stream->empty()) {
+        // find start code
+        int nb_start_code = 0;
+        if (!srs_avc_startswith_annexb(stream, &nb_start_code)) {
+            return ret;
+        }
+
+        // skip the start code.
+        if (nb_start_code > 0) {
+            stream->skip(nb_start_code);
+        }
+        
+        // the NALU start bytes.
+        char* p = stream->data() + stream->pos();
+        
+        // get the last matched NALU
+        while (!stream->empty()) {
+            if (srs_avc_startswith_annexb(stream, NULL)) {
+                break;
+            }
+            
+            stream->skip(1);
+        }
+        
+        char* pp = stream->data() + stream->pos();
+        
+        // skip the empty.
+        if (pp - p <= 0) {
+            continue;
+        }
+        
+        // got the NALU.
+        if ((ret = sample->add_sample_unit(p, pp - p)) != ERROR_SUCCESS) {
+            srs_error("annexb add video sample failed. ret=%d", ret);
+            return ret;
+        }
+    }
+    
+    return ret;
+}
+
+int SrsAvcAacCodec::avc_demux_ibmf_format(SrsStream* stream, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int PictureLength = stream->size() - stream->pos();
+    
+    // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+    // 5.2.4.1 AVC decoder configuration record
+    // 5.2.4.1.2 Semantics
+    // The value of this field shall be one of 0, 1, or 3 corresponding to a
+    // length encoded with 1, 2, or 4 bytes, respectively.
+    srs_assert(NAL_unit_length != 2);
+    
+    // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 20
+    for (int i = 0; i < PictureLength;) {
+        // unsigned int((NAL_unit_length+1)*8) NALUnitLength;
+        if (!stream->require(NAL_unit_length + 1)) {
+            ret = ERROR_HLS_DECODE_ERROR;
+            srs_error("avc decode NALU size failed. ret=%d", ret);
+            return ret;
+        }
+        int32_t NALUnitLength = 0;
+        if (NAL_unit_length == 3) {
+            NALUnitLength = stream->read_4bytes();
+        } else if (NAL_unit_length == 1) {
+            NALUnitLength = stream->read_2bytes();
+        } else {
+            NALUnitLength = stream->read_1bytes();
+        }
+        
+        // maybe stream is invalid format.
+        // see: https://github.com/simple-rtmp-server/srs/issues/183
+        if (NALUnitLength < 0) {
+            ret = ERROR_HLS_DECODE_ERROR;
+            srs_error("maybe stream is AnnexB format. ret=%d", ret);
+            return ret;
+        }
+        
+        // NALUnit
+        if (!stream->require(NALUnitLength)) {
+            ret = ERROR_HLS_DECODE_ERROR;
+            srs_error("avc decode NALU data failed. ret=%d", ret);
+            return ret;
+        }
+        // 7.3.1 NAL unit syntax, H.264-AVC-ISO_IEC_14496-10.pdf, page 44.
+        if ((ret = sample->add_sample_unit(stream->data() + stream->pos(), NALUnitLength)) != ERROR_SUCCESS) {
+            srs_error("avc add video sample failed. ret=%d", ret);
+            return ret;
+        }
+        stream->skip(NALUnitLength);
+        
+        i += NAL_unit_length + 1 + NALUnitLength;
+    }
+    
+    return ret;
+}
+
 // following is generated by src/kernel/srs_kernel_file.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -8616,13 +15507,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_kernel_file.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <unistd.h>
 #endif
 
 #include <fcntl.h>
 #include <sstream>
+#include <sys/uio.h>
 using namespace std;
 
 //#include <srs_kernel_log.hpp>
@@ -8662,6 +15554,30 @@ int SrsFileWriter::open(string file)
     return ret;
 }
 
+int SrsFileWriter::open_append(string file)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if (fd > 0) {
+        ret = ERROR_SYSTEM_FILE_ALREADY_OPENED;
+        srs_error("file %s already opened. ret=%d", _file.c_str(), ret);
+        return ret;
+    }
+    
+    int flags = O_APPEND|O_WRONLY;
+    mode_t mode = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH;
+
+    if ((fd = ::open(file.c_str(), flags, mode)) < 0) {
+        ret = ERROR_SYSTEM_FILE_OPENE;
+        srs_error("open file %s failed. ret=%d", file.c_str(), ret);
+        return ret;
+    }
+    
+    _file = file;
+    
+    return ret;
+}
+
 void SrsFileWriter::close()
 {
     int ret = ERROR_SUCCESS;
@@ -8685,6 +15601,11 @@ bool SrsFileWriter::is_open()
     return fd > 0;
 }
 
+void SrsFileWriter::lseek(int64_t offset)
+{
+    ::lseek(fd, (off_t)offset, SEEK_SET);
+}
+
 int64_t SrsFileWriter::tellg()
 {
     return (int64_t)::lseek(fd, 0, SEEK_CUR);
@@ -8703,6 +15624,27 @@ int SrsFileWriter::write(void* buf, size_t count, ssize_t* pnwrite)
     }
     
     if (pnwrite != NULL) {
+        *pnwrite = nwrite;
+    }
+    
+    return ret;
+}
+
+int SrsFileWriter::writev(iovec* iov, int iovcnt, ssize_t* pnwrite)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ssize_t nwrite = 0;
+    for (int i = 0; i < iovcnt; i++) {
+        iovec* piov = iov + i;
+        ssize_t this_nwrite = 0;
+        if ((ret = write(piov->iov_base, piov->iov_len, &this_nwrite)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        nwrite += this_nwrite;
+    }
+    
+    if (pnwrite) {
         *pnwrite = nwrite;
     }
     
@@ -8814,7 +15756,7 @@ int SrsFileReader::read(void* buf, size_t count, ssize_t* pnread)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -8837,11 +15779,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //#include <srs_kernel_consts.hpp>
 
 
-// following is generated by src/rtmp/srs_protocol_amf0.cpp
+// following is generated by src/kernel/srs_kernel_aac.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -8861,7 +15803,3643 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-//#include <srs_protocol_amf0.hpp>
+//#include <srs_kernel_aac.hpp>
+
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
+#include <fcntl.h>
+#include <sstream>
+using namespace std;
+
+//#include <srs_kernel_log.hpp>
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_stream.hpp>
+//#include <srs_kernel_file.hpp>
+//#include <srs_kernel_codec.hpp>
+
+SrsAacEncoder::SrsAacEncoder()
+{
+    _fs = NULL;
+    got_sequence_header = false;
+    tag_stream = new SrsStream();
+    aac_object = SrsAacObjectTypeReserved;
+}
+
+SrsAacEncoder::~SrsAacEncoder()
+{
+    srs_freep(tag_stream);
+}
+
+int SrsAacEncoder::initialize(SrsFileWriter* fs)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(fs);
+    
+    if (!fs->is_open()) {
+        ret = ERROR_KERNEL_AAC_STREAM_CLOSED;
+        srs_warn("stream is not open for encoder. ret=%d", ret);
+        return ret;
+    }
+    
+    _fs = fs;
+    
+    return ret;
+}
+
+int SrsAacEncoder::write_audio(int64_t timestamp, char* data, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(data);
+    
+    timestamp &= 0x7fffffff;
+    
+    SrsStream* stream = tag_stream;
+    if ((ret = stream->initialize(data, size)) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    // audio decode
+    if (!stream->require(1)) {
+        ret = ERROR_AAC_DECODE_ERROR;
+        srs_error("aac decode audio sound_format failed. ret=%d", ret);
+        return ret;
+    }
+    
+    // @see: E.4.2 Audio Tags, video_file_format_spec_v10_1.pdf, page 76
+    int8_t sound_format = stream->read_1bytes();
+    
+    // @see: SrsAvcAacCodec::audio_aac_demux
+    //int8_t sound_type = sound_format & 0x01;
+    //int8_t sound_size = (sound_format >> 1) & 0x01;
+    //int8_t sound_rate = (sound_format >> 2) & 0x03;
+    sound_format = (sound_format >> 4) & 0x0f;
+    
+    if ((SrsCodecAudio)sound_format != SrsCodecAudioAAC) {
+        ret = ERROR_AAC_DECODE_ERROR;
+        srs_error("aac required, format=%d. ret=%d", sound_format, ret);
+        return ret;
+    }
+
+    if (!stream->require(1)) {
+        ret = ERROR_AAC_DECODE_ERROR;
+        srs_error("aac decode aac_packet_type failed. ret=%d", ret);
+        return ret;
+    }
+    
+    SrsCodecAudioType aac_packet_type = (SrsCodecAudioType)stream->read_1bytes();
+    if (aac_packet_type == SrsCodecAudioTypeSequenceHeader) {
+        // AudioSpecificConfig
+        // 1.6.2.1 AudioSpecificConfig, in aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 33.
+        //
+        // only need to decode the first 2bytes:
+        // audioObjectType, 5bits.
+        // samplingFrequencyIndex, aac_sample_rate, 4bits.
+        // channelConfiguration, aac_channels, 4bits
+        if (!stream->require(2)) {
+            ret = ERROR_AAC_DECODE_ERROR;
+            srs_error("aac decode sequence header failed. ret=%d", ret);
+            return ret;
+        }
+        
+        int8_t audioObjectType = stream->read_1bytes();
+        aac_sample_rate = stream->read_1bytes();
+        
+        aac_channels = (aac_sample_rate >> 3) & 0x0f;
+        aac_sample_rate = ((audioObjectType << 1) & 0x0e) | ((aac_sample_rate >> 7) & 0x01);
+        
+        audioObjectType = (audioObjectType >> 3) & 0x1f;
+        aac_object = (SrsAacObjectType)audioObjectType;
+        
+        got_sequence_header = true;
+        
+        return ret;
+    }
+    
+    if (!got_sequence_header) {
+        ret = ERROR_AAC_DECODE_ERROR;
+        srs_error("aac no sequence header. ret=%d", ret);
+        return ret;
+    }
+    
+    // the left is the aac raw frame data.
+    int16_t aac_raw_length = stream->size() - stream->pos();
+    
+    // write the ADTS header.
+    // @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 75,
+    //      1.A.2.2 Audio_Data_Transport_Stream frame, ADTS
+    // @see https://github.com/simple-rtmp-server/srs/issues/212#issuecomment-64145885
+    // byte_alignment()
+    
+    // adts_fixed_header:
+    //      12bits syncword,
+    //      16bits left.
+    // adts_variable_header:
+    //      28bits
+    //      12+16+28=56bits
+    // adts_error_check:
+    //      16bits if protection_absent
+    //      56+16=72bits
+    // if protection_absent:
+    //      require(7bytes)=56bits
+    // else
+    //      require(9bytes)=72bits
+    char aac_fixed_header[7];
+    if(true) {
+        char* pp = aac_fixed_header;
+        int16_t aac_frame_length = aac_raw_length + 7;
+        
+        // Syncword 12 bslbf
+        *pp++ = 0xff;
+        // 4bits left.
+        // adts_fixed_header(), 1.A.2.2.1 Fixed Header of ADTS
+        // ID 1 bslbf
+        // Layer 2 uimsbf
+        // protection_absent 1 bslbf
+        *pp++ = 0xf1;
+        
+        // profile 2 uimsbf
+        // sampling_frequency_index 4 uimsbf
+        // private_bit 1 bslbf
+        // channel_configuration 3 uimsbf
+        // original/copy 1 bslbf
+        // home 1 bslbf
+        SrsAacProfile aac_profile = srs_codec_aac_rtmp2ts(aac_object);
+        *pp++ = ((aac_profile << 6) & 0xc0) | ((aac_sample_rate << 2) & 0x3c) | ((aac_channels >> 2) & 0x01);
+        // 4bits left.
+        // adts_variable_header(), 1.A.2.2.2 Variable Header of ADTS
+        // copyright_identification_bit 1 bslbf
+        // copyright_identification_start 1 bslbf
+        *pp++ = ((aac_channels << 6) & 0xc0) | ((aac_frame_length >> 11) & 0x03);
+        
+        // aac_frame_length 13 bslbf: Length of the frame including headers and error_check in bytes.
+        // use the left 2bits as the 13 and 12 bit,
+        // the aac_frame_length is 13bits, so we move 13-2=11.
+        *pp++ = aac_frame_length >> 3;
+        // adts_buffer_fullness 11 bslbf
+        *pp++ = (aac_frame_length << 5) & 0xe0;
+        
+        // no_raw_data_blocks_in_frame 2 uimsbf
+        *pp++ = 0xfc;
+    }
+    
+    // write 7bytes fixed header.
+    if ((ret = _fs->write(aac_fixed_header, 7, NULL)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // write aac frame body.
+    if ((ret = _fs->write(data + stream->pos(), aac_raw_length, NULL)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    return ret;
+}
+
+// following is generated by src/kernel/srs_kernel_mp3.cpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+//#include <srs_kernel_mp3.hpp>
+
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
+#include <fcntl.h>
+#include <sstream>
+using namespace std;
+
+//#include <srs_kernel_log.hpp>
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_stream.hpp>
+//#include <srs_kernel_file.hpp>
+//#include <srs_kernel_codec.hpp>
+
+SrsMp3Encoder::SrsMp3Encoder()
+{
+    _fs = NULL;
+    tag_stream = new SrsStream();
+}
+
+SrsMp3Encoder::~SrsMp3Encoder()
+{
+    srs_freep(tag_stream);
+}
+
+int SrsMp3Encoder::initialize(SrsFileWriter* fs)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(fs);
+    
+    if (!fs->is_open()) {
+        ret = ERROR_KERNEL_MP3_STREAM_CLOSED;
+        srs_warn("stream is not open for encoder. ret=%d", ret);
+        return ret;
+    }
+    
+    _fs = fs;
+    
+    return ret;
+}
+
+int SrsMp3Encoder::write_header()
+{
+    char id3[] = {
+        (char)0x49, (char)0x44, (char)0x33, // ID3
+        (char)0x03, (char)0x00, // version
+        (char)0x00, // flags
+        (char)0x00, (char)0x00, (char)0x00, (char)0x0a, // size
+        
+        (char)0x00, (char)0x00, (char)0x00, (char)0x00, // FrameID
+        (char)0x00, (char)0x00, (char)0x00, (char)0x00, // FrameSize
+        (char)0x00, (char)0x00 // Flags
+    };
+    return _fs->write(id3, sizeof(id3), NULL);
+}
+
+int SrsMp3Encoder::write_audio(int64_t timestamp, char* data, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(data);
+    
+    timestamp &= 0x7fffffff;
+    
+    SrsStream* stream = tag_stream;
+    if ((ret = stream->initialize(data, size)) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    // audio decode
+    if (!stream->require(1)) {
+        ret = ERROR_MP3_DECODE_ERROR;
+        srs_error("mp3 decode audio sound_format failed. ret=%d", ret);
+        return ret;
+    }
+    
+    // @see: E.4.2 Audio Tags, video_file_format_spec_v10_1.pdf, page 76
+    int8_t sound_format = stream->read_1bytes();
+    
+    // @see: SrsAvcAacCodec::audio_aac_demux
+    //int8_t sound_type = sound_format & 0x01;
+    //int8_t sound_size = (sound_format >> 1) & 0x01;
+    //int8_t sound_rate = (sound_format >> 2) & 0x03;
+    sound_format = (sound_format >> 4) & 0x0f;
+    
+    if ((SrsCodecAudio)sound_format != SrsCodecAudioMP3) {
+        ret = ERROR_MP3_DECODE_ERROR;
+        srs_error("mp3 required, format=%d. ret=%d", sound_format, ret);
+        return ret;
+    }
+
+    if (!stream->require(1)) {
+        ret = ERROR_MP3_DECODE_ERROR;
+        srs_error("mp3 decode aac_packet_type failed. ret=%d", ret);
+        return ret;
+    }
+    
+    return _fs->write(data + stream->pos(), size - stream->pos(), NULL);
+}
+
+// following is generated by src/kernel/srs_kernel_ts.cpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+//#include <srs_kernel_ts.hpp>
+
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
+#include <fcntl.h>
+#include <sstream>
+using namespace std;
+
+//#include <srs_kernel_log.hpp>
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_file.hpp>
+//#include <srs_kernel_codec.hpp>
+//#include <srs_kernel_buffer.hpp>
+//#include <srs_kernel_utility.hpp>
+//#include <srs_kernel_stream.hpp>
+//#include <srs_core_autofree.hpp>
+
+// in ms, for HLS aac sync time.
+#define SRS_CONF_DEFAULT_AAC_SYNC 100
+
+// @see: ngx_rtmp_hls_audio
+/* We assume here AAC frame size is 1024
+ * Need to handle AAC frames with frame size of 960 */
+#define _SRS_AAC_SAMPLE_SIZE 1024
+
+// the mpegts header specifed the video/audio pid.
+#define TS_PMT_NUMBER 1
+#define TS_PMT_PID 0x1001
+#define TS_VIDEO_AVC_PID 0x100
+#define TS_AUDIO_AAC_PID 0x101
+#define TS_AUDIO_MP3_PID 0x102
+
+string srs_ts_stream2string(SrsTsStream stream)
+{
+    switch (stream) {
+        case SrsTsStreamReserved: return "Reserved";
+        case SrsTsStreamAudioMp3: return "MP3";
+        case SrsTsStreamAudioAAC: return "AAC";
+        case SrsTsStreamAudioAC3: return "AC3";
+        case SrsTsStreamAudioDTS: return "AudioDTS";
+        case SrsTsStreamVideoH264: return "H.264";
+        case SrsTsStreamVideoMpeg4: return "MP4";
+        case SrsTsStreamAudioMpeg4: return "MP4A";
+        default: return "Other";
+    }
+}
+
+SrsTsChannel::SrsTsChannel()
+{
+    pid = 0;
+    apply = SrsTsPidApplyReserved;
+    stream = SrsTsStreamReserved;
+    msg = NULL;
+    continuity_counter = 0;
+    context = NULL;
+}
+
+SrsTsChannel::~SrsTsChannel()
+{
+    srs_freep(msg);
+}
+
+SrsTsMessage::SrsTsMessage(SrsTsChannel* c, SrsTsPacket* p)
+{
+    channel = c;
+    packet = p;
+
+    dts = pts = 0;
+    sid = (SrsTsPESStreamId)0x00;
+    continuity_counter = 0;
+    PES_packet_length = 0;
+    payload = new SrsSimpleBuffer();
+    is_discontinuity = false;
+
+    start_pts = 0;
+    write_pcr = false;
+}
+
+SrsTsMessage::~SrsTsMessage()
+{
+    srs_freep(payload);
+}
+
+int SrsTsMessage::dump(SrsStream* stream, int* pnb_bytes)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (stream->empty()) {
+        return ret;
+    }
+
+    // xB
+    int nb_bytes = stream->size() - stream->pos();
+    if (PES_packet_length > 0) {
+        nb_bytes = srs_min(nb_bytes, PES_packet_length - payload->length());
+    }
+
+    if (nb_bytes > 0) {
+        if (!stream->require(nb_bytes)) {
+            ret = ERROR_STREAM_CASTER_TS_PSE;
+            srs_error("ts: dump PSE bytes failed, requires=%dB. ret=%d", nb_bytes, ret);
+            return ret;
+        }
+
+        payload->append(stream->data() + stream->pos(), nb_bytes);
+        stream->skip(nb_bytes);
+    }
+
+    *pnb_bytes = nb_bytes;
+
+    return ret;
+}
+
+bool SrsTsMessage::completed(int8_t payload_unit_start_indicator)
+{
+    if (PES_packet_length == 0) {
+        return payload_unit_start_indicator;
+    }
+    return payload->length() >= PES_packet_length;
+}
+
+bool SrsTsMessage::fresh()
+{
+    return payload->length() == 0;
+}
+
+bool SrsTsMessage::is_audio()
+{
+    return ((sid >> 5) & 0x07) == SrsTsPESStreamIdAudioChecker;
+}
+
+bool SrsTsMessage::is_video()
+{
+    return ((sid >> 4) & 0x0f) == SrsTsPESStreamIdVideoChecker;
+}
+
+int SrsTsMessage::stream_number()
+{
+    if (is_audio()) {
+        return sid & 0x1f;
+    } else if (is_video()) {
+        return sid & 0x0f;
+    }
+    return -1;
+}
+
+SrsTsMessage* SrsTsMessage::detach()
+{
+    // @remark the packet cannot be used, but channel is ok.
+    SrsTsMessage* cp = new SrsTsMessage(channel, NULL);
+    cp->start_pts = start_pts;
+    cp->write_pcr = write_pcr;
+    cp->is_discontinuity = is_discontinuity;
+    cp->dts = dts;
+    cp->pts = pts;
+    cp->sid = sid;
+    cp->PES_packet_length = PES_packet_length;
+    cp->continuity_counter = continuity_counter;
+    cp->payload = payload;
+    payload = NULL;
+    return cp;
+}
+
+ISrsTsHandler::ISrsTsHandler()
+{
+}
+
+ISrsTsHandler::~ISrsTsHandler()
+{
+}
+
+SrsTsContext::SrsTsContext()
+{
+    pure_audio = false;
+    vcodec = SrsCodecVideoReserved;
+    acodec = SrsCodecAudioReserved1;
+}
+
+SrsTsContext::~SrsTsContext()
+{
+    std::map<int, SrsTsChannel*>::iterator it;
+    for (it = pids.begin(); it != pids.end(); ++it) {
+        SrsTsChannel* channel = it->second;
+        srs_freep(channel);
+    }
+    pids.clear();
+}
+
+bool SrsTsContext::is_pure_audio()
+{
+    return pure_audio;
+}
+
+void SrsTsContext::on_pmt_parsed()
+{
+    pure_audio = true;
+    
+    std::map<int, SrsTsChannel*>::iterator it;
+    for (it = pids.begin(); it != pids.end(); ++it) {
+        SrsTsChannel* channel = it->second;
+        if (channel->apply == SrsTsPidApplyVideo) {
+            pure_audio = false;
+        }
+    }
+}
+
+void SrsTsContext::reset()
+{
+    vcodec = SrsCodecVideoReserved;
+    acodec = SrsCodecAudioReserved1;
+}
+
+SrsTsChannel* SrsTsContext::get(int pid)
+{
+    if (pids.find(pid) == pids.end()) {
+        return NULL;
+    }
+    return pids[pid];
+}
+
+void SrsTsContext::set(int pid, SrsTsPidApply apply_pid, SrsTsStream stream)
+{
+    SrsTsChannel* channel = NULL;
+
+    if (pids.find(pid) == pids.end()) {
+        channel = new SrsTsChannel();
+        channel->context = this;
+        pids[pid] = channel;
+    } else {
+        channel = pids[pid];
+    }
+
+    channel->pid = pid;
+    channel->apply = apply_pid;
+    channel->stream = stream;
+}
+
+int SrsTsContext::decode(SrsStream* stream, ISrsTsHandler* handler)
+{
+    int ret = ERROR_SUCCESS;
+
+    // parse util EOF of stream.
+    // for example, parse multiple times for the PES_packet_length(0) packet.
+    while (!stream->empty()) {
+        SrsTsPacket* packet = new SrsTsPacket(this);
+        SrsAutoFree(SrsTsPacket, packet);
+
+        SrsTsMessage* msg = NULL;
+        if ((ret = packet->decode(stream, &msg)) != ERROR_SUCCESS) {
+            srs_error("mpegts: decode ts packet failed. ret=%d", ret);
+            return ret;
+        }
+
+        if (!msg) {
+            continue;
+        }
+        SrsAutoFree(SrsTsMessage, msg);
+
+        if ((ret = handler->on_ts_message(msg)) != ERROR_SUCCESS) {
+            srs_error("mpegts: handler ts message failed. ret=%d", ret);
+            return ret;
+        }
+    }
+
+    return ret;
+}
+
+int SrsTsContext::encode(SrsFileWriter* writer, SrsTsMessage* msg, SrsCodecVideo vc, SrsCodecAudio ac)
+{
+    int ret = ERROR_SUCCESS;
+
+    SrsTsStream vs, as;
+    int16_t video_pid = 0, audio_pid = 0;
+    switch (vc) {
+        case SrsCodecVideoAVC: 
+            vs = SrsTsStreamVideoH264; 
+            video_pid = TS_VIDEO_AVC_PID;
+            break;
+        case SrsCodecVideoDisabled:
+            vs = SrsTsStreamReserved;
+            break;
+        case SrsCodecVideoReserved:
+        case SrsCodecVideoReserved1:
+        case SrsCodecVideoReserved2:
+        case SrsCodecVideoSorensonH263:
+        case SrsCodecVideoScreenVideo:
+        case SrsCodecVideoOn2VP6:
+        case SrsCodecVideoOn2VP6WithAlphaChannel:
+        case SrsCodecVideoScreenVideoVersion2:
+            vs = SrsTsStreamReserved;
+            break;
+    }
+    switch (ac) {
+        case SrsCodecAudioAAC:
+            as = SrsTsStreamAudioAAC; 
+            audio_pid = TS_AUDIO_AAC_PID;
+            break;
+        case SrsCodecAudioMP3:
+            as = SrsTsStreamAudioMp3; 
+            audio_pid = TS_AUDIO_MP3_PID;
+            break;
+        case SrsCodecAudioDisabled:
+            as = SrsTsStreamReserved;
+            break;
+        case SrsCodecAudioReserved1:
+        case SrsCodecAudioLinearPCMPlatformEndian:
+        case SrsCodecAudioADPCM:
+        case SrsCodecAudioLinearPCMLittleEndian:
+        case SrsCodecAudioNellymoser16kHzMono:
+        case SrsCodecAudioNellymoser8kHzMono:
+        case SrsCodecAudioNellymoser:
+        case SrsCodecAudioReservedG711AlawLogarithmicPCM:
+        case SrsCodecAudioReservedG711MuLawLogarithmicPCM:
+        case SrsCodecAudioReserved:
+        case SrsCodecAudioSpeex:
+        case SrsCodecAudioReservedMP3_8kHz:
+        case SrsCodecAudioReservedDeviceSpecificSound:
+            as = SrsTsStreamReserved;
+            break;
+    }
+    
+    if (as == SrsTsStreamReserved && vs == SrsTsStreamReserved) {
+        ret = ERROR_HLS_NO_STREAM;
+        srs_error("hls: no video or audio stream, vcodec=%d, acodec=%d. ret=%d", vc, ac, ret);
+        return ret;
+    }
+    
+    // when any codec changed, write PAT/PMT table.
+    if (vcodec != vc || acodec != ac) {
+        vcodec = vc;
+        acodec = ac;
+        if ((ret = encode_pat_pmt(writer, video_pid, vs, audio_pid, as)) != ERROR_SUCCESS) {
+            return ret;
+        }
+    }
+
+    // encode the media frame to PES packets over TS.
+    if (msg->is_audio()) {
+        return encode_pes(writer, msg, audio_pid, as, vs == SrsTsStreamReserved);
+    } else {
+        return encode_pes(writer, msg, video_pid, vs, vs == SrsTsStreamReserved);
+    }
+}
+
+int SrsTsContext::encode_pat_pmt(SrsFileWriter* writer, int16_t vpid, SrsTsStream vs, int16_t apid, SrsTsStream as)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if (vs != SrsTsStreamVideoH264 && as != SrsTsStreamAudioAAC && as != SrsTsStreamAudioMp3) {
+        ret = ERROR_HLS_NO_STREAM;
+        srs_error("hls: no pmt pcr pid, vs=%d, as=%d. ret=%d", vs, as, ret);
+        return ret;
+    }
+
+    int16_t pmt_number = TS_PMT_NUMBER;
+    int16_t pmt_pid = TS_PMT_PID;
+    if (true) {
+        SrsTsPacket* pkt = SrsTsPacket::create_pat(this, pmt_number, pmt_pid);
+        SrsAutoFree(SrsTsPacket, pkt);
+
+        char* buf = new char[SRS_TS_PACKET_SIZE];
+        SrsAutoFree(char, buf);
+
+        // set the left bytes with 0xFF.
+        int nb_buf = pkt->size();
+        srs_assert(nb_buf < SRS_TS_PACKET_SIZE);
+        memset(buf + nb_buf, 0xFF, SRS_TS_PACKET_SIZE - nb_buf);
+
+        SrsStream stream;
+        if ((ret = stream.initialize(buf, nb_buf)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        if ((ret = pkt->encode(&stream)) != ERROR_SUCCESS) {
+            srs_error("ts encode ts packet failed. ret=%d", ret);
+            return ret;
+        }
+        if ((ret = writer->write(buf, SRS_TS_PACKET_SIZE, NULL)) != ERROR_SUCCESS) {
+            srs_error("ts write ts packet failed. ret=%d", ret);
+            return ret;
+        }
+    }
+    if (true) {
+        SrsTsPacket* pkt = SrsTsPacket::create_pmt(this, pmt_number, pmt_pid, vpid, vs, apid, as);
+        SrsAutoFree(SrsTsPacket, pkt);
+
+        char* buf = new char[SRS_TS_PACKET_SIZE];
+        SrsAutoFree(char, buf);
+
+        // set the left bytes with 0xFF.
+        int nb_buf = pkt->size();
+        srs_assert(nb_buf < SRS_TS_PACKET_SIZE);
+        memset(buf + nb_buf, 0xFF, SRS_TS_PACKET_SIZE - nb_buf);
+
+        SrsStream stream;
+        if ((ret = stream.initialize(buf, nb_buf)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        if ((ret = pkt->encode(&stream)) != ERROR_SUCCESS) {
+            srs_error("ts encode ts packet failed. ret=%d", ret);
+            return ret;
+        }
+        if ((ret = writer->write(buf, SRS_TS_PACKET_SIZE, NULL)) != ERROR_SUCCESS) {
+            srs_error("ts write ts packet failed. ret=%d", ret);
+            return ret;
+        }
+    }
+
+    return ret;
+}
+
+int SrsTsContext::encode_pes(SrsFileWriter* writer, SrsTsMessage* msg, int16_t pid, SrsTsStream sid, bool pure_audio)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (msg->payload->length() == 0) {
+        return ret;
+    }
+
+    if (sid != SrsTsStreamVideoH264 && sid != SrsTsStreamAudioMp3 && sid != SrsTsStreamAudioAAC) {
+        srs_info("ts: ignore the unknown stream, sid=%d", sid);
+        return ret;
+    }
+
+    SrsTsChannel* channel = get(pid);
+    srs_assert(channel);
+
+    char* start = msg->payload->bytes();
+    char* end = start + msg->payload->length();
+    char* p = start;
+
+    while (p < end) {
+        SrsTsPacket* pkt = NULL;
+        if (p == start) {
+            // for pure audio stream, always write pcr.
+            bool write_pcr = msg->write_pcr;
+            if (pure_audio && msg->is_audio()) {
+                write_pcr = true;
+            }
+
+            // it's ok to set pcr equals to dts,
+            // @see https://github.com/simple-rtmp-server/srs/issues/311
+            int64_t pcr = write_pcr? msg->dts : -1;
+            
+            // TODO: FIXME: finger it why use discontinuity of msg.
+            pkt = SrsTsPacket::create_pes_first(this, 
+                pid, msg->sid, channel->continuity_counter++, msg->is_discontinuity,
+                pcr, msg->dts, msg->pts, msg->payload->length()
+            );
+        } else {
+            pkt = SrsTsPacket::create_pes_continue(this, 
+                pid, msg->sid, channel->continuity_counter++
+            );
+        }
+        SrsAutoFree(SrsTsPacket, pkt);
+
+        char* buf = new char[SRS_TS_PACKET_SIZE];
+        SrsAutoFree(char, buf);
+
+        // set the left bytes with 0xFF.
+        int nb_buf = pkt->size();
+        srs_assert(nb_buf < SRS_TS_PACKET_SIZE);
+
+        int left = (int)srs_min(end - p, SRS_TS_PACKET_SIZE - nb_buf);
+        int nb_stuffings = SRS_TS_PACKET_SIZE - nb_buf - left;
+        if (nb_stuffings > 0) {
+            // set all bytes to stuffings.
+            memset(buf, 0xFF, SRS_TS_PACKET_SIZE);
+
+            // padding with stuffings.
+            pkt->padding(nb_stuffings);
+
+            // size changed, recalc it.
+            nb_buf = pkt->size();
+            srs_assert(nb_buf < SRS_TS_PACKET_SIZE);
+
+            left = (int)srs_min(end - p, SRS_TS_PACKET_SIZE - nb_buf);
+            nb_stuffings = SRS_TS_PACKET_SIZE - nb_buf - left;
+            srs_assert(nb_stuffings == 0);
+        }
+        memcpy(buf + nb_buf, p, left);
+        p += left;
+
+        SrsStream stream;
+        if ((ret = stream.initialize(buf, nb_buf)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        if ((ret = pkt->encode(&stream)) != ERROR_SUCCESS) {
+            srs_error("ts encode ts packet failed. ret=%d", ret);
+            return ret;
+        }
+        if ((ret = writer->write(buf, SRS_TS_PACKET_SIZE, NULL)) != ERROR_SUCCESS) {
+            srs_error("ts write ts packet failed. ret=%d", ret);
+            return ret;
+        }
+    }
+
+    return ret;
+}
+
+SrsTsPacket::SrsTsPacket(SrsTsContext* c)
+{
+    context = c;
+
+    sync_byte = 0;
+    transport_error_indicator = 0;
+    payload_unit_start_indicator = 0;
+    transport_priority = 0;
+    pid = SrsTsPidPAT;
+    transport_scrambling_control = SrsTsScrambledDisabled;
+    adaption_field_control = SrsTsAdaptationFieldTypeReserved;
+    continuity_counter = 0;
+    adaptation_field = NULL;
+    payload = NULL;
+}
+
+SrsTsPacket::~SrsTsPacket()
+{
+    srs_freep(adaptation_field);
+    srs_freep(payload);
+}
+
+int SrsTsPacket::decode(SrsStream* stream, SrsTsMessage** ppmsg)
+{
+    int ret = ERROR_SUCCESS;
+
+    int pos = stream->pos();
+
+    // 4B ts packet header.
+    if (!stream->require(4)) {
+        ret = ERROR_STREAM_CASTER_TS_HEADER;
+        srs_error("ts: demux header failed. ret=%d", ret);
+        return ret;
+    }
+
+    sync_byte = stream->read_1bytes();
+    if (sync_byte != 0x47) {
+        ret = ERROR_STREAM_CASTER_TS_SYNC_BYTE;
+        srs_error("ts: sync_bytes must be 0x47, actual=%#x. ret=%d", sync_byte, ret);
+        return ret;
+    }
+    
+    int16_t pidv = stream->read_2bytes();
+    transport_error_indicator = (pidv >> 15) & 0x01;
+    payload_unit_start_indicator = (pidv >> 14) & 0x01;
+    transport_priority = (pidv >> 13) & 0x01;
+    pid = (SrsTsPid)(pidv & 0x1FFF);
+
+    int8_t ccv = stream->read_1bytes();
+    transport_scrambling_control = (SrsTsScrambled)((ccv >> 6) & 0x03);
+    adaption_field_control = (SrsTsAdaptationFieldType)((ccv >> 4) & 0x03);
+    continuity_counter = ccv & 0x0F;
+
+    // TODO: FIXME: create pids map when got new pid.
+    
+    srs_info("ts: header sync=%#x error=%d unit_start=%d priotiry=%d pid=%d scrambling=%d adaption=%d counter=%d",
+        sync_byte, transport_error_indicator, payload_unit_start_indicator, transport_priority, pid,
+        transport_scrambling_control, adaption_field_control, continuity_counter);
+
+    // optional: adaptation field
+    if (adaption_field_control == SrsTsAdaptationFieldTypeAdaptionOnly || adaption_field_control == SrsTsAdaptationFieldTypeBoth) {
+        srs_freep(adaptation_field);
+        adaptation_field = new SrsTsAdaptationField(this);
+
+        if ((ret = adaptation_field->decode(stream)) != ERROR_SUCCESS) {
+            srs_error("ts: demux af faield. ret=%d", ret);
+            return ret;
+        }
+        srs_verbose("ts: demux af ok.");
+    }
+
+    // calc the user defined data size for payload.
+    int nb_payload = SRS_TS_PACKET_SIZE - (stream->pos() - pos);
+
+    // optional: payload.
+    if (adaption_field_control == SrsTsAdaptationFieldTypePayloadOnly || adaption_field_control == SrsTsAdaptationFieldTypeBoth) {
+        if (pid == SrsTsPidPAT) {
+            // 2.4.4.3 Program association Table
+            srs_freep(payload);
+            payload = new SrsTsPayloadPAT(this);
+        } else {
+            SrsTsChannel* channel = context->get(pid);
+            if (channel && channel->apply == SrsTsPidApplyPMT) {
+                // 2.4.4.8 Program Map Table
+                srs_freep(payload);
+                payload = new SrsTsPayloadPMT(this);
+            } else if (channel && (channel->apply == SrsTsPidApplyVideo || channel->apply == SrsTsPidApplyAudio)) {
+                // 2.4.3.6 PES packet
+                srs_freep(payload);
+                payload = new SrsTsPayloadPES(this);
+            } else {
+                // left bytes as reserved.
+                stream->skip(nb_payload);
+            }
+        }
+
+        if (payload && (ret = payload->decode(stream, ppmsg)) != ERROR_SUCCESS) {
+            srs_error("ts: demux payload failed. ret=%d", ret);
+            return ret;
+        }
+    }
+
+    return ret;
+}
+
+int SrsTsPacket::size()
+{
+    int sz = 4;
+    
+    sz += adaptation_field? adaptation_field->size() : 0;
+    sz += payload? payload->size() : 0;
+
+    return sz;
+}
+
+int SrsTsPacket::encode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // 4B ts packet header.
+    if (!stream->require(4)) {
+        ret = ERROR_STREAM_CASTER_TS_HEADER;
+        srs_error("ts: mux header failed. ret=%d", ret);
+        return ret;
+    }
+
+    stream->write_1bytes(sync_byte);
+
+    int16_t pidv = pid & 0x1FFF;
+    pidv |= (transport_priority << 13) & 0x2000;
+    pidv |= (transport_error_indicator << 15) & 0x8000;
+    pidv |= (payload_unit_start_indicator << 14) & 0x4000;
+    stream->write_2bytes(pidv);
+
+    int8_t ccv = continuity_counter & 0x0F;
+    ccv |= (transport_scrambling_control << 6) & 0xC0;
+    ccv |= (adaption_field_control << 4) & 0x30;
+    stream->write_1bytes(ccv);
+    
+    srs_info("ts: header sync=%#x error=%d unit_start=%d priotiry=%d pid=%d scrambling=%d adaption=%d counter=%d",
+        sync_byte, transport_error_indicator, payload_unit_start_indicator, transport_priority, pid,
+        transport_scrambling_control, adaption_field_control, continuity_counter);
+
+    // optional: adaptation field
+    if (adaptation_field) {
+        if ((ret = adaptation_field->encode(stream)) != ERROR_SUCCESS) {
+            srs_error("ts: mux af faield. ret=%d", ret);
+            return ret;
+        }
+        srs_verbose("ts: mux af ok.");
+    }
+
+    // optional: payload.
+    if (payload) {
+        if ((ret = payload->encode(stream)) != ERROR_SUCCESS) {
+            srs_error("ts: mux payload failed. ret=%d", ret);
+            return ret;
+        }
+        srs_verbose("ts: mux payload ok.");
+    }
+
+    return ret;
+}
+
+void SrsTsPacket::padding(int nb_stuffings)
+{
+    if (!adaptation_field) {
+        SrsTsAdaptationField* af = new SrsTsAdaptationField(this);
+        adaptation_field = af;
+
+        af->adaption_field_length = 0; // calc in size.
+        af->discontinuity_indicator = 0;
+        af->random_access_indicator = 0;
+        af->elementary_stream_priority_indicator = 0;
+        af->PCR_flag = 0;
+        af->OPCR_flag = 0;
+        af->splicing_point_flag = 0;
+        af->transport_private_data_flag = 0;
+        af->adaptation_field_extension_flag = 0;
+
+        // consume the af size if possible.
+        nb_stuffings = srs_max(0, nb_stuffings - af->size());
+    }
+
+    adaptation_field->nb_af_reserved = nb_stuffings;
+
+    // set payload with af.
+    if (adaption_field_control == SrsTsAdaptationFieldTypePayloadOnly) {
+        adaption_field_control = SrsTsAdaptationFieldTypeBoth;
+    }
+}
+
+SrsTsPacket* SrsTsPacket::create_pat(SrsTsContext* context, int16_t pmt_number, int16_t pmt_pid)
+{
+    SrsTsPacket* pkt = new SrsTsPacket(context);
+    pkt->sync_byte = 0x47;
+    pkt->transport_error_indicator = 0;
+    pkt->payload_unit_start_indicator = 1;
+    pkt->transport_priority = 0;
+    pkt->pid = SrsTsPidPAT;
+    pkt->transport_scrambling_control = SrsTsScrambledDisabled;
+    pkt->adaption_field_control = SrsTsAdaptationFieldTypePayloadOnly;
+    pkt->continuity_counter = 0;
+    pkt->adaptation_field = NULL;
+    SrsTsPayloadPAT* pat = new SrsTsPayloadPAT(pkt);
+    pkt->payload = pat;
+
+    pat->pointer_field = 0;
+    pat->table_id = SrsTsPsiIdPas;
+    pat->section_syntax_indicator = 1;
+    pat->section_length = 0; // calc in size.
+    pat->transport_stream_id = 1;
+    pat->version_number = 0;
+    pat->current_next_indicator = 1;
+    pat->section_number = 0;
+    pat->last_section_number = 0;
+    pat->programs.push_back(new SrsTsPayloadPATProgram(pmt_number, pmt_pid));
+    pat->CRC_32 = 0; // calc in encode.
+    return pkt;
+}
+
+SrsTsPacket* SrsTsPacket::create_pmt(SrsTsContext* context, int16_t pmt_number, int16_t pmt_pid, int16_t vpid, SrsTsStream vs, int16_t apid, SrsTsStream as)
+{
+    SrsTsPacket* pkt = new SrsTsPacket(context);
+    pkt->sync_byte = 0x47;
+    pkt->transport_error_indicator = 0;
+    pkt->payload_unit_start_indicator = 1;
+    pkt->transport_priority = 0;
+    pkt->pid = (SrsTsPid)pmt_pid;
+    pkt->transport_scrambling_control = SrsTsScrambledDisabled;
+    pkt->adaption_field_control = SrsTsAdaptationFieldTypePayloadOnly;
+    // TODO: FIXME: maybe should continuous in channel.
+    pkt->continuity_counter = 0;
+    pkt->adaptation_field = NULL;
+    SrsTsPayloadPMT* pmt = new SrsTsPayloadPMT(pkt);
+    pkt->payload = pmt;
+
+    pmt->pointer_field = 0;
+    pmt->table_id = SrsTsPsiIdPms;
+    pmt->section_syntax_indicator = 1;
+    pmt->section_length = 0; // calc in size.
+    pmt->program_number = pmt_number;
+    pmt->version_number = 0;
+    pmt->current_next_indicator = 1;
+    pmt->section_number = 0;
+    pmt->last_section_number = 0;
+    pmt->program_info_length = 0;
+    
+    // must got one valid codec.
+    srs_assert(vs == SrsTsStreamVideoH264 || as == SrsTsStreamAudioAAC || as == SrsTsStreamAudioMp3);
+    
+    // if mp3 or aac specified, use audio to carry pcr.
+    if (as == SrsTsStreamAudioAAC || as == SrsTsStreamAudioMp3) {
+        // use audio to carray pcr by default.
+        // for hls, there must be atleast one audio channel.
+        pmt->PCR_PID = apid;
+        pmt->infos.push_back(new SrsTsPayloadPMTESInfo(as, apid));
+    }
+    
+    // if h.264 specified, use video to carry pcr.
+    if (vs == SrsTsStreamVideoH264) {
+        pmt->PCR_PID = vpid;
+        pmt->infos.push_back(new SrsTsPayloadPMTESInfo(vs, vpid));
+    }
+    
+    pmt->CRC_32 = 0; // calc in encode.
+    return pkt;
+}
+
+SrsTsPacket* SrsTsPacket::create_pes_first(SrsTsContext* context, 
+    int16_t pid, SrsTsPESStreamId sid, u_int8_t continuity_counter, bool discontinuity, 
+    int64_t pcr, int64_t dts, int64_t pts, int size
+) {
+    SrsTsPacket* pkt = new SrsTsPacket(context);
+    pkt->sync_byte = 0x47;
+    pkt->transport_error_indicator = 0;
+    pkt->payload_unit_start_indicator = 1;
+    pkt->transport_priority = 0;
+    pkt->pid = (SrsTsPid)pid;
+    pkt->transport_scrambling_control = SrsTsScrambledDisabled;
+    pkt->adaption_field_control = SrsTsAdaptationFieldTypePayloadOnly;
+    pkt->continuity_counter = continuity_counter;
+    pkt->adaptation_field = NULL;
+    SrsTsPayloadPES* pes = new SrsTsPayloadPES(pkt);
+    pkt->payload = pes;
+
+    if (pcr >= 0) {
+        SrsTsAdaptationField* af = new SrsTsAdaptationField(pkt);
+        pkt->adaptation_field = af;
+        pkt->adaption_field_control = SrsTsAdaptationFieldTypeBoth;
+
+        af->adaption_field_length = 0; // calc in size.
+        af->discontinuity_indicator = discontinuity;
+        af->random_access_indicator = 0;
+        af->elementary_stream_priority_indicator = 0;
+        af->PCR_flag = 1;
+        af->OPCR_flag = 0;
+        af->splicing_point_flag = 0;
+        af->transport_private_data_flag = 0;
+        af->adaptation_field_extension_flag = 0;
+        af->program_clock_reference_base = pcr;
+        af->program_clock_reference_extension = 0;
+    }
+
+    pes->packet_start_code_prefix = 0x01;
+    pes->stream_id = (u_int8_t)sid;
+    pes->PES_packet_length = (size > 0xFFFF)? 0:size;
+    pes->PES_scrambling_control = 0;
+    pes->PES_priority = 0;
+    pes->data_alignment_indicator = 0;
+    pes->copyright = 0;
+    pes->original_or_copy = 0;
+    pes->PTS_DTS_flags = (dts == pts)? 0x02:0x03;
+    pes->ESCR_flag = 0;
+    pes->ES_rate_flag = 0;
+    pes->DSM_trick_mode_flag = 0;
+    pes->additional_copy_info_flag = 0;
+    pes->PES_CRC_flag = 0;
+    pes->PES_extension_flag = 0;
+    pes->PES_header_data_length = 0; // calc in size.
+    pes->pts = pts;
+    pes->dts = dts;
+    return pkt;
+}
+
+SrsTsPacket* SrsTsPacket::create_pes_continue(SrsTsContext* context, 
+    int16_t pid, SrsTsPESStreamId sid, u_int8_t continuity_counter
+) {
+    SrsTsPacket* pkt = new SrsTsPacket(context);
+    pkt->sync_byte = 0x47;
+    pkt->transport_error_indicator = 0;
+    pkt->payload_unit_start_indicator = 0;
+    pkt->transport_priority = 0;
+    pkt->pid = (SrsTsPid)pid;
+    pkt->transport_scrambling_control = SrsTsScrambledDisabled;
+    pkt->adaption_field_control = SrsTsAdaptationFieldTypePayloadOnly;
+    pkt->continuity_counter = continuity_counter;
+    pkt->adaptation_field = NULL;
+    pkt->payload = NULL;
+
+    return pkt;
+}
+
+SrsTsAdaptationField::SrsTsAdaptationField(SrsTsPacket* pkt)
+{
+    packet = pkt;
+
+    adaption_field_length = 0;
+    discontinuity_indicator = 0;
+    random_access_indicator = 0;
+    elementary_stream_priority_indicator = 0;
+    PCR_flag = 0;
+    OPCR_flag = 0;
+    splicing_point_flag = 0;
+    transport_private_data_flag = 0;
+    adaptation_field_extension_flag = 0;
+    program_clock_reference_base = 0;
+    program_clock_reference_extension = 0;
+    original_program_clock_reference_base = 0;
+    original_program_clock_reference_extension = 0;
+    splice_countdown = 0;
+    transport_private_data_length = 0;
+    transport_private_data = NULL;
+    adaptation_field_extension_length = 0;
+    ltw_flag = 0;
+    piecewise_rate_flag = 0;
+    seamless_splice_flag = 0;
+    ltw_valid_flag = 0;
+    ltw_offset = 0;
+    piecewise_rate = 0;
+    splice_type = 0;
+    DTS_next_AU0 = 0;
+    marker_bit0 = 0;
+    DTS_next_AU1 = 0;
+    marker_bit1 = 0;
+    DTS_next_AU2 = 0;
+    marker_bit2 = 0;
+    nb_af_ext_reserved = 0;
+    nb_af_reserved = 0;
+
+    const1_value0 = 0x3F;
+    const1_value1 = 0x1F;
+    const1_value2 = 0x3F;
+}
+
+SrsTsAdaptationField::~SrsTsAdaptationField()
+{
+    srs_freep(transport_private_data);
+}
+
+int SrsTsAdaptationField::decode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (!stream->require(2)) {
+        ret = ERROR_STREAM_CASTER_TS_AF;
+        srs_error("ts: demux af failed. ret=%d", ret);
+        return ret;
+    }
+    adaption_field_length = stream->read_1bytes();
+
+    // When the adaptation_field_control value is '11', the value of the adaptation_field_length shall
+    // be in the range 0 to 182. 
+    if (packet->adaption_field_control == SrsTsAdaptationFieldTypeBoth && adaption_field_length > 182) {
+        ret = ERROR_STREAM_CASTER_TS_AF;
+        srs_error("ts: demux af length failed, must in [0, 182], actual=%d. ret=%d", adaption_field_length, ret);
+        return ret;
+    }
+    // When the adaptation_field_control value is '10', the value of the adaptation_field_length shall
+    // be 183.
+    if (packet->adaption_field_control == SrsTsAdaptationFieldTypeAdaptionOnly && adaption_field_length != 183) {
+        ret = ERROR_STREAM_CASTER_TS_AF;
+        srs_error("ts: demux af length failed, must be 183, actual=%d. ret=%d", adaption_field_length, ret);
+        return ret;
+    }
+    
+    // no adaptation field.
+    if (adaption_field_length == 0) {
+        srs_info("ts: demux af empty.");
+        return ret;
+    }
+
+    // the adaptation field start at here.
+    int pos_af = stream->pos();
+    int8_t tmpv = stream->read_1bytes();
+    
+    discontinuity_indicator              =   (tmpv >> 7) & 0x01;
+    random_access_indicator              =   (tmpv >> 6) & 0x01;
+    elementary_stream_priority_indicator =   (tmpv >> 5) & 0x01;
+    PCR_flag                             =   (tmpv >> 4) & 0x01;
+    OPCR_flag                            =   (tmpv >> 3) & 0x01;
+    splicing_point_flag                  =   (tmpv >> 2) & 0x01;
+    transport_private_data_flag          =   (tmpv >> 1) & 0x01;
+    adaptation_field_extension_flag      =   tmpv & 0x01;
+    
+    if (PCR_flag) {
+        if (!stream->require(6)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: demux af PCR_flag failed. ret=%d", ret);
+            return ret;
+        }
+
+        char* pp = NULL;
+        char* p = stream->data() + stream->pos();
+        stream->skip(6);
+
+        int64_t pcrv = 0;
+        pp = (char*)&pcrv;
+        pp[5] = *p++;
+        pp[4] = *p++;
+        pp[3] = *p++;
+        pp[2] = *p++;
+        pp[1] = *p++;
+        pp[0] = *p++;
+        
+        // @remark, use pcr base and ignore the extension
+        // @see https://github.com/simple-rtmp-server/srs/issues/250#issuecomment-71349370
+        program_clock_reference_extension = pcrv & 0x1ff;
+        const1_value0 = (pcrv >> 9) & 0x3F;
+        program_clock_reference_base = (pcrv >> 15) & 0x1ffffffffLL;
+    }
+
+    if (OPCR_flag) {
+        if (!stream->require(6)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: demux af OPCR_flag failed. ret=%d", ret);
+            return ret;
+        }
+
+        char* pp = NULL;
+        char* p = stream->data() + stream->pos();
+        stream->skip(6);
+        
+        int64_t opcrv = 0;
+        pp = (char*)&opcrv;
+        pp[5] = *p++;
+        pp[4] = *p++;
+        pp[3] = *p++;
+        pp[2] = *p++;
+        pp[1] = *p++;
+        pp[0] = *p++;
+        
+        // @remark, use pcr base and ignore the extension
+        // @see https://github.com/simple-rtmp-server/srs/issues/250#issuecomment-71349370
+        original_program_clock_reference_extension = opcrv & 0x1ff;
+        const1_value2 = (opcrv >> 9) & 0x3F;
+        original_program_clock_reference_base = (opcrv >> 15) & 0x1ffffffffLL;
+    }
+
+    if (splicing_point_flag) {
+        if (!stream->require(1)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: demux af splicing_point_flag failed. ret=%d", ret);
+            return ret;
+        }
+        splice_countdown = stream->read_1bytes();
+    }
+    
+    if (transport_private_data_flag) {
+        if (!stream->require(1)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: demux af transport_private_data_flag failed. ret=%d", ret);
+            return ret;
+        }
+        transport_private_data_length = (u_int8_t)stream->read_1bytes();
+
+        if (transport_private_data_length> 0) {
+            if (!stream->require(transport_private_data_length)) {
+                ret = ERROR_STREAM_CASTER_TS_AF;
+                srs_error("ts: demux af transport_private_data_flag failed. ret=%d", ret);
+                return ret;
+            }
+            srs_freep(transport_private_data);
+            transport_private_data = new char[transport_private_data_length];
+            stream->read_bytes(transport_private_data, transport_private_data_length);
+        }
+    }
+    
+    if (adaptation_field_extension_flag) {
+        int pos_af_ext = stream->pos();
+
+        if (!stream->require(2)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: demux af adaptation_field_extension_flag failed. ret=%d", ret);
+            return ret;
+        }
+        adaptation_field_extension_length = (u_int8_t)stream->read_1bytes();
+        int8_t ltwfv = stream->read_1bytes();
+        
+        piecewise_rate_flag = (ltwfv >> 6) & 0x01;
+        seamless_splice_flag = (ltwfv >> 5) & 0x01;
+        ltw_flag = (ltwfv >> 7) & 0x01;
+        const1_value1 = ltwfv & 0x1F;
+
+        if (ltw_flag) {
+            if (!stream->require(2)) {
+                ret = ERROR_STREAM_CASTER_TS_AF;
+                srs_error("ts: demux af ltw_flag failed. ret=%d", ret);
+                return ret;
+            }
+            ltw_offset = stream->read_2bytes();
+            
+            ltw_valid_flag = (ltw_offset >> 15) &0x01;
+            ltw_offset &= 0x7FFF;
+        }
+
+        if (piecewise_rate_flag) {
+            if (!stream->require(3)) {
+                ret = ERROR_STREAM_CASTER_TS_AF;
+                srs_error("ts: demux af piecewise_rate_flag failed. ret=%d", ret);
+                return ret;
+            }
+            piecewise_rate = stream->read_3bytes();
+
+            piecewise_rate &= 0x3FFFFF;
+        }
+
+        if (seamless_splice_flag) {
+            if (!stream->require(5)) {
+                ret = ERROR_STREAM_CASTER_TS_AF;
+                srs_error("ts: demux af seamless_splice_flag failed. ret=%d", ret);
+                return ret;
+            }
+            marker_bit0 = stream->read_1bytes();
+            DTS_next_AU1 = stream->read_2bytes();
+            DTS_next_AU2 = stream->read_2bytes();
+            
+            splice_type = (marker_bit0 >> 4) & 0x0F;
+            DTS_next_AU0 = (marker_bit0 >> 1) & 0x07;
+            marker_bit0 &= 0x01;
+            
+            marker_bit1 = DTS_next_AU1 & 0x01;
+            DTS_next_AU1 = (DTS_next_AU1 >> 1) & 0x7FFF;
+            
+            marker_bit2 = DTS_next_AU2 & 0x01;
+            DTS_next_AU2 = (DTS_next_AU2 >> 1) & 0x7FFF;
+        }
+
+        nb_af_ext_reserved = adaptation_field_extension_length - (stream->pos() - pos_af_ext);
+        stream->skip(nb_af_ext_reserved);
+    }
+
+    nb_af_reserved = adaption_field_length - (stream->pos() - pos_af);
+    stream->skip(nb_af_reserved);
+    
+    srs_info("ts: af parsed, discontinuity=%d random=%d priority=%d PCR=%d OPCR=%d slicing=%d private=%d extension=%d/%d pcr=%"PRId64"/%d opcr=%"PRId64"/%d",
+        discontinuity_indicator, random_access_indicator, elementary_stream_priority_indicator, PCR_flag, OPCR_flag, splicing_point_flag,
+        transport_private_data_flag, adaptation_field_extension_flag, adaptation_field_extension_length, program_clock_reference_base, 
+        program_clock_reference_extension, original_program_clock_reference_base, original_program_clock_reference_extension);
+
+    return ret;
+}
+
+int SrsTsAdaptationField::size()
+{
+    int sz = 2;
+
+    sz += PCR_flag? 6 : 0;
+    sz += OPCR_flag? 6 : 0;
+    sz += splicing_point_flag? 1 : 0;
+    sz += transport_private_data_flag? 1 + transport_private_data_length : 0;
+    sz += adaptation_field_extension_flag? 2 + adaptation_field_extension_length : 0;
+    sz += nb_af_ext_reserved;
+    sz += nb_af_reserved;
+
+    adaption_field_length = sz - 1;
+
+    return sz;
+}
+
+int SrsTsAdaptationField::encode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (!stream->require(2)) {
+        ret = ERROR_STREAM_CASTER_TS_AF;
+        srs_error("ts: mux af failed. ret=%d", ret);
+        return ret;
+    }
+    stream->write_1bytes(adaption_field_length);
+
+    // When the adaptation_field_control value is '11', the value of the adaptation_field_length shall
+    // be in the range 0 to 182. 
+    if (packet->adaption_field_control == SrsTsAdaptationFieldTypeBoth && adaption_field_length > 182) {
+        ret = ERROR_STREAM_CASTER_TS_AF;
+        srs_error("ts: mux af length failed, must in [0, 182], actual=%d. ret=%d", adaption_field_length, ret);
+        return ret;
+    }
+    // When the adaptation_field_control value is '10', the value of the adaptation_field_length shall
+    // be 183.
+    if (packet->adaption_field_control == SrsTsAdaptationFieldTypeAdaptionOnly && adaption_field_length != 183) {
+        ret = ERROR_STREAM_CASTER_TS_AF;
+        srs_error("ts: mux af length failed, must be 183, actual=%d. ret=%d", adaption_field_length, ret);
+        return ret;
+    }
+    
+    // no adaptation field.
+    if (adaption_field_length == 0) {
+        srs_info("ts: mux af empty.");
+        return ret;
+    }
+    int8_t tmpv = adaptation_field_extension_flag & 0x01;
+    tmpv |= (discontinuity_indicator << 7) & 0x80;
+    tmpv |= (random_access_indicator << 6) & 0x40;
+    tmpv |= (elementary_stream_priority_indicator << 5) & 0x20;
+    tmpv |= (PCR_flag << 4) & 0x10;
+    tmpv |= (OPCR_flag << 3) & 0x08;
+    tmpv |= (splicing_point_flag << 2) & 0x04;
+    tmpv |= (transport_private_data_flag << 1) & 0x02;
+    stream->write_1bytes(tmpv);
+    
+    if (PCR_flag) {
+        if (!stream->require(6)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: mux af PCR_flag failed. ret=%d", ret);
+            return ret;
+        }
+
+        char* pp = NULL;
+        char* p = stream->data() + stream->pos();
+        stream->skip(6);
+        
+        // @remark, use pcr base and ignore the extension
+        // @see https://github.com/simple-rtmp-server/srs/issues/250#issuecomment-71349370
+        int64_t pcrv = program_clock_reference_extension & 0x1ff;
+        pcrv |= (const1_value0 << 9) & 0x7E00;
+        pcrv |= (program_clock_reference_base << 15) & 0x1FFFFFFFF000000LL;
+
+        pp = (char*)&pcrv;
+        *p++ = pp[5];
+        *p++ = pp[4];
+        *p++ = pp[3];
+        *p++ = pp[2];
+        *p++ = pp[1];
+        *p++ = pp[0];
+    }
+
+    if (OPCR_flag) {
+        if (!stream->require(6)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: demux af OPCR_flag failed. ret=%d", ret);
+            return ret;
+        }
+        stream->skip(6);
+        srs_warn("ts: mux af ignore OPCR");
+    }
+
+    if (splicing_point_flag) {
+        if (!stream->require(1)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: mux af splicing_point_flag failed. ret=%d", ret);
+            return ret;
+        }
+        stream->write_1bytes(splice_countdown);
+    }
+    
+    if (transport_private_data_flag) {
+        if (!stream->require(1)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: mux af transport_private_data_flag failed. ret=%d", ret);
+            return ret;
+        }
+        stream->write_1bytes(transport_private_data_length);
+
+        if (transport_private_data_length> 0) {
+            if (!stream->require(transport_private_data_length)) {
+                ret = ERROR_STREAM_CASTER_TS_AF;
+                srs_error("ts: mux af transport_private_data_flag failed. ret=%d", ret);
+                return ret;
+            }
+            stream->write_bytes(transport_private_data, transport_private_data_length);
+        }
+    }
+    
+    if (adaptation_field_extension_flag) {
+        if (!stream->require(2)) {
+            ret = ERROR_STREAM_CASTER_TS_AF;
+            srs_error("ts: mux af adaptation_field_extension_flag failed. ret=%d", ret);
+            return ret;
+        }
+        stream->write_1bytes(adaptation_field_extension_length);
+        int8_t ltwfv = const1_value1 & 0x1F;
+        ltwfv |= (ltw_flag << 7) & 0x80;
+        ltwfv |= (piecewise_rate_flag << 6) & 0x40;
+        ltwfv |= (seamless_splice_flag << 5) & 0x20;
+        stream->write_1bytes(ltwfv);
+
+        if (ltw_flag) {
+            if (!stream->require(2)) {
+                ret = ERROR_STREAM_CASTER_TS_AF;
+                srs_error("ts: mux af ltw_flag failed. ret=%d", ret);
+                return ret;
+            }
+            stream->skip(2);
+            srs_warn("ts: mux af ignore ltw");
+        }
+
+        if (piecewise_rate_flag) {
+            if (!stream->require(3)) {
+                ret = ERROR_STREAM_CASTER_TS_AF;
+                srs_error("ts: mux af piecewise_rate_flag failed. ret=%d", ret);
+                return ret;
+            }
+            stream->skip(3);
+            srs_warn("ts: mux af ignore piecewise_rate");
+        }
+
+        if (seamless_splice_flag) {
+            if (!stream->require(5)) {
+                ret = ERROR_STREAM_CASTER_TS_AF;
+                srs_error("ts: mux af seamless_splice_flag failed. ret=%d", ret);
+                return ret;
+            }
+            stream->skip(5);
+            srs_warn("ts: mux af ignore seamless_splice");
+        }
+
+        if (nb_af_ext_reserved) {
+            stream->skip(nb_af_ext_reserved);
+        }
+    }
+
+    if (nb_af_reserved) {
+        stream->skip(nb_af_reserved);
+    }
+    
+    srs_info("ts: af parsed, discontinuity=%d random=%d priority=%d PCR=%d OPCR=%d slicing=%d private=%d extension=%d/%d pcr=%"PRId64"/%d opcr=%"PRId64"/%d",
+        discontinuity_indicator, random_access_indicator, elementary_stream_priority_indicator, PCR_flag, OPCR_flag, splicing_point_flag,
+        transport_private_data_flag, adaptation_field_extension_flag, adaptation_field_extension_length, program_clock_reference_base, 
+        program_clock_reference_extension, original_program_clock_reference_base, original_program_clock_reference_extension);
+
+    return ret;
+}
+
+SrsTsPayload::SrsTsPayload(SrsTsPacket* p)
+{
+    packet = p;
+}
+
+SrsTsPayload::~SrsTsPayload()
+{
+}
+
+SrsTsPayloadPES::SrsTsPayloadPES(SrsTsPacket* p) : SrsTsPayload(p)
+{
+    PES_private_data = NULL;
+    pack_field = NULL;
+    PES_extension_field = NULL;
+    nb_stuffings = 0;
+    nb_bytes = 0;
+    nb_paddings = 0;
+    const2bits = 0x02;
+    const1_value0 = 0x07;
+}
+
+SrsTsPayloadPES::~SrsTsPayloadPES()
+{
+    srs_freep(PES_private_data);
+    srs_freep(pack_field);
+    srs_freep(PES_extension_field);
+}
+
+int SrsTsPayloadPES::decode(SrsStream* stream, SrsTsMessage** ppmsg)
+{
+    int ret = ERROR_SUCCESS;
+
+    // find the channel from chunk.
+    SrsTsChannel* channel = packet->context->get(packet->pid);
+    if (!channel) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: demux PES no channel for pid=%#x. ret=%d", packet->pid, ret);
+        return ret;
+    }
+
+    // init msg.
+    SrsTsMessage* msg = channel->msg;
+    if (!msg) {
+        msg = new SrsTsMessage(channel, packet);
+        channel->msg = msg;
+    }
+    
+    // we must cache the fresh state of msg,
+    // for the PES_packet_length is 0, the first payload_unit_start_indicator always 1,
+    // so should check for the fresh and not completed it.
+    bool is_fresh_msg = msg->fresh();
+
+    // check when fresh, the payload_unit_start_indicator
+    // should be 1 for the fresh msg.
+    if (is_fresh_msg && !packet->payload_unit_start_indicator) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: PES fresh packet length=%d, us=%d, cc=%d. ret=%d",
+            msg->PES_packet_length, packet->payload_unit_start_indicator, packet->continuity_counter,
+            ret);
+        return ret;
+    }
+
+    // check when not fresh and PES_packet_length>0,
+    // the payload_unit_start_indicator should never be 1 when not completed.
+    if (!is_fresh_msg && msg->PES_packet_length > 0
+        && !msg->completed(packet->payload_unit_start_indicator)
+        && packet->payload_unit_start_indicator
+    ) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: PES packet length=%d, payload=%d, us=%d, cc=%d. ret=%d",
+            msg->PES_packet_length, msg->payload->length(), packet->payload_unit_start_indicator, 
+            packet->continuity_counter, ret);
+
+        // reparse current msg.
+        stream->skip(stream->pos() * -1);
+        srs_freep(msg);
+        channel->msg = NULL;
+        return ERROR_SUCCESS;
+    }
+
+    // check the continuity counter
+    if (!is_fresh_msg) {
+        // late-incoming or duplicated continuity, drop message.
+        // @remark check overflow, the counter plus 1 should greater when invalid.
+        if (msg->continuity_counter >= packet->continuity_counter
+            && ((msg->continuity_counter + 1) & 0x0f) > packet->continuity_counter
+        ) {
+            srs_warn("ts: drop PES %dB for duplicated cc=%#x", msg->continuity_counter);
+            stream->skip(stream->size() - stream->pos());
+            return ret;
+        }
+
+        // when got partially message, the continous count must be continuous, or drop it.
+        if (((msg->continuity_counter + 1) & 0x0f) != packet->continuity_counter) {
+            ret = ERROR_STREAM_CASTER_TS_PSE;
+            srs_error("ts: continuity must be continous, msg=%#x, packet=%#x. ret=%d",
+                msg->continuity_counter, packet->continuity_counter, ret);
+
+            // reparse current msg.
+            stream->skip(stream->pos() * -1);
+            srs_freep(msg);
+            channel->msg = NULL;
+            return ERROR_SUCCESS;
+        }
+    }
+    msg->continuity_counter = packet->continuity_counter;
+
+    // for the PES_packet_length(0), reap when completed.
+    if (!is_fresh_msg && msg->completed(packet->payload_unit_start_indicator)) {
+        // reap previous PES packet.
+        *ppmsg = msg;
+        channel->msg = NULL;
+
+        // reparse current msg.
+        stream->skip(stream->pos() * -1);
+        return ret;
+    }
+
+    // contious packet, append bytes for unit start is 0
+    if (!packet->payload_unit_start_indicator) {
+        if ((ret = msg->dump(stream, &nb_bytes)) != ERROR_SUCCESS) {
+            return ret;
+        }
+    }
+
+    // when unit start, parse the fresh msg.
+    if (packet->payload_unit_start_indicator) {
+        // 6B fixed header.
+        if (!stream->require(6)) {
+            ret = ERROR_STREAM_CASTER_TS_PSE;
+            srs_error("ts: demux PSE failed. ret=%d", ret);
+            return ret;
+        }
+        // 3B
+        packet_start_code_prefix = stream->read_3bytes();
+        // 1B
+        stream_id = stream->read_1bytes();
+        // 2B
+        PES_packet_length = stream->read_2bytes();
+
+        // check the packet start prefix.
+        packet_start_code_prefix &= 0xFFFFFF;
+        if (packet_start_code_prefix != 0x01) {
+            ret = ERROR_STREAM_CASTER_TS_PSE;
+            srs_error("ts: demux PES start code failed, expect=0x01, actual=%#x. ret=%d", packet_start_code_prefix, ret);
+            return ret;
+        }
+        int pos_packet = stream->pos();
+
+        // @remark the sid indicates the elementary stream format.
+        //      the SrsTsPESStreamIdAudio and SrsTsPESStreamIdVideo is start by 0b110 or 0b1110
+        SrsTsPESStreamId sid = (SrsTsPESStreamId)stream_id;
+        msg->sid = sid;
+
+        if (sid != SrsTsPESStreamIdProgramStreamMap
+            && sid != SrsTsPESStreamIdPaddingStream
+            && sid != SrsTsPESStreamIdPrivateStream2
+            && sid != SrsTsPESStreamIdEcmStream
+            && sid != SrsTsPESStreamIdEmmStream
+            && sid != SrsTsPESStreamIdProgramStreamDirectory
+            && sid != SrsTsPESStreamIdDsmccStream
+            && sid != SrsTsPESStreamIdH2221TypeE
+        ) {
+            // 3B flags.
+            if (!stream->require(3)) {
+                ret = ERROR_STREAM_CASTER_TS_PSE;
+                srs_error("ts: demux PES flags failed. ret=%d", ret);
+                return ret;
+            }
+            // 1B
+            int8_t oocv = stream->read_1bytes();
+            // 1B
+            int8_t pefv = stream->read_1bytes();
+            // 1B
+            PES_header_data_length = stream->read_1bytes();
+            // position of header start.
+            int pos_header = stream->pos();
+
+            const2bits = (oocv >> 6) & 0x03;
+            PES_scrambling_control = (oocv >> 4) & 0x03;
+            PES_priority = (oocv >> 3) & 0x01;
+            data_alignment_indicator = (oocv >> 2) & 0x01;
+            copyright = (oocv >> 1) & 0x01;
+            original_or_copy = oocv & 0x01;
+
+            PTS_DTS_flags = (pefv >> 6) & 0x03;
+            ESCR_flag = (pefv >> 5) & 0x01;
+            ES_rate_flag = (pefv >> 4) & 0x01;
+            DSM_trick_mode_flag = (pefv >> 3) & 0x01;
+            additional_copy_info_flag = (pefv >> 2) & 0x01;
+            PES_CRC_flag = (pefv >> 1) & 0x01;
+            PES_extension_flag = pefv & 0x01;
+
+            // check required together.
+            int nb_required = 0;
+            nb_required += (PTS_DTS_flags == 0x2)? 5:0;
+            nb_required += (PTS_DTS_flags == 0x3)? 10:0;
+            nb_required += ESCR_flag? 6:0;
+            nb_required += ES_rate_flag? 3:0;
+            nb_required += DSM_trick_mode_flag? 1:0;
+            nb_required += additional_copy_info_flag? 1:0;
+            nb_required += PES_CRC_flag? 2:0;
+            nb_required += PES_extension_flag? 1:0;
+            if (!stream->require(nb_required)) {
+                ret = ERROR_STREAM_CASTER_TS_PSE;
+                srs_error("ts: demux PES payload failed. ret=%d", ret);
+                return ret;
+            }
+
+            // 5B
+            if (PTS_DTS_flags == 0x2) {
+                if ((ret = decode_33bits_dts_pts(stream, &pts)) != ERROR_SUCCESS) {
+                    return ret;
+                }
+                dts = pts;
+
+                // update the dts and pts of message.
+                msg->dts = dts;
+                msg->pts = pts;
+            }
+
+            // 10B
+            if (PTS_DTS_flags == 0x3) {
+                if ((ret = decode_33bits_dts_pts(stream, &pts)) != ERROR_SUCCESS) {
+                    return ret;
+                }
+                if ((ret = decode_33bits_dts_pts(stream, &dts)) != ERROR_SUCCESS) {
+                    return ret;
+                }
+
+                // check sync, the diff of dts and pts should never greater than 1s.
+                if (dts - pts > 90000 || pts - dts > 90000) {
+                    srs_warn("ts: sync dts=%"PRId64", pts=%"PRId64, dts, pts);
+                }
+
+                // update the dts and pts of message.
+                msg->dts = dts;
+                msg->pts = pts;
+            }
+
+            // 6B
+            if (ESCR_flag) {
+                ESCR_extension = 0;
+                ESCR_base = 0;
+
+                stream->skip(6);
+                srs_warn("ts: demux PES, ignore the escr.");
+            }
+
+            // 3B
+            if (ES_rate_flag) {
+                ES_rate = stream->read_3bytes();
+
+                ES_rate = ES_rate >> 1;
+                ES_rate &= 0x3FFFFF;
+            }
+
+            // 1B
+            if (DSM_trick_mode_flag) {
+                trick_mode_control = stream->read_1bytes();
+
+                trick_mode_value = trick_mode_control & 0x1f;
+                trick_mode_control = (trick_mode_control >> 5) & 0x03;
+            }
+
+            // 1B
+            if (additional_copy_info_flag) {
+                additional_copy_info = stream->read_1bytes();
+
+                additional_copy_info &= 0x7f;
+            }
+
+            // 2B
+            if (PES_CRC_flag) {
+                previous_PES_packet_CRC = stream->read_2bytes();
+            }
+
+            // 1B
+            if (PES_extension_flag) {
+                int8_t efv = stream->read_1bytes();
+
+                PES_private_data_flag = (efv >> 7) & 0x01;
+                pack_header_field_flag = (efv >> 6) & 0x01;
+                program_packet_sequence_counter_flag = (efv >> 5) & 0x01;
+                P_STD_buffer_flag = (efv >> 4) & 0x01;
+                const1_value0 = (efv >> 1) & 0x07;
+                PES_extension_flag_2 = efv & 0x01;
+
+                nb_required = 0;
+                nb_required += PES_private_data_flag? 16:0;
+                nb_required += pack_header_field_flag? 1:0; // 1+x bytes.
+                nb_required += program_packet_sequence_counter_flag? 2:0;
+                nb_required += P_STD_buffer_flag? 2:0;
+                nb_required += PES_extension_flag_2? 1:0; // 1+x bytes.
+                if (!stream->require(nb_required)) {
+                    ret = ERROR_STREAM_CASTER_TS_PSE;
+                    srs_error("ts: demux PSE ext payload failed. ret=%d", ret);
+                    return ret;
+                }
+
+                // 16B
+                if (PES_private_data_flag) {
+                    srs_freep(PES_private_data);
+                    PES_private_data = new char[16];
+                    stream->read_bytes(PES_private_data, 16);
+                }
+
+                // (1+x)B
+                if (pack_header_field_flag) {
+                    pack_field_length = stream->read_1bytes();
+                    if (pack_field_length > 0) {
+                        // the adjust required bytes.
+                        nb_required = nb_required - 16 - 1 + pack_field_length;
+                        if (!stream->require(nb_required)) {
+                            ret = ERROR_STREAM_CASTER_TS_PSE;
+                            srs_error("ts: demux PSE ext pack failed. ret=%d", ret);
+                            return ret;
+                        }
+                        srs_freep(pack_field);
+                        pack_field = new char[pack_field_length];
+                        stream->read_bytes(pack_field, pack_field_length);
+                    }
+                }
+
+                // 2B
+                if (program_packet_sequence_counter_flag) {
+                    program_packet_sequence_counter = stream->read_1bytes();
+                    program_packet_sequence_counter &= 0x7f;
+
+                    original_stuff_length = stream->read_1bytes();
+                    MPEG1_MPEG2_identifier = (original_stuff_length >> 6) & 0x01;
+                    original_stuff_length &= 0x3f;
+                }
+
+                // 2B
+                if (P_STD_buffer_flag) {
+                    P_STD_buffer_size = stream->read_2bytes();
+
+                    // '01'
+                    //int8_t const2bits = (P_STD_buffer_scale >>14) & 0x03;
+
+                    P_STD_buffer_scale = (P_STD_buffer_scale >>13) & 0x01;
+                    P_STD_buffer_size &= 0x1FFF;
+                }
+
+                // (1+x)B
+                if (PES_extension_flag_2) {
+                    PES_extension_field_length = stream->read_1bytes();
+                    PES_extension_field_length &= 0x07;
+
+                    if (PES_extension_field_length > 0) {
+                        if (!stream->require(PES_extension_field_length)) {
+                            ret = ERROR_STREAM_CASTER_TS_PSE;
+                            srs_error("ts: demux PSE ext field failed. ret=%d", ret);
+                            return ret;
+                        }
+                        srs_freep(PES_extension_field);
+                        PES_extension_field = new char[PES_extension_field_length];
+                        stream->read_bytes(PES_extension_field, PES_extension_field_length);
+                    }
+                }
+            }
+
+            // stuffing_byte
+            nb_stuffings = PES_header_data_length - (stream->pos() - pos_header);
+            if (nb_stuffings > 0) {
+                if (!stream->require(nb_stuffings)) {
+                    ret = ERROR_STREAM_CASTER_TS_PSE;
+                    srs_error("ts: demux PSE stuffings failed. ret=%d", ret);
+                    return ret;
+                }
+                stream->skip(nb_stuffings);
+            }
+
+            // PES_packet_data_byte, page58.
+            // the packet size contains the header size.
+            // The number of PES_packet_data_bytes, N, is specified by the
+            // PES_packet_length field. N shall be equal to the value
+            // indicated in the PES_packet_length minus the number of bytes
+            // between the last byte of the PES_packet_length field and the
+            // first PES_packet_data_byte.
+            /**
+            * when actual packet length > 0xffff(65535),
+            * which exceed the max u_int16_t packet length,
+            * use 0 packet length, the next unit start indicates the end of packet.
+            */
+            if (PES_packet_length > 0) {
+                int nb_packet = PES_packet_length - (stream->pos() - pos_packet);
+                msg->PES_packet_length = srs_max(0, nb_packet);
+            }
+
+            // xB
+            if ((ret = msg->dump(stream, &nb_bytes)) != ERROR_SUCCESS) {
+                return ret;
+            }
+        } else if (sid == SrsTsPESStreamIdProgramStreamMap
+            || sid == SrsTsPESStreamIdPrivateStream2
+            || sid == SrsTsPESStreamIdEcmStream
+            || sid == SrsTsPESStreamIdEmmStream
+            || sid == SrsTsPESStreamIdProgramStreamDirectory
+            || sid == SrsTsPESStreamIdDsmccStream
+            || sid == SrsTsPESStreamIdH2221TypeE
+        ) {
+            // for (i = 0; i < PES_packet_length; i++) {
+            //         PES_packet_data_byte
+            // }
+
+            // xB
+            if ((ret = msg->dump(stream, &nb_bytes)) != ERROR_SUCCESS) {
+                return ret;
+            }
+        } else if (sid == SrsTsPESStreamIdPaddingStream) {
+            // for (i = 0; i < PES_packet_length; i++) {
+            //         padding_byte
+            // }
+            nb_paddings = stream->size() - stream->pos();
+            stream->skip(nb_paddings);
+            srs_info("ts: drop %dB padding bytes", nb_paddings);
+        } else {
+            int nb_drop = stream->size() - stream->pos();
+            stream->skip(nb_drop);
+            srs_warn("ts: drop the pes packet %dB for stream_id=%#x", nb_drop, stream_id);
+        }
+    }
+    
+    // when fresh and the PES_packet_length is 0,
+    // the payload_unit_start_indicator always be 1,
+    // the message should never EOF for the first packet.
+    if (is_fresh_msg && msg->PES_packet_length == 0) {
+        return ret;
+    }
+
+    // check msg, reap when completed.
+    if (msg->completed(packet->payload_unit_start_indicator)) {
+        *ppmsg = msg;
+        channel->msg = NULL;
+        srs_info("ts: reap msg for completed.");
+    }
+
+    return ret;
+}
+
+int SrsTsPayloadPES::size()
+{
+    int sz = 0;
+    
+    PES_header_data_length = 0;
+    SrsTsPESStreamId sid = (SrsTsPESStreamId)stream_id;
+
+    if (sid != SrsTsPESStreamIdProgramStreamMap
+        && sid != SrsTsPESStreamIdPaddingStream
+        && sid != SrsTsPESStreamIdPrivateStream2
+        && sid != SrsTsPESStreamIdEcmStream
+        && sid != SrsTsPESStreamIdEmmStream
+        && sid != SrsTsPESStreamIdProgramStreamDirectory
+        && sid != SrsTsPESStreamIdDsmccStream
+        && sid != SrsTsPESStreamIdH2221TypeE
+    ) {
+        sz += 6;
+        sz += 3;
+        PES_header_data_length = sz;
+
+        sz += (PTS_DTS_flags == 0x2)? 5:0;
+        sz += (PTS_DTS_flags == 0x3)? 10:0;
+        sz += ESCR_flag? 6:0;
+        sz += ES_rate_flag? 3:0;
+        sz += DSM_trick_mode_flag? 1:0;
+        sz += additional_copy_info_flag? 1:0;
+        sz += PES_CRC_flag? 2:0;
+        sz += PES_extension_flag? 1:0;
+
+        if (PES_extension_flag) {
+            sz += PES_private_data_flag? 16:0;
+            sz += pack_header_field_flag? 1 + pack_field_length:0; // 1+x bytes.
+            sz += program_packet_sequence_counter_flag? 2:0;
+            sz += P_STD_buffer_flag? 2:0;
+            sz += PES_extension_flag_2? 1 + PES_extension_field_length:0; // 1+x bytes.
+        }
+        PES_header_data_length = sz - PES_header_data_length;
+
+        sz += nb_stuffings;
+
+        // packet bytes
+    } else if (sid == SrsTsPESStreamIdProgramStreamMap
+        || sid == SrsTsPESStreamIdPrivateStream2
+        || sid == SrsTsPESStreamIdEcmStream
+        || sid == SrsTsPESStreamIdEmmStream
+        || sid == SrsTsPESStreamIdProgramStreamDirectory
+        || sid == SrsTsPESStreamIdDsmccStream
+        || sid == SrsTsPESStreamIdH2221TypeE
+    ) {
+        // packet bytes
+    } else {
+        // nb_drop
+    }
+
+    return sz;
+}
+
+int SrsTsPayloadPES::encode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // 6B fixed header.
+    if (!stream->require(6)) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: mux PSE failed. ret=%d", ret);
+        return ret;
+    }
+
+    // 3B
+    stream->write_3bytes(packet_start_code_prefix);
+    // 1B
+    stream->write_1bytes(stream_id);
+    // 2B
+    // the PES_packet_length is the actual bytes size, the pplv write to ts
+    // is the actual bytes plus the header size.
+    int32_t pplv = 0;
+    if (PES_packet_length > 0) {
+        pplv = PES_packet_length + 3 + PES_header_data_length;
+        pplv = (pplv > 0xFFFF)? 0 : pplv;
+    }
+    stream->write_2bytes(pplv);
+
+    // check the packet start prefix.
+    packet_start_code_prefix &= 0xFFFFFF;
+    if (packet_start_code_prefix != 0x01) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: mux PSE start code failed, expect=0x01, actual=%#x. ret=%d", packet_start_code_prefix, ret);
+        return ret;
+    }
+
+    // 3B flags.
+    if (!stream->require(3)) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: mux PSE flags failed. ret=%d", ret);
+        return ret;
+    }
+    // 1B
+    int8_t oocv = original_or_copy & 0x01;
+    oocv |= (const2bits << 6) & 0xC0;
+    oocv |= (PES_scrambling_control << 4) & 0x30;
+    oocv |= (PES_priority << 3) & 0x08;
+    oocv |= (data_alignment_indicator << 2) & 0x04;
+    oocv |= (copyright << 1) & 0x02;
+    stream->write_1bytes(oocv);
+    // 1B
+    int8_t pefv = PES_extension_flag & 0x01;
+    pefv |= (PTS_DTS_flags << 6) & 0xC0;
+    pefv |= (ESCR_flag << 5) & 0x20;
+    pefv |= (ES_rate_flag << 4) & 0x10;
+    pefv |= (DSM_trick_mode_flag << 3) & 0x08;
+    pefv |= (additional_copy_info_flag << 2) & 0x04;
+    pefv |= (PES_CRC_flag << 1) & 0x02;
+    stream->write_1bytes(pefv);
+    // 1B
+    stream->write_1bytes(PES_header_data_length);
+
+    // check required together.
+    int nb_required = 0;
+    nb_required += (PTS_DTS_flags == 0x2)? 5:0;
+    nb_required += (PTS_DTS_flags == 0x3)? 10:0;
+    nb_required += ESCR_flag? 6:0;
+    nb_required += ES_rate_flag? 3:0;
+    nb_required += DSM_trick_mode_flag? 1:0;
+    nb_required += additional_copy_info_flag? 1:0;
+    nb_required += PES_CRC_flag? 2:0;
+    nb_required += PES_extension_flag? 1:0;
+    if (!stream->require(nb_required)) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: mux PSE payload failed. ret=%d", ret);
+        return ret;
+    }
+
+    // 5B
+    if (PTS_DTS_flags == 0x2) {
+        if ((ret = encode_33bits_dts_pts(stream, 0x02, pts)) != ERROR_SUCCESS) {
+            return ret;
+        }
+    }
+
+    // 10B
+    if (PTS_DTS_flags == 0x3) {
+        if ((ret = encode_33bits_dts_pts(stream, 0x03, pts)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        if ((ret = encode_33bits_dts_pts(stream, 0x01, dts)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        // check sync, the diff of dts and pts should never greater than 1s.
+        if (dts - pts > 90000 || pts - dts > 90000) {
+            srs_warn("ts: sync dts=%"PRId64", pts=%"PRId64, dts, pts);
+        }
+    }
+
+    // 6B
+    if (ESCR_flag) {
+        stream->skip(6);
+        srs_warn("ts: demux PES, ignore the escr.");
+    }
+
+    // 3B
+    if (ES_rate_flag) {
+        stream->skip(3);
+        srs_warn("ts: demux PES, ignore the ES_rate.");
+    }
+
+    // 1B
+    if (DSM_trick_mode_flag) {
+        stream->skip(1);
+        srs_warn("ts: demux PES, ignore the DSM_trick_mode.");
+    }
+
+    // 1B
+    if (additional_copy_info_flag) {
+        stream->skip(1);
+        srs_warn("ts: demux PES, ignore the additional_copy_info.");
+    }
+
+    // 2B
+    if (PES_CRC_flag) {
+        stream->skip(2);
+        srs_warn("ts: demux PES, ignore the PES_CRC.");
+    }
+
+    // 1B
+    if (PES_extension_flag) {
+        int8_t efv = PES_extension_flag_2 & 0x01;
+        efv |= (PES_private_data_flag << 7) & 0x80;
+        efv |= (pack_header_field_flag << 6) & 0x40;
+        efv |= (program_packet_sequence_counter_flag << 5) & 0x20;
+        efv |= (P_STD_buffer_flag << 4) & 0x10;
+        efv |= (const1_value0 << 1) & 0xE0;
+        stream->write_1bytes(efv);
+
+        nb_required = 0;
+        nb_required += PES_private_data_flag? 16:0;
+        nb_required += pack_header_field_flag? 1+pack_field_length:0; // 1+x bytes.
+        nb_required += program_packet_sequence_counter_flag? 2:0;
+        nb_required += P_STD_buffer_flag? 2:0;
+        nb_required += PES_extension_flag_2? 1+PES_extension_field_length:0; // 1+x bytes.
+        if (!stream->require(nb_required)) {
+            ret = ERROR_STREAM_CASTER_TS_PSE;
+            srs_error("ts: mux PSE ext payload failed. ret=%d", ret);
+            return ret;
+        }
+        stream->skip(nb_required);
+        srs_warn("ts: demux PES, ignore the PES_extension.");
+    }
+
+    // stuffing_byte
+    if (nb_stuffings) {
+        stream->skip(nb_stuffings);
+        srs_warn("ts: demux PES, ignore the stuffings.");
+    }
+
+    return ret;
+}
+
+int SrsTsPayloadPES::decode_33bits_dts_pts(SrsStream* stream, int64_t* pv)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (!stream->require(5)) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: demux PSE dts/pts failed. ret=%d", ret);
+        return ret;
+    }
+
+    // decode the 33bits schema.
+    // ===========1B
+    // 4bits const maybe '0001', '0010' or '0011'.
+    // 3bits DTS/PTS [32..30]
+    // 1bit const '1'
+    int64_t dts_pts_30_32 = stream->read_1bytes();
+    if ((dts_pts_30_32 & 0x01) != 0x01) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: demux PSE dts/pts 30-32 failed. ret=%d", ret);
+        return ret;
+    }
+    // @remark, we donot check the high 4bits, maybe '0001', '0010' or '0011'.
+    //      so we just ensure the high 4bits is not 0x00.
+    if (((dts_pts_30_32 >> 4) & 0x0f) == 0x00) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: demux PSE dts/pts 30-32 failed. ret=%d", ret);
+        return ret;
+    }
+    dts_pts_30_32 = (dts_pts_30_32 >> 1) & 0x07;
+
+    // ===========2B
+    // 15bits DTS/PTS [29..15]
+    // 1bit const '1'
+    int64_t dts_pts_15_29 = stream->read_2bytes();
+    if ((dts_pts_15_29 & 0x01) != 0x01) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: demux PSE dts/pts 15-29 failed. ret=%d", ret);
+        return ret;
+    }
+    dts_pts_15_29 = (dts_pts_15_29 >> 1) & 0x7fff;
+
+    // ===========2B
+    // 15bits DTS/PTS [14..0]
+    // 1bit const '1'
+    int64_t dts_pts_0_14 = stream->read_2bytes();
+    if ((dts_pts_0_14 & 0x01) != 0x01) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: demux PSE dts/pts 0-14 failed. ret=%d", ret);
+        return ret;
+    }
+    dts_pts_0_14 = (dts_pts_0_14 >> 1) & 0x7fff;
+
+    int64_t v = 0x00;
+    v |= (dts_pts_30_32 << 30) & 0x1c0000000LL;
+    v |= (dts_pts_15_29 << 15) & 0x3fff8000LL;
+    v |= dts_pts_0_14 & 0x7fff;
+    *pv = v;
+
+    return ret;
+}
+
+int SrsTsPayloadPES::encode_33bits_dts_pts(SrsStream* stream, u_int8_t fb, int64_t v)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (!stream->require(5)) {
+        ret = ERROR_STREAM_CASTER_TS_PSE;
+        srs_error("ts: mux PSE dts/pts failed. ret=%d", ret);
+        return ret;
+    }
+
+    char* p = stream->data() + stream->pos();
+    stream->skip(5);
+
+    int32_t val = 0;
+    
+    val = fb << 4 | (((v >> 30) & 0x07) << 1) | 1;
+    *p++ = val;
+    
+    val = (((v >> 15) & 0x7fff) << 1) | 1;
+    *p++ = (val >> 8);
+    *p++ = val;
+    
+    val = (((v) & 0x7fff) << 1) | 1;
+    *p++ = (val >> 8);
+    *p++ = val;
+
+    return ret;
+}
+
+SrsTsPayloadPSI::SrsTsPayloadPSI(SrsTsPacket* p) : SrsTsPayload(p)
+{
+    pointer_field = 0;
+    const0_value = 0;
+    const1_value = 3;
+    CRC_32 = 0;
+}
+
+SrsTsPayloadPSI::~SrsTsPayloadPSI()
+{
+}
+
+int SrsTsPayloadPSI::decode(SrsStream* stream, SrsTsMessage** /*ppmsg*/)
+{
+    int ret = ERROR_SUCCESS;
+
+    /**
+    * When the payload of the Transport Stream packet contains PSI data, the payload_unit_start_indicator has the following
+    * significance: if the Transport Stream packet carries the first byte of a PSI section, the payload_unit_start_indicator value
+    * shall be '1', indicating that the first byte of the payload of this Transport Stream packet carries the pointer_field. If the
+    * Transport Stream packet does not carry the first byte of a PSI section, the payload_unit_start_indicator value shall be '0',
+    * indicating that there is no pointer_field in the payload. Refer to 2.4.4.1 and 2.4.4.2. This also applies to private streams of
+    * stream_type 5 (refer to Table 2-29).
+    */
+    if (packet->payload_unit_start_indicator) {
+        if (!stream->require(1)) {
+            ret = ERROR_STREAM_CASTER_TS_PSI;
+            srs_error("ts: demux PSI failed. ret=%d", ret);
+            return ret;
+        }
+        pointer_field = stream->read_1bytes();
+    }
+
+    // to calc the crc32
+    char* ppat = stream->data() + stream->pos();
+    int pat_pos = stream->pos();
+
+    // atleast 3B for all psi.
+    if (!stream->require(3)) {
+        ret = ERROR_STREAM_CASTER_TS_PSI;
+        srs_error("ts: demux PSI failed. ret=%d", ret);
+        return ret;
+    }
+    // 1B
+    table_id = (SrsTsPsiId)stream->read_1bytes();
+    
+    // 2B
+    int16_t slv = stream->read_2bytes();
+    
+    section_syntax_indicator = (slv >> 15) & 0x01;
+    const0_value = (slv >> 14) & 0x01;
+    const1_value = (slv >> 12) & 0x03;
+    section_length = slv & 0x0FFF;
+
+    // no section, ignore.
+    if (section_length == 0) {
+        srs_warn("ts: demux PAT ignore empty section");
+        return ret;
+    }
+
+    if (!stream->require(section_length)) {
+        ret = ERROR_STREAM_CASTER_TS_PSI;
+        srs_error("ts: demux PAT section failed. ret=%d", ret);
+        return ret;
+    }
+
+    // call the virtual method of actual PSI.
+    if ((ret = psi_decode(stream)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // 4B
+    if (!stream->require(4)) {
+        ret = ERROR_STREAM_CASTER_TS_PSI;
+        srs_error("ts: demux PSI crc32 failed. ret=%d", ret);
+        return ret;
+    }
+    CRC_32 = stream->read_4bytes();
+
+    // verify crc32.
+    int32_t crc32 = srs_crc32(ppat, stream->pos() - pat_pos - 4);
+    if (crc32 != CRC_32) {
+        ret = ERROR_STREAM_CASTER_TS_CRC32;
+        srs_error("ts: verify PSI crc32 failed. ret=%d", ret);
+        return ret;
+    }
+
+    // consume left stuffings
+    if (!stream->empty()) {
+        int nb_stuffings = stream->size() - stream->pos();
+        char* stuffing = stream->data() + stream->pos();
+
+        // all stuffing must be 0xff.
+        // TODO: FIXME: maybe need to remove the following.
+        for (int i = 0; i < nb_stuffings; i++) {
+            if ((u_int8_t)stuffing[i] != 0xff) {
+                srs_warn("ts: stuff is not 0xff, actual=%#x", stuffing[i]);
+                break;
+            }
+        }
+
+        stream->skip(nb_stuffings);
+    }
+
+    return ret;
+}
+
+int SrsTsPayloadPSI::size()
+{
+    int sz = 0;
+
+    // section size is the sl plus the crc32
+    section_length = psi_size() + 4;
+
+     sz += packet->payload_unit_start_indicator? 1:0;
+     sz += 3;
+     sz += section_length;
+
+    return sz;
+}
+
+int SrsTsPayloadPSI::encode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (packet->payload_unit_start_indicator) {
+        if (!stream->require(1)) {
+            ret = ERROR_STREAM_CASTER_TS_PSI;
+            srs_error("ts: mux PSI failed. ret=%d", ret);
+            return ret;
+        }
+        stream->write_1bytes(pointer_field);
+    }
+
+    // to calc the crc32
+    char* ppat = stream->data() + stream->pos();
+    int pat_pos = stream->pos();
+
+    // atleast 3B for all psi.
+    if (!stream->require(3)) {
+        ret = ERROR_STREAM_CASTER_TS_PSI;
+        srs_error("ts: mux PSI failed. ret=%d", ret);
+        return ret;
+    }
+    // 1B
+    stream->write_1bytes(table_id);
+    
+    // 2B
+    int16_t slv = section_length & 0x0FFF;
+    slv |= (section_syntax_indicator << 15) & 0x8000;
+    slv |= (const0_value << 14) & 0x4000;
+    slv |= (const1_value << 12) & 0x3000;
+    stream->write_2bytes(slv);
+
+    // no section, ignore.
+    if (section_length == 0) {
+        srs_warn("ts: mux PAT ignore empty section");
+        return ret;
+    }
+
+    if (!stream->require(section_length)) {
+        ret = ERROR_STREAM_CASTER_TS_PSI;
+        srs_error("ts: mux PAT section failed. ret=%d", ret);
+        return ret;
+    }
+
+    // call the virtual method of actual PSI.
+    if ((ret = psi_encode(stream)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // 4B
+    if (!stream->require(4)) {
+        ret = ERROR_STREAM_CASTER_TS_PSI;
+        srs_error("ts: mux PSI crc32 failed. ret=%d", ret);
+        return ret;
+    }
+    CRC_32 = srs_crc32(ppat, stream->pos() - pat_pos);
+    stream->write_4bytes(CRC_32);
+
+    return ret;
+}
+
+SrsTsPayloadPATProgram::SrsTsPayloadPATProgram(int16_t n, int16_t p)
+{
+    number = n;
+    pid = p;
+    const1_value = 0x07;
+}
+
+SrsTsPayloadPATProgram::~SrsTsPayloadPATProgram()
+{
+}
+
+int SrsTsPayloadPATProgram::decode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 4B for PAT program specified
+    if (!stream->require(4)) {
+        ret = ERROR_STREAM_CASTER_TS_PAT;
+        srs_error("ts: demux PAT failed. ret=%d", ret);
+        return ret;
+    }
+
+    int tmpv = stream->read_4bytes();
+    number = (int16_t)((tmpv >> 16) & 0xFFFF);
+    const1_value = (int16_t)((tmpv >> 13) & 0x07);
+    pid = (int16_t)(tmpv & 0x1FFF);
+
+    return ret;
+}
+
+int SrsTsPayloadPATProgram::size()
+{
+    return 4;
+}
+
+int SrsTsPayloadPATProgram::encode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 4B for PAT program specified
+    if (!stream->require(4)) {
+        ret = ERROR_STREAM_CASTER_TS_PAT;
+        srs_error("ts: mux PAT failed. ret=%d", ret);
+        return ret;
+    }
+
+    int tmpv = pid & 0x1FFF;
+    tmpv |= (number << 16) & 0xFFFF0000;
+    tmpv |= (const1_value << 13) & 0xE000;
+    stream->write_4bytes(tmpv);
+
+    return ret;
+}
+
+SrsTsPayloadPAT::SrsTsPayloadPAT(SrsTsPacket* p) : SrsTsPayloadPSI(p)
+{
+    const3_value = 3;
+}
+
+SrsTsPayloadPAT::~SrsTsPayloadPAT()
+{
+    std::vector<SrsTsPayloadPATProgram*>::iterator it;
+    for (it = programs.begin(); it != programs.end(); ++it) {
+        SrsTsPayloadPATProgram* program = *it;
+        srs_freep(program);
+    }
+    programs.clear();
+}
+
+int SrsTsPayloadPAT::psi_decode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 5B for PAT specified
+    if (!stream->require(5)) {
+        ret = ERROR_STREAM_CASTER_TS_PAT;
+        srs_error("ts: demux PAT failed. ret=%d", ret);
+        return ret;
+    }
+
+    int pos = stream->pos();
+
+    // 2B
+    transport_stream_id = stream->read_2bytes();
+    
+    // 1B
+    int8_t cniv = stream->read_1bytes();
+    
+    const3_value = (cniv >> 6) & 0x03;
+    version_number = (cniv >> 1) & 0x1F;
+    current_next_indicator = cniv & 0x01;
+
+    // TODO: FIXME: check the indicator.
+    
+    // 1B
+    section_number = stream->read_1bytes();
+    // 1B
+    last_section_number = stream->read_1bytes();
+
+    // multiple 4B program data.
+    int program_bytes = section_length - 4 - (stream->pos() - pos);
+    for (int i = 0; i < program_bytes; i += 4) {
+        SrsTsPayloadPATProgram* program = new SrsTsPayloadPATProgram();
+
+        if ((ret = program->decode(stream)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        // update the apply pid table.
+        packet->context->set(program->pid, SrsTsPidApplyPMT);
+
+        programs.push_back(program);
+    }
+
+    // update the apply pid table.
+    packet->context->set(packet->pid, SrsTsPidApplyPAT);
+    packet->context->on_pmt_parsed();
+
+    return ret;
+}
+
+int SrsTsPayloadPAT::psi_size()
+{
+    int sz = 5;
+    for (int i = 0; i < (int)programs.size(); i ++) {
+        SrsTsPayloadPATProgram* program = programs.at(i);
+        sz += program->size();
+    }
+    return sz;
+}
+
+int SrsTsPayloadPAT::psi_encode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 5B for PAT specified
+    if (!stream->require(5)) {
+        ret = ERROR_STREAM_CASTER_TS_PAT;
+        srs_error("ts: mux PAT failed. ret=%d", ret);
+        return ret;
+    }
+
+    // 2B
+    stream->write_2bytes(transport_stream_id);
+    
+    // 1B
+    int8_t cniv = current_next_indicator & 0x01;
+    cniv |= (version_number << 1) & 0x3E;
+    cniv |= (const1_value << 6) & 0xC0;
+    stream->write_1bytes(cniv);
+    
+    // 1B
+    stream->write_1bytes(section_number);
+    // 1B
+    stream->write_1bytes(last_section_number);
+
+    // multiple 4B program data.
+    for (int i = 0; i < (int)programs.size(); i ++) {
+        SrsTsPayloadPATProgram* program = programs.at(i);
+        if ((ret = program->encode(stream)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        // update the apply pid table.
+        packet->context->set(program->pid, SrsTsPidApplyPMT);
+    }
+
+    // update the apply pid table.
+    packet->context->set(packet->pid, SrsTsPidApplyPAT);
+
+    return ret;
+}
+
+SrsTsPayloadPMTESInfo::SrsTsPayloadPMTESInfo(SrsTsStream st, int16_t epid)
+{
+    stream_type = st;
+    elementary_PID = epid;
+
+    const1_value0 = 7;
+    const1_value1 = 0x0f;
+    ES_info_length = 0;
+    ES_info = NULL;
+}
+
+SrsTsPayloadPMTESInfo::~SrsTsPayloadPMTESInfo()
+{
+    srs_freep(ES_info);
+}
+
+int SrsTsPayloadPMTESInfo::decode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // 5B
+    if (!stream->require(5)) {
+        ret = ERROR_STREAM_CASTER_TS_PMT;
+        srs_error("ts: demux PMT es info failed. ret=%d", ret);
+        return ret;
+    }
+
+    stream_type = (SrsTsStream)stream->read_1bytes();
+
+    int16_t epv = stream->read_2bytes();
+    const1_value0 = (epv >> 13) & 0x07;
+    elementary_PID = epv & 0x1FFF;
+    
+    int16_t eilv = stream->read_2bytes();
+    const1_value1 = (epv >> 12) & 0x0f;
+    ES_info_length = eilv & 0x0FFF;
+
+    if (ES_info_length > 0) {
+        if (!stream->require(ES_info_length)) {
+            ret = ERROR_STREAM_CASTER_TS_PMT;
+            srs_error("ts: demux PMT es info data failed. ret=%d", ret);
+            return ret;
+        }
+        srs_freep(ES_info);
+        ES_info = new char[ES_info_length];
+        stream->read_bytes(ES_info, ES_info_length);
+    }
+
+    return ret;
+}
+
+int SrsTsPayloadPMTESInfo::size()
+{
+    return 5 + ES_info_length;
+}
+
+int SrsTsPayloadPMTESInfo::encode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // 5B
+    if (!stream->require(5)) {
+        ret = ERROR_STREAM_CASTER_TS_PMT;
+        srs_error("ts: mux PMT es info failed. ret=%d", ret);
+        return ret;
+    }
+
+    stream->write_1bytes(stream_type);
+
+    int16_t epv = elementary_PID & 0x1FFF;
+    epv |= (const1_value0 << 13) & 0xE000;
+    stream->write_2bytes(epv);
+    
+    int16_t eilv = ES_info_length & 0x0FFF;
+    eilv |= (const1_value1 << 12) & 0xF000;
+    stream->write_2bytes(eilv);
+
+    if (ES_info_length > 0) {
+        if (!stream->require(ES_info_length)) {
+            ret = ERROR_STREAM_CASTER_TS_PMT;
+            srs_error("ts: mux PMT es info data failed. ret=%d", ret);
+            return ret;
+        }
+        stream->write_bytes(ES_info, ES_info_length);
+    }
+
+    return ret;
+}
+
+SrsTsPayloadPMT::SrsTsPayloadPMT(SrsTsPacket* p) : SrsTsPayloadPSI(p)
+{
+    const1_value0 = 3;
+    const1_value1 = 7;
+    const1_value2 = 0x0f;
+    program_info_length = 0;
+    program_info_desc = NULL;
+}
+
+SrsTsPayloadPMT::~SrsTsPayloadPMT()
+{
+    srs_freep(program_info_desc);
+
+    std::vector<SrsTsPayloadPMTESInfo*>::iterator it;
+    for (it = infos.begin(); it != infos.end(); ++it) {
+        SrsTsPayloadPMTESInfo* info = *it;
+        srs_freep(info);
+    }
+    infos.clear();
+}
+
+int SrsTsPayloadPMT::psi_decode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 9B for PMT specified
+    if (!stream->require(9)) {
+        ret = ERROR_STREAM_CASTER_TS_PMT;
+        srs_error("ts: demux PMT failed. ret=%d", ret);
+        return ret;
+    }
+
+    // 2B
+    program_number = stream->read_2bytes();
+    
+    // 1B
+    int8_t cniv = stream->read_1bytes();
+    
+    const1_value0 = (cniv >> 6) & 0x03;
+    version_number = (cniv >> 1) & 0x1F;
+    current_next_indicator = cniv & 0x01;
+    
+    // 1B
+    section_number = stream->read_1bytes();
+    
+    // 1B
+    last_section_number = stream->read_1bytes();
+
+    // 2B
+    int16_t ppv = stream->read_2bytes();
+    const1_value1 = (ppv >> 13) & 0x07;
+    PCR_PID = ppv & 0x1FFF;
+    
+    // 2B
+    int16_t pilv = stream->read_2bytes();
+    const1_value2 = (pilv >> 12) & 0x0F;
+    program_info_length = pilv & 0xFFF;
+
+    if (program_info_length > 0) {
+        if (!stream->require(program_info_length)) {
+            ret = ERROR_STREAM_CASTER_TS_PMT;
+            srs_error("ts: demux PMT program info failed. ret=%d", ret);
+            return ret;
+        }
+
+        srs_freep(program_info_desc);
+        program_info_desc = new char[program_info_length];
+        stream->read_bytes(program_info_desc, program_info_length);
+    }
+
+    // [section_length] - 4(CRC) - 9B - [program_info_length]
+    int ES_EOF_pos = stream->pos() + section_length - 4 - 9 - program_info_length;
+    while (stream->pos() < ES_EOF_pos) {
+        SrsTsPayloadPMTESInfo* info = new SrsTsPayloadPMTESInfo();
+        infos.push_back(info);
+
+        if ((ret = info->decode(stream)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        // update the apply pid table
+        switch (info->stream_type) {
+            case SrsTsStreamVideoH264:
+            case SrsTsStreamVideoMpeg4:
+                packet->context->set(info->elementary_PID, SrsTsPidApplyVideo, info->stream_type);
+                break;
+            case SrsTsStreamAudioAAC:
+            case SrsTsStreamAudioAC3:
+            case SrsTsStreamAudioDTS:
+            case SrsTsStreamAudioMp3:
+                packet->context->set(info->elementary_PID, SrsTsPidApplyAudio, info->stream_type);
+                break;
+            default:
+                srs_warn("ts: drop pid=%#x, stream=%#x", info->elementary_PID, info->stream_type);
+                break;
+        }
+    }
+
+    // update the apply pid table.
+    packet->context->set(packet->pid, SrsTsPidApplyPMT);
+
+    return ret;
+}
+
+int SrsTsPayloadPMT::psi_size()
+{
+    int sz = 9;
+    sz += program_info_length;
+    for (int i = 0; i < (int)infos.size(); i ++) {
+        SrsTsPayloadPMTESInfo* info = infos.at(i);
+        sz += info->size();
+    }
+    return sz;
+}
+
+int SrsTsPayloadPMT::psi_encode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 9B for PMT specified
+    if (!stream->require(9)) {
+        ret = ERROR_STREAM_CASTER_TS_PMT;
+        srs_error("ts: mux PMT failed. ret=%d", ret);
+        return ret;
+    }
+
+    // 2B
+    stream->write_2bytes(program_number);
+    
+    // 1B
+    int8_t cniv = current_next_indicator & 0x01;
+    cniv |= (const1_value0 << 6) & 0xC0;
+    cniv |= (version_number << 1) & 0xFE;
+    stream->write_1bytes(cniv);
+    
+    // 1B
+    stream->write_1bytes(section_number);
+    
+    // 1B
+    stream->write_1bytes(last_section_number);
+
+    // 2B
+    int16_t ppv = PCR_PID & 0x1FFF;
+    ppv |= (const1_value1 << 13) & 0xE000;
+    stream->write_2bytes(ppv);
+    
+    // 2B
+    int16_t pilv = program_info_length & 0xFFF;
+    pilv |= (const1_value2 << 12) & 0xF000;
+    stream->write_2bytes(pilv);
+
+    if (program_info_length > 0) {
+        if (!stream->require(program_info_length)) {
+            ret = ERROR_STREAM_CASTER_TS_PMT;
+            srs_error("ts: mux PMT program info failed. ret=%d", ret);
+            return ret;
+        }
+
+        stream->write_bytes(program_info_desc, program_info_length);
+    }
+
+    for (int i = 0; i < (int)infos.size(); i ++) {
+        SrsTsPayloadPMTESInfo* info = infos.at(i);
+        if ((ret = info->encode(stream)) != ERROR_SUCCESS) {
+            return ret;
+        }
+
+        // update the apply pid table
+        switch (info->stream_type) {
+            case SrsTsStreamVideoH264:
+            case SrsTsStreamVideoMpeg4:
+                packet->context->set(info->elementary_PID, SrsTsPidApplyVideo, info->stream_type);
+                break;
+            case SrsTsStreamAudioAAC:
+            case SrsTsStreamAudioAC3:
+            case SrsTsStreamAudioDTS:
+            case SrsTsStreamAudioMp3:
+                packet->context->set(info->elementary_PID, SrsTsPidApplyAudio, info->stream_type);
+                break;
+            default:
+                srs_warn("ts: drop pid=%#x, stream=%#x", info->elementary_PID, info->stream_type);
+                break;
+        }
+    }
+
+    // update the apply pid table.
+    packet->context->set(packet->pid, SrsTsPidApplyPMT);
+
+    return ret;
+}
+
+SrsTSMuxer::SrsTSMuxer(SrsFileWriter* w, SrsTsContext* c, SrsCodecAudio ac, SrsCodecVideo vc)
+{
+    writer = w;
+    context = c;
+
+    acodec = ac;
+    vcodec = vc;
+}
+
+SrsTSMuxer::~SrsTSMuxer()
+{
+    close();
+}
+
+int SrsTSMuxer::open(string _path)
+{
+    int ret = ERROR_SUCCESS;
+    
+    path = _path;
+    
+    close();
+    
+    // reset the context for a new ts start.
+    context->reset();
+    
+    if ((ret = writer->open(path)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    return ret;
+}
+
+int SrsTSMuxer::update_acodec(SrsCodecAudio ac)
+{
+    acodec = ac;
+    return ERROR_SUCCESS;
+}
+
+int SrsTSMuxer::write_audio(SrsTsMessage* audio)
+{
+    int ret = ERROR_SUCCESS;
+
+    srs_info("hls: write audio pts=%"PRId64", dts=%"PRId64", size=%d", 
+        audio->pts, audio->dts, audio->PES_packet_length);
+    
+    if ((ret = context->encode(writer, audio, vcodec, acodec)) != ERROR_SUCCESS) {
+        srs_error("hls encode audio failed. ret=%d", ret);
+        return ret;
+    }
+    srs_info("hls encode audio ok");
+    
+    return ret;
+}
+
+int SrsTSMuxer::write_video(SrsTsMessage* video)
+{
+    int ret = ERROR_SUCCESS;
+
+    srs_info("hls: write video pts=%"PRId64", dts=%"PRId64", size=%d", 
+        video->pts, video->dts, video->PES_packet_length);
+    
+    if ((ret = context->encode(writer, video, vcodec, acodec)) != ERROR_SUCCESS) {
+        srs_error("hls encode video failed. ret=%d", ret);
+        return ret;
+    }
+    srs_info("hls encode video ok");
+    
+    return ret;
+}
+
+void SrsTSMuxer::close()
+{
+    writer->close();
+}
+
+SrsTsCache::SrsTsCache()
+{
+    audio = NULL;
+    video = NULL;
+}
+
+SrsTsCache::~SrsTsCache()
+{
+    srs_freep(audio);
+    srs_freep(video);
+}
+    
+int SrsTsCache::cache_audio(SrsAvcAacCodec* codec, int64_t dts, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+
+    // create the ts audio message.
+    if (!audio) {
+        audio = new SrsTsMessage();
+        audio->write_pcr = false;
+        audio->start_pts = dts;
+    }
+
+    audio->dts = dts;
+    audio->pts = audio->dts;
+    audio->sid = SrsTsPESStreamIdAudioCommon;
+    
+    // must be aac or mp3
+    SrsCodecAudio acodec = (SrsCodecAudio)codec->audio_codec_id;
+    srs_assert(acodec == SrsCodecAudioAAC || acodec == SrsCodecAudioMP3);
+    
+    // write video to cache.
+    if (codec->audio_codec_id == SrsCodecAudioAAC) {
+        if ((ret = do_cache_aac(codec, sample)) != ERROR_SUCCESS) {
+            return ret;
+        }
+    } else {
+        if ((ret = do_cache_mp3(codec, sample)) != ERROR_SUCCESS) {
+            return ret;
+        }
+    }
+    
+    return ret;
+}
+    
+int SrsTsCache::cache_video(SrsAvcAacCodec* codec, int64_t dts, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // create the ts video message.
+    if (!video) {
+        video = new SrsTsMessage();
+        video->write_pcr = sample->frame_type == SrsCodecVideoAVCFrameKeyFrame;
+        video->start_pts = dts;
+    }
+
+    video->dts = dts;
+    video->pts = video->dts + sample->cts * 90;
+    video->sid = SrsTsPESStreamIdVideoCommon;
+    
+    // write video to cache.
+    if ((ret = do_cache_avc(codec, sample)) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    return ret;
+}
+
+int SrsTsCache::do_cache_mp3(SrsAvcAacCodec* codec, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+        
+    // for mp3, directly write to cache.
+    // TODO: FIXME: implements the ts jitter.
+    for (int i = 0; i < sample->nb_sample_units; i++) {
+        SrsCodecSampleUnit* sample_unit = &sample->sample_units[i];
+        audio->payload->append(sample_unit->bytes, sample_unit->size);
+    }
+    
+    return ret;
+}
+
+int SrsTsCache::do_cache_aac(SrsAvcAacCodec* codec, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+    
+    for (int i = 0; i < sample->nb_sample_units; i++) {
+        SrsCodecSampleUnit* sample_unit = &sample->sample_units[i];
+        int32_t size = sample_unit->size;
+        
+        if (!sample_unit->bytes || size <= 0 || size > 0x1fff) {
+            ret = ERROR_HLS_AAC_FRAME_LENGTH;
+            srs_error("invalid aac frame length=%d, ret=%d", size, ret);
+            return ret;
+        }
+        
+        // the frame length is the AAC raw data plus the adts header size.
+        int32_t frame_length = size + 7;
+        
+        // AAC-ADTS
+        // 6.2 Audio Data Transport Stream, ADTS
+        // in aac-iso-13818-7.pdf, page 26.
+        // fixed 7bytes header
+        u_int8_t adts_header[7] = {0xff, 0xf9, 0x00, 0x00, 0x00, 0x0f, 0xfc};
+        /*
+        // adts_fixed_header
+        // 2B, 16bits
+        int16_t syncword; //12bits, '1111 1111 1111'
+        int8_t ID; //1bit, '1'
+        int8_t layer; //2bits, '00'
+        int8_t protection_absent; //1bit, can be '1'
+        // 12bits
+        int8_t profile; //2bit, 7.1 Profiles, page 40
+        TSAacSampleFrequency sampling_frequency_index; //4bits, Table 35, page 46
+        int8_t private_bit; //1bit, can be '0'
+        int8_t channel_configuration; //3bits, Table 8
+        int8_t original_or_copy; //1bit, can be '0'
+        int8_t home; //1bit, can be '0'
+        
+        // adts_variable_header
+        // 28bits
+        int8_t copyright_identification_bit; //1bit, can be '0'
+        int8_t copyright_identification_start; //1bit, can be '0'
+        int16_t frame_length; //13bits
+        int16_t adts_buffer_fullness; //11bits, 7FF signals that the bitstream is a variable rate bitstream.
+        int8_t number_of_raw_data_blocks_in_frame; //2bits, 0 indicating 1 raw_data_block()
+        */
+        // profile, 2bits
+        SrsAacProfile aac_profile = srs_codec_aac_rtmp2ts(codec->aac_object);
+        adts_header[2] = (aac_profile << 6) & 0xc0;
+        // sampling_frequency_index 4bits
+        adts_header[2] |= (codec->aac_sample_rate << 2) & 0x3c;
+        // channel_configuration 3bits
+        adts_header[2] |= (codec->aac_channels >> 2) & 0x01;
+        adts_header[3] = (codec->aac_channels << 6) & 0xc0;
+        // frame_length 13bits
+        adts_header[3] |= (frame_length >> 11) & 0x03;
+        adts_header[4] = (frame_length >> 3) & 0xff;
+        adts_header[5] = ((frame_length << 5) & 0xe0);
+        // adts_buffer_fullness; //11bits
+        adts_header[5] |= 0x1f;
+
+        // copy to audio buffer
+        audio->payload->append((const char*)adts_header, sizeof(adts_header));
+        audio->payload->append(sample_unit->bytes, sample_unit->size);
+    }
+    
+    return ret;
+}
+
+int SrsTsCache::do_cache_avc(SrsAvcAacCodec* codec, SrsCodecSample* sample)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // mux the samples in annexb format,
+    // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 324.
+    /**
+     * 00 00 00 01 // header
+     *       xxxxxxx // data bytes
+     * 00 00 01 // continue header
+     *       xxxxxxx // data bytes.
+     *
+     * nal_unit_type specifies the type of RBSP data structure contained in the NAL unit as specified in Table 7-1.
+     * Table 7-1 - NAL unit type codes, syntax element categories, and NAL unit type classes
+     * H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 83.
+     *      1, Coded slice of a non-IDR picture slice_layer_without_partitioning_rbsp( )
+     *      2, Coded slice data partition A slice_data_partition_a_layer_rbsp( )
+     *      3, Coded slice data partition B slice_data_partition_b_layer_rbsp( )
+     *      4, Coded slice data partition C slice_data_partition_c_layer_rbsp( )
+     *      5, Coded slice of an IDR picture slice_layer_without_partitioning_rbsp( )
+     *      6, Supplemental enhancement information (SEI) sei_rbsp( )
+     *      7, Sequence parameter set seq_parameter_set_rbsp( )
+     *      8, Picture parameter set pic_parameter_set_rbsp( )
+     *      9, Access unit delimiter access_unit_delimiter_rbsp( )
+     *      10, End of sequence end_of_seq_rbsp( )
+     *      11, End of stream end_of_stream_rbsp( )
+     *      12, Filler data filler_data_rbsp( )
+     *      13, Sequence parameter set extension seq_parameter_set_extension_rbsp( )
+     *      14, Prefix NAL unit prefix_nal_unit_rbsp( )
+     *      15, Subset sequence parameter set subset_seq_parameter_set_rbsp( )
+     *      19, Coded slice of an auxiliary coded picture without partitioning slice_layer_without_partitioning_rbsp( )
+     *      20, Coded slice extension slice_layer_extension_rbsp( )
+     * the first ts message of apple sample:
+     *      annexb 4B header, 2B aud(nal_unit_type:6)(0x09 0xf0)
+     *      annexb 4B header, 19B sps(nal_unit_type:7)
+     *      annexb 3B header, 4B pps(nal_unit_type:8)
+     *      annexb 3B header, 12B nalu(nal_unit_type:6)
+     *      annexb 3B header, 21B nalu(nal_unit_type:6)
+     *      annexb 3B header, 2762B nalu(nal_unit_type:5)
+     *      annexb 3B header, 3535B nalu(nal_unit_type:5)
+     * the second ts message of apple ts sample:
+     *      annexb 4B header, 2B aud(nal_unit_type:6)(0x09 0xf0)
+     *      annexb 3B header, 21B nalu(nal_unit_type:6)
+     *      annexb 3B header, 379B nalu(nal_unit_type:1)
+     *      annexb 3B header, 406B nalu(nal_unit_type:1)
+     */
+    static u_int8_t fresh_nalu_header[] = { 0x00, 0x00, 0x00, 0x01 };
+    static u_int8_t cont_nalu_header[] = { 0x00, 0x00, 0x01 };
+    
+    // the aud(access unit delimiter) before each frame.
+    // 7.3.2.4 Access unit delimiter RBSP syntax
+    // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 66.
+    //
+    // primary_pic_type u(3), the first 3bits, primary_pic_type indicates that the slice_type values
+    //      for all slices of the primary coded picture are members of the set listed in Table 7-5 for
+    //      the given value of primary_pic_type.
+    //      0, slice_type 2, 7
+    //      1, slice_type 0, 2, 5, 7
+    //      2, slice_type 0, 1, 2, 5, 6, 7
+    //      3, slice_type 4, 9
+    //      4, slice_type 3, 4, 8, 9
+    //      5, slice_type 2, 4, 7, 9
+    //      6, slice_type 0, 2, 3, 4, 5, 7, 8, 9
+    //      7, slice_type 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    // 7.4.2.4 Access unit delimiter RBSP semantics
+    // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 102.
+    //
+    // slice_type specifies the coding type of the slice according to Table 7-6.
+    //      0, P (P slice)
+    //      1, B (B slice)
+    //      2, I (I slice)
+    //      3, SP (SP slice)
+    //      4, SI (SI slice)
+    //      5, P (P slice)
+    //      6, B (B slice)
+    //      7, I (I slice)
+    //      8, SP (SP slice)
+    //      9, SI (SI slice)
+    // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 105.
+    static u_int8_t aud_nalu_7[] = { 0x09, 0xf0};
+    
+    // always append a aud nalu for each frame.
+    video->payload->append((const char*)fresh_nalu_header, 4);
+    video->payload->append((const char*)aud_nalu_7, 2);
+    
+    // when ts message(samples) contains IDR, insert sps+pps.
+    if (sample->has_idr) {
+        // fresh nalu header before sps.
+        if (codec->sequenceParameterSetLength > 0) {
+            // AnnexB prefix, for sps always 4 bytes header
+            video->payload->append((const char*)fresh_nalu_header, 4);
+            // sps
+            video->payload->append(codec->sequenceParameterSetNALUnit, codec->sequenceParameterSetLength);
+        }
+        // cont nalu header before pps.
+        if (codec->pictureParameterSetLength > 0) {
+            // AnnexB prefix, for pps always 3 bytes header
+            video->payload->append((const char*)cont_nalu_header, 3);
+            // pps
+            video->payload->append(codec->pictureParameterSetNALUnit, codec->pictureParameterSetLength);
+        }
+    }
+    
+    // all sample use cont nalu header, except the sps-pps before IDR frame.
+    for (int i = 0; i < sample->nb_sample_units; i++) {
+        SrsCodecSampleUnit* sample_unit = &sample->sample_units[i];
+        int32_t size = sample_unit->size;
+        
+        if (!sample_unit->bytes || size <= 0) {
+            ret = ERROR_HLS_AVC_SAMPLE_SIZE;
+            srs_error("invalid avc sample length=%d, ret=%d", size, ret);
+            return ret;
+        }
+        
+        // 5bits, 7.3.1 NAL unit syntax,
+        // H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 83.
+        SrsAvcNaluType nal_unit_type = (SrsAvcNaluType)(sample_unit->bytes[0] & 0x1f);
+        
+        // ignore SPS/PPS/AUD
+        switch (nal_unit_type) {
+            case SrsAvcNaluTypeSPS:
+            case SrsAvcNaluTypePPS:
+            case SrsAvcNaluTypeAccessUnitDelimiter:
+                continue;
+            default:
+                break;
+        }
+        
+        // insert cont nalu header before frame.
+        video->payload->append((const char*)cont_nalu_header, 3);
+        
+        // sample data
+        video->payload->append(sample_unit->bytes, sample_unit->size);
+    }
+    
+    return ret;
+}
+
+SrsTsEncoder::SrsTsEncoder()
+{
+    _fs = NULL;
+    codec = new SrsAvcAacCodec();
+    sample = new SrsCodecSample();
+    cache = new SrsTsCache();
+    context = new SrsTsContext();
+    muxer = NULL;
+}
+
+SrsTsEncoder::~SrsTsEncoder()
+{
+    srs_freep(codec);
+    srs_freep(sample);
+    srs_freep(cache);
+    srs_freep(muxer);
+    srs_freep(context);
+}
+
+int SrsTsEncoder::initialize(SrsFileWriter* fs)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(fs);
+    
+    if (!fs->is_open()) {
+        ret = ERROR_KERNEL_FLV_STREAM_CLOSED;
+        srs_warn("stream is not open for encoder. ret=%d", ret);
+        return ret;
+    }
+    
+    _fs = fs;
+
+    srs_freep(muxer);
+    muxer = new SrsTSMuxer(fs, context, SrsCodecAudioAAC, SrsCodecVideoAVC);
+
+    if ((ret = muxer->open("")) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    return ret;
+}
+
+int SrsTsEncoder::write_audio(int64_t timestamp, char* data, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    sample->clear();
+    if ((ret = codec->audio_aac_demux(data, size, sample)) != ERROR_SUCCESS) {
+        if (ret != ERROR_HLS_TRY_MP3) {
+            srs_error("http: ts aac demux audio failed. ret=%d", ret);
+            return ret;
+        }
+        if ((ret = codec->audio_mp3_demux(data, size, sample)) != ERROR_SUCCESS) {
+            srs_error("http: ts mp3 demux audio failed. ret=%d", ret);
+            return ret;
+        }
+    }
+    SrsCodecAudio acodec = (SrsCodecAudio)codec->audio_codec_id;
+    
+    // ts support audio codec: aac/mp3
+    if (acodec != SrsCodecAudioAAC && acodec != SrsCodecAudioMP3) {
+        return ret;
+    }
+
+    // when codec changed, write new header.
+    if ((ret = muxer->update_acodec(acodec)) != ERROR_SUCCESS) {
+        srs_error("http: ts audio write header failed. ret=%d", ret);
+        return ret;
+    }
+    
+    // for aac: ignore sequence header
+    if (acodec == SrsCodecAudioAAC && sample->aac_packet_type == SrsCodecAudioTypeSequenceHeader) {
+        return ret;
+    }
+
+    // the dts calc from rtmp/flv header.
+    // @remark for http ts stream, the timestamp is always monotonically increase,
+    //      for the packet is filtered by consumer.
+    int64_t dts = timestamp * 90;
+    
+    // write audio to cache.
+    if ((ret = cache->cache_audio(codec, dts, sample)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // flush if buffer exceed max size.
+    if (cache->audio->payload->length() > SRS_AUTO_HLS_AUDIO_CACHE_SIZE) {
+        return flush_video();
+    }
+
+    // TODO: config it.
+    // in ms, audio delay to flush the audios.
+    int64_t audio_delay = SRS_CONF_DEFAULT_AAC_DELAY;
+    // flush if audio delay exceed
+    if (dts - cache->audio->start_pts > audio_delay * 90) {
+        return flush_audio();
+    }
+
+    return ret;
+}
+
+int SrsTsEncoder::write_video(int64_t timestamp, char* data, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    sample->clear();
+    if ((ret = codec->video_avc_demux(data, size, sample)) != ERROR_SUCCESS) {
+        srs_error("http: ts codec demux video failed. ret=%d", ret);
+        return ret;
+    }
+    
+    // ignore info frame,
+    // @see https://github.com/simple-rtmp-server/srs/issues/288#issuecomment-69863909
+    if (sample->frame_type == SrsCodecVideoAVCFrameVideoInfoFrame) {
+        return ret;
+    }
+    
+    if (codec->video_codec_id != SrsCodecVideoAVC) {
+        return ret;
+    }
+    
+    // ignore sequence header
+    if (sample->frame_type == SrsCodecVideoAVCFrameKeyFrame
+         && sample->avc_packet_type == SrsCodecVideoAVCTypeSequenceHeader) {
+        return ret;
+    }
+    
+    int64_t dts = timestamp * 90;
+    
+    // write video to cache.
+    if ((ret = cache->cache_video(codec, dts, sample)) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    return flush_video();
+}
+
+int SrsTsEncoder::flush_audio()
+{
+    int ret = ERROR_SUCCESS;
+
+    if ((ret = muxer->write_audio(cache->audio)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // write success, clear and free the ts message.
+    srs_freep(cache->audio);
+
+    return ret;
+}
+
+int SrsTsEncoder::flush_video()
+{
+    int ret = ERROR_SUCCESS;
+    
+    if ((ret = muxer->write_video(cache->video)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // write success, clear and free the ts message.
+    srs_freep(cache->video);
+
+    return ret;
+}
+
+
+// following is generated by src/kernel/srs_kernel_buffer.cpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+//#include <srs_kernel_buffer.hpp>
+
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_log.hpp>
+//#include <srs_kernel_utility.hpp>
+//#include <srs_core_performance.hpp>
+
+SrsSimpleBuffer::SrsSimpleBuffer()
+{
+}
+
+SrsSimpleBuffer::~SrsSimpleBuffer()
+{
+}
+
+int SrsSimpleBuffer::length()
+{
+    int len = (int)data.size();
+    srs_assert(len >= 0);
+    return len;
+}
+
+char* SrsSimpleBuffer::bytes()
+{
+    return (length() == 0)? NULL : &data.at(0);
+}
+
+void SrsSimpleBuffer::erase(int size)
+{
+    if (size <= 0) {
+        return;
+    }
+    
+    if (size >= length()) {
+        data.clear();
+        return;
+    }
+    
+    data.erase(data.begin(), data.begin() + size);
+}
+
+void SrsSimpleBuffer::append(const char* bytes, int size)
+{
+    srs_assert(size > 0);
+
+    data.insert(data.end(), bytes, bytes + size);
+}
+// following is generated by src/protocol/srs_rtmp_amf0.cpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+//#include <srs_rtmp_amf0.hpp>
 
 #include <utility>
 #include <vector>
@@ -9034,13 +19612,13 @@ bool SrsAmf0Any::is_object_eof()
     return marker == RTMP_AMF0_ObjectEnd;
 }
 
-void __srs_fill_level_spaces(stringstream& ss, int level)
+void srs_fill_level_spaces(stringstream& ss, int level)
 {
     for (int i = 0; i < level; i++) {
         ss << "    ";
     }
 }
-void __srs_amf0_do_print(SrsAmf0Any* any, stringstream& ss, int level)
+void srs_amf0_do_print(SrsAmf0Any* any, stringstream& ss, int level)
 {
     if (any->is_boolean()) {
         ss << "Boolean " << (any->to_boolean()? "true":"false") << endl;
@@ -9057,36 +19635,36 @@ void __srs_amf0_do_print(SrsAmf0Any* any, stringstream& ss, int level)
         SrsAmf0EcmaArray* obj = any->to_ecma_array();
         ss << "EcmaArray " << "(" << obj->count() << " items)" << endl;
         for (int i = 0; i < obj->count(); i++) {
-            __srs_fill_level_spaces(ss, level + 1);
+            srs_fill_level_spaces(ss, level + 1);
             ss << "Elem '" << obj->key_at(i) << "' ";
             if (obj->value_at(i)->is_complex_object()) {
-                __srs_amf0_do_print(obj->value_at(i), ss, level + 1);
+                srs_amf0_do_print(obj->value_at(i), ss, level + 1);
             } else {
-                __srs_amf0_do_print(obj->value_at(i), ss, 0);
+                srs_amf0_do_print(obj->value_at(i), ss, 0);
             }
         }
     } else if (any->is_strict_array()) {
         SrsAmf0StrictArray* obj = any->to_strict_array();
         ss << "StrictArray " << "(" << obj->count() << " items)" << endl;
         for (int i = 0; i < obj->count(); i++) {
-            __srs_fill_level_spaces(ss, level + 1);
+            srs_fill_level_spaces(ss, level + 1);
             ss << "Elem ";
             if (obj->at(i)->is_complex_object()) {
-                __srs_amf0_do_print(obj->at(i), ss, level + 1);
+                srs_amf0_do_print(obj->at(i), ss, level + 1);
             } else {
-                __srs_amf0_do_print(obj->at(i), ss, 0);
+                srs_amf0_do_print(obj->at(i), ss, 0);
             }
         }
     } else if (any->is_object()) {
         SrsAmf0Object* obj = any->to_object();
         ss << "Object " << "(" << obj->count() << " items)" << endl;
         for (int i = 0; i < obj->count(); i++) {
-            __srs_fill_level_spaces(ss, level + 1);
+            srs_fill_level_spaces(ss, level + 1);
             ss << "Property '" << obj->key_at(i) << "' ";
             if (obj->value_at(i)->is_complex_object()) {
-                __srs_amf0_do_print(obj->value_at(i), ss, level + 1);
+                srs_amf0_do_print(obj->value_at(i), ss, level + 1);
             } else {
-                __srs_amf0_do_print(obj->value_at(i), ss, 0);
+                srs_amf0_do_print(obj->value_at(i), ss, 0);
             }
         }
     } else {
@@ -9100,7 +19678,7 @@ char* SrsAmf0Any::human_print(char** pdata, int* psize)
     
     ss.precision(1);
     
-    __srs_amf0_do_print(this, ss, 0);
+    srs_amf0_do_print(this, ss, 0);
     
     string str = ss.str();
     if (str.empty()) {
@@ -9288,11 +19866,6 @@ SrsAmf0Any* SrsUnSortedHashtable::value_at(int index)
 
 void SrsUnSortedHashtable::set(string key, SrsAmf0Any* value)
 {
-    if (!value) {
-        srs_warn("add a NULL propertity %s", key.c_str());
-        return;
-    }
-    
     std::vector<SrsAmf0ObjectPropertyType>::iterator it;
     
     for (it = properties.begin(); it != properties.end(); ++it) {
@@ -9307,7 +19880,9 @@ void SrsUnSortedHashtable::set(string key, SrsAmf0Any* value)
         }
     }
     
-    properties.push_back(std::make_pair(key, value));
+    if (value) {
+        properties.push_back(std::make_pair(key, value));
+    }
 }
 
 SrsAmf0Any* SrsUnSortedHashtable::get_property(string name)
@@ -10732,11 +21307,11 @@ namespace _srs_internal
     }
 }
 
-// following is generated by src/rtmp/srs_protocol_io.cpp
+// following is generated by src/protocol/srs_rtmp_io.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -10756,7 +21331,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-//#include <srs_protocol_io.hpp>
+//#include <srs_rtmp_io.hpp>
 
 ISrsBufferReader::ISrsBufferReader()
 {
@@ -10806,11 +21381,11 @@ ISrsProtocolReaderWriter::~ISrsProtocolReaderWriter()
 {
 }
 
-// following is generated by src/rtmp/srs_protocol_stack.cpp
+// following is generated by src/protocol/srs_rtmp_stack.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -10830,106 +21405,27 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-//#include <srs_protocol_stack.hpp>
+//#include <srs_rtmp_stack.hpp>
 
-//#include <srs_protocol_amf0.hpp>
-//#include <srs_protocol_io.hpp>
+//#include <srs_rtmp_amf0.hpp>
+//#include <srs_rtmp_io.hpp>
 //#include <srs_kernel_stream.hpp>
 //#include <srs_core_autofree.hpp>
 //#include <srs_kernel_utility.hpp>
 //#include <srs_protocol_buffer.hpp>
-//#include <srs_protocol_utility.hpp>
+//#include <srs_rtmp_utility.hpp>
 
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 using namespace std;
 
 // when got a messae header, there must be some data,
 // increase recv timeout to got an entire message.
 #define SRS_MIN_RECV_TIMEOUT_US (int64_t)(60*1000*1000LL)
-
-/****************************************************************************
-*****************************************************************************
-****************************************************************************/
-/**
-5. Protocol Control Messages
-RTMP reserves message type IDs 1-7 for protocol control messages.
-These messages contain information needed by the RTM Chunk Stream
-protocol or RTMP itself. Protocol messages with IDs 1 & 2 are
-reserved for usage with RTM Chunk Stream protocol. Protocol messages
-with IDs 3-6 are reserved for usage of RTMP. Protocol message with ID
-7 is used between edge server and origin server.
-*/
-#define RTMP_MSG_SetChunkSize                   0x01
-#define RTMP_MSG_AbortMessage                   0x02
-#define RTMP_MSG_Acknowledgement                0x03
-#define RTMP_MSG_UserControlMessage             0x04
-#define RTMP_MSG_WindowAcknowledgementSize      0x05
-#define RTMP_MSG_SetPeerBandwidth               0x06
-#define RTMP_MSG_EdgeAndOriginServerCommand     0x07
-/**
-3. Types of messages
-The server and the client send messages over the network to
-communicate with each other. The messages can be of any type which
-includes audio messages, video messages, command messages, shared
-object messages, data messages, and user control messages.
-3.1. Command message
-Command messages carry the AMF-encoded commands between the client
-and the server. These messages have been assigned message type value
-of 20 for AMF0 encoding and message type value of 17 for AMF3
-encoding. These messages are sent to perform some operations like
-connect, createStream, publish, play, pause on the peer. Command
-messages like onstatus, result etc. are used to inform the sender
-about the status of the requested commands. A command message
-consists of command name, transaction ID, and command object that
-contains related parameters. A client or a server can request Remote
-Procedure Calls (RPC) over streams that are communicated using the
-command messages to the peer.
-*/
-#define RTMP_MSG_AMF3CommandMessage             17 // 0x11
-#define RTMP_MSG_AMF0CommandMessage             20 // 0x14
-/**
-3.2. Data message
-The client or the server sends this message to send Metadata or any
-user data to the peer. Metadata includes details about the
-data(audio, video etc.) like creation time, duration, theme and so
-on. These messages have been assigned message type value of 18 for
-AMF0 and message type value of 15 for AMF3.        
-*/
-#define RTMP_MSG_AMF0DataMessage                18 // 0x12
-#define RTMP_MSG_AMF3DataMessage                15 // 0x0F
-/**
-3.3. Shared object message
-A shared object is a Flash object (a collection of name value pairs)
-that are in synchronization across multiple clients, instances, and
-so on. The message types kMsgContainer=19 for AMF0 and
-kMsgContainerEx=16 for AMF3 are reserved for shared object events.
-Each message can contain multiple events.
-*/
-#define RTMP_MSG_AMF3SharedObject               16 // 0x10
-#define RTMP_MSG_AMF0SharedObject               19 // 0x13
-/**
-3.4. Audio message
-The client or the server sends this message to send audio data to the
-peer. The message type value of 8 is reserved for audio messages.
-*/
-#define RTMP_MSG_AudioMessage                   8 // 0x08
-/* *
-3.5. Video message
-The client or the server sends this message to send video data to the
-peer. The message type value of 9 is reserved for video messages.
-These messages are large and can delay the sending of other type of
-messages. To avoid such a situation, the video message is assigned
-the lowest priority.
-*/
-#define RTMP_MSG_VideoMessage                   9 // 0x09
-/**
-3.6. Aggregate message
-An aggregate message is a single message that contains a list of submessages.
-The message type value of 22 is reserved for aggregate
-messages.
-*/
-#define RTMP_MSG_AggregateMessage               22 // 0x16
 
 /****************************************************************************
 *****************************************************************************
@@ -10978,26 +21474,6 @@ messages.
 *****************************************************************************
 ****************************************************************************/
 /**
-* amf0 command message, command name macros
-*/
-#define RTMP_AMF0_COMMAND_CONNECT               "connect"
-#define RTMP_AMF0_COMMAND_CREATE_STREAM         "createStream"
-#define RTMP_AMF0_COMMAND_CLOSE_STREAM          "closeStream"
-#define RTMP_AMF0_COMMAND_PLAY                  "play"
-#define RTMP_AMF0_COMMAND_PAUSE                 "pause"
-#define RTMP_AMF0_COMMAND_ON_BW_DONE            "onBWDone"
-#define RTMP_AMF0_COMMAND_ON_STATUS             "onStatus"
-#define RTMP_AMF0_COMMAND_RESULT                "_result"
-#define RTMP_AMF0_COMMAND_ERROR                 "_error"
-#define RTMP_AMF0_COMMAND_RELEASE_STREAM        "releaseStream"
-#define RTMP_AMF0_COMMAND_FC_PUBLISH            "FCPublish"
-#define RTMP_AMF0_COMMAND_UNPUBLISH             "FCUnpublish"
-#define RTMP_AMF0_COMMAND_PUBLISH               "publish"
-#define RTMP_AMF0_DATA_SAMPLE_ACCESS            "|RtmpSampleAccess"
-#define RTMP_AMF0_DATA_SET_DATAFRAME            "@setDataFrame"
-#define RTMP_AMF0_DATA_ON_METADATA              "onMetaData"
-
-/**
 * band width check method name, which will be invoked by client.
 * band width check mothods use SrsBandwidthPacket as its internal packet type,
 * so ensure you set command name when you use it.
@@ -11028,316 +21504,84 @@ messages.
 /****************************************************************************
 *****************************************************************************
 ****************************************************************************/
-/**
-* the chunk stream id used for some under-layer message,
-* for example, the PC(protocol control) message.
-*/
-#define RTMP_CID_ProtocolControl                0x02
-/**
-* the AMF0/AMF3 command message, invoke method and return the result, over NetConnection.
-* generally use 0x03.
-*/
-#define RTMP_CID_OverConnection                 0x03
-/**
-* the AMF0/AMF3 command message, invoke method and return the result, over NetConnection, 
-* the midst state(we guess).
-* rarely used, e.g. onStatus(NetStream.Play.Reset).
-*/
-#define RTMP_CID_OverConnection2                0x04
-/**
-* the stream message(amf0/amf3), over NetStream.
-* generally use 0x05.
-*/
-#define RTMP_CID_OverStream                     0x05
-/**
-* the stream message(amf0/amf3), over NetStream, the midst state(we guess).
-* rarely used, e.g. play("mp4:mystram.f4v")
-*/
-#define RTMP_CID_OverStream2                    0x08
-/**
-* the stream message(video), over NetStream
-* generally use 0x06.
-*/
-#define RTMP_CID_Video                          0x06
-/**
-* the stream message(audio), over NetStream.
-* generally use 0x07.
-*/
-#define RTMP_CID_Audio                          0x07
 
-/****************************************************************************
-*****************************************************************************
-****************************************************************************/
-
-SrsMessageHeader::SrsMessageHeader()
+SrsPacket::SrsPacket()
 {
-    message_type = 0;
-    payload_length = 0;
-    timestamp_delta = 0;
-    stream_id = 0;
+}
+
+SrsPacket::~SrsPacket()
+{
+}
+
+int SrsPacket::encode(int& psize, char*& ppayload)
+{
+    int ret = ERROR_SUCCESS;
     
-    timestamp = 0;
-    // we always use the connection chunk-id
-    perfer_cid = RTMP_CID_OverConnection;
-}
-
-SrsMessageHeader::~SrsMessageHeader()
-{
-}
-
-bool SrsMessageHeader::is_audio()
-{
-    return message_type == RTMP_MSG_AudioMessage;
-}
-
-bool SrsMessageHeader::is_video()
-{
-    return message_type == RTMP_MSG_VideoMessage;
-}
-
-bool SrsMessageHeader::is_amf0_command()
-{
-    return message_type == RTMP_MSG_AMF0CommandMessage;
-}
-
-bool SrsMessageHeader::is_amf0_data()
-{
-    return message_type == RTMP_MSG_AMF0DataMessage;
-}
-
-bool SrsMessageHeader::is_amf3_command()
-{
-    return message_type == RTMP_MSG_AMF3CommandMessage;
-}
-
-bool SrsMessageHeader::is_amf3_data()
-{
-    return message_type == RTMP_MSG_AMF3DataMessage;
-}
-
-bool SrsMessageHeader::is_window_ackledgement_size()
-{
-    return message_type == RTMP_MSG_WindowAcknowledgementSize;
-}
-
-bool SrsMessageHeader::is_ackledgement()
-{
-    return message_type == RTMP_MSG_Acknowledgement;
-}
-
-bool SrsMessageHeader::is_set_chunk_size()
-{
-    return message_type == RTMP_MSG_SetChunkSize;
-}
-
-bool SrsMessageHeader::is_user_control_message()
-{
-    return message_type == RTMP_MSG_UserControlMessage;
-}
-
-bool SrsMessageHeader::is_set_peer_bandwidth()
-{
-    return message_type == RTMP_MSG_SetPeerBandwidth;
-}
-
-bool SrsMessageHeader::is_aggregate()
-{
-    return message_type == RTMP_MSG_AggregateMessage;
-}
-
-void SrsMessageHeader::initialize_amf0_script(int size, int stream)
-{
-    message_type = RTMP_MSG_AMF0DataMessage;
-    payload_length = (int32_t)size;
-    timestamp_delta = (int32_t)0;
-    timestamp = (int64_t)0;
-    stream_id = (int32_t)stream;
+    int size = get_size();
+    char* payload = NULL;
     
-    // amf0 script use connection2 chunk-id
-    perfer_cid = RTMP_CID_OverConnection2;
-}
-
-void SrsMessageHeader::initialize_audio(int size, u_int32_t time, int stream)
-{
-    message_type = RTMP_MSG_AudioMessage;
-    payload_length = (int32_t)size;
-    timestamp_delta = (int32_t)time;
-    timestamp = (int64_t)time;
-    stream_id = (int32_t)stream;
+    SrsStream stream;
     
-    // audio chunk-id
-    perfer_cid = RTMP_CID_Audio;
-}
-
-void SrsMessageHeader::initialize_video(int size, u_int32_t time, int stream)
-{
-    message_type = RTMP_MSG_VideoMessage;
-    payload_length = (int32_t)size;
-    timestamp_delta = (int32_t)time;
-    timestamp = (int64_t)time;
-    stream_id = (int32_t)stream;
-    
-    // video chunk-id
-    perfer_cid = RTMP_CID_Video;
-}
-
-SrsCommonMessage::SrsCommonMessage()
-{
-    payload = NULL;
-    size = 0;
-}
-
-SrsCommonMessage::~SrsCommonMessage()
-{
-    srs_freep(payload);
-}
-
-SrsSharedPtrMessage::__SrsSharedPtr::__SrsSharedPtr()
-{
-    payload = NULL;
-    size = 0;
-    shared_count = 0;
-}
-
-SrsSharedPtrMessage::__SrsSharedPtr::~__SrsSharedPtr()
-{
-    srs_freep(payload);
-}
-
-SrsSharedPtrMessage::SrsSharedPtrMessage()
-{
-    ptr = NULL;
-}
-
-SrsSharedPtrMessage::~SrsSharedPtrMessage()
-{
-    if (ptr) {
-        if (ptr->shared_count == 0) {
-            srs_freep(ptr);
-        } else {
-            ptr->shared_count--;
+    if (size > 0) {
+        payload = new char[size];
+        
+        if ((ret = stream.initialize(payload, size)) != ERROR_SUCCESS) {
+            srs_error("initialize the stream failed. ret=%d", ret);
+            srs_freep(payload);
+            return ret;
         }
     }
-}
-
-int SrsSharedPtrMessage::create(SrsCommonMessage* msg)
-{
-    int ret = ERROR_SUCCESS;
-
-    if ((ret = create(&msg->header, msg->payload, msg->size)) != ERROR_SUCCESS) {
+    
+    if ((ret = encode_packet(&stream)) != ERROR_SUCCESS) {
+        srs_error("encode the packet failed. ret=%d", ret);
+        srs_freep(payload);
         return ret;
     }
-
-    // to prevent double free of payload:
-    // initialize already attach the payload of msg,
-    // detach the payload to transfer the owner to shared ptr.
-    msg->payload = NULL;
-    msg->size = 0;
-
+    
+    psize = size;
+    ppayload = payload;
+    srs_verbose("encode the packet success. size=%d", size);
+    
     return ret;
 }
 
-int SrsSharedPtrMessage::create(SrsMessageHeader* pheader, char* payload, int size)
+int SrsPacket::decode(SrsStream* stream)
 {
     int ret = ERROR_SUCCESS;
-
-    srs_assert(pheader != NULL);
-    if (ptr) {
-        ret = ERROR_SYSTEM_ASSERT_FAILED;
-        srs_error("should not set the payload twice. ret=%d", ret);
-        srs_assert(false);
-
-        return ret;
-    }
-
-    ptr = new __SrsSharedPtr();
-
-    // direct attach the data.
-    ptr->header.message_type = pheader->message_type;
-    ptr->header.payload_length = size;
-    ptr->header.perfer_cid = pheader->perfer_cid;
-    this->timestamp = pheader->timestamp;
-    this->stream_id = pheader->stream_id;
-    ptr->payload = payload;
-    ptr->size = size;
-
-    // message can access it.
-    this->payload = ptr->payload;
-    this->size = ptr->size;
-
+    
+    srs_assert(stream != NULL);
+    
+    ret = ERROR_SYSTEM_PACKET_INVALID;
+    srs_error("current packet is not support to decode. ret=%d", ret);
+    
     return ret;
 }
 
-int SrsSharedPtrMessage::count()
+int SrsPacket::get_prefer_cid()
 {
-    srs_assert(ptr);
-    return ptr->shared_count;
+    return 0;
 }
 
-bool SrsSharedPtrMessage::check(int stream_id)
+int SrsPacket::get_message_type()
 {
-    // we donot use the complex basic header,
-    // ensure the basic header is 1bytes.
-    if (ptr->header.perfer_cid < 2) {
-        srs_info("change the chunk_id=%d to default=%d", 
-            ptr->header.perfer_cid, RTMP_CID_ProtocolControl);
-        ptr->header.perfer_cid = RTMP_CID_ProtocolControl;
-    }
+    return 0;
+}
+
+int SrsPacket::get_size()
+{
+    return 0;
+}
+
+int SrsPacket::encode_packet(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
     
-    // we assume that the stream_id in a group must be the same.
-    if (this->stream_id == stream_id) {
-        return true;
-    }
-    this->stream_id = stream_id;
+    srs_assert(stream != NULL);
     
-    return false;
-}
-
-bool SrsSharedPtrMessage::is_av()
-{
-    return ptr->header.message_type == RTMP_MSG_AudioMessage 
-        || ptr->header.message_type == RTMP_MSG_VideoMessage;
-}
-
-bool SrsSharedPtrMessage::is_audio()
-{
-    return ptr->header.message_type == RTMP_MSG_AudioMessage;
-}
-
-bool SrsSharedPtrMessage::is_video()
-{
-    return ptr->header.message_type == RTMP_MSG_VideoMessage;
-}
-
-int SrsSharedPtrMessage::chunk_header(char* cache, int nb_cache, bool c0)
-{
-    if (c0) {
-        return srs_chunk_header_c0(
-            ptr->header.perfer_cid, timestamp, ptr->header.payload_length,
-            ptr->header.message_type, stream_id,
-            cache, nb_cache);
-    } else {
-        return srs_chunk_header_c3(
-            ptr->header.perfer_cid, timestamp,
-            cache, nb_cache);
-    }
-}
-
-SrsSharedPtrMessage* SrsSharedPtrMessage::copy()
-{
-    srs_assert(ptr);
-
-    SrsSharedPtrMessage* copy = new SrsSharedPtrMessage();
-
-    copy->ptr = ptr;
-    ptr->shared_count++;
-
-    copy->timestamp = timestamp;
-    copy->stream_id = stream_id;
-    copy->payload = ptr->payload;
-    copy->size = ptr->size;
-
-    return copy;
+    ret = ERROR_SYSTEM_PACKET_INVALID;
+    srs_error("current packet is not support to encode. ret=%d", ret);
+    
+    return ret;
 }
 
 SrsProtocol::AckWindowSize::AckWindowSize()
@@ -11504,6 +21748,7 @@ int SrsProtocol::recv_message(SrsCommonMessage** pmsg)
         srs_verbose("entire msg received");
         
         if (!msg) {
+            srs_info("got empty message without error.");
             continue;
         }
         
@@ -11568,8 +21813,9 @@ int SrsProtocol::do_send_messages(SrsSharedPtrMessage** msgs, int nb_msgs)
 {
     int ret = ERROR_SUCCESS;
     
+#ifdef SRS_PERF_COMPLEX_SEND
     int iov_index = 0;
-    iovec* iov = out_iovs + iov_index;
+    iovec* iovs = out_iovs + iov_index;
     
     int c0c3_cache_index = 0;
     char* c0c3_cache = out_c0c3_caches + c0c3_cache_index;
@@ -11602,13 +21848,13 @@ int SrsProtocol::do_send_messages(SrsSharedPtrMessage** msgs, int nb_msgs)
             srs_assert(nbh > 0);
             
             // header iov
-            iov[0].iov_base = c0c3_cache;
-            iov[0].iov_len = nbh;
+            iovs[0].iov_base = c0c3_cache;
+            iovs[0].iov_len = nbh;
             
             // payload iov
-            int payload_size = srs_min(out_chunk_size, pend - p);
-            iov[1].iov_base = p;
-            iov[1].iov_len = payload_size;
+            int payload_size = srs_min(out_chunk_size, (int)(pend - p));
+            iovs[1].iov_base = p;
+            iovs[1].iov_len = payload_size;
             
             // consume sendout bytes.
             p += payload_size;
@@ -11628,7 +21874,7 @@ int SrsProtocol::do_send_messages(SrsSharedPtrMessage** msgs, int nb_msgs)
             
             // to next pair of iovs
             iov_index += 2;
-            iov = out_iovs + iov_index;
+            iovs = out_iovs + iov_index;
 
             // to next c0c3 header cache
             c0c3_cache_index += nbh;
@@ -11655,7 +21901,7 @@ int SrsProtocol::do_send_messages(SrsSharedPtrMessage** msgs, int nb_msgs)
                 // reset caches, while these cache ensure 
                 // atleast we can sendout a chunk.
                 iov_index = 0;
-                iov = out_iovs + iov_index;
+                iovs = out_iovs + iov_index;
                 
                 c0c3_cache_index = 0;
                 c0c3_cache = out_c0c3_caches + c0c3_cache_index;
@@ -11672,40 +21918,66 @@ int SrsProtocol::do_send_messages(SrsSharedPtrMessage** msgs, int nb_msgs)
         nb_msgs, iov_index, SRS_PERF_MW_MSGS, nb_out_iovs);
 
     return do_iovs_send(out_iovs, iov_index);
+#else
+    // try to send use the c0c3 header cache,
+    // if cache is consumed, try another loop.
+    for (int i = 0; i < nb_msgs; i++) {
+        SrsSharedPtrMessage* msg = msgs[i];
+        
+        if (!msg) {
+            continue;
+        }
+    
+        // ignore empty message.
+        if (!msg->payload || msg->size <= 0) {
+            srs_info("ignore empty message.");
+            continue;
+        }
+    
+        // p set to current write position,
+        // it's ok when payload is NULL and size is 0.
+        char* p = msg->payload;
+        char* pend = msg->payload + msg->size;
+        
+        // always write the header event payload is empty.
+        while (p < pend) {
+            // for simple send, send each chunk one by one
+            iovec* iovs = out_iovs;
+            char* c0c3_cache = out_c0c3_caches;
+            int nb_cache = SRS_CONSTS_C0C3_HEADERS_MAX;
+            
+            // always has header
+            int nbh = msg->chunk_header(c0c3_cache, nb_cache, p == msg->payload);
+            srs_assert(nbh > 0);
+            
+            // header iov
+            iovs[0].iov_base = c0c3_cache;
+            iovs[0].iov_len = nbh;
+            
+            // payload iov
+            int payload_size = srs_min(out_chunk_size, pend - p);
+            iovs[1].iov_base = p;
+            iovs[1].iov_len = payload_size;
+            
+            // consume sendout bytes.
+            p += payload_size;
+
+            if ((ret = skt->writev(iovs, 2, NULL)) != ERROR_SUCCESS) {
+                if (!srs_is_client_gracefully_close(ret)) {
+                    srs_error("send packet with writev failed. ret=%d", ret);
+                }
+                return ret;
+            }
+        }
+    }
+    
+    return ret;
+#endif   
 }
 
 int SrsProtocol::do_iovs_send(iovec* iovs, int size)
 {
-    int ret = ERROR_SUCCESS;
-    
-    // the limits of writev iovs.
-    static int limits = sysconf(_SC_IOV_MAX);
-    
-    // send in a time.
-    if (size < limits) {
-        if ((ret = skt->writev(iovs, size, NULL)) != ERROR_SUCCESS) {
-            if (!srs_is_client_gracefully_close(ret)) {
-                srs_error("send with writev failed. ret=%d", ret);
-            }
-            return ret;
-        }
-        return ret;
-    }
-    
-    // send in multiple times.
-    int cur_iov = 0;
-    while (cur_iov < size) {
-        int cur_count = srs_min(limits, size - cur_iov);
-        if ((ret = skt->writev(iovs + cur_iov, cur_count, NULL)) != ERROR_SUCCESS) {
-            if (!srs_is_client_gracefully_close(ret)) {
-                srs_error("send with writev failed. ret=%d", ret);
-            }
-            return ret;
-        }
-        cur_iov += cur_count;
-    }
-    
-    return ret;
+    return srs_write_large_iovs(skt, iovs, size);
 }
 
 int SrsProtocol::do_send_and_free_packet(SrsPacket* packet, int stream_id)
@@ -11736,6 +22008,7 @@ int SrsProtocol::do_send_and_free_packet(SrsPacket* packet, int stream_id)
     header.perfer_cid = packet->get_prefer_cid();
     
     ret = do_simple_send(&header, payload, size);
+    srs_freep(payload);
     if (ret == ERROR_SUCCESS) {
         ret = on_send_packet(&header, packet);
     }
@@ -11899,7 +22172,7 @@ int SrsProtocol::do_decode_message(SrsMessageHeader& header, SrsStream* stream, 
             srs_info("decode the AMF0/AMF3 command(unpublish message).");
             *ppacket = packet = new SrsFMLEStartPacket();
             return packet->decode(stream);
-        } else if(command == RTMP_AMF0_DATA_SET_DATAFRAME || command == RTMP_AMF0_DATA_ON_METADATA) {
+        } else if(command == SRS_CONSTS_RTMP_SET_DATAFRAME || command == SRS_CONSTS_RTMP_ON_METADATA) {
             srs_info("decode the AMF0/AMF3 data(onMetaData message).");
             *ppacket = packet = new SrsOnMetaDataPacket();
             return packet->decode(stream);
@@ -12040,7 +22313,7 @@ int SrsProtocol::recv_interlaced_message(SrsCommonMessage** pmsg)
     SrsChunkStream* chunk = NULL;
     
     // use chunk stream cache to get the chunk info.
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/249
+    // @see https://github.com/simple-rtmp-server/srs/issues/249
     if (cid < SRS_PERF_CHUNK_STREAM_CACHE) {
         // chunk stream cache hit.
         srs_verbose("cs-cache hit, cid=%d", cid);
@@ -12073,8 +22346,8 @@ int SrsProtocol::recv_interlaced_message(SrsCommonMessage** pmsg)
         return ret;
     }
     srs_verbose("read message header success. "
-            "fmt=%d, mh_size=%d, ext_time=%d, size=%d, message(type=%d, size=%d, time=%"PRId64", sid=%d)", 
-            fmt, mh_size, chunk->extended_timestamp, (chunk->msg? chunk->msg->size : 0), chunk->header.message_type, 
+            "fmt=%d, ext_time=%d, size=%d, message(type=%d, size=%d, time=%"PRId64", sid=%d)", 
+            fmt, chunk->extended_timestamp, (chunk->msg? chunk->msg->size : 0), chunk->header.message_type, 
             chunk->header.payload_length, chunk->header.timestamp, chunk->header.stream_id);
     
     // read msg payload from chunk stream.
@@ -12110,7 +22383,7 @@ int SrsProtocol::recv_interlaced_message(SrsCommonMessage** pmsg)
 * Header field may be 1, 2, or 3 bytes, depending on the chunk stream
 * ID.
 * 
-* The bits 0–5 (least significant) in the chunk basic header represent
+* The bits 0-5 (least significant) in the chunk basic header represent
 * the chunk stream ID.
 *
 * Chunk stream IDs 2-63 can be encoded in the 1-byte version of this
@@ -12251,7 +22524,7 @@ int SrsProtocol::read_message_header(SrsChunkStream* chunk, char fmt)
         // 0x04             where: message_type=4(protocol control user-control message)
         // 0x00 0x06            where: event Ping(0x06)
         // 0x00 0x00 0x0d 0x0f  where: event data 4bytes ping timestamp.
-        // @see: https://github.com/winlinvip/simple-rtmp-server/issues/98
+        // @see: https://github.com/simple-rtmp-server/srs/issues/98
         if (chunk->cid == RTMP_CID_ProtocolControl && fmt == RTMP_FMT_TYPE1) {
             srs_warn("accept cid=2, fmt=1 to make librtmp happy.");
         } else {
@@ -12316,14 +22589,14 @@ int SrsProtocol::read_message_header(SrsChunkStream* chunk, char fmt)
         // timestamp: 3 bytes
         // If the timestamp is greater than or equal to 16777215
         // (hexadecimal 0x00ffffff), this value MUST be 16777215, and the
-        // ‘extended timestamp header’ MUST be present. Otherwise, this value
+        // 'extended timestamp header' MUST be present. Otherwise, this value
         // SHOULD be the entire timestamp.
         //
         // fmt: 1 or 2
         // timestamp delta: 3 bytes
         // If the delta is greater than or equal to 16777215 (hexadecimal
-        // 0x00ffffff), this value MUST be 16777215, and the ‘extended
-        // timestamp header’ MUST be present. Otherwise, this value SHOULD be
+        // 0x00ffffff), this value MUST be 16777215, and the 'extended
+        // timestamp header' MUST be present. Otherwise, this value SHOULD be
         // the entire delta.
         chunk->extended_timestamp = (chunk->header.timestamp_delta >= RTMP_EXTENDED_TIMESTAMP);
         if (!chunk->extended_timestamp) {
@@ -12421,7 +22694,7 @@ int SrsProtocol::read_message_header(SrsChunkStream* chunk, char fmt)
         pp[0] = *p++;
 
         // always use 31bits timestamp, for some server may use 32bits extended timestamp.
-        // @see https://github.com/winlinvip/simple-rtmp-server/issues/111
+        // @see https://github.com/simple-rtmp-server/srs/issues/111
         timestamp &= 0x7fffffff;
         
         /**
@@ -12521,8 +22794,7 @@ int SrsProtocol::read_message_payload(SrsChunkStream* chunk, SrsCommonMessage** 
 
     // create msg payload if not initialized
     if (!chunk->msg->payload) {
-        chunk->msg->payload = new char[chunk->header.payload_length];
-        srs_verbose("create payload for RTMP message. size=%d", chunk->header.payload_length);
+        chunk->msg->create_payload(chunk->header.payload_length);
     }
     
     // read payload to buffer
@@ -12612,12 +22884,12 @@ int SrsProtocol::on_recv_message(SrsCommonMessage* msg)
 
             // for some server, the actual chunk size can greater than the max value(65536),
             // so we just warning the invalid chunk size, and actually use it is ok,
-            // @see: https://github.com/winlinvip/simple-rtmp-server/issues/160
+            // @see: https://github.com/simple-rtmp-server/srs/issues/160
             if (pkt->chunk_size < SRS_CONSTS_RTMP_MIN_CHUNK_SIZE 
                 || pkt->chunk_size > SRS_CONSTS_RTMP_MAX_CHUNK_SIZE) 
             {
                 srs_warn("accept chunk size %d, but should in [%d, %d], "
-                    "@see: https://github.com/winlinvip/simple-rtmp-server/issues/160",
+                    "@see: https://github.com/simple-rtmp-server/srs/issues/160",
                     pkt->chunk_size, SRS_CONSTS_RTMP_MIN_CHUNK_SIZE, 
                     SRS_CONSTS_RTMP_MAX_CHUNK_SIZE);
             }
@@ -12764,85 +23036,6 @@ SrsChunkStream::~SrsChunkStream()
     srs_freep(msg);
 }
 
-SrsPacket::SrsPacket()
-{
-}
-
-SrsPacket::~SrsPacket()
-{
-}
-
-int SrsPacket::encode(int& psize, char*& ppayload)
-{
-    int ret = ERROR_SUCCESS;
-    
-    int size = get_size();
-    char* payload = NULL;
-    
-    SrsStream stream;
-    
-    if (size > 0) {
-        payload = new char[size];
-        
-        if ((ret = stream.initialize(payload, size)) != ERROR_SUCCESS) {
-            srs_error("initialize the stream failed. ret=%d", ret);
-            srs_freep(payload);
-            return ret;
-        }
-    }
-    
-    if ((ret = encode_packet(&stream)) != ERROR_SUCCESS) {
-        srs_error("encode the packet failed. ret=%d", ret);
-        srs_freep(payload);
-        return ret;
-    }
-    
-    psize = size;
-    ppayload = payload;
-    srs_verbose("encode the packet success. size=%d", size);
-    
-    return ret;
-}
-
-int SrsPacket::decode(SrsStream* stream)
-{
-    int ret = ERROR_SUCCESS;
-    
-    srs_assert(stream != NULL);
-
-    ret = ERROR_SYSTEM_PACKET_INVALID;
-    srs_error("current packet is not support to decode. ret=%d", ret);
-    
-    return ret;
-}
-
-int SrsPacket::get_prefer_cid()
-{
-    return 0;
-}
-
-int SrsPacket::get_message_type()
-{
-    return 0;
-}
-
-int SrsPacket::get_size()
-{
-    return 0;
-}
-
-int SrsPacket::encode_packet(SrsStream* stream)
-{
-    int ret = ERROR_SUCCESS;
-    
-    srs_assert(stream != NULL);
-
-    ret = ERROR_SYSTEM_PACKET_INVALID;
-    srs_error("current packet is not support to encode. ret=%d", ret);
-    
-    return ret;
-}
-
 SrsConnectAppPacket::SrsConnectAppPacket()
 {
     command_name = RTMP_AMF0_COMMAND_CONNECT;
@@ -12894,7 +23087,7 @@ int SrsConnectAppPacket::decode(SrsStream* stream)
     if (!stream->empty()) {
         srs_freep(args);
         
-        // see: https://github.com/winlinvip/simple-rtmp-server/issues/186
+        // see: https://github.com/simple-rtmp-server/srs/issues/186
         // the args maybe any amf0, for instance, a string. we should drop if not object.
         SrsAmf0Any* any = NULL;
         if ((ret = SrsAmf0Any::discovery(stream, &any)) != ERROR_SUCCESS) {
@@ -14555,7 +24748,7 @@ int SrsSampleAccessPacket::encode_packet(SrsStream* stream)
 
 SrsOnMetaDataPacket::SrsOnMetaDataPacket()
 {
-    name = RTMP_AMF0_DATA_ON_METADATA;
+    name = SRS_CONSTS_RTMP_ON_METADATA;
     metadata = SrsAmf0Any::object();
 }
 
@@ -14574,7 +24767,7 @@ int SrsOnMetaDataPacket::decode(SrsStream* stream)
     }
 
     // ignore the @setDataFrame
-    if (name == RTMP_AMF0_DATA_SET_DATAFRAME) {
+    if (name == SRS_CONSTS_RTMP_SET_DATAFRAME) {
         if ((ret = srs_amf0_read_string(stream, name)) != ERROR_SUCCESS) {
             srs_error("decode metadata name failed. ret=%d", ret);
             return ret;
@@ -14936,11 +25129,11 @@ int SrsUserControlPacket::encode_packet(SrsStream* stream)
 }
 
 
-// following is generated by src/rtmp/srs_protocol_rtmp.cpp
+// following is generated by src/protocol/srs_rtmp_sdk.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -14960,52 +25153,22 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-//#include <srs_protocol_rtmp.hpp>
+//#include <srs_rtmp_sdk.hpp>
 
 //#include <srs_core_autofree.hpp>
-//#include <srs_protocol_io.hpp>
-//#include <srs_protocol_amf0.hpp>
-//#include <srs_protocol_handshake.hpp>
-//#include <srs_protocol_utility.hpp>
+//#include <srs_rtmp_io.hpp>
+//#include <srs_rtmp_amf0.hpp>
+//#include <srs_rtmp_handshake.hpp>
+//#include <srs_rtmp_utility.hpp>
 //#include <srs_kernel_stream.hpp>
 //#include <srs_kernel_utility.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <unistd.h>
 #endif
 
 using namespace std;
-
-/**
-* the signature for packets to client.
-*/
-#define RTMP_SIG_FMS_VER                        "3,5,3,888"
-#define RTMP_SIG_AMF0_VER                       0
-#define RTMP_SIG_CLIENT_ID                      "ASAICiss"
-
-/**
-* onStatus consts.
-*/
-#define StatusLevel                             "level"
-#define StatusCode                              "code"
-#define StatusDescription                       "description"
-#define StatusDetails                           "details"
-#define StatusClientId                          "clientid"
-// status value
-#define StatusLevelStatus                       "status"
-// status error
-#define StatusLevelError                        "error"
-// code value
-#define StatusCodeConnectSuccess                "NetConnection.Connect.Success"
-#define StatusCodeConnectRejected               "NetConnection.Connect.Rejected"
-#define StatusCodeStreamReset                   "NetStream.Play.Reset"
-#define StatusCodeStreamStart                   "NetStream.Play.Start"
-#define StatusCodeStreamPause                   "NetStream.Pause.Notify"
-#define StatusCodeStreamUnpause                 "NetStream.Unpause.Notify"
-#define StatusCodePublishStart                  "NetStream.Publish.Start"
-#define StatusCodeDataStart                     "NetStream.Data.Start"
-#define StatusCodeUnpublishSuccess              "NetStream.Unpublish.Success"
 
 // FMLE
 #define RTMP_AMF0_COMMAND_ON_FC_PUBLISH         "onFCPublish"
@@ -15030,6 +25193,7 @@ SrsRequest* SrsRequest::copy()
 {
     SrsRequest* cp = new SrsRequest();
     
+    cp->ip = ip;
     cp->app = app;
     cp->objectEncoding = objectEncoding;
     cp->pageUrl = pageUrl;
@@ -15067,15 +25231,7 @@ void SrsRequest::update_auth(SrsRequest* req)
 
 string SrsRequest::get_stream_url()
 {
-    std::string url = "";
-    
-    url += vhost;
-    url += "/";
-    url += app;
-    url += "/";
-    url += stream;
-
-    return url;
+    return srs_generate_stream_url(vhost, app, stream);
 }
 
 void SrsRequest::strip()
@@ -15198,7 +25354,7 @@ int SrsHandshakeBytes::create_c0c1()
     srs_random_generate(c0c1, 1537);
     
     // plain text required.
-    static SrsStream stream;
+    SrsStream stream;
     if ((ret = stream.initialize(c0c1, 9)) != ERROR_SUCCESS) {
         return ret;
     }
@@ -15233,7 +25389,7 @@ int SrsHandshakeBytes::create_s0s1s2(const char* c1)
     }
     
     // if c1 specified, copy c1 to s2.
-    // @see: https://github.com/winlinvip/simple-rtmp-server/issues/46
+    // @see: https://github.com/simple-rtmp-server/srs/issues/46
     if (c1) {
         memcpy(s0s1s2 + 1537, c1, 1536);
     }
@@ -15407,13 +25563,17 @@ int SrsRtmpClient::connect_app2(
         SrsConnectAppPacket* pkt = new SrsConnectAppPacket();
         
         pkt->command_object->set("app", SrsAmf0Any::str(app.c_str()));
-        pkt->command_object->set("flashVer", SrsAmf0Any::str("WIN 12,0,0,41"));
+        pkt->command_object->set("flashVer", SrsAmf0Any::str("WIN 15,0,0,239"));
         if (req) {
             pkt->command_object->set("swfUrl", SrsAmf0Any::str(req->swfUrl.c_str()));
         } else {
             pkt->command_object->set("swfUrl", SrsAmf0Any::str());
         }
-        pkt->command_object->set("tcUrl", SrsAmf0Any::str(tc_url.c_str()));
+        if (req && req->tcUrl != "") {
+            pkt->command_object->set("tcUrl", SrsAmf0Any::str(req->tcUrl.c_str()));
+        } else {
+            pkt->command_object->set("tcUrl", SrsAmf0Any::str(tc_url.c_str()));
+        }
         pkt->command_object->set("fpad", SrsAmf0Any::boolean(false));
         pkt->command_object->set("capabilities", SrsAmf0Any::number(239));
         pkt->command_object->set("audioCodecs", SrsAmf0Any::number(3575));
@@ -15426,7 +25586,7 @@ int SrsRtmpClient::connect_app2(
         }
         pkt->command_object->set("objectEncoding", SrsAmf0Any::number(0));
         
-        // @see https://github.com/winlinvip/simple-rtmp-server/issues/160
+        // @see https://github.com/simple-rtmp-server/srs/issues/160
         // the debug_srs_upnode is config in vhost and default to true.
         if (debug_srs_upnode && req && req->args) {
             srs_freep(pkt->args);
@@ -15875,7 +26035,7 @@ int SrsRtmpServer::response_connect_app(SrsRequest *req, const char* server_ip)
     
     data->set("version", SrsAmf0Any::str(RTMP_SIG_FMS_VER));
     data->set("srs_sig", SrsAmf0Any::str(RTMP_SIG_SRS_KEY));
-    data->set("srs_server", SrsAmf0Any::str(RTMP_SIG_SRS_KEY" "RTMP_SIG_SRS_VERSION" ("RTMP_SIG_SRS_URL_SHORT")"));
+    data->set("srs_server", SrsAmf0Any::str(RTMP_SIG_SRS_SERVER));
     data->set("srs_license", SrsAmf0Any::str(RTMP_SIG_SRS_LICENSE));
     data->set("srs_role", SrsAmf0Any::str(RTMP_SIG_SRS_ROLE));
     data->set("srs_url", SrsAmf0Any::str(RTMP_SIG_SRS_URL));
@@ -15983,7 +26143,7 @@ int SrsRtmpServer::identify_client(int stream_id, SrsRtmpConnType& type, string&
         }
         // call msg,
         // support response null first,
-        // @see https://github.com/winlinvip/simple-rtmp-server/issues/106
+        // @see https://github.com/simple-rtmp-server/srs/issues/106
         // TODO: FIXME: response in right way, or forward in edge mode.
         SrsCallPacket* call = dynamic_cast<SrsCallPacket*>(pkt);
         if (call) {
@@ -16073,7 +26233,7 @@ int SrsRtmpServer::start_play(int stream_id)
         SrsSampleAccessPacket* pkt = new SrsSampleAccessPacket();
 
         // allow audio/video sample.
-        // @see: https://github.com/winlinvip/simple-rtmp-server/issues/49
+        // @see: https://github.com/simple-rtmp-server/srs/issues/49
         pkt->audio_sample_access = true;
         pkt->video_sample_access = true;
         
@@ -16448,11 +26608,11 @@ int SrsRtmpServer::identify_play_client(SrsPlayPacket* req, SrsRtmpConnType& typ
 }
 
 
-// following is generated by src/rtmp/srs_protocol_handshake.cpp
+// following is generated by src/protocol/srs_rtmp_handshake.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -16472,16 +26632,16 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-//#include <srs_protocol_handshake.hpp>
+//#include <srs_rtmp_handshake.hpp>
 
 #include <time.h>
 
 //#include <srs_core_autofree.hpp>
 //#include <srs_kernel_error.hpp>
 //#include <srs_kernel_log.hpp>
-//#include <srs_protocol_io.hpp>
-//#include <srs_protocol_utility.hpp>
-//#include <srs_protocol_rtmp.hpp>
+//#include <srs_rtmp_io.hpp>
+//#include <srs_rtmp_utility.hpp>
+//#include <srs_rtmp_sdk.hpp>
 //#include <srs_kernel_stream.hpp>
 
 #ifdef SRS_AUTO_SSL
@@ -16491,7 +26651,7 @@ using namespace _srs_internal;
 // for openssl_HMACsha256
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
-// for __openssl_generate_key
+// for openssl_generate_key
 #include <openssl/dh.h>
 
 namespace _srs_internal
@@ -16521,7 +26681,7 @@ namespace _srs_internal
         0x93, 0xB8, 0xE6, 0x36, 0xCF, 0xEB, 0x31, 0xAE
     }; // 62
     
-    int __openssl_HMACsha256(HMAC_CTX* ctx, const void* data, int data_size, void* digest, unsigned int* digest_size) 
+    int do_openssl_HMACsha256(HMAC_CTX* ctx, const void* data, int data_size, void* digest, unsigned int* digest_size) 
     {
         int ret = ERROR_SUCCESS;
         
@@ -16548,14 +26708,14 @@ namespace _srs_internal
         
         unsigned int digest_size = 0;
         
-        unsigned char* __key = (unsigned char*)key;
-        unsigned char* __digest = (unsigned char*)digest;
+        unsigned char* temp_key = (unsigned char*)key;
+        unsigned char* temp_digest = (unsigned char*)digest;
         
         if (key == NULL) {
             // use data to digest.
             // @see ./crypto/sha/sha256t.c
             // @see ./crypto/evp/digest.c
-            if (EVP_Digest(data, data_size, __digest, &digest_size, EVP_sha256(), NULL) < 0)
+            if (EVP_Digest(data, data_size, temp_digest, &digest_size, EVP_sha256(), NULL) < 0)
             {
                 ret = ERROR_OpenSslSha256EvpDigest;
                 return ret;
@@ -16567,13 +26727,12 @@ namespace _srs_internal
             // @remark, if no key, use EVP_Digest to digest,
             // for instance, in python, hashlib.sha256(data).digest().
             HMAC_CTX_init(&ctx);
-            
-            if (HMAC_Init_ex(&ctx, __key, key_size, EVP_sha256(), NULL) < 0) {
+            if (HMAC_Init_ex(&ctx, temp_key, key_size, EVP_sha256(), NULL) < 0) {
                 ret = ERROR_OpenSslSha256Init;
                 return ret;
             }
             
-            ret = __openssl_HMACsha256(&ctx, data, data_size, __digest, &digest_size);
+            ret = do_openssl_HMACsha256(&ctx, data, data_size, temp_digest, &digest_size);
             HMAC_CTX_cleanup(&ctx);
             
             if (ret != ERROR_SUCCESS) {
@@ -16652,12 +26811,12 @@ namespace _srs_internal
         
         // maybe the key_size is 127, but dh will write all 128bytes pkey,
         // so, donot need to set/initialize the pkey.
-        // @see https://github.com/winlinvip/simple-rtmp-server/issues/165
+        // @see https://github.com/simple-rtmp-server/srs/issues/165
         key_size = BN_bn2bin(pdh->pub_key, (unsigned char*)pkey);
         srs_assert(key_size > 0);
         
         // output the size of public key.
-        // @see https://github.com/winlinvip/simple-rtmp-server/issues/165
+        // @see https://github.com/simple-rtmp-server/srs/issues/165
         srs_assert(key_size <= pkey_size);
         pkey_size = key_size;
         
@@ -16677,7 +26836,7 @@ namespace _srs_internal
         // if failed, donot return, do cleanup, @see ./test/dhtest.c:168
         // maybe the key_size is 127, but dh will write all 128bytes skey,
         // so, donot need to set/initialize the skey.
-        // @see https://github.com/winlinvip/simple-rtmp-server/issues/165
+        // @see https://github.com/simple-rtmp-server/srs/issues/165
         int32_t key_size = DH_compute_key((unsigned char*)skey, ppk, pdh);
         
         if (key_size < ppkey_size) {
@@ -16977,7 +27136,7 @@ namespace _srs_internal
         }
         
         // directly generate the public key.
-        // @see: https://github.com/winlinvip/simple-rtmp-server/issues/148
+        // @see: https://github.com/simple-rtmp-server/srs/issues/148
         int pkey_size = 128;
         if ((ret = dh.copy_shared_key(c1->get_key(), 128, key.key, pkey_size)) != ERROR_SUCCESS) {
             srs_error("calc s1 key failed. ret=%d", ret);
@@ -17042,7 +27201,7 @@ namespace _srs_internal
             return ret;
         }
         
-        c1_digest = new char[__SRS_OpensslHashSize];
+        c1_digest = new char[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(SrsGenuineFPKey, 30, c1s1_joined_bytes, 1536 - 32, c1_digest)) != ERROR_SUCCESS) {
             srs_freep(c1_digest);
             srs_error("calc digest for c1 failed. ret=%d", ret);
@@ -17070,7 +27229,7 @@ namespace _srs_internal
             return ret;
         }
         
-        s1_digest = new char[__SRS_OpensslHashSize];
+        s1_digest = new char[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(SrsGenuineFMSKey, 36, c1s1_joined_bytes, 1536 - 32, s1_digest)) != ERROR_SUCCESS) {
             srs_freep(s1_digest);
             srs_error("calc digest for s1 failed. ret=%d", ret);
@@ -17447,14 +27606,14 @@ namespace _srs_internal
     {
         int ret = ERROR_SUCCESS;
         
-        char temp_key[__SRS_OpensslHashSize];
+        char temp_key[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(SrsGenuineFPKey, 62, s1->get_digest(), 32, temp_key)) != ERROR_SUCCESS) {
             srs_error("create c2 temp key failed. ret=%d", ret);
             return ret;
         }
         srs_verbose("generate c2 temp key success.");
         
-        char _digest[__SRS_OpensslHashSize];
+        char _digest[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(temp_key, 32, random, 1504, _digest)) != ERROR_SUCCESS) {
             srs_error("create c2 digest failed. ret=%d", ret);
             return ret;
@@ -17471,14 +27630,14 @@ namespace _srs_internal
         is_valid = false;
         int ret = ERROR_SUCCESS;
         
-        char temp_key[__SRS_OpensslHashSize];
+        char temp_key[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(SrsGenuineFPKey, 62, s1->get_digest(), 32, temp_key)) != ERROR_SUCCESS) {
             srs_error("create c2 temp key failed. ret=%d", ret);
             return ret;
         }
         srs_verbose("generate c2 temp key success.");
         
-        char _digest[__SRS_OpensslHashSize];
+        char _digest[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(temp_key, 32, random, 1504, _digest)) != ERROR_SUCCESS) {
             srs_error("create c2 digest failed. ret=%d", ret);
             return ret;
@@ -17494,14 +27653,14 @@ namespace _srs_internal
     {
         int ret = ERROR_SUCCESS;
         
-        char temp_key[__SRS_OpensslHashSize];
+        char temp_key[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(SrsGenuineFMSKey, 68, c1->get_digest(), 32, temp_key)) != ERROR_SUCCESS) {
             srs_error("create s2 temp key failed. ret=%d", ret);
             return ret;
         }
         srs_verbose("generate s2 temp key success.");
         
-        char _digest[__SRS_OpensslHashSize];
+        char _digest[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(temp_key, 32, random, 1504, _digest)) != ERROR_SUCCESS) {
             srs_error("create s2 digest failed. ret=%d", ret);
             return ret;
@@ -17518,14 +27677,14 @@ namespace _srs_internal
         is_valid = false;
         int ret = ERROR_SUCCESS;
         
-        char temp_key[__SRS_OpensslHashSize];
+        char temp_key[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(SrsGenuineFMSKey, 68, c1->get_digest(), 32, temp_key)) != ERROR_SUCCESS) {
             srs_error("create s2 temp key failed. ret=%d", ret);
             return ret;
         }
         srs_verbose("generate s2 temp key success.");
         
-        char _digest[__SRS_OpensslHashSize];
+        char _digest[SRS_OpensslHashSize];
         if ((ret = openssl_HMACsha256(temp_key, 32, random, 1504, _digest)) != ERROR_SUCCESS) {
             srs_error("create s2 digest failed. ret=%d", ret);
             return ret;
@@ -17832,11 +27991,11 @@ int SrsComplexHandshake::handshake_with_server(SrsHandshakeBytes* hs_bytes, ISrs
 #endif
 
 
-// following is generated by src/rtmp/srs_protocol_utility.cpp
+// following is generated by src/protocol/srs_rtmp_utility.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -17856,7 +28015,12 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-//#include <srs_protocol_utility.hpp>
+//#include <srs_rtmp_utility.hpp>
+
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #include <stdlib.h>
 using namespace std;
@@ -17864,7 +28028,11 @@ using namespace std;
 //#include <srs_kernel_log.hpp>
 //#include <srs_kernel_utility.hpp>
 //#include <srs_kernel_stream.hpp>
-//#include <srs_protocol_stack.hpp>
+//#include <srs_rtmp_stack.hpp>
+//#include <srs_kernel_codec.hpp>
+//#include <srs_kernel_consts.hpp>
+//#include <srs_rtmp_stack.hpp>
+//#include <srs_rtmp_io.hpp>
 
 void srs_discovery_tc_url(
     string tcUrl, 
@@ -17912,22 +28080,22 @@ void srs_vhost_resolve(string& vhost, string& app, string& param)
     app = srs_string_replace(app, "&&", "?");
     app = srs_string_replace(app, "=", "?");
     
-    if ((pos = app.find("?")) == std::string::npos) {
-        return;
-    }
-    
-    std::string query = app.substr(pos + 1);
-    app = app.substr(0, pos);
-    
-    if ((pos = query.find("vhost?")) != std::string::npos) {
-        query = query.substr(pos + 6);
-        if (!query.empty()) {
-            vhost = query;
-        }
-        if ((pos = vhost.find("?")) != std::string::npos) {
-            vhost = vhost.substr(0, pos);
+    if ((pos = app.find("?")) != std::string::npos) {
+        std::string query = app.substr(pos + 1);
+        app = app.substr(0, pos);
+        
+        if ((pos = query.find("vhost?")) != std::string::npos) {
+            query = query.substr(pos + 6);
+            if (!query.empty()) {
+                vhost = query;
+            }
+            if ((pos = vhost.find("?")) != std::string::npos) {
+                vhost = vhost.substr(0, pos);
+            }
         }
     }
+    
+    /* others */
 }
 
 void srs_random_generate(char* bytes, int size)
@@ -17992,188 +28160,124 @@ bool srs_bytes_equals(void* pa, void* pb, int size)
     return true;
 }
 
-bool srs_avc_startswith_annexb(SrsStream* stream, int* pnb_start_code)
+int srs_do_rtmp_create_msg(char type, u_int32_t timestamp, char* data, int size, int stream_id, SrsSharedPtrMessage** ppmsg)
 {
-    char* bytes = stream->data() + stream->pos();
-    char* p = bytes;
+    int ret = ERROR_SUCCESS;
     
-    for (;;) {
-        if (!stream->require(p - bytes + 3)) {
-            return false;
-        }
+    *ppmsg = NULL;
+    SrsSharedPtrMessage* msg = NULL;
+    
+    if (type == SrsCodecFlvTagAudio) {
+        SrsMessageHeader header;
+        header.initialize_audio(size, timestamp, stream_id);
         
-        // not match
-        if (p[0] != (char)0x00 || p[1] != (char)0x00) {
-            return false;
+        msg = new SrsSharedPtrMessage();
+        if ((ret = msg->create(&header, data, size)) != ERROR_SUCCESS) {
+            srs_freep(msg);
+            return ret;
         }
+    } else if (type == SrsCodecFlvTagVideo) {
+        SrsMessageHeader header;
+        header.initialize_video(size, timestamp, stream_id);
         
-        // match N[00] 00 00 01, where N>=0
-        if (p[2] == (char)0x01) {
-            if (pnb_start_code) {
-                *pnb_start_code = (int)(p - bytes) + 3;
-            }
-            return true;
+        msg = new SrsSharedPtrMessage();
+        if ((ret = msg->create(&header, data, size)) != ERROR_SUCCESS) {
+            srs_freep(msg);
+            return ret;
         }
+    } else if (type == SrsCodecFlvTagScript) {
+        SrsMessageHeader header;
+        header.initialize_amf0_script(size, stream_id);
         
-        p++;
-    }
-    
-    return false;
-}
-
-bool srs_aac_startswith_adts(SrsStream* stream)
-{
-    char* bytes = stream->data() + stream->pos();
-    char* p = bytes;
-    
-    if (!stream->require(p - bytes + 2)) {
-        return false;
-    }
-    
-    // matched 12bits 0xFFF,
-    // @remark, we must cast the 0xff to char to compare.
-    if (p[0] != (char)0xff || (char)(p[1] & 0xf0) != (char)0xf0) {
-        return false;
-    }
-    
-    return true;
-}
-
-int srs_chunk_header_c0(
-    int perfer_cid, u_int32_t timestamp, int32_t payload_length,
-    int8_t message_type, int32_t stream_id,
-    char* cache, int nb_cache
-)
-{
-    // to directly set the field.
-    char* pp = NULL;
-    
-    // generate the header.
-    char* p = cache;
-    
-    // no header.
-    if (nb_cache < SRS_CONSTS_RTMP_MAX_FMT0_HEADER_SIZE) {
-        return 0;
-    }
-    
-    // write new chunk stream header, fmt is 0
-    *p++ = 0x00 | (perfer_cid & 0x3F);
-    
-    // chunk message header, 11 bytes
-    // timestamp, 3bytes, big-endian
-    if (timestamp < RTMP_EXTENDED_TIMESTAMP) {
-        pp = (char*)&timestamp;
-        *p++ = pp[2];
-        *p++ = pp[1];
-        *p++ = pp[0];
+        msg = new SrsSharedPtrMessage();
+        if ((ret = msg->create(&header, data, size)) != ERROR_SUCCESS) {
+            srs_freep(msg);
+            return ret;
+        }
     } else {
-        *p++ = 0xFF;
-        *p++ = 0xFF;
-        *p++ = 0xFF;
+        ret = ERROR_STREAM_CASTER_FLV_TAG;
+        srs_error("rtmp unknown tag type=%#x. ret=%d", type, ret);
+        return ret;
     }
-    
-    // message_length, 3bytes, big-endian
-    pp = (char*)&payload_length;
-    *p++ = pp[2];
-    *p++ = pp[1];
-    *p++ = pp[0];
-    
-    // message_type, 1bytes
-    *p++ = message_type;
-    
-    // stream_id, 4bytes, little-endian
-    pp = (char*)&stream_id;
-    *p++ = pp[0];
-    *p++ = pp[1];
-    *p++ = pp[2];
-    *p++ = pp[3];
-    
-    // for c0
-    // chunk extended timestamp header, 0 or 4 bytes, big-endian
-    // 
-    // for c3:
-    // chunk extended timestamp header, 0 or 4 bytes, big-endian
-    // 6.1.3. Extended Timestamp
-    // This field is transmitted only when the normal time stamp in the
-    // chunk message header is set to 0x00ffffff. If normal time stamp is
-    // set to any value less than 0x00ffffff, this field MUST NOT be
-    // present. This field MUST NOT be present if the timestamp field is not
-    // present. Type 3 chunks MUST NOT have this field.
-    // adobe changed for Type3 chunk:
-    //        FMLE always sendout the extended-timestamp,
-    //        must send the extended-timestamp to FMS,
-    //        must send the extended-timestamp to flash-player.
-    // @see: ngx_rtmp_prepare_message
-    // @see: http://blog.csdn.net/win_lin/article/details/13363699
-    // TODO: FIXME: extract to outer.
-    if (timestamp >= RTMP_EXTENDED_TIMESTAMP) {
-        pp = (char*)&timestamp;
-        *p++ = pp[3];
-        *p++ = pp[2];
-        *p++ = pp[1];
-        *p++ = pp[0];
-    }
-    
-    // always has header
-    return p - cache;
+
+    *ppmsg = msg;
+
+    return ret;
 }
 
-int srs_chunk_header_c3(
-    int perfer_cid, u_int32_t timestamp, 
-    char* cache, int nb_cache
-)
+int srs_rtmp_create_msg(char type, u_int32_t timestamp, char* data, int size, int stream_id, SrsSharedPtrMessage** ppmsg)
 {
-    // to directly set the field.
-    char* pp = NULL;
-    
-    // generate the header.
-    char* p = cache;
-    
-    // no header.
-    if (nb_cache < SRS_CONSTS_RTMP_MAX_FMT3_HEADER_SIZE) {
-        return 0;
+    int ret = ERROR_SUCCESS;
+
+    // only when failed, we must free the data.
+    if ((ret = srs_do_rtmp_create_msg(type, timestamp, data, size, stream_id, ppmsg)) != ERROR_SUCCESS) {
+        srs_freep(data);
+        return ret;
     }
 
-    // write no message header chunk stream, fmt is 3
-    // @remark, if perfer_cid > 0x3F, that is, use 2B/3B chunk header,
-    // SRS will rollback to 1B chunk header.
-    *p++ = 0xC0 | (perfer_cid & 0x3F);
-    
-    // for c0
-    // chunk extended timestamp header, 0 or 4 bytes, big-endian
-    // 
-    // for c3:
-    // chunk extended timestamp header, 0 or 4 bytes, big-endian
-    // 6.1.3. Extended Timestamp
-    // This field is transmitted only when the normal time stamp in the
-    // chunk message header is set to 0x00ffffff. If normal time stamp is
-    // set to any value less than 0x00ffffff, this field MUST NOT be
-    // present. This field MUST NOT be present if the timestamp field is not
-    // present. Type 3 chunks MUST NOT have this field.
-    // adobe changed for Type3 chunk:
-    //        FMLE always sendout the extended-timestamp,
-    //        must send the extended-timestamp to FMS,
-    //        must send the extended-timestamp to flash-player.
-    // @see: ngx_rtmp_prepare_message
-    // @see: http://blog.csdn.net/win_lin/article/details/13363699
-    // TODO: FIXME: extract to outer.
-    if (timestamp >= RTMP_EXTENDED_TIMESTAMP) {
-        pp = (char*)&timestamp;
-        *p++ = pp[3];
-        *p++ = pp[2];
-        *p++ = pp[1];
-        *p++ = pp[0];
-    }
-    
-    // always has header
-    return p - cache;
+    return ret;
 }
 
-// following is generated by src/rtmp/srs_protocol_msg_array.cpp
+std::string srs_generate_stream_url(std::string vhost, std::string app, std::string stream) 
+{
+    std::string url = "";
+    
+    if (SRS_CONSTS_RTMP_DEFAULT_VHOST != vhost){
+    	url += vhost;
+    }
+    url += "/";
+    url += app;
+    url += "/";
+    url += stream;
+
+    return url;
+}
+
+int srs_write_large_iovs(ISrsProtocolReaderWriter* skt, iovec* iovs, int size, ssize_t* pnwrite)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // the limits of writev iovs.
+    // for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+#ifndef _WIN32
+    // for linux, generally it's 1024.
+    static int limits = sysconf(_SC_IOV_MAX);
+#else
+    static int limits = 1024;
+#endif
+    
+    // send in a time.
+    if (size < limits) {
+        if ((ret = skt->writev(iovs, size, pnwrite)) != ERROR_SUCCESS) {
+            if (!srs_is_client_gracefully_close(ret)) {
+                srs_error("send with writev failed. ret=%d", ret);
+            }
+            return ret;
+        }
+        return ret;
+    }
+    
+    // send in multiple times.
+    int cur_iov = 0;
+    while (cur_iov < size) {
+        int cur_count = srs_min(limits, size - cur_iov);
+        if ((ret = skt->writev(iovs + cur_iov, cur_count, pnwrite)) != ERROR_SUCCESS) {
+            if (!srs_is_client_gracefully_close(ret)) {
+                srs_error("send with writev failed. ret=%d", ret);
+            }
+            return ret;
+        }
+        cur_iov += cur_count;
+    }
+    
+    return ret;
+}
+
+// following is generated by src/protocol/srs_rtmp_msg_array.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -18193,9 +28297,9 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-//#include <srs_protocol_msg_array.hpp>
+//#include <srs_rtmp_msg_array.hpp>
 
-//#include <srs_protocol_stack.hpp>
+//#include <srs_rtmp_stack.hpp>
 
 SrsMessageArray::SrsMessageArray(int max_msgs)
 {
@@ -18235,11 +28339,11 @@ void SrsMessageArray::zero(int count)
 }
 
 
-// following is generated by src/rtmp/srs_protocol_buffer.cpp
+// following is generated by src/protocol/srs_protocol_buffer.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -18261,6 +28365,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_protocol_buffer.hpp>
 
+#include <stdlib.h>
+
 //#include <srs_kernel_error.hpp>
 //#include <srs_kernel_log.hpp>
 //#include <srs_kernel_utility.hpp>
@@ -18277,47 +28383,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // the max header size,
 // @see SrsProtocol::read_message_header().
 #define SRS_RTMP_MAX_MESSAGE_HEADER 11
-
-SrsSimpleBuffer::SrsSimpleBuffer()
-{
-}
-
-SrsSimpleBuffer::~SrsSimpleBuffer()
-{
-}
-
-int SrsSimpleBuffer::length()
-{
-    int len = (int)data.size();
-    srs_assert(len >= 0);
-    return len;
-}
-
-char* SrsSimpleBuffer::bytes()
-{
-    return (length() == 0)? NULL : &data.at(0);
-}
-
-void SrsSimpleBuffer::erase(int size)
-{
-    if (size <= 0) {
-        return;
-    }
-    
-    if (size >= length()) {
-        data.clear();
-        return;
-    }
-    
-    data.erase(data.begin(), data.begin() + size);
-}
-
-void SrsSimpleBuffer::append(const char* bytes, int size)
-{
-    srs_assert(size > 0);
-
-    data.insert(data.end(), bytes, bytes + size);
-}
 
 #ifdef SRS_PERF_MERGED_READ
 IMergeReadHandler::IMergeReadHandler()
@@ -18337,40 +28402,50 @@ SrsFastBuffer::SrsFastBuffer()
 #endif
     
     nb_buffer = SRS_DEFAULT_RECV_BUFFER_SIZE;
-    buffer = new char[nb_buffer];
+    buffer = (char*)malloc(nb_buffer);
     p = end = buffer;
-}
-
-void SrsFastBuffer::set_buffer(int buffer_size)
-{
-    // the user-space buffer size limit to a max value.
-    int nb_max_buf = srs_min(buffer_size, SRS_MAX_SOCKET_BUFFER);
-    if (nb_max_buf < buffer_size) {
-        srs_warn("limit the user-space buffer from %d to %d", buffer_size, nb_max_buf);
-    }
-
-    // only realloc when buffer changed bigger
-    if (nb_max_buf <= nb_buffer) {
-        return;
-    }
-    
-    int start = p - buffer;
-    int cap = end - p;
-    
-    char* buf = new char[nb_max_buf];
-    if (cap > 0) {
-        memcpy(buf, buffer, nb_buffer);
-    }
-    srs_freep(buffer);
-    
-    buffer = buf;
-    p = buffer + start;
-    end = p + cap;
 }
 
 SrsFastBuffer::~SrsFastBuffer()
 {
-    srs_freep(buffer);
+    free(buffer);
+    buffer = NULL;
+}
+
+int SrsFastBuffer::size()
+{
+    return (int)(end - p);
+}
+
+char* SrsFastBuffer::bytes()
+{
+    return p;
+}
+
+void SrsFastBuffer::set_buffer(int buffer_size)
+{
+    // never exceed the max size.
+    if (buffer_size > SRS_MAX_SOCKET_BUFFER) {
+        srs_warn("limit the user-space buffer from %d to %d", 
+            buffer_size, SRS_MAX_SOCKET_BUFFER);
+    }
+    
+    // the user-space buffer size limit to a max value.
+    int nb_resize_buf = srs_min(buffer_size, SRS_MAX_SOCKET_BUFFER);
+
+    // only realloc when buffer changed bigger
+    if (nb_resize_buf <= nb_buffer) {
+        return;
+    }
+    
+    // realloc for buffer change bigger.
+    int start = (int)(p - buffer);
+    int nb_bytes = (int)(end - p);
+    
+    buffer = (char*)realloc(buffer, nb_resize_buf);
+    nb_buffer = nb_resize_buf;
+    p = buffer + start;
+    end = p + nb_bytes;
 }
 
 char SrsFastBuffer::read_1byte()
@@ -18386,12 +28461,6 @@ char* SrsFastBuffer::read_slice(int size)
     
     char* ptr = p;
     p += size;
-    
-    // reset when consumed all.
-    if (p == end) {
-        p = end = buffer;
-        srs_verbose("all consumed, reset fast buffer");
-    }
 
     return ptr;
 }
@@ -18407,7 +28476,7 @@ int SrsFastBuffer::grow(ISrsBufferReader* reader, int required_size)
 {
     int ret = ERROR_SUCCESS;
 
-    // generally the required size is ok.
+    // already got required size of bytes.
     if (end - p >= required_size) {
         return ret;
     }
@@ -18415,31 +28484,43 @@ int SrsFastBuffer::grow(ISrsBufferReader* reader, int required_size)
     // must be positive.
     srs_assert(required_size > 0);
 
-    // when read payload or there is no space to read,
-    // reset the buffer with exists bytes.
-    int max_to_read = buffer + nb_buffer - end;
-    if (required_size > SRS_RTMP_MAX_MESSAGE_HEADER || max_to_read < required_size) {
-        int nb_cap = end - p;
-        srs_verbose("move fast buffer %d bytes", nb_cap);
-        if (nb_cap < nb_buffer) {
-            buffer = (char*)memmove(buffer, p, nb_cap);
-            p = buffer;
-            end = p + nb_cap;
-        }
-    }
+    // the free space of buffer, 
+    //      buffer = consumed_bytes + exists_bytes + free_space.
+    int nb_free_space = (int)(buffer + nb_buffer - end);
+    // resize the space when no left space.
+    if (nb_free_space < required_size) {
+        // the bytes already in buffer
+        int nb_exists_bytes = (int)(end - p);
+        srs_assert(nb_exists_bytes >= 0);
+        srs_verbose("move fast buffer %d bytes", nb_exists_bytes);
 
-    // directly check the available bytes to read in buffer.
-    max_to_read = buffer + nb_buffer - end;
-    if (max_to_read < required_size) {
-        ret = ERROR_READER_BUFFER_OVERFLOW;
-        srs_error("buffer overflow, required=%d, max=%d, ret=%d", required_size, nb_buffer, ret);
-        return ret;
+        // reset or move to get more space.
+        if (!nb_exists_bytes) {
+            // reset when buffer is empty.
+            p = end = buffer;
+            srs_verbose("all consumed, reset fast buffer");
+        } else {
+            // move the left bytes to start of buffer.
+            srs_assert(nb_exists_bytes < nb_buffer);
+            buffer = (char*)memmove(buffer, p, nb_exists_bytes);
+            p = buffer;
+            end = p + nb_exists_bytes;
+        }
+        
+        // check whether enough free space in buffer.
+        nb_free_space = (int)(buffer + nb_buffer - end);
+        if (nb_free_space < required_size) {
+            ret = ERROR_READER_BUFFER_OVERFLOW;
+            srs_error("buffer overflow, required=%d, max=%d, left=%d, ret=%d", 
+                required_size, nb_buffer, nb_free_space, ret);
+            return ret;
+        }
     }
 
     // buffer is ok, read required size of bytes.
     while (end - p < required_size) {
         ssize_t nread;
-        if ((ret = reader->read(end, max_to_read, &nread)) != ERROR_SUCCESS) {
+        if ((ret = reader->read(end, nb_free_space, &nread)) != ERROR_SUCCESS) {
             return ret;
         }
         
@@ -18448,7 +28529,7 @@ int SrsFastBuffer::grow(ISrsBufferReader* reader, int required_size)
         * to improve read performance, merge some packets then read,
         * when it on and read small bytes, we sleep to wait more data.,
         * that is, we merge some data to read together.
-        * @see https://github.com/winlinvip/simple-rtmp-server/issues/241
+        * @see https://github.com/simple-rtmp-server/srs/issues/241
         */
         if (merged_read && _handler) {
             _handler->on_read(nread);
@@ -18458,6 +28539,7 @@ int SrsFastBuffer::grow(ISrsBufferReader* reader, int required_size)
         // we just move the ptr to next.
         srs_assert((int)nread > 0);
         end += nread;
+        nb_free_space -= nread;
     }
     
     return ret;
@@ -18471,11 +28553,2750 @@ void SrsFastBuffer::set_merge_read(bool v, IMergeReadHandler* handler)
 }
 #endif
 
+// following is generated by src/protocol/srs_raw_avc.cpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+//#include <srs_raw_avc.hpp>
+
+#include <string.h>
+using namespace std;
+
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_log.hpp>
+//#include <srs_kernel_stream.hpp>
+//#include <srs_kernel_utility.hpp>
+//#include <srs_core_autofree.hpp>
+//#include <srs_kernel_codec.hpp>
+
+SrsRawH264Stream::SrsRawH264Stream()
+{
+}
+
+SrsRawH264Stream::~SrsRawH264Stream()
+{
+}
+
+int SrsRawH264Stream::annexb_demux(SrsStream* stream, char** pframe, int* pnb_frame)
+{
+    int ret = ERROR_SUCCESS;
+
+    *pframe = NULL;
+    *pnb_frame = 0;
+
+    while (!stream->empty()) {
+        // each frame must prefixed by annexb format.
+        // about annexb, @see H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
+        int pnb_start_code = 0;
+        if (!srs_avc_startswith_annexb(stream, &pnb_start_code)) {
+            return ERROR_H264_API_NO_PREFIXED;
+        }
+        int start = stream->pos() + pnb_start_code;
+        
+        // find the last frame prefixed by annexb format.
+        stream->skip(pnb_start_code);
+        while (!stream->empty()) {
+            if (srs_avc_startswith_annexb(stream, NULL)) {
+                break;
+            }
+            stream->skip(1);
+        }
+        
+        // demux the frame.
+        *pnb_frame = stream->pos() - start;
+        *pframe = stream->data() + start;
+        break;
+    }
+
+    return ret;
+}
+
+bool SrsRawH264Stream::is_sps(char* frame, int nb_frame)
+{
+    srs_assert(nb_frame > 0);
+    
+    // 5bits, 7.3.1 NAL unit syntax, 
+    // H.264-AVC-ISO_IEC_14496-10.pdf, page 44.
+    //  7: SPS, 8: PPS, 5: I Frame, 1: P Frame
+    u_int8_t nal_unit_type = (char)frame[0] & 0x1f;
+
+    return nal_unit_type == 7;
+}
+
+bool SrsRawH264Stream::is_pps(char* frame, int nb_frame)
+{
+    srs_assert(nb_frame > 0);
+    
+    // 5bits, 7.3.1 NAL unit syntax, 
+    // H.264-AVC-ISO_IEC_14496-10.pdf, page 44.
+    //  7: SPS, 8: PPS, 5: I Frame, 1: P Frame
+    u_int8_t nal_unit_type = (char)frame[0] & 0x1f;
+
+    return nal_unit_type == 8;
+}
+
+int SrsRawH264Stream::sps_demux(char* frame, int nb_frame, string& sps)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 1bytes for SPS to decode the type, profile, constrain and level.
+    if (nb_frame < 4) {
+        return ret;
+    }
+        
+    sps = "";
+    if (nb_frame > 0) {
+        sps.append(frame, nb_frame);
+    }
+    
+    // should never be empty.
+    if (sps.empty()) {
+        return ERROR_STREAM_CASTER_AVC_SPS;
+    }
+        
+    return ret;
+}
+
+int SrsRawH264Stream::pps_demux(char* frame, int nb_frame, string& pps)
+{
+    int ret = ERROR_SUCCESS;
+
+    pps = "";
+    if (nb_frame > 0) {
+        pps.append(frame, nb_frame);
+    }
+
+    // should never be empty.
+    if (pps.empty()) {
+        return ERROR_STREAM_CASTER_AVC_PPS;
+    }
+
+    return ret;
+}
+
+int SrsRawH264Stream::mux_sequence_header(string sps, string pps, u_int32_t dts, u_int32_t pts, string& sh)
+{
+    int ret = ERROR_SUCCESS;
+
+    // 5bytes sps/pps header:
+    //      configurationVersion, AVCProfileIndication, profile_compatibility,
+    //      AVCLevelIndication, lengthSizeMinusOne
+    // 3bytes size of sps:
+    //      numOfSequenceParameterSets, sequenceParameterSetLength(2B)
+    // Nbytes of sps.
+    //      sequenceParameterSetNALUnit
+    // 3bytes size of pps:
+    //      numOfPictureParameterSets, pictureParameterSetLength
+    // Nbytes of pps:
+    //      pictureParameterSetNALUnit
+    int nb_packet = 5 
+        + 3 + (int)sps.length() 
+        + 3 + (int)pps.length();
+    char* packet = new char[nb_packet];
+    SrsAutoFree(char, packet);
+
+    // use stream to generate the h264 packet.
+    SrsStream stream;
+    if ((ret = stream.initialize(packet, nb_packet)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // decode the SPS: 
+    // @see: 7.3.2.1.1, H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 62
+    if (true) {
+        srs_assert((int)sps.length() >= 4);
+        char* frame = (char*)sps.data();
+    
+        // @see: Annex A Profiles and levels, H.264-AVC-ISO_IEC_14496-10.pdf, page 205
+        //      Baseline profile profile_idc is 66(0x42).
+        //      Main profile profile_idc is 77(0x4d).
+        //      Extended profile profile_idc is 88(0x58).
+        u_int8_t profile_idc = frame[1];
+        //u_int8_t constraint_set = frame[2];
+        u_int8_t level_idc = frame[3];
+        
+        // generate the sps/pps header
+        // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+        // configurationVersion
+        stream.write_1bytes(0x01);
+        // AVCProfileIndication
+        stream.write_1bytes(profile_idc);
+        // profile_compatibility
+        stream.write_1bytes(0x00);
+        // AVCLevelIndication
+        stream.write_1bytes(level_idc);
+        // lengthSizeMinusOne, or NAL_unit_length, always use 4bytes size,
+        // so we always set it to 0x03.
+        stream.write_1bytes(0x03);
+    }
+    
+    // sps
+    if (true) {
+        // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+        // numOfSequenceParameterSets, always 1
+        stream.write_1bytes(0x01);
+        // sequenceParameterSetLength
+        stream.write_2bytes(sps.length());
+        // sequenceParameterSetNALUnit
+        stream.write_string(sps);
+    }
+    
+    // pps
+    if (true) {
+        // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+        // numOfPictureParameterSets, always 1
+        stream.write_1bytes(0x01);
+        // pictureParameterSetLength
+        stream.write_2bytes(pps.length());
+        // pictureParameterSetNALUnit
+        stream.write_string(pps);
+    }
+
+    // TODO: FIXME: for more profile.
+    // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+    // profile_idc == 100 || profile_idc == 110 || profile_idc == 122 || profile_idc == 144
+
+    sh = "";
+    sh.append(packet, nb_packet);
+
+    return ret;
+}
+
+int SrsRawH264Stream::mux_ipb_frame(char* frame, int nb_frame, string& ibp)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // 4bytes size of nalu:
+    //      NALUnitLength
+    // Nbytes of nalu.
+    //      NALUnit
+    int nb_packet = 4 + nb_frame;
+    char* packet = new char[nb_packet];
+    SrsAutoFree(char, packet);
+    
+    // use stream to generate the h264 packet.
+    SrsStream stream;
+    if ((ret = stream.initialize(packet, nb_packet)) != ERROR_SUCCESS) {
+        return ret;
+    }
+
+    // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
+    // lengthSizeMinusOne, or NAL_unit_length, always use 4bytes size
+    u_int32_t NAL_unit_length = nb_frame;
+    
+    // mux the avc NALU in "ISO Base Media File Format" 
+    // from H.264-AVC-ISO_IEC_14496-15.pdf, page 20
+    // NALUnitLength
+    stream.write_4bytes(NAL_unit_length);
+    // NALUnit
+    stream.write_bytes(frame, nb_frame);
+
+    ibp = "";
+    ibp.append(packet, nb_packet);
+
+    return ret;
+}
+
+int SrsRawH264Stream::mux_avc2flv(string video, int8_t frame_type, int8_t avc_packet_type, u_int32_t dts, u_int32_t pts, char** flv, int* nb_flv)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // for h264 in RTMP video payload, there is 5bytes header:
+    //      1bytes, FrameType | CodecID
+    //      1bytes, AVCPacketType
+    //      3bytes, CompositionTime, the cts.
+    // @see: E.4.3 Video Tags, video_file_format_spec_v10_1.pdf, page 78
+    int size = (int)video.length() + 5;
+    char* data = new char[size];
+    char* p = data;
+    
+    // @see: E.4.3 Video Tags, video_file_format_spec_v10_1.pdf, page 78
+    // Frame Type, Type of video frame.
+    // CodecID, Codec Identifier.
+    // set the rtmp header
+    *p++ = (frame_type << 4) | SrsCodecVideoAVC;
+    
+    // AVCPacketType
+    *p++ = avc_packet_type;
+
+    // CompositionTime
+    // pts = dts + cts, or 
+    // cts = pts - dts.
+    // where cts is the header in rtmp video packet payload header.
+    u_int32_t cts = pts - dts;
+    char* pp = (char*)&cts;
+    *p++ = pp[2];
+    *p++ = pp[1];
+    *p++ = pp[0];
+    
+    // h.264 raw data.
+    memcpy(p, video.data(), video.length());
+
+    *flv = data;
+    *nb_flv = size;
+
+    return ret;
+}
+
+SrsRawAacStream::SrsRawAacStream()
+{
+}
+
+SrsRawAacStream::~SrsRawAacStream()
+{
+}
+
+int SrsRawAacStream::adts_demux(SrsStream* stream, char** pframe, int* pnb_frame, SrsRawAacStreamCodec& codec)
+{
+    int ret = ERROR_SUCCESS;
+    
+    while (!stream->empty()) {
+        int adts_header_start = stream->pos();
+        
+        // decode the ADTS.
+        // @see aac-iso-13818-7.pdf, page 26
+        //      6.2 Audio Data Transport Stream, ADTS
+        // @see https://github.com/simple-rtmp-server/srs/issues/212#issuecomment-64145885
+        // byte_alignment()
+        
+        // adts_fixed_header:
+        //      12bits syncword,
+        //      16bits left.
+        // adts_variable_header:
+        //      28bits
+        //      12+16+28=56bits
+        // adts_error_check:
+        //      16bits if protection_absent
+        //      56+16=72bits
+        // if protection_absent:
+        //      require(7bytes)=56bits
+        // else
+        //      require(9bytes)=72bits
+        if (!stream->require(7)) {
+            return ERROR_AAC_ADTS_HEADER;
+        }
+        
+        // for aac, the frame must be ADTS format.
+        if (!srs_aac_startswith_adts(stream)) {
+            return ERROR_AAC_REQUIRED_ADTS;
+        }
+        
+        // syncword 12 bslbf
+        stream->read_1bytes();
+        // 4bits left.
+        // adts_fixed_header(), 1.A.2.2.1 Fixed Header of ADTS
+        // ID 1 bslbf
+        // layer 2 uimsbf
+        // protection_absent 1 bslbf
+        int8_t pav = (stream->read_1bytes() & 0x0f);
+        int8_t id = (pav >> 3) & 0x01;
+        /*int8_t layer = (pav >> 1) & 0x03;*/
+        int8_t protection_absent = pav & 0x01;
+        
+        /**
+        * ID: MPEG identifier, set to '1' if the audio data in the ADTS stream are MPEG-2 AAC (See ISO/IEC 13818-7)
+        * and set to '0' if the audio data are MPEG-4. See also ISO/IEC 11172-3, subclause 2.4.2.3.
+        */
+        if (id != 0x01) {
+            srs_info("adts: id must be 1(aac), actual 0(mp4a). ret=%d", ret);
+            
+            // well, some system always use 0, but actually is aac format.
+            // for example, houjian vod ts always set the aac id to 0, actually 1.
+            // we just ignore it, and alwyas use 1(aac) to demux.
+            id = 0x01;
+        }
+        
+        int16_t sfiv = stream->read_2bytes();
+        // profile 2 uimsbf
+        // sampling_frequency_index 4 uimsbf
+        // private_bit 1 bslbf
+        // channel_configuration 3 uimsbf
+        // original/copy 1 bslbf
+        // home 1 bslbf
+        int8_t profile = (sfiv >> 14) & 0x03;
+        int8_t sampling_frequency_index = (sfiv >> 10) & 0x0f;
+        /*int8_t private_bit = (sfiv >> 9) & 0x01;*/
+        int8_t channel_configuration = (sfiv >> 6) & 0x07;
+        /*int8_t original = (sfiv >> 5) & 0x01;*/
+        /*int8_t home = (sfiv >> 4) & 0x01;*/
+        //int8_t Emphasis; @remark, Emphasis is removed, @see https://github.com/simple-rtmp-server/srs/issues/212#issuecomment-64154736
+        // 4bits left.
+        // adts_variable_header(), 1.A.2.2.2 Variable Header of ADTS
+        // copyright_identification_bit 1 bslbf
+        // copyright_identification_start 1 bslbf
+        /*int8_t fh_copyright_identification_bit = (fh1 >> 3) & 0x01;*/
+        /*int8_t fh_copyright_identification_start = (fh1 >> 2) & 0x01;*/
+        // frame_length 13 bslbf: Length of the frame including headers and error_check in bytes.
+        // use the left 2bits as the 13 and 12 bit,
+        // the frame_length is 13bits, so we move 13-2=11.
+        int16_t frame_length = (sfiv << 11) & 0x1800;
+        
+        int32_t abfv = stream->read_3bytes();
+        // frame_length 13 bslbf: consume the first 13-2=11bits
+        // the fh2 is 24bits, so we move right 24-11=13.
+        frame_length |= (abfv >> 13) & 0x07ff;
+        // adts_buffer_fullness 11 bslbf
+        /*int16_t fh_adts_buffer_fullness = (abfv >> 2) & 0x7ff;*/
+        // number_of_raw_data_blocks_in_frame 2 uimsbf
+        /*int16_t number_of_raw_data_blocks_in_frame = abfv & 0x03;*/
+        // adts_error_check(), 1.A.2.2.3 Error detection
+        if (!protection_absent) {
+            if (!stream->require(2)) {
+                return ERROR_AAC_ADTS_HEADER;
+            }
+            // crc_check 16 Rpchof
+            /*int16_t crc_check = */stream->read_2bytes();
+        }
+        
+        // TODO: check the sampling_frequency_index
+        // TODO: check the channel_configuration
+        
+        // raw_data_blocks
+        int adts_header_size = stream->pos() - adts_header_start;
+        int raw_data_size = frame_length - adts_header_size;
+        if (!stream->require(raw_data_size)) {
+            return ERROR_AAC_ADTS_HEADER;
+        }
+        
+        // the codec info.
+        codec.protection_absent = protection_absent;
+        codec.aac_object = srs_codec_aac_ts2rtmp((SrsAacProfile)profile);
+        codec.sampling_frequency_index = sampling_frequency_index;
+        codec.channel_configuration = channel_configuration;
+        codec.frame_length = frame_length;
+        
+        // @see srs_audio_write_raw_frame().
+        // TODO: FIXME: maybe need to resample audio.
+        codec.sound_format = 10; // AAC
+        if (sampling_frequency_index <= 0x0c && sampling_frequency_index > 0x0a) {
+            codec.sound_rate = SrsCodecAudioSampleRate5512;
+        } else if (sampling_frequency_index <= 0x0a && sampling_frequency_index > 0x07) {
+            codec.sound_rate = SrsCodecAudioSampleRate11025;
+        } else if (sampling_frequency_index <= 0x07 && sampling_frequency_index > 0x04) {
+            codec.sound_rate = SrsCodecAudioSampleRate22050;
+        } else if (sampling_frequency_index <= 0x04) {
+            codec.sound_rate = SrsCodecAudioSampleRate44100;
+        } else {
+            codec.sound_rate = SrsCodecAudioSampleRate44100;
+            srs_warn("adts invalid sample rate for flv, rate=%#x", sampling_frequency_index);
+        }
+        codec.sound_type = srs_max(0, srs_min(1, channel_configuration - 1));
+        // TODO: FIXME: finger it out the sound size by adts.
+        codec.sound_size = 1; // 0(8bits) or 1(16bits).
+
+        // frame data.
+        *pframe = stream->data() + stream->pos();
+        *pnb_frame = raw_data_size;
+        stream->skip(raw_data_size);
+
+        break;
+    }
+
+    return ret;
+}
+
+int SrsRawAacStream::mux_sequence_header(SrsRawAacStreamCodec* codec, string& sh)
+{
+    int ret = ERROR_SUCCESS;
+
+    // only support aac profile 1-4.
+    if (codec->aac_object == SrsAacObjectTypeReserved) {
+        return ERROR_AAC_DATA_INVALID;
+    }
+    
+    SrsAacObjectType audioObjectType = codec->aac_object;
+    char channelConfiguration = codec->channel_configuration;
+    char samplingFrequencyIndex = codec->sampling_frequency_index;
+
+    // override the aac samplerate by user specified.
+    // @see https://github.com/simple-rtmp-server/srs/issues/212#issuecomment-64146899
+    switch (codec->sound_rate) {
+        case SrsCodecAudioSampleRate11025: 
+            samplingFrequencyIndex = 0x0a; break;
+        case SrsCodecAudioSampleRate22050: 
+            samplingFrequencyIndex = 0x07; break;
+        case SrsCodecAudioSampleRate44100: 
+            samplingFrequencyIndex = 0x04; break;
+        default:
+            break;
+    }
+
+    sh = "";
+
+    char ch = 0;
+    // @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf
+    // AudioSpecificConfig (), page 33
+    // 1.6.2.1 AudioSpecificConfig
+    // audioObjectType; 5 bslbf
+    ch = (audioObjectType << 3) & 0xf8;
+    // 3bits left.
+        
+    // samplingFrequencyIndex; 4 bslbf
+    ch |= (samplingFrequencyIndex >> 1) & 0x07;
+    sh += ch;
+    ch = (samplingFrequencyIndex << 7) & 0x80;
+    if (samplingFrequencyIndex == 0x0f) {
+        return ERROR_AAC_DATA_INVALID;
+    }
+    // 7bits left.
+        
+    // channelConfiguration; 4 bslbf
+    ch |= (channelConfiguration << 3) & 0x78;
+    // 3bits left.
+        
+    // GASpecificConfig(), page 451
+    // 4.4.1 Decoder configuration (GASpecificConfig)
+    // frameLengthFlag; 1 bslbf
+    // dependsOnCoreCoder; 1 bslbf
+    // extensionFlag; 1 bslbf
+    sh += ch;
+
+    return ret;
+}
+
+int SrsRawAacStream::mux_aac2flv(char* frame, int nb_frame, SrsRawAacStreamCodec* codec, u_int32_t dts, char** flv, int* nb_flv)
+{
+    int ret = ERROR_SUCCESS;
+
+    char sound_format = codec->sound_format;
+    char sound_type = codec->sound_type;
+    char sound_size = codec->sound_size;
+    char sound_rate = codec->sound_rate;
+    char aac_packet_type = codec->aac_packet_type;
+
+    // for audio frame, there is 1 or 2 bytes header:
+    //      1bytes, SoundFormat|SoundRate|SoundSize|SoundType
+    //      1bytes, AACPacketType for SoundFormat == 10, 0 is sequence header.
+    int size = nb_frame + 1;
+    if (sound_format == SrsCodecAudioAAC) {
+        size += 1;
+    }
+    char* data = new char[size];
+    char* p = data;
+    
+    u_int8_t audio_header = sound_type & 0x01;
+    audio_header |= (sound_size << 1) & 0x02;
+    audio_header |= (sound_rate << 2) & 0x0c;
+    audio_header |= (sound_format << 4) & 0xf0;
+    
+    *p++ = audio_header;
+    
+    if (sound_format == SrsCodecAudioAAC) {
+        *p++ = aac_packet_type;
+    }
+    
+    memcpy(p, frame, nb_frame);
+
+    *flv = data;
+    *nb_flv = size;
+
+    return ret;
+}
+
+// following is generated by src/protocol/srs_rtsp_stack.cpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+//#include <srs_rtsp_stack.hpp>
+
+#include <stdlib.h>
+#include <map>
+using namespace std;
+
+//#include <srs_rtmp_io.hpp>
+//#include <srs_kernel_buffer.hpp>
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_log.hpp>
+//#include <srs_kernel_consts.hpp>
+//#include <srs_core_autofree.hpp>
+//#include <srs_kernel_utility.hpp>
+//#include <srs_kernel_stream.hpp>
+//#include <srs_kernel_codec.hpp>
+
+#ifdef SRS_AUTO_STREAM_CASTER
+
+#define SRS_RTSP_BUFFER 4096
+
+// get the status text of code.
+string srs_generate_rtsp_status_text(int status)
+{
+    static std::map<int, std::string> _status_map;
+    if (_status_map.empty()) {
+        _status_map[SRS_CONSTS_RTSP_Continue                       ] = SRS_CONSTS_RTSP_Continue_str                        ;      
+        _status_map[SRS_CONSTS_RTSP_OK                             ] = SRS_CONSTS_RTSP_OK_str                              ;      
+        _status_map[SRS_CONSTS_RTSP_Created                        ] = SRS_CONSTS_RTSP_Created_str                         ;      
+        _status_map[SRS_CONSTS_RTSP_LowOnStorageSpace              ] = SRS_CONSTS_RTSP_LowOnStorageSpace_str               ;      
+        _status_map[SRS_CONSTS_RTSP_MultipleChoices                ] = SRS_CONSTS_RTSP_MultipleChoices_str                 ;      
+        _status_map[SRS_CONSTS_RTSP_MovedPermanently               ] = SRS_CONSTS_RTSP_MovedPermanently_str                ;      
+        _status_map[SRS_CONSTS_RTSP_MovedTemporarily               ] = SRS_CONSTS_RTSP_MovedTemporarily_str                ;      
+        _status_map[SRS_CONSTS_RTSP_SeeOther                       ] = SRS_CONSTS_RTSP_SeeOther_str                        ;      
+        _status_map[SRS_CONSTS_RTSP_NotModified                    ] = SRS_CONSTS_RTSP_NotModified_str                     ;      
+        _status_map[SRS_CONSTS_RTSP_UseProxy                       ] = SRS_CONSTS_RTSP_UseProxy_str                        ;      
+        _status_map[SRS_CONSTS_RTSP_BadRequest                     ] = SRS_CONSTS_RTSP_BadRequest_str                      ;      
+        _status_map[SRS_CONSTS_RTSP_Unauthorized                   ] = SRS_CONSTS_RTSP_Unauthorized_str                    ;      
+        _status_map[SRS_CONSTS_RTSP_PaymentRequired                ] = SRS_CONSTS_RTSP_PaymentRequired_str                 ;      
+        _status_map[SRS_CONSTS_RTSP_Forbidden                      ] = SRS_CONSTS_RTSP_Forbidden_str                       ;      
+        _status_map[SRS_CONSTS_RTSP_NotFound                       ] = SRS_CONSTS_RTSP_NotFound_str                        ;      
+        _status_map[SRS_CONSTS_RTSP_MethodNotAllowed               ] = SRS_CONSTS_RTSP_MethodNotAllowed_str                ;      
+        _status_map[SRS_CONSTS_RTSP_NotAcceptable                  ] = SRS_CONSTS_RTSP_NotAcceptable_str                   ;      
+        _status_map[SRS_CONSTS_RTSP_ProxyAuthenticationRequired    ] = SRS_CONSTS_RTSP_ProxyAuthenticationRequired_str     ;      
+        _status_map[SRS_CONSTS_RTSP_RequestTimeout                 ] = SRS_CONSTS_RTSP_RequestTimeout_str                  ;      
+        _status_map[SRS_CONSTS_RTSP_Gone                           ] = SRS_CONSTS_RTSP_Gone_str                            ;      
+        _status_map[SRS_CONSTS_RTSP_LengthRequired                 ] = SRS_CONSTS_RTSP_LengthRequired_str                  ;      
+        _status_map[SRS_CONSTS_RTSP_PreconditionFailed             ] = SRS_CONSTS_RTSP_PreconditionFailed_str              ;      
+        _status_map[SRS_CONSTS_RTSP_RequestEntityTooLarge          ] = SRS_CONSTS_RTSP_RequestEntityTooLarge_str           ;      
+        _status_map[SRS_CONSTS_RTSP_RequestURITooLarge             ] = SRS_CONSTS_RTSP_RequestURITooLarge_str              ;      
+        _status_map[SRS_CONSTS_RTSP_UnsupportedMediaType           ] = SRS_CONSTS_RTSP_UnsupportedMediaType_str            ;      
+        _status_map[SRS_CONSTS_RTSP_ParameterNotUnderstood         ] = SRS_CONSTS_RTSP_ParameterNotUnderstood_str          ;      
+        _status_map[SRS_CONSTS_RTSP_ConferenceNotFound             ] = SRS_CONSTS_RTSP_ConferenceNotFound_str              ;      
+        _status_map[SRS_CONSTS_RTSP_NotEnoughBandwidth             ] = SRS_CONSTS_RTSP_NotEnoughBandwidth_str              ;      
+        _status_map[SRS_CONSTS_RTSP_SessionNotFound                ] = SRS_CONSTS_RTSP_SessionNotFound_str                 ;      
+        _status_map[SRS_CONSTS_RTSP_MethodNotValidInThisState      ] = SRS_CONSTS_RTSP_MethodNotValidInThisState_str       ;      
+        _status_map[SRS_CONSTS_RTSP_HeaderFieldNotValidForResource ] = SRS_CONSTS_RTSP_HeaderFieldNotValidForResource_str  ;      
+        _status_map[SRS_CONSTS_RTSP_InvalidRange                   ] = SRS_CONSTS_RTSP_InvalidRange_str                    ;      
+        _status_map[SRS_CONSTS_RTSP_ParameterIsReadOnly            ] = SRS_CONSTS_RTSP_ParameterIsReadOnly_str             ;      
+        _status_map[SRS_CONSTS_RTSP_AggregateOperationNotAllowed   ] = SRS_CONSTS_RTSP_AggregateOperationNotAllowed_str    ;      
+        _status_map[SRS_CONSTS_RTSP_OnlyAggregateOperationAllowed  ] = SRS_CONSTS_RTSP_OnlyAggregateOperationAllowed_str   ;      
+        _status_map[SRS_CONSTS_RTSP_UnsupportedTransport           ] = SRS_CONSTS_RTSP_UnsupportedTransport_str            ;      
+        _status_map[SRS_CONSTS_RTSP_DestinationUnreachable         ] = SRS_CONSTS_RTSP_DestinationUnreachable_str          ;      
+        _status_map[SRS_CONSTS_RTSP_InternalServerError            ] = SRS_CONSTS_RTSP_InternalServerError_str             ;      
+        _status_map[SRS_CONSTS_RTSP_NotImplemented                 ] = SRS_CONSTS_RTSP_NotImplemented_str                  ;      
+        _status_map[SRS_CONSTS_RTSP_BadGateway                     ] = SRS_CONSTS_RTSP_BadGateway_str                      ;     
+        _status_map[SRS_CONSTS_RTSP_ServiceUnavailable             ] = SRS_CONSTS_RTSP_ServiceUnavailable_str              ;     
+        _status_map[SRS_CONSTS_RTSP_GatewayTimeout                 ] = SRS_CONSTS_RTSP_GatewayTimeout_str                  ;     
+        _status_map[SRS_CONSTS_RTSP_RTSPVersionNotSupported        ] = SRS_CONSTS_RTSP_RTSPVersionNotSupported_str         ;     
+        _status_map[SRS_CONSTS_RTSP_OptionNotSupported             ] = SRS_CONSTS_RTSP_OptionNotSupported_str              ;        
+    }
+    
+    std::string status_text;
+    if (_status_map.find(status) == _status_map.end()) {
+        status_text = "Status Unknown";
+    } else {
+        status_text = _status_map[status];
+    }
+    
+    return status_text;
+}
+
+std::string srs_generate_rtsp_method_str(SrsRtspMethod method) 
+{
+    switch (method) {
+        case SrsRtspMethodDescribe: return SRS_METHOD_DESCRIBE;
+        case SrsRtspMethodAnnounce: return SRS_METHOD_ANNOUNCE;
+        case SrsRtspMethodGetParameter: return SRS_METHOD_GET_PARAMETER;
+        case SrsRtspMethodOptions: return SRS_METHOD_OPTIONS;
+        case SrsRtspMethodPause: return SRS_METHOD_PAUSE;
+        case SrsRtspMethodPlay: return SRS_METHOD_PLAY;
+        case SrsRtspMethodRecord: return SRS_METHOD_RECORD;
+        case SrsRtspMethodRedirect: return SRS_METHOD_REDIRECT;
+        case SrsRtspMethodSetup: return SRS_METHOD_SETUP;
+        case SrsRtspMethodSetParameter: return SRS_METHOD_SET_PARAMETER;
+        case SrsRtspMethodTeardown: return SRS_METHOD_TEARDOWN;
+        default: return "Unknown";
+    }
+}
+
+SrsRtpPacket::SrsRtpPacket()
+{
+    version = 2;
+    padding = 0;
+    extension = 0;
+    csrc_count = 0;
+    marker = 1;
+
+    payload_type = 0;
+    sequence_number = 0;
+    timestamp = 0;
+    ssrc = 0;
+
+    payload = new SrsSimpleBuffer();
+    audio_samples = new SrsCodecSample();
+    chunked = false;
+    completed = false;
+}
+
+SrsRtpPacket::~SrsRtpPacket()
+{
+    srs_freep(payload);
+    srs_freep(audio_samples);
+}
+
+void SrsRtpPacket::copy(SrsRtpPacket* src)
+{
+    version = src->version;
+    padding = src->padding;
+    extension = src->extension;
+    csrc_count = src->csrc_count;
+    marker = src->marker;
+    payload_type = src->payload_type;
+    sequence_number = src->sequence_number;
+    timestamp = src->timestamp;
+    ssrc = src->ssrc;
+
+    chunked = src->chunked;
+    completed = src->completed;
+    audio_samples = new SrsCodecSample();
+}
+
+void SrsRtpPacket::reap(SrsRtpPacket* src)
+{
+    copy(src);
+
+    srs_freep(payload);
+    payload = src->payload;
+    src->payload = NULL;
+    
+    srs_freep(audio_samples);
+    audio_samples = src->audio_samples;
+    src->audio_samples = NULL;
+}
+
+int SrsRtpPacket::decode(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // 12bytes header
+    if (!stream->require(12)) {
+        ret = ERROR_RTP_HEADER_CORRUPT;
+        srs_error("rtsp: rtp header corrupt. ret=%d", ret);
+        return ret;
+    }
+
+    int8_t vv = stream->read_1bytes();
+    version = (vv >> 6) & 0x03;
+    padding = (vv >> 5) & 0x01;
+    extension = (vv >> 4) & 0x01;
+    csrc_count = vv & 0x0f;
+
+    int8_t mv = stream->read_1bytes();
+    marker = (mv >> 7) & 0x01;
+    payload_type = mv & 0x7f;
+
+    sequence_number = stream->read_2bytes();
+    timestamp = stream->read_4bytes();
+    ssrc = stream->read_4bytes();
+
+    // TODO: FIXME: check sequence number.
+
+    // video codec.
+    if (payload_type == 96) {
+        return decode_96(stream);
+    } else if (payload_type == 97) {
+        return decode_97(stream);
+    }
+
+    return ret;
+}
+
+int SrsRtpPacket::decode_97(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 2bytes content.
+    if (!stream->require(2)) {
+        ret = ERROR_RTP_TYPE97_CORRUPT;
+        srs_error("rtsp: rtp type97 corrupt. ret=%d", ret);
+        return ret;
+    }
+
+    int8_t hasv = stream->read_1bytes();
+    int8_t lasv = stream->read_1bytes();
+    u_int16_t au_size = ((hasv << 5) & 0xE0) | ((lasv >> 3) & 0x1f);
+
+    if (!stream->require(au_size)) {
+        ret = ERROR_RTP_TYPE97_CORRUPT;
+        srs_error("rtsp: rtp type97 au_size corrupt. ret=%d", ret);
+        return ret;
+    }
+
+    int required_size = 0;
+
+    // append left bytes to payload.
+    payload->append(
+        stream->data() + stream->pos() + au_size, 
+        stream->size() - stream->pos() - au_size
+    );
+    char* p = payload->bytes();
+
+    for (int i = 0; i < au_size; i += 2) {
+        hasv = stream->read_1bytes();
+        lasv = stream->read_1bytes();
+
+        u_int16_t sample_size = ((hasv << 5) & 0xE0) | ((lasv >> 3) & 0x1f);
+        // TODO: FIXME: finger out how to parse the size of sample.
+        if (sample_size < 0x100 && stream->require(required_size + sample_size + 0x100)) {
+            sample_size = sample_size | 0x100;
+        }
+
+        char* sample = p + required_size;
+        required_size += sample_size;
+
+        if (!stream->require(required_size)) {
+            ret = ERROR_RTP_TYPE97_CORRUPT;
+            srs_error("rtsp: rtp type97 samples corrupt. ret=%d", ret);
+            return ret;
+        }
+
+        if ((ret = audio_samples->add_sample_unit(sample, sample_size)) != ERROR_SUCCESS) {
+            srs_error("rtsp: rtp type97 add sample failed. ret=%d", ret);
+            return ret;
+        }
+    }
+
+    // parsed ok.
+    completed = true;
+
+    return ret;
+}
+
+int SrsRtpPacket::decode_96(SrsStream* stream)
+{
+    int ret = ERROR_SUCCESS;
+
+    // atleast 2bytes content.
+    if (!stream->require(2)) {
+        ret = ERROR_RTP_TYPE96_CORRUPT;
+        srs_error("rtsp: rtp type96 corrupt. ret=%d", ret);
+        return ret;
+    }
+
+    // frame type
+    // 0... .... reserverd
+    // .11. .... NALU[0]&0x60
+    // ...1 11.. FU indicator
+    // .... ..00 reserverd
+    int8_t ftv = stream->read_1bytes();
+    int8_t nalu_0x60 = ftv & 0x60;
+    int8_t fu_indicator = ftv & 0x1c;
+
+    // nri, whatever
+    // 10.. .... first chunk.
+    // 00.. .... continous chunk.
+    // 01.. .... last chunk.
+    // ...1 1111 NALU[0]&0x1f
+    int8_t nriv = stream->read_1bytes();
+    bool first_chunk = (nriv & 0xC0) == 0x80;
+    bool last_chunk = (nriv & 0xC0) == 0x40;
+    bool contious_chunk = (nriv & 0xC0) == 0x00;
+    int8_t nalu_0x1f = nriv & 0x1f;
+
+    // chunked, generate the first byte NALU.
+    if (fu_indicator == 0x1c && (first_chunk || last_chunk || contious_chunk)) {
+        chunked = true;
+        completed = last_chunk;
+
+        // generate and append the first byte NALU.
+        if (first_chunk) {
+            int8_t nalu_byte0 = nalu_0x60 | nalu_0x1f;
+            payload->append((char*)&nalu_byte0, 1);
+        }
+        
+        payload->append(stream->data() + stream->pos(), stream->size() - stream->pos());
+        return ret;
+    }
+
+    // no chunked, append to payload.
+    stream->skip(-2);
+    payload->append(stream->data() + stream->pos(), stream->size() - stream->pos());
+    completed = true;
+
+    return ret;
+}
+
+SrsRtspSdp::SrsRtspSdp()
+{
+    state = SrsRtspSdpStateOthers;
+}
+
+SrsRtspSdp::~SrsRtspSdp()
+{
+}
+
+int SrsRtspSdp::parse(string token)
+{
+    int ret = ERROR_SUCCESS;
+
+    if (token.empty()) {
+        srs_info("rtsp: ignore empty token.");
+        return ret;
+    }
+    
+    size_t pos = string::npos;
+
+    char* start = (char*)token.data();
+    char* end = start + (int)token.length();
+    char* p = start;
+
+    // key, first 2bytes.
+    // v=0
+    // o=- 0 0 IN IP4 127.0.0.1
+    // s=No Name
+    // c=IN IP4 192.168.43.23
+    // t=0 0
+    // a=tool:libavformat 53.9.0
+    // m=video 0 RTP/AVP 96
+    // b=AS:850
+    // a=rtpmap:96 H264/90000
+    // a=fmtp:96 packetization-mode=1; sprop-parameter-sets=Z2QAKKzRwFAFu/8ALQAiEAAAAwAQAAADAwjxgxHg,aOmrLIs=
+    // a=control:streamid=0
+    // m=audio 0 RTP/AVP 97
+    // b=AS:49
+    // a=rtpmap:97 MPEG4-GENERIC/44100/2
+    // a=fmtp:97 profile-level-id=1;mode=AAC-hbr;sizelength=13;indexlength=3;indexdeltalength=3; config=139056E5A0
+    // a=control:streamid=1
+    char key = p[0];
+    p += 2;
+
+    // left bytes as attr string.
+    std::string attr_str;
+    if (end - p) {
+        attr_str.append(p, end - p);
+    }
+
+    // parse the attributes from left bytes.
+    std::vector<std::string> attrs;
+    while (p < end) {
+        // parse an attribute, split by SP.
+        char* pa = p;
+        for (; p < end && p[0] != SRS_RTSP_SP; p++) {
+        }
+        std::string attr;
+        if (p > pa) {
+            attr.append(pa, p - pa);
+            attrs.push_back(attr);
+        }
+        p++;
+    }
+
+    // parse the first attr as desc, update the first elem for desc.
+    // for example, the value can be "tool", "AS", "rtpmap", "fmtp", "control"
+    std::string desc_key;
+    if (attrs.size() > 0) {
+        std::string attr = attrs.at(0);
+        if ((pos = attr.find(":")) != string::npos) {
+            desc_key = attr.substr(0, pos);
+            attr = attr.substr(pos + 1);
+            attr_str = attr_str.substr(pos + 1);
+            attrs[0] = attr;
+        } else {
+            desc_key = attr;
+        }
+    }
+
+    // interpret the attribute according by key.
+    switch (key) {
+        case 'v': version = attr_str; break;
+        case 'o':
+            owner_username = (attrs.size() > 0)? attrs[0]:"";
+            owner_session_id = (attrs.size() > 1)? attrs[1]:"";
+            owner_session_version = (attrs.size() > 2)? attrs[2]:"";
+            owner_network_type = (attrs.size() > 3)? attrs[3]:"";
+            owner_address_type = (attrs.size() > 4)? attrs[4]:"";
+            owner_address = (attrs.size() > 5)? attrs[5]:"";
+            break;
+        case 's': session_name = attr_str; break;
+        case 'c':
+            connection_network_type = (attrs.size() > 0)? attrs[0]:"";
+            connection_address_type = (attrs.size() > 0)? attrs[0]:"";
+            connection_address = (attrs.size() > 0)? attrs[0]:"";
+            break;
+        case 'a':
+            if (desc_key == "tool") {
+                tool = attr_str;
+            } else if (desc_key == "rtpmap") {
+                if (state == SrsRtspSdpStateVideo) {
+                    video_codec = (attrs.size() > 1)? attrs[1]:"";
+                    if ((pos = video_codec.find("/")) != string::npos) {
+                        video_sample_rate = video_codec.substr(pos + 1);
+                        video_codec = video_codec.substr(0, pos);
+                    }
+                } else if (state == SrsRtspSdpStateAudio) {
+                    audio_codec = (attrs.size() > 1)? attrs[1]:"";
+                    if ((pos = audio_codec.find("/")) != string::npos) {
+                        audio_sample_rate = audio_codec.substr(pos + 1);
+                        audio_codec = audio_codec.substr(0, pos);
+                    }
+                    if ((pos = audio_sample_rate.find("/")) != string::npos) {
+                        audio_channel = audio_sample_rate.substr(pos + 1);
+                        audio_sample_rate = audio_sample_rate.substr(0, pos);
+                    }
+                }
+            } else if (desc_key == "fmtp") {
+                for (int i = 1; i < (int)attrs.size(); i++) {
+                    std::string attr = attrs.at(i);
+                    if ((ret = parse_fmtp_attribute(attr)) != ERROR_SUCCESS) {
+                        srs_error("rtsp: parse fmtp failed, attr=%s. ret=%d", attr.c_str(), ret);
+                        return ret;
+                    }
+                }
+            } else if (desc_key == "control") {
+                for (int i = 0; i < (int)attrs.size(); i++) {
+                    std::string attr = attrs.at(i);
+                    if ((ret = parse_control_attribute(attr)) != ERROR_SUCCESS) {
+                        srs_error("rtsp: parse control failed, attr=%s. ret=%d", attr.c_str(), ret);
+                        return ret;
+                    }
+                }
+            }
+            break;
+        case 'm':
+            if (desc_key == "video") {
+                state = SrsRtspSdpStateVideo;
+                video_port = (attrs.size() > 1)? attrs[1]:"";
+                video_protocol = (attrs.size() > 2)? attrs[2]:"";
+                video_transport_format = (attrs.size() > 3)? attrs[3]:"";
+            } else if (desc_key == "audio") {
+                state = SrsRtspSdpStateAudio;
+                audio_port = (attrs.size() > 1)? attrs[1]:"";
+                audio_protocol = (attrs.size() > 2)? attrs[2]:"";
+                audio_transport_format = (attrs.size() > 3)? attrs[3]:"";
+            }
+            break;
+        case 'b':
+            if (desc_key == "AS") {
+                if (state == SrsRtspSdpStateVideo) {
+                    video_bandwidth_kbps = (attrs.size() > 0)? attrs[0]:"";
+                } else if (state == SrsRtspSdpStateAudio) {
+                    audio_bandwidth_kbps = (attrs.size() > 0)? attrs[0]:"";
+                }
+            }
+            break;
+        case 't':
+        default: break;
+    }
+
+    return ret;
+}
+
+int SrsRtspSdp::parse_fmtp_attribute(string attr)
+{
+    int ret = ERROR_SUCCESS;
+    
+    size_t pos = string::npos;
+    std::string token = attr;
+
+    while (!token.empty()) {
+        std::string item = token;
+        if ((pos = item.find(";")) != string::npos) {
+            item = token.substr(0, pos);
+            token = token.substr(pos + 1);
+        } else {
+            token = "";
+        }
+
+        std::string item_key = item, item_value;
+        if ((pos = item.find("=")) != string::npos) {
+            item_key = item.substr(0, pos);
+            item_value = item.substr(pos + 1);
+        }
+
+        if (state == SrsRtspSdpStateVideo) {
+            if (item_key == "packetization-mode") {
+                video_packetization_mode = item_value;
+            } else if (item_key == "sprop-parameter-sets") {
+                video_sps = item_value;
+                if ((pos = video_sps.find(",")) != string::npos) {
+                    video_pps = video_sps.substr(pos + 1);
+                    video_sps = video_sps.substr(0, pos);
+                }
+                // decode the sps/pps by base64
+                video_sps = base64_decode(video_sps);
+                video_pps = base64_decode(video_pps);
+            }
+        } else if (state == SrsRtspSdpStateAudio) {
+            if (item_key == "profile-level-id") {
+                audio_profile_level_id = item_value;
+            } else if (item_key == "mode") {
+                audio_mode = item_value;
+            } else if (item_key == "sizelength") {
+                audio_size_length = item_value;
+            } else if (item_key == "indexlength") {
+                audio_index_length = item_value;
+            } else if (item_key == "indexdeltalength") {
+                audio_index_delta_length = item_value;
+            } else if (item_key == "config") {
+                if (item_value.length() <= 0) {
+                    ret = ERROR_RTSP_AUDIO_CONFIG;
+                    srs_error("rtsp: audio config failed. ret=%d", ret);
+                    return ret;
+                }
+
+                char* tmp_sh = new char[item_value.length()];
+                SrsAutoFree(char, tmp_sh);
+                int nb_tmp_sh = ff_hex_to_data((u_int8_t*)tmp_sh, item_value.c_str());
+                srs_assert(nb_tmp_sh > 0);
+                audio_sh.append(tmp_sh, nb_tmp_sh);
+            }
+        }
+    }
+
+    return ret;
+}
+
+int SrsRtspSdp::parse_control_attribute(string attr)
+{
+    int ret = ERROR_SUCCESS;
+    
+    size_t pos = string::npos;
+    std::string token = attr;
+
+    while (!token.empty()) {
+        std::string item = token;
+        if ((pos = item.find(";")) != string::npos) {
+            item = token.substr(0, pos);
+            token = token.substr(pos + 1);
+        } else {
+            token = "";
+        }
+
+        std::string item_key = item, item_value;
+        if ((pos = item.find("=")) != string::npos) {
+            item_key = item.substr(0, pos);
+            item_value = item.substr(pos + 1);
+        }
+
+        if (state == SrsRtspSdpStateVideo) {
+            if (item_key == "streamid") {
+                video_stream_id = item_value;
+            }
+        } else if (state == SrsRtspSdpStateAudio) {
+            if (item_key == "streamid") {
+                audio_stream_id = item_value;
+            }
+        }
+    }
+
+    return ret;
+}
+
+string SrsRtspSdp::base64_decode(string value)
+{
+    if (value.empty()) {
+        return "";
+    }
+
+    int nb_output = (int)(value.length() * 2);
+    u_int8_t* output = new u_int8_t[nb_output];
+    SrsAutoFree(u_int8_t, output);
+
+    int ret = srs_av_base64_decode(output, (char*)value.c_str(), nb_output);
+    if (ret <= 0) {
+        return "";
+    }
+
+    std::string plaintext;
+    plaintext.append((char*)output, ret);
+    return plaintext;
+}
+
+SrsRtspTransport::SrsRtspTransport()
+{
+    client_port_min = 0;
+    client_port_max = 0;
+}
+
+SrsRtspTransport::~SrsRtspTransport()
+{
+}
+
+int SrsRtspTransport::parse(string attr)
+{
+    int ret = ERROR_SUCCESS;
+    
+    size_t pos = string::npos;
+    std::string token = attr;
+
+    while (!token.empty()) {
+        std::string item = token;
+        if ((pos = item.find(";")) != string::npos) {
+            item = token.substr(0, pos);
+            token = token.substr(pos + 1);
+        } else {
+            token = "";
+        }
+
+        std::string item_key = item, item_value;
+        if ((pos = item.find("=")) != string::npos) {
+            item_key = item.substr(0, pos);
+            item_value = item.substr(pos + 1);
+        }
+
+        if (transport.empty()) {
+            transport = item_key;
+            if ((pos = transport.find("/")) != string::npos) {
+                profile = transport.substr(pos + 1);
+                transport = transport.substr(0, pos);
+            }
+            if ((pos = profile.find("/")) != string::npos) {
+                lower_transport = profile.substr(pos + 1);
+                profile = profile.substr(0, pos);
+            }
+        }
+
+        if (item_key == "unicast" || item_key == "multicast") {
+            cast_type = item_key;
+        } else if (item_key == "mode") {
+            mode = item_value;
+        } else if (item_key == "client_port") {
+            std::string sport = item_value;
+            std::string eport = item_value;
+            if ((pos = eport.find("-")) != string::npos) {
+                sport = eport.substr(0, pos);
+                eport = eport.substr(pos + 1);
+            }
+            client_port_min = ::atoi(sport.c_str());
+            client_port_max = ::atoi(eport.c_str());
+        }
+    }
+
+    return ret;
+}
+
+SrsRtspRequest::SrsRtspRequest()
+{
+    seq = 0;
+    content_length = 0;
+    stream_id = 0;
+    sdp = NULL;
+    transport = NULL;
+}
+
+SrsRtspRequest::~SrsRtspRequest()
+{
+    srs_freep(sdp);
+    srs_freep(transport);
+}
+
+bool SrsRtspRequest::is_options()
+{
+    return method == SRS_METHOD_OPTIONS;
+}
+
+bool SrsRtspRequest::is_announce()
+{
+    return method == SRS_METHOD_ANNOUNCE;
+}
+
+bool SrsRtspRequest::is_setup()
+{
+    return method == SRS_METHOD_SETUP;
+}
+
+bool SrsRtspRequest::is_record()
+{
+    return method == SRS_METHOD_RECORD;
+}
+
+SrsRtspResponse::SrsRtspResponse(int cseq)
+{
+    seq = cseq;
+    status = SRS_CONSTS_RTSP_OK;
+}
+
+SrsRtspResponse::~SrsRtspResponse()
+{
+}
+
+int SrsRtspResponse::encode(stringstream& ss)
+{
+    int ret = ERROR_SUCCESS;
+
+    // status line
+    ss << SRS_RTSP_VERSION << SRS_RTSP_SP 
+        << status << SRS_RTSP_SP 
+        << srs_generate_rtsp_status_text(status) << SRS_RTSP_CRLF;
+
+    // cseq
+    ss << SRS_RTSP_TOKEN_CSEQ << ":" << SRS_RTSP_SP << seq << SRS_RTSP_CRLF;
+
+    // others.
+    ss << "Cache-Control: no-store" << SRS_RTSP_CRLF
+        << "Pragma: no-cache" << SRS_RTSP_CRLF
+        << "Server: " << RTMP_SIG_SRS_SERVER << SRS_RTSP_CRLF;
+
+    // session if specified.
+    if (!session.empty()) {
+        ss << SRS_RTSP_TOKEN_SESSION << ":" << session << SRS_RTSP_CRLF;
+    }
+
+    if ((ret = encode_header(ss)) != ERROR_SUCCESS) {
+        srs_error("rtsp: encode header failed. ret=%d", ret);
+        return ret;
+    };
+
+    // header EOF.
+    ss << SRS_RTSP_CRLF;
+
+    return ret;
+}
+
+int SrsRtspResponse::encode_header(std::stringstream& ss)
+{
+    return ERROR_SUCCESS;
+}
+
+SrsRtspOptionsResponse::SrsRtspOptionsResponse(int cseq) : SrsRtspResponse(cseq)
+{
+    methods = (SrsRtspMethod)(SrsRtspMethodDescribe | SrsRtspMethodOptions 
+        | SrsRtspMethodPause | SrsRtspMethodPlay | SrsRtspMethodSetup | SrsRtspMethodTeardown
+        | SrsRtspMethodAnnounce | SrsRtspMethodRecord);
+}
+
+SrsRtspOptionsResponse::~SrsRtspOptionsResponse()
+{
+}
+
+int SrsRtspOptionsResponse::encode_header(stringstream& ss)
+{
+    SrsRtspMethod rtsp_methods[] = {
+        SrsRtspMethodDescribe,
+        SrsRtspMethodAnnounce,
+        SrsRtspMethodGetParameter,
+        SrsRtspMethodOptions,
+        SrsRtspMethodPause,
+        SrsRtspMethodPlay,
+        SrsRtspMethodRecord,
+        SrsRtspMethodRedirect,
+        SrsRtspMethodSetup,
+        SrsRtspMethodSetParameter,
+        SrsRtspMethodTeardown,
+    };
+
+    ss << SRS_RTSP_TOKEN_PUBLIC << ":" << SRS_RTSP_SP;
+
+    bool appended = false;
+    int nb_methods = (int)(sizeof(rtsp_methods) / sizeof(SrsRtspMethod));
+    for (int i = 0; i < nb_methods; i++) {
+        SrsRtspMethod method = rtsp_methods[i];
+        if (((int)methods & (int)method) != (int)method) {
+            continue;
+        }
+
+        if (appended) {
+            ss << ", ";
+        }
+        ss << srs_generate_rtsp_method_str(method);
+        appended = true;
+    }
+    ss << SRS_RTSP_CRLF;
+
+    return ERROR_SUCCESS;
+}
+
+SrsRtspSetupResponse::SrsRtspSetupResponse(int seq) : SrsRtspResponse(seq)
+{
+    local_port_min = 0;
+    local_port_max = 0;
+}
+
+SrsRtspSetupResponse::~SrsRtspSetupResponse()
+{
+}
+
+int SrsRtspSetupResponse::encode_header(stringstream& ss)
+{
+    ss << SRS_RTSP_TOKEN_SESSION << ":" << SRS_RTSP_SP << session << SRS_RTSP_CRLF;
+    ss << SRS_RTSP_TOKEN_TRANSPORT << ":" << SRS_RTSP_SP 
+        << "RTP/AVP;unicast;client_port=" << client_port_min << "-" << client_port_max << ";"
+        << "server_port=" << local_port_min << "-" << local_port_max
+        << SRS_RTSP_CRLF;
+    return ERROR_SUCCESS;
+}
+
+SrsRtspStack::SrsRtspStack(ISrsProtocolReaderWriter* s)
+{
+    buf = new SrsSimpleBuffer();
+    skt = s;
+}
+
+SrsRtspStack::~SrsRtspStack()
+{
+    srs_freep(buf);
+}
+
+int SrsRtspStack::recv_message(SrsRtspRequest** preq)
+{
+    int ret = ERROR_SUCCESS;
+
+    SrsRtspRequest* req = new SrsRtspRequest();
+    if ((ret = do_recv_message(req)) != ERROR_SUCCESS) {
+        srs_freep(req);
+        return ret;
+    }
+
+    *preq = req;
+
+    return ret;
+}
+
+int SrsRtspStack::send_message(SrsRtspResponse* res)
+{
+    int ret = ERROR_SUCCESS;
+
+    std::stringstream ss;
+    // encode the message to string.
+    res->encode(ss);
+
+    std::string str = ss.str();
+    srs_assert(!str.empty());
+
+    if ((ret = skt->write((char*)str.c_str(), (int)str.length(), NULL)) != ERROR_SUCCESS) {
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("rtsp: send response failed. ret=%d", ret);
+        }
+        return ret;
+    }
+    srs_info("rtsp: send response ok");
+
+    return ret;
+}
+
+int SrsRtspStack::do_recv_message(SrsRtspRequest* req)
+{
+    int ret = ERROR_SUCCESS;
+
+    // parse request line.
+    if ((ret = recv_token_normal(req->method)) != ERROR_SUCCESS) {
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("rtsp: parse method failed. ret=%d", ret);
+        }
+        return ret;
+    }
+
+    if ((ret = recv_token_normal(req->uri)) != ERROR_SUCCESS) {
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("rtsp: parse uri failed. ret=%d", ret);
+        }
+        return ret;
+    }
+
+    if ((ret = recv_token_eof(req->version)) != ERROR_SUCCESS) {
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("rtsp: parse version failed. ret=%d", ret);
+        }
+        return ret;
+    }
+
+    // parse headers.
+    for (;;) {
+        // parse the header name
+        std::string token;
+        if ((ret = recv_token_normal(token)) != ERROR_SUCCESS) {
+            if (ret == ERROR_RTSP_REQUEST_HEADER_EOF) {
+                ret = ERROR_SUCCESS;
+                srs_info("rtsp: message header parsed");
+                break;
+            }
+            if (!srs_is_client_gracefully_close(ret)) {
+                srs_error("rtsp: parse token failed. ret=%d", ret);
+            }
+            return ret;
+        }
+
+        // parse the header value according by header name
+        if (token == SRS_RTSP_TOKEN_CSEQ) {
+            std::string seq;
+            if ((ret = recv_token_eof(seq)) != ERROR_SUCCESS) {
+                if (!srs_is_client_gracefully_close(ret)) {
+                    srs_error("rtsp: parse %s failed. ret=%d", SRS_RTSP_TOKEN_CSEQ, ret);
+                }
+                return ret;
+            }
+            req->seq = ::atol(seq.c_str());
+        } else if (token == SRS_RTSP_TOKEN_CONTENT_TYPE) {
+            std::string ct;
+            if ((ret = recv_token_eof(ct)) != ERROR_SUCCESS) {
+                if (!srs_is_client_gracefully_close(ret)) {
+                    srs_error("rtsp: parse %s failed. ret=%d", SRS_RTSP_TOKEN_CONTENT_TYPE, ret);
+                }
+                return ret;
+            }
+            req->content_type = ct;
+        } else if (token == SRS_RTSP_TOKEN_CONTENT_LENGTH) {
+            std::string cl;
+            if ((ret = recv_token_eof(cl)) != ERROR_SUCCESS) {
+                if (!srs_is_client_gracefully_close(ret)) {
+                    srs_error("rtsp: parse %s failed. ret=%d", SRS_RTSP_TOKEN_CONTENT_LENGTH, ret);
+                }
+                return ret;
+            }
+            req->content_length = ::atol(cl.c_str());
+        } else if (token == SRS_RTSP_TOKEN_TRANSPORT) {
+            std::string transport;
+            if ((ret = recv_token_eof(transport)) != ERROR_SUCCESS) {
+                if (!srs_is_client_gracefully_close(ret)) {
+                    srs_error("rtsp: parse %s failed. ret=%d", SRS_RTSP_TOKEN_TRANSPORT, ret);
+                }
+                return ret;
+            }
+            if (!req->transport) {
+                req->transport = new SrsRtspTransport();
+            }
+            if ((ret = req->transport->parse(transport)) != ERROR_SUCCESS) {
+                srs_error("rtsp: parse transport failed, transport=%s. ret=%d", transport.c_str(), ret);
+                return ret;
+            }
+        } else if (token == SRS_RTSP_TOKEN_SESSION) {
+            if ((ret = recv_token_eof(req->session)) != ERROR_SUCCESS) {
+                if (!srs_is_client_gracefully_close(ret)) {
+                    srs_error("rtsp: parse %s failed. ret=%d", SRS_RTSP_TOKEN_SESSION, ret);
+                }
+                return ret;
+            }
+        } else {
+            // unknown header name, parse util EOF.
+            SrsRtspTokenState state = SrsRtspTokenStateNormal;
+            while (state == SrsRtspTokenStateNormal) {
+                std::string value;
+                if ((ret = recv_token(value, state)) != ERROR_SUCCESS) {
+                    if (!srs_is_client_gracefully_close(ret)) {
+                        srs_error("rtsp: parse token failed. ret=%d", ret);
+                    }
+                    return ret;
+                }
+                srs_trace("rtsp: ignore header %s=%s", token.c_str(), value.c_str());
+            }
+        }
+    }
+
+    // for setup, parse the stream id from uri.
+    if (req->is_setup()) {
+        size_t pos = string::npos;
+        std::string stream_id;
+        if ((pos = req->uri.rfind("/")) != string::npos) {
+            stream_id = req->uri.substr(pos + 1);
+        }
+        if ((pos = stream_id.find("=")) != string::npos) {
+            stream_id = stream_id.substr(pos + 1);
+        }
+        req->stream_id = ::atoi(stream_id.c_str());
+        srs_info("rtsp: setup stream id=%d", req->stream_id);
+    }
+
+    // parse rdp body.
+    long consumed = 0;
+    while (consumed < req->content_length) {
+        if (!req->sdp) {
+            req->sdp = new SrsRtspSdp();
+        }
+
+        int nb_token = 0;
+        std::string token;
+        if ((ret = recv_token_util_eof(token, &nb_token)) != ERROR_SUCCESS) {
+            if (!srs_is_client_gracefully_close(ret)) {
+                srs_error("rtsp: parse sdp token failed. ret=%d", ret);
+            }
+            return ret;
+        }
+        consumed += nb_token;
+
+        if ((ret = req->sdp->parse(token)) != ERROR_SUCCESS) {
+            srs_error("rtsp: sdp parse token failed, token=%s. ret=%d", token.c_str(), ret);
+            return ret;
+        }
+        srs_info("rtsp: %s", token.c_str());
+    }
+    srs_info("rtsp: sdp parsed, size=%d", consumed);
+
+    return ret;
+}
+
+int SrsRtspStack::recv_token_normal(std::string& token)
+{
+    int ret = ERROR_SUCCESS;
+
+    SrsRtspTokenState state;
+
+    if ((ret = recv_token(token, state)) != ERROR_SUCCESS) {
+        if (ret == ERROR_RTSP_REQUEST_HEADER_EOF) {
+            return ret;
+        }
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("rtsp: parse token failed. ret=%d", ret);
+        }
+        return ret;
+    }
+
+    if (state != SrsRtspTokenStateNormal) {
+        ret = ERROR_RTSP_TOKEN_NOT_NORMAL;
+        srs_error("rtsp: parse normal token failed, state=%d. ret=%d", state, ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int SrsRtspStack::recv_token_eof(std::string& token)
+{
+    int ret = ERROR_SUCCESS;
+
+    SrsRtspTokenState state;
+
+    if ((ret = recv_token(token, state)) != ERROR_SUCCESS) {
+        if (ret == ERROR_RTSP_REQUEST_HEADER_EOF) {
+            return ret;
+        }
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("rtsp: parse token failed. ret=%d", ret);
+        }
+        return ret;
+    }
+
+    if (state != SrsRtspTokenStateEOF) {
+        ret = ERROR_RTSP_TOKEN_NOT_NORMAL;
+        srs_error("rtsp: parse eof token failed, state=%d. ret=%d", state, ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int SrsRtspStack::recv_token_util_eof(std::string& token, int* pconsumed)
+{
+    int ret = ERROR_SUCCESS;
+
+    SrsRtspTokenState state;
+
+    // use 0x00 as ignore the normal token flag.
+    if ((ret = recv_token(token, state, 0x00, pconsumed)) != ERROR_SUCCESS) {
+        if (ret == ERROR_RTSP_REQUEST_HEADER_EOF) {
+            return ret;
+        }
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("rtsp: parse token failed. ret=%d", ret);
+        }
+        return ret;
+    }
+
+    if (state != SrsRtspTokenStateEOF) {
+        ret = ERROR_RTSP_TOKEN_NOT_NORMAL;
+        srs_error("rtsp: parse eof token failed, state=%d. ret=%d", state, ret);
+        return ret;
+    }
+
+    return ret;
+}
+
+int SrsRtspStack::recv_token(std::string& token, SrsRtspTokenState& state, char normal_ch, int* pconsumed)
+{
+    int ret = ERROR_SUCCESS;
+
+    // whatever, default to error state.
+    state = SrsRtspTokenStateError;
+
+    // when buffer is empty, append bytes first.
+    bool append_bytes = buf->length() == 0;
+
+    // parse util token.
+    for (;;) {
+        // append bytes if required.
+        if (append_bytes) {
+            append_bytes = false;
+
+            char buffer[SRS_RTSP_BUFFER];
+            ssize_t nb_read = 0;
+            if ((ret = skt->read(buffer, SRS_RTSP_BUFFER, &nb_read)) != ERROR_SUCCESS) {
+                if (!srs_is_client_gracefully_close(ret)) {
+                    srs_error("rtsp: io read failed. ret=%d", ret);
+                }
+                return ret;
+            }
+            srs_info("rtsp: io read %d bytes", nb_read);
+
+            buf->append(buffer, nb_read);
+        }
+
+        // parse one by one.
+        char* start = buf->bytes();
+        char* end = start + buf->length();
+        char* p = start;
+
+        // find util SP/CR/LF, max 2 EOF, to finger out the EOF of message.
+        for (; p < end && p[0] != normal_ch && p[0] != SRS_RTSP_CR && p[0] != SRS_RTSP_LF; p++) {
+        }
+
+        // matched.
+        if (p < end) {
+            // finger out the state.
+            if (p[0] == normal_ch) {
+                state = SrsRtspTokenStateNormal;
+            } else {
+                state = SrsRtspTokenStateEOF;
+            }
+            
+            // got the token.
+            int nb_token = p - start;
+            // trim last ':' character.
+            if (nb_token && p[-1] == ':') {
+                nb_token--;
+            }
+            if (nb_token) {
+                token.append(start, nb_token);
+            } else {
+                ret = ERROR_RTSP_REQUEST_HEADER_EOF;
+            }
+
+            // ignore SP/CR/LF
+            for (int i = 0; i < 2 && p < end && (p[0] == normal_ch || p[0] == SRS_RTSP_CR || p[0] == SRS_RTSP_LF); p++, i++) {
+            }
+
+            // consume the token bytes.
+            srs_assert(p - start);
+            buf->erase(p - start);
+            if (pconsumed) {
+                *pconsumed = p - start;
+            }
+            break;
+        }
+
+        // append more and parse again.
+        append_bytes = true;
+    }
+
+    return ret;
+}
+
+#endif
+
+// following is generated by src/protocol/srs_http_stack.cpp
+/*
+ The MIT License (MIT)
+ 
+ Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+//#include <srs_http_stack.hpp>
+
+#include <stdlib.h>
+#include <sstream>
+#include <algorithm>
+using namespace std;
+
+//#include <srs_kernel_error.hpp>
+//#include <srs_kernel_log.hpp>
+//#include <srs_kernel_utility.hpp>
+//#include <srs_kernel_file.hpp>
+
+#define SRS_HTTP_DEFAULT_PAGE "index.html"
+
+// get the status text of code.
+string srs_generate_http_status_text(int status)
+{
+    static std::map<int, std::string> _status_map;
+    if (_status_map.empty()) {
+        _status_map[SRS_CONSTS_HTTP_Continue                       ] = SRS_CONSTS_HTTP_Continue_str                     ;
+        _status_map[SRS_CONSTS_HTTP_SwitchingProtocols             ] = SRS_CONSTS_HTTP_SwitchingProtocols_str           ;
+        _status_map[SRS_CONSTS_HTTP_OK                             ] = SRS_CONSTS_HTTP_OK_str                           ;
+        _status_map[SRS_CONSTS_HTTP_Created                        ] = SRS_CONSTS_HTTP_Created_str                      ;
+        _status_map[SRS_CONSTS_HTTP_Accepted                       ] = SRS_CONSTS_HTTP_Accepted_str                     ;
+        _status_map[SRS_CONSTS_HTTP_NonAuthoritativeInformation    ] = SRS_CONSTS_HTTP_NonAuthoritativeInformation_str  ;
+        _status_map[SRS_CONSTS_HTTP_NoContent                      ] = SRS_CONSTS_HTTP_NoContent_str                    ;
+        _status_map[SRS_CONSTS_HTTP_ResetContent                   ] = SRS_CONSTS_HTTP_ResetContent_str                 ;
+        _status_map[SRS_CONSTS_HTTP_PartialContent                 ] = SRS_CONSTS_HTTP_PartialContent_str               ;
+        _status_map[SRS_CONSTS_HTTP_MultipleChoices                ] = SRS_CONSTS_HTTP_MultipleChoices_str              ;
+        _status_map[SRS_CONSTS_HTTP_MovedPermanently               ] = SRS_CONSTS_HTTP_MovedPermanently_str             ;
+        _status_map[SRS_CONSTS_HTTP_Found                          ] = SRS_CONSTS_HTTP_Found_str                        ;
+        _status_map[SRS_CONSTS_HTTP_SeeOther                       ] = SRS_CONSTS_HTTP_SeeOther_str                     ;
+        _status_map[SRS_CONSTS_HTTP_NotModified                    ] = SRS_CONSTS_HTTP_NotModified_str                  ;
+        _status_map[SRS_CONSTS_HTTP_UseProxy                       ] = SRS_CONSTS_HTTP_UseProxy_str                     ;
+        _status_map[SRS_CONSTS_HTTP_TemporaryRedirect              ] = SRS_CONSTS_HTTP_TemporaryRedirect_str            ;
+        _status_map[SRS_CONSTS_HTTP_BadRequest                     ] = SRS_CONSTS_HTTP_BadRequest_str                   ;
+        _status_map[SRS_CONSTS_HTTP_Unauthorized                   ] = SRS_CONSTS_HTTP_Unauthorized_str                 ;
+        _status_map[SRS_CONSTS_HTTP_PaymentRequired                ] = SRS_CONSTS_HTTP_PaymentRequired_str              ;
+        _status_map[SRS_CONSTS_HTTP_Forbidden                      ] = SRS_CONSTS_HTTP_Forbidden_str                    ;
+        _status_map[SRS_CONSTS_HTTP_NotFound                       ] = SRS_CONSTS_HTTP_NotFound_str                     ;
+        _status_map[SRS_CONSTS_HTTP_MethodNotAllowed               ] = SRS_CONSTS_HTTP_MethodNotAllowed_str             ;
+        _status_map[SRS_CONSTS_HTTP_NotAcceptable                  ] = SRS_CONSTS_HTTP_NotAcceptable_str                ;
+        _status_map[SRS_CONSTS_HTTP_ProxyAuthenticationRequired    ] = SRS_CONSTS_HTTP_ProxyAuthenticationRequired_str  ;
+        _status_map[SRS_CONSTS_HTTP_RequestTimeout                 ] = SRS_CONSTS_HTTP_RequestTimeout_str               ;
+        _status_map[SRS_CONSTS_HTTP_Conflict                       ] = SRS_CONSTS_HTTP_Conflict_str                     ;
+        _status_map[SRS_CONSTS_HTTP_Gone                           ] = SRS_CONSTS_HTTP_Gone_str                         ;
+        _status_map[SRS_CONSTS_HTTP_LengthRequired                 ] = SRS_CONSTS_HTTP_LengthRequired_str               ;
+        _status_map[SRS_CONSTS_HTTP_PreconditionFailed             ] = SRS_CONSTS_HTTP_PreconditionFailed_str           ;
+        _status_map[SRS_CONSTS_HTTP_RequestEntityTooLarge          ] = SRS_CONSTS_HTTP_RequestEntityTooLarge_str        ;
+        _status_map[SRS_CONSTS_HTTP_RequestURITooLarge             ] = SRS_CONSTS_HTTP_RequestURITooLarge_str           ;
+        _status_map[SRS_CONSTS_HTTP_UnsupportedMediaType           ] = SRS_CONSTS_HTTP_UnsupportedMediaType_str         ;
+        _status_map[SRS_CONSTS_HTTP_RequestedRangeNotSatisfiable   ] = SRS_CONSTS_HTTP_RequestedRangeNotSatisfiable_str ;
+        _status_map[SRS_CONSTS_HTTP_ExpectationFailed              ] = SRS_CONSTS_HTTP_ExpectationFailed_str            ;
+        _status_map[SRS_CONSTS_HTTP_InternalServerError            ] = SRS_CONSTS_HTTP_InternalServerError_str          ;
+        _status_map[SRS_CONSTS_HTTP_NotImplemented                 ] = SRS_CONSTS_HTTP_NotImplemented_str               ;
+        _status_map[SRS_CONSTS_HTTP_BadGateway                     ] = SRS_CONSTS_HTTP_BadGateway_str                   ;
+        _status_map[SRS_CONSTS_HTTP_ServiceUnavailable             ] = SRS_CONSTS_HTTP_ServiceUnavailable_str           ;
+        _status_map[SRS_CONSTS_HTTP_GatewayTimeout                 ] = SRS_CONSTS_HTTP_GatewayTimeout_str               ;
+        _status_map[SRS_CONSTS_HTTP_HTTPVersionNotSupported        ] = SRS_CONSTS_HTTP_HTTPVersionNotSupported_str      ;
+    }
+    
+    std::string status_text;
+    if (_status_map.find(status) == _status_map.end()) {
+        status_text = "Status Unknown";
+    } else {
+        status_text = _status_map[status];
+    }
+    
+    return status_text;
+}
+
+// bodyAllowedForStatus reports whether a given response status code
+// permits a body.  See RFC2616, section 4.4.
+bool srs_go_http_body_allowd(int status)
+{
+    if (status >= 100 && status <= 199) {
+        return false;
+    } else if (status == 204 || status == 304) {
+        return false;
+    }
+    
+    return true;
+}
+
+// DetectContentType implements the algorithm described
+// at http://mimesniff.spec.whatwg.org/ to determine the
+// Content-Type of the given data.  It considers at most the
+// first 512 bytes of data.  DetectContentType always returns
+// a valid MIME type: if it cannot determine a more specific one, it
+// returns "application/octet-stream".
+string srs_go_http_detect(char* data, int size)
+{
+    // detect only when data specified.
+    if (data) {
+    }
+    return "application/octet-stream"; // fallback
+}
+
+// Error replies to the request with the specified error message and HTTP code.
+// The error message should be plain text.
+int srs_go_http_error(ISrsHttpResponseWriter* w, int code, string error)
+{
+    int ret = ERROR_SUCCESS;
+    
+    w->header()->set_content_type("text/plain; charset=utf-8");
+    w->header()->set_content_length(error.length());
+    w->write_header(code);
+    w->write((char*)error.data(), (int)error.length());
+    
+    return ret;
+}
+
+int srs_http_response_json(ISrsHttpResponseWriter* w, string data)
+{
+    SrsHttpHeader* h = w->header();
+    
+    h->set_content_length(data.length());
+    h->set_content_type("application/json");
+    
+    return w->write((char*)data.data(), (int)data.length());
+}
+
+SrsHttpHeader::SrsHttpHeader()
+{
+}
+
+SrsHttpHeader::~SrsHttpHeader()
+{
+}
+
+void SrsHttpHeader::set(string key, string value)
+{
+    headers[key] = value;
+}
+
+string SrsHttpHeader::get(string key)
+{
+    std::string v;
+    
+    if (headers.find(key) != headers.end()) {
+        v = headers[key];
+    }
+    
+    return v;
+}
+
+int64_t SrsHttpHeader::content_length()
+{
+    std::string cl = get("Content-Length");
+    
+    if (cl.empty()) {
+        return -1;
+    }
+    
+    return (int64_t)::atof(cl.c_str());
+}
+
+void SrsHttpHeader::set_content_length(int64_t size)
+{
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%"PRId64, size);
+    set("Content-Length", buf);
+}
+
+string SrsHttpHeader::content_type()
+{
+    return get("Content-Type");
+}
+
+void SrsHttpHeader::set_content_type(string ct)
+{
+    set("Content-Type", ct);
+}
+
+void SrsHttpHeader::write(stringstream& ss)
+{
+    std::map<std::string, std::string>::iterator it;
+    for (it = headers.begin(); it != headers.end(); ++it) {
+        ss << it->first << ": " << it->second << SRS_HTTP_CRLF;
+    }
+}
+
+ISrsHttpResponseWriter::ISrsHttpResponseWriter()
+{
+}
+
+ISrsHttpResponseWriter::~ISrsHttpResponseWriter()
+{
+}
+
+ISrsHttpResponseReader::ISrsHttpResponseReader()
+{
+}
+
+ISrsHttpResponseReader::~ISrsHttpResponseReader()
+{
+}
+
+ISrsHttpHandler::ISrsHttpHandler()
+{
+    entry = NULL;
+}
+
+ISrsHttpHandler::~ISrsHttpHandler()
+{
+}
+
+SrsHttpRedirectHandler::SrsHttpRedirectHandler(string u, int c)
+{
+    url = u;
+    code = c;
+}
+
+SrsHttpRedirectHandler::~SrsHttpRedirectHandler()
+{
+}
+
+int SrsHttpRedirectHandler::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
+{
+    int ret = ERROR_SUCCESS;
+    // TODO: FIXME: implements it.
+    return ret;
+}
+
+SrsHttpNotFoundHandler::SrsHttpNotFoundHandler()
+{
+}
+
+SrsHttpNotFoundHandler::~SrsHttpNotFoundHandler()
+{
+}
+
+int SrsHttpNotFoundHandler::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
+{
+    return srs_go_http_error(w, SRS_CONSTS_HTTP_NotFound, SRS_CONSTS_HTTP_NotFound_str);
+}
+
+SrsHttpFileServer::SrsHttpFileServer(string root_dir)
+{
+    dir = root_dir;
+}
+
+SrsHttpFileServer::~SrsHttpFileServer()
+{
+}
+
+int SrsHttpFileServer::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
+{
+    string upath = r->path();
+    
+    // add default pages.
+    if (srs_string_ends_with(upath, "/")) {
+        upath += SRS_HTTP_DEFAULT_PAGE;
+    }
+    
+    string fullpath = dir + "/";
+    
+    // remove the virtual directory.
+    srs_assert(entry);
+    size_t pos = entry->pattern.find("/");
+    if (upath.length() > entry->pattern.length() && pos != string::npos) {
+        fullpath += upath.substr(entry->pattern.length() - pos);
+    } else {
+        fullpath += upath;
+    }
+    
+    // stat current dir, if exists, return error.
+    if (!srs_path_exists(fullpath)) {
+        srs_warn("http miss file=%s, pattern=%s, upath=%s",
+                 fullpath.c_str(), entry->pattern.c_str(), upath.c_str());
+        return SrsHttpNotFoundHandler().serve_http(w, r);
+    }
+    srs_trace("http match file=%s, pattern=%s, upath=%s",
+              fullpath.c_str(), entry->pattern.c_str(), upath.c_str());
+    
+    // handle file according to its extension.
+    // use vod stream for .flv/.fhv
+    if (srs_string_ends_with(fullpath, ".flv") || srs_string_ends_with(fullpath, ".fhv")) {
+        return serve_flv_file(w, r, fullpath);
+    } else if (srs_string_ends_with(fullpath, ".mp4")) {
+        return serve_mp4_file(w, r, fullpath);
+    }
+    
+    // serve common static file.
+    return serve_file(w, r, fullpath);
+}
+
+int SrsHttpFileServer::serve_file(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, string fullpath)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // open the target file.
+    SrsFileReader fs;
+    
+    if ((ret = fs.open(fullpath)) != ERROR_SUCCESS) {
+        srs_warn("open file %s failed, ret=%d", fullpath.c_str(), ret);
+        return ret;
+    }
+    
+    int64_t length = fs.filesize();
+    
+    // unset the content length to encode in chunked encoding.
+    w->header()->set_content_length(length);
+    
+    static std::map<std::string, std::string> _mime;
+    if (_mime.empty()) {
+        _mime[".ts"] = "video/MP2T";
+        _mime[".flv"] = "video/x-flv";
+        _mime[".m4v"] = "video/x-m4v";
+        _mime[".3gpp"] = "video/3gpp";
+        _mime[".3gp"] = "video/3gpp";
+        _mime[".mp4"] = "video/mp4";
+        _mime[".aac"] = "audio/x-aac";
+        _mime[".mp3"] = "audio/mpeg";
+        _mime[".m4a"] = "audio/x-m4a";
+        _mime[".ogg"] = "audio/ogg";
+        // @see hls-m3u8-draft-pantos-http-live-streaming-12.pdf, page 5.
+        _mime[".m3u8"] = "application/vnd.apple.mpegurl"; // application/x-mpegURL
+        _mime[".rss"] = "application/rss+xml";
+        _mime[".json"] = "application/json";
+        _mime[".swf"] = "application/x-shockwave-flash";
+        _mime[".doc"] = "application/msword";
+        _mime[".zip"] = "application/zip";
+        _mime[".rar"] = "application/x-rar-compressed";
+        _mime[".xml"] = "text/xml";
+        _mime[".html"] = "text/html";
+        _mime[".js"] = "text/javascript";
+        _mime[".css"] = "text/css";
+        _mime[".ico"] = "image/x-icon";
+        _mime[".png"] = "image/png";
+        _mime[".jpeg"] = "image/jpeg";
+        _mime[".jpg"] = "image/jpeg";
+        _mime[".gif"] = "image/gif";
+    }
+    
+    if (true) {
+        size_t pos;
+        std::string ext = fullpath;
+        if ((pos = ext.rfind(".")) != string::npos) {
+            ext = ext.substr(pos);
+        }
+        
+        if (_mime.find(ext) == _mime.end()) {
+            w->header()->set_content_type("application/octet-stream");
+        } else {
+            w->header()->set_content_type(_mime[ext]);
+        }
+    }
+    
+    // write body.
+    int64_t left = length;
+    if ((ret = copy(w, &fs, r, (int)left)) != ERROR_SUCCESS) {
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("read file=%s size=%d failed, ret=%d", fullpath.c_str(), left, ret);
+        }
+        return ret;
+    }
+    
+    return w->final_request();
+}
+
+int SrsHttpFileServer::serve_flv_file(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, string fullpath)
+{
+    std::string start = r->query_get("start");
+    if (start.empty()) {
+        return serve_file(w, r, fullpath);
+    }
+    
+    int offset = ::atoi(start.c_str());
+    if (offset <= 0) {
+        return serve_file(w, r, fullpath);
+    }
+    
+    return serve_flv_stream(w, r, fullpath, offset);
+}
+
+int SrsHttpFileServer::serve_mp4_file(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, string fullpath)
+{
+    // for flash to request mp4 range in query string.
+    // for example, http://digitalprimates.net/dash/DashTest.html?url=http://dashdemo.edgesuite.net/digitalprimates/nexus/oops-20120802-manifest.mpd
+    std::string range = r->query_get("range");
+    // or, use bytes to request range,
+    // for example, http://dashas.castlabs.com/demo/try.html
+    if (range.empty()) {
+        range = r->query_get("bytes");
+    }
+    
+    // rollback to serve whole file.
+    size_t pos = string::npos;
+    if (range.empty() || (pos = range.find("-")) == string::npos) {
+        return serve_file(w, r, fullpath);
+    }
+    
+    // parse the start in query string
+    int start = 0;
+    if (pos > 0) {
+        start = ::atoi(range.substr(0, pos).c_str());
+    }
+    
+    // parse end in query string.
+    int end = -1;
+    if (pos < range.length() - 1) {
+        end = ::atoi(range.substr(pos + 1).c_str());
+    }
+    
+    // invalid param, serve as whole mp4 file.
+    if (start < 0 || (end != -1 && start > end)) {
+        return serve_file(w, r, fullpath);
+    }
+    
+    return serve_mp4_stream(w, r, fullpath, start, end);
+}
+
+int SrsHttpFileServer::serve_flv_stream(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, string fullpath, int offset)
+{
+    return serve_file(w, r, fullpath);
+}
+
+int SrsHttpFileServer::serve_mp4_stream(ISrsHttpResponseWriter* w, ISrsHttpMessage* r, string fullpath, int start, int end)
+{
+    return serve_file(w, r, fullpath);
+}
+
+int SrsHttpFileServer::copy(ISrsHttpResponseWriter* w, SrsFileReader* fs, ISrsHttpMessage* r, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    int left = size;
+    char* buf = r->http_ts_send_buffer();
+    
+    while (left > 0) {
+        ssize_t nread = -1;
+        int max_read = srs_min(left, SRS_HTTP_TS_SEND_BUFFER_SIZE);
+        if ((ret = fs->read(buf, max_read, &nread)) != ERROR_SUCCESS) {
+            break;
+        }
+        
+        left -= nread;
+        if ((ret = w->write(buf, (int)nread)) != ERROR_SUCCESS) {
+            break;
+        }
+    }
+    
+    return ret;
+}
+
+SrsHttpMuxEntry::SrsHttpMuxEntry()
+{
+    enabled = true;
+    explicit_match = false;
+    handler = NULL;
+}
+
+SrsHttpMuxEntry::~SrsHttpMuxEntry()
+{
+    srs_freep(handler);
+}
+
+ISrsHttpMatchHijacker::ISrsHttpMatchHijacker()
+{
+}
+
+ISrsHttpMatchHijacker::~ISrsHttpMatchHijacker()
+{
+}
+
+SrsHttpServeMux::SrsHttpServeMux()
+{
+}
+
+SrsHttpServeMux::~SrsHttpServeMux()
+{
+    std::map<std::string, SrsHttpMuxEntry*>::iterator it;
+    for (it = entries.begin(); it != entries.end(); ++it) {
+        SrsHttpMuxEntry* entry = it->second;
+        srs_freep(entry);
+    }
+    entries.clear();
+    
+    vhosts.clear();
+    hijackers.clear();
+}
+
+int SrsHttpServeMux::initialize()
+{
+    int ret = ERROR_SUCCESS;
+    // TODO: FIXME: implements it.
+    return ret;
+}
+
+void SrsHttpServeMux::hijack(ISrsHttpMatchHijacker* h)
+{
+    std::vector<ISrsHttpMatchHijacker*>::iterator it = ::find(hijackers.begin(), hijackers.end(), h);
+    if (it != hijackers.end()) {
+        return;
+    }
+    hijackers.push_back(h);
+}
+
+void SrsHttpServeMux::unhijack(ISrsHttpMatchHijacker* h)
+{
+    std::vector<ISrsHttpMatchHijacker*>::iterator it = ::find(hijackers.begin(), hijackers.end(), h);
+    if (it == hijackers.end()) {
+        return;
+    }
+    hijackers.erase(it);
+}
+
+int SrsHttpServeMux::handle(std::string pattern, ISrsHttpHandler* handler)
+{
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(handler);
+    
+    if (pattern.empty()) {
+        ret = ERROR_HTTP_PATTERN_EMPTY;
+        srs_error("http: empty pattern. ret=%d", ret);
+        return ret;
+    }
+    
+    if (entries.find(pattern) != entries.end()) {
+        SrsHttpMuxEntry* exists = entries[pattern];
+        if (exists->explicit_match) {
+            ret = ERROR_HTTP_PATTERN_DUPLICATED;
+            srs_error("http: multiple registrations for %s. ret=%d", pattern.c_str(), ret);
+            return ret;
+        }
+    }
+    
+    std::string vhost = pattern;
+    if (pattern.at(0) != '/') {
+        if (pattern.find("/") != string::npos) {
+            vhost = pattern.substr(0, pattern.find("/"));
+        }
+        vhosts[vhost] = handler;
+    }
+    
+    if (true) {
+        SrsHttpMuxEntry* entry = new SrsHttpMuxEntry();
+        entry->explicit_match = true;
+        entry->handler = handler;
+        entry->pattern = pattern;
+        entry->handler->entry = entry;
+        
+        if (entries.find(pattern) != entries.end()) {
+            SrsHttpMuxEntry* exists = entries[pattern];
+            srs_freep(exists);
+        }
+        entries[pattern] = entry;
+    }
+    
+    // Helpful behavior:
+    // If pattern is /tree/, insert an implicit permanent redirect for /tree.
+    // It can be overridden by an explicit registration.
+    if (pattern != "/" && !pattern.empty() && pattern.at(pattern.length() - 1) == '/') {
+        std::string rpattern = pattern.substr(0, pattern.length() - 1);
+        SrsHttpMuxEntry* entry = NULL;
+        
+        // free the exists not explicit entry
+        if (entries.find(rpattern) != entries.end()) {
+            SrsHttpMuxEntry* exists = entries[rpattern];
+            if (!exists->explicit_match) {
+                entry = exists;
+            }
+        }
+        
+        // create implicit redirect.
+        if (!entry || entry->explicit_match) {
+            srs_freep(entry);
+            
+            entry = new SrsHttpMuxEntry();
+            entry->explicit_match = false;
+            entry->handler = new SrsHttpRedirectHandler(pattern, SRS_CONSTS_HTTP_MovedPermanently);
+            entry->pattern = pattern;
+            entry->handler->entry = entry;
+            
+            entries[rpattern] = entry;
+        }
+    }
+    
+    return ret;
+}
+
+int SrsHttpServeMux::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
+{
+    int ret = ERROR_SUCCESS;
+    
+    ISrsHttpHandler* h = NULL;
+    if ((ret = find_handler(r, &h)) != ERROR_SUCCESS) {
+        srs_error("find handler failed. ret=%d", ret);
+        return ret;
+    }
+    
+    srs_assert(h);
+    if ((ret = h->serve_http(w, r)) != ERROR_SUCCESS) {
+        if (!srs_is_client_gracefully_close(ret)) {
+            srs_error("handler serve http failed. ret=%d", ret);
+        }
+        return ret;
+    }
+    
+    return ret;
+}
+
+int SrsHttpServeMux::find_handler(ISrsHttpMessage* r, ISrsHttpHandler** ph)
+{
+    int ret = ERROR_SUCCESS;
+    
+    // TODO: FIXME: support the path . and ..
+    if (r->url().find("..") != std::string::npos) {
+        ret = ERROR_HTTP_URL_NOT_CLEAN;
+        srs_error("htt url not canonical, url=%s. ret=%d", r->url().c_str(), ret);
+        return ret;
+    }
+    
+    if ((ret = match(r, ph)) != ERROR_SUCCESS) {
+        srs_error("http match handler failed. ret=%d", ret);
+        return ret;
+    }
+    
+    // always hijack.
+    if (!hijackers.empty()) {
+        // notice all hijacker the match failed.
+        std::vector<ISrsHttpMatchHijacker*>::iterator it;
+        for (it = hijackers.begin(); it != hijackers.end(); ++it) {
+            ISrsHttpMatchHijacker* hijacker = *it;
+            if ((ret = hijacker->hijack(r, ph)) != ERROR_SUCCESS) {
+                srs_error("hijacker match failed. ret=%d", ret);
+                return ret;
+            }
+        }
+    }
+    
+    if (*ph == NULL) {
+        // TODO: FIXME: memory leak.
+        *ph = new SrsHttpNotFoundHandler();
+    }
+    
+    return ret;
+}
+
+int SrsHttpServeMux::match(ISrsHttpMessage* r, ISrsHttpHandler** ph)
+{
+    int ret = ERROR_SUCCESS;
+    
+    std::string path = r->path();
+    
+    // Host-specific pattern takes precedence over generic ones
+    if (!vhosts.empty() && vhosts.find(r->host()) != vhosts.end()) {
+        path = r->host() + path;
+    }
+    
+    int nb_matched = 0;
+    ISrsHttpHandler* h = NULL;
+    
+    std::map<std::string, SrsHttpMuxEntry*>::iterator it;
+    for (it = entries.begin(); it != entries.end(); ++it) {
+        std::string pattern = it->first;
+        SrsHttpMuxEntry* entry = it->second;
+        
+        if (!entry->enabled) {
+            continue;
+        }
+        
+        if (!path_match(pattern, path)) {
+            continue;
+        }
+        
+        if (!h || (int)pattern.length() > nb_matched) {
+            nb_matched = (int)pattern.length();
+            h = entry->handler;
+        }
+    }
+    
+    *ph = h;
+    
+    return ret;
+}
+
+bool SrsHttpServeMux::path_match(string pattern, string path)
+{
+    if (pattern.empty()) {
+        return false;
+    }
+    
+    int n = (int)pattern.length();
+    
+    // not endswith '/', exactly match.
+    if (pattern.at(n - 1) != '/') {
+        return pattern == path;
+    }
+    
+    // endswith '/', match any,
+    // for example, '/api/' match '/api/[N]'
+    if ((int)path.length() >= n) {
+        if (memcmp(pattern.data(), path.data(), n) == 0) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+ISrsHttpMessage::ISrsHttpMessage()
+{
+    _http_ts_send_buffer = new char[SRS_HTTP_TS_SEND_BUFFER_SIZE];
+}
+
+ISrsHttpMessage::~ISrsHttpMessage()
+{
+    srs_freep(_http_ts_send_buffer);
+}
+
+char* ISrsHttpMessage::http_ts_send_buffer()
+{
+    return _http_ts_send_buffer;
+}
+// following is generated by src/protocol/srs_protocol_kbps.cpp
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+//#include <srs_protocol_kbps.hpp>
+
+//#include <srs_kernel_utility.hpp>
+
+SrsKbpsSample::SrsKbpsSample()
+{
+    bytes = time = 0;
+    kbps = 0;
+}
+
+SrsKbpsSlice::SrsKbpsSlice()
+{
+    io.in = NULL;
+    io.out = NULL;
+    last_bytes = io_bytes_base = starttime = bytes = delta_bytes = 0;
+}
+
+SrsKbpsSlice::~SrsKbpsSlice()
+{
+}
+
+int64_t SrsKbpsSlice::get_total_bytes()
+{
+    return bytes + last_bytes - io_bytes_base;
+}
+
+void SrsKbpsSlice::sample()
+{
+    int64_t now = srs_get_system_time_ms();
+    int64_t total_bytes = get_total_bytes();
+    
+    if (sample_30s.time <= 0) {
+        sample_30s.kbps = 0;
+        sample_30s.time = now;
+        sample_30s.bytes = total_bytes;
+    }
+    if (sample_1m.time <= 0) {
+        sample_1m.kbps = 0;
+        sample_1m.time = now;
+        sample_1m.bytes = total_bytes;
+    }
+    if (sample_5m.time <= 0) {
+        sample_5m.kbps = 0;
+        sample_5m.time = now;
+        sample_5m.bytes = total_bytes;
+    }
+    if (sample_60m.time <= 0) {
+        sample_60m.kbps = 0;
+        sample_60m.time = now;
+        sample_60m.bytes = total_bytes;
+    }
+    
+    if (now - sample_30s.time > 30 * 1000) {
+        sample_30s.kbps = (int)((total_bytes - sample_30s.bytes) * 8 / (now - sample_30s.time));
+        sample_30s.time = now;
+        sample_30s.bytes = total_bytes;
+    }
+    if (now - sample_1m.time > 60 * 1000) {
+        sample_1m.kbps = (int)((total_bytes - sample_1m.bytes) * 8 / (now - sample_1m.time));
+        sample_1m.time = now;
+        sample_1m.bytes = total_bytes;
+    }
+    if (now - sample_5m.time > 300 * 1000) {
+        sample_5m.kbps = (int)((total_bytes - sample_5m.bytes) * 8 / (now - sample_5m.time));
+        sample_5m.time = now;
+        sample_5m.bytes = total_bytes;
+    }
+    if (now - sample_60m.time > 3600 * 1000) {
+        sample_60m.kbps = (int)((total_bytes - sample_60m.bytes) * 8 / (now - sample_60m.time));
+        sample_60m.time = now;
+        sample_60m.bytes = total_bytes;
+    }
+}
+
+IKbpsDelta::IKbpsDelta()
+{
+}
+
+IKbpsDelta::~IKbpsDelta()
+{
+}
+
+SrsKbps::SrsKbps()
+{
+}
+
+SrsKbps::~SrsKbps()
+{
+}
+
+void SrsKbps::set_io(ISrsProtocolStatistic* in, ISrsProtocolStatistic* out)
+{
+    // set input stream
+    // now, set start time.
+    if (is.starttime == 0) {
+        is.starttime = srs_get_system_time_ms();
+    }
+    // save the old in bytes.
+    if (is.io.in) {
+        is.bytes += is.last_bytes - is.io_bytes_base;
+    }
+    // use new io.
+    is.io.in = in;
+    is.last_bytes = is.io_bytes_base = 0;
+    if (in) {
+        is.last_bytes = is.io_bytes_base = in->get_recv_bytes();
+    }
+    // resample
+    is.sample();
+    
+    // set output stream
+    // now, set start time.
+    if (os.starttime == 0) {
+        os.starttime = srs_get_system_time_ms();
+    }
+    // save the old in bytes.
+    if (os.io.out) {
+        os.bytes += os.last_bytes - os.io_bytes_base;
+    }
+    // use new io.
+    os.io.out = out;
+    os.last_bytes = os.io_bytes_base = 0;
+    if (out) {
+        os.last_bytes = os.io_bytes_base = out->get_send_bytes();
+    }
+    // resample
+    os.sample();
+}
+
+int SrsKbps::get_send_kbps()
+{
+    int64_t duration = srs_get_system_time_ms() - is.starttime;
+    if (duration <= 0) {
+        return 0;
+    }
+    int64_t bytes = get_send_bytes();
+    return (int)(bytes * 8 / duration);
+}
+
+int SrsKbps::get_recv_kbps()
+{
+    int64_t duration = srs_get_system_time_ms() - os.starttime;
+    if (duration <= 0) {
+        return 0;
+    }
+    int64_t bytes = get_recv_bytes();
+    return (int)(bytes * 8 / duration);
+}
+
+int SrsKbps::get_send_kbps_30s()
+{
+    return os.sample_30s.kbps;
+}
+
+int SrsKbps::get_recv_kbps_30s()
+{
+    return is.sample_30s.kbps;
+}
+
+int SrsKbps::get_send_kbps_5m()
+{
+    return os.sample_5m.kbps;
+}
+
+int SrsKbps::get_recv_kbps_5m()
+{
+    return is.sample_5m.kbps;
+}
+
+int64_t SrsKbps::get_send_bytes()
+{
+    return os.get_total_bytes();
+}
+
+int64_t SrsKbps::get_recv_bytes()
+{
+    return is.get_total_bytes();
+}
+
+void SrsKbps::resample()
+{
+    sample();
+}
+
+int64_t SrsKbps::get_send_bytes_delta()
+{
+    int64_t delta = os.get_total_bytes() - os.delta_bytes;
+    return delta;
+}
+
+int64_t SrsKbps::get_recv_bytes_delta()
+{
+    int64_t delta = is.get_total_bytes() - is.delta_bytes;
+    return delta;
+}
+
+void SrsKbps::cleanup()
+{
+    os.delta_bytes = os.get_total_bytes();
+    is.delta_bytes = is.get_total_bytes();
+}
+
+void SrsKbps::add_delta(IKbpsDelta* delta)
+{
+    srs_assert(delta);
+    
+    // update the total bytes
+    is.last_bytes += delta->get_recv_bytes_delta();
+    os.last_bytes += delta->get_send_bytes_delta();
+    
+    // we donot sample, please use sample() to do resample.
+}
+
+void SrsKbps::sample()
+{
+    // update the total bytes
+    if (os.io.out) {
+        os.last_bytes = os.io.out->get_send_bytes();
+    }
+    
+    if (is.io.in) {
+        is.last_bytes = is.io.in->get_recv_bytes();
+    }
+    
+    // resample
+    is.sample();
+    os.sample();
+}
+
 // following is generated by src/libs/srs_librtmp.cpp
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -18499,7 +31320,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <stdlib.h>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <sys/time.h>
 #endif
@@ -18509,18 +31330,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 using namespace std;
 
 //#include <srs_kernel_error.hpp>
-//#include <srs_protocol_rtmp.hpp>
+//#include <srs_rtmp_sdk.hpp>
 //#include <srs_lib_simple_socket.hpp>
-//#include <srs_protocol_utility.hpp>
+//#include <srs_rtmp_utility.hpp>
 //#include <srs_core_autofree.hpp>
-//#include <srs_protocol_stack.hpp>
+//#include <srs_rtmp_stack.hpp>
 //#include <srs_kernel_utility.hpp>
 //#include <srs_kernel_stream.hpp>
-//#include <srs_protocol_amf0.hpp>
+//#include <srs_rtmp_amf0.hpp>
 //#include <srs_kernel_flv.hpp>
 //#include <srs_kernel_codec.hpp>
 //#include <srs_kernel_file.hpp>
 //#include <srs_lib_bandwidth.hpp>
+//#include <srs_raw_avc.hpp>
 
 // kernel module.
 ISrsLog* _srs_log = new ISrsLog();
@@ -18540,26 +31362,39 @@ struct Context
     std::string app;
     std::string stream;
     std::string param;
+
+    // extra request object for connect to server, NULL to ignore.
+    SrsRequest* req;
+    
+    // the message received cache,
+    // for example, when got aggregate message,
+    // the context will parse to videos/audios,
+    // and return one by one.
+    std::vector<SrsCommonMessage*> msgs;
     
     SrsRtmpClient* rtmp;
     SimpleSocketStream* skt;
     int stream_id;
     
+    // the remux raw codec.
+    SrsRawH264Stream avc_raw;
+    SrsRawAacStream aac_raw;
+
     // for h264 raw stream, 
-    // @see: https://github.com/winlinvip/simple-rtmp-server/issues/66#issuecomment-62240521
+    // @see: https://github.com/simple-rtmp-server/srs/issues/66#issuecomment-62240521
     SrsStream h264_raw_stream;
     // about SPS, @see: 7.3.2.1.1, H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 62
     std::string h264_sps;
     std::string h264_pps;
     // whether the sps and pps sent,
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/203
+    // @see https://github.com/simple-rtmp-server/srs/issues/203
     bool h264_sps_pps_sent;
     // only send the ssp and pps when both changed.
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/204
+    // @see https://github.com/simple-rtmp-server/srs/issues/204
     bool h264_sps_changed;
     bool h264_pps_changed;
     // for aac raw stream,
-    // @see: https://github.com/winlinvip/simple-rtmp-server/issues/212#issuecomment-64146250
+    // @see: https://github.com/simple-rtmp-server/srs/issues/212#issuecomment-64146250
     SrsStream aac_raw_stream;
     // the aac sequence header.
     std::string aac_specific_config;
@@ -18567,18 +31402,27 @@ struct Context
     Context() {
         rtmp = NULL;
         skt = NULL;
+        req = NULL;
         stream_id = 0;
         h264_sps_pps_sent = false;
         h264_sps_changed = false;
         h264_pps_changed = false;
     }
     virtual ~Context() {
+        srs_freep(req);
         srs_freep(rtmp);
         srs_freep(skt);
+        
+        std::vector<SrsCommonMessage*>::iterator it;
+        for (it = msgs.begin(); it != msgs.end(); ++it) {
+            SrsCommonMessage* msg = *it;
+            srs_freep(msg);
+        }
+        msgs.clear();
     }
 };
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifdef _WIN32
     int gettimeofday(struct timeval* tv, struct timezone* tz)
     {  
@@ -19021,22 +31865,22 @@ int srs_rtmp_handshake(srs_rtmp_t rtmp)
 {
     int ret = ERROR_SUCCESS;
     
-    if ((ret = __srs_rtmp_dns_resolve(rtmp)) != ERROR_SUCCESS) {
+    if ((ret = srs_rtmp_dns_resolve(rtmp)) != ERROR_SUCCESS) {
         return ret;
     }
     
-    if ((ret = __srs_rtmp_connect_server(rtmp)) != ERROR_SUCCESS) {
+    if ((ret = srs_rtmp_connect_server(rtmp)) != ERROR_SUCCESS) {
         return ret;
     }
     
-    if ((ret = __srs_rtmp_do_simple_handshake(rtmp)) != ERROR_SUCCESS) {
+    if ((ret = srs_rtmp_do_simple_handshake(rtmp)) != ERROR_SUCCESS) {
         return ret;
     }
     
     return ret;
 }
 
-int __srs_rtmp_dns_resolve(srs_rtmp_t rtmp)
+int srs_rtmp_dns_resolve(srs_rtmp_t rtmp)
 {
     int ret = ERROR_SUCCESS;
     
@@ -19055,7 +31899,7 @@ int __srs_rtmp_dns_resolve(srs_rtmp_t rtmp)
     return ret;
 }
 
-int __srs_rtmp_connect_server(srs_rtmp_t rtmp)
+int srs_rtmp_connect_server(srs_rtmp_t rtmp)
 {
     int ret = ERROR_SUCCESS;
     
@@ -19069,7 +31913,59 @@ int __srs_rtmp_connect_server(srs_rtmp_t rtmp)
     return ret;
 }
 
-int __srs_rtmp_do_simple_handshake(srs_rtmp_t rtmp)
+int srs_rtmp_do_complex_handshake(srs_rtmp_t rtmp)
+{
+#ifndef SRS_AUTO_SSL
+    // complex handshake requires ssl
+    return ERROR_RTMP_HS_SSL_REQUIRE;
+#endif
+
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(rtmp != NULL);
+    Context* context = (Context*)rtmp;
+    
+    srs_assert(context->skt != NULL);
+    
+    // simple handshake
+    srs_freep(context->rtmp);
+    context->rtmp = new SrsRtmpClient(context->skt);
+    
+    if ((ret = context->rtmp->complex_handshake()) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    return ret;
+}
+
+int srs_rtmp_set_connect_args(srs_rtmp_t rtmp, 
+    const char* tcUrl, const char* swfUrl, const char* pageUrl, srs_amf0_t args
+) {
+    int ret = ERROR_SUCCESS;
+    
+    srs_assert(rtmp != NULL);
+    Context* context = (Context*)rtmp;
+    
+    srs_freep(context->req);
+    context->req = new SrsRequest();
+    
+    if (args) {
+        context->req->args = (SrsAmf0Object*)args;
+    }
+    if (tcUrl) {
+        context->req->tcUrl = tcUrl;
+    }
+    if (swfUrl) {
+        context->req->swfUrl = swfUrl;
+    }
+    if (pageUrl) {
+        context->req->pageUrl = pageUrl;
+    }
+    
+    return ret;
+}
+
+int srs_rtmp_do_simple_handshake(srs_rtmp_t rtmp)
 {
     int ret = ERROR_SUCCESS;
     
@@ -19102,7 +31998,7 @@ int srs_rtmp_connect_app(srs_rtmp_t rtmp)
     );
     
     if ((ret = context->rtmp->connect_app(
-        context->app, tcUrl, NULL, true)) != ERROR_SUCCESS) 
+        context->app, tcUrl, context->req, true)) != ERROR_SUCCESS) 
     {
         return ret;
     }
@@ -19216,6 +32112,157 @@ int srs_rtmp_bandwidth_check(srs_rtmp_t rtmp,
     return ret;
 }
 
+
+int srs_rtmp_on_aggregate(Context* context, SrsCommonMessage* msg)
+{
+    int ret = ERROR_SUCCESS;
+    
+    SrsStream aggregate_stream;
+    SrsStream* stream = &aggregate_stream;
+    if ((ret = stream->initialize(msg->payload, msg->size)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    // the aggregate message always use abs time.
+    int delta = -1;
+    
+    while (!stream->empty()) {
+        if (!stream->require(1)) {
+            ret = ERROR_RTMP_AGGREGATE;
+            srs_error("invalid aggregate message type. ret=%d", ret);
+            return ret;
+        }
+        int8_t type = stream->read_1bytes();
+        
+        if (!stream->require(3)) {
+            ret = ERROR_RTMP_AGGREGATE;
+            srs_error("invalid aggregate message size. ret=%d", ret);
+            return ret;
+        }
+        int32_t data_size = stream->read_3bytes();
+        
+        if (data_size < 0) {
+            ret = ERROR_RTMP_AGGREGATE;
+            srs_error("invalid aggregate message size(negative). ret=%d", ret);
+            return ret;
+        }
+        
+        if (!stream->require(3)) {
+            ret = ERROR_RTMP_AGGREGATE;
+            srs_error("invalid aggregate message time. ret=%d", ret);
+            return ret;
+        }
+        int32_t timestamp = stream->read_3bytes();
+        
+        if (!stream->require(1)) {
+            ret = ERROR_RTMP_AGGREGATE;
+            srs_error("invalid aggregate message time(high). ret=%d", ret);
+            return ret;
+        }
+        int32_t time_h = stream->read_1bytes();
+        
+        timestamp |= time_h<<24;
+        timestamp &= 0x7FFFFFFF;
+        
+        // adjust abs timestamp in aggregate msg.
+        if (delta < 0) {
+            delta = (int)msg->header.timestamp - (int)timestamp;
+        }
+        timestamp += delta;
+        
+        if (!stream->require(3)) {
+            ret = ERROR_RTMP_AGGREGATE;
+            srs_error("invalid aggregate message stream_id. ret=%d", ret);
+            return ret;
+        }
+        int32_t stream_id = stream->read_3bytes();
+        
+        if (data_size > 0 && !stream->require(data_size)) {
+            ret = ERROR_RTMP_AGGREGATE;
+            srs_error("invalid aggregate message data. ret=%d", ret);
+            return ret;
+        }
+        
+        // to common message.
+        SrsCommonMessage o;
+        
+        o.header.message_type = type;
+        o.header.payload_length = data_size;
+        o.header.timestamp_delta = timestamp;
+        o.header.timestamp = timestamp;
+        o.header.stream_id = stream_id;
+        o.header.perfer_cid = msg->header.perfer_cid;
+
+        if (data_size > 0) {
+            o.size = data_size;
+            o.payload = new char[o.size];
+            stream->read_bytes(o.payload, o.size);
+        }
+        
+        if (!stream->require(4)) {
+            ret = ERROR_RTMP_AGGREGATE;
+            srs_error("invalid aggregate message previous tag size. ret=%d", ret);
+            return ret;
+        }
+        stream->read_4bytes();
+
+        // process parsed message
+        SrsCommonMessage* parsed_msg = new SrsCommonMessage();
+        parsed_msg->header = o.header;
+        parsed_msg->payload = o.payload;
+        parsed_msg->size = o.size;
+        o.payload = NULL;
+        context->msgs.push_back(parsed_msg);
+    }
+    
+    return ret;
+}
+
+int srs_rtmp_go_packet(Context* context, SrsCommonMessage* msg, 
+    char* type, u_int32_t* timestamp, char** data, int* size,
+    bool* got_msg
+) {
+    int ret = ERROR_SUCCESS;
+
+    // generally we got a message.
+    *got_msg = true;
+    
+    if (msg->header.is_audio()) {
+        *type = SRS_RTMP_TYPE_AUDIO;
+        *timestamp = (u_int32_t)msg->header.timestamp;
+        *data = (char*)msg->payload;
+        *size = (int)msg->size;
+        // detach bytes from packet.
+        msg->payload = NULL;
+    } else if (msg->header.is_video()) {
+        *type = SRS_RTMP_TYPE_VIDEO;
+        *timestamp = (u_int32_t)msg->header.timestamp;
+        *data = (char*)msg->payload;
+        *size = (int)msg->size;
+        // detach bytes from packet.
+        msg->payload = NULL;
+    } else if (msg->header.is_amf0_data() || msg->header.is_amf3_data()) {
+        *type = SRS_RTMP_TYPE_SCRIPT;
+        *data = (char*)msg->payload;
+        *size = (int)msg->size;
+        // detach bytes from packet.
+        msg->payload = NULL;
+    } else if (msg->header.is_aggregate()) {
+        if ((ret = srs_rtmp_on_aggregate(context, msg)) != ERROR_SUCCESS) {
+            return ret;
+        }
+        *got_msg = false;
+    } else {
+        *type = msg->header.message_type;
+        *data = (char*)msg->payload;
+        *size = (int)msg->size;
+        // detach bytes from packet.
+        msg->payload = NULL;
+    }
+    
+    return ret;
+}
+
 int srs_rtmp_read_packet(srs_rtmp_t rtmp, char* type, u_int32_t* timestamp, char** data, int* size)
 {
     *type = 0;
@@ -19230,42 +32277,36 @@ int srs_rtmp_read_packet(srs_rtmp_t rtmp, char* type, u_int32_t* timestamp, char
     
     for (;;) {
         SrsCommonMessage* msg = NULL;
-        if ((ret = context->rtmp->recv_message(&msg)) != ERROR_SUCCESS) {
+        
+        // read from cache first.
+        if (!context->msgs.empty()) {
+            std::vector<SrsCommonMessage*>::iterator it = context->msgs.begin();
+            msg = *it;
+            context->msgs.erase(it);
+        }
+        
+        // read from protocol sdk.
+        if (!msg && (ret = context->rtmp->recv_message(&msg)) != ERROR_SUCCESS) {
             return ret;
         }
+        
+        // no msg, try again.
         if (!msg) {
             continue;
         }
         
         SrsAutoFree(SrsCommonMessage, msg);
         
-        if (msg->header.is_audio()) {
-            *type = SRS_RTMP_TYPE_AUDIO;
-            *timestamp = (u_int32_t)msg->header.timestamp;
-            *data = (char*)msg->payload;
-            *size = (int)msg->size;
-            // detach bytes from packet.
-            msg->payload = NULL;
-        } else if (msg->header.is_video()) {
-            *type = SRS_RTMP_TYPE_VIDEO;
-            *timestamp = (u_int32_t)msg->header.timestamp;
-            *data = (char*)msg->payload;
-            *size = (int)msg->size;
-            // detach bytes from packet.
-            msg->payload = NULL;
-        } else if (msg->header.is_amf0_data() || msg->header.is_amf3_data()) {
-            *type = SRS_RTMP_TYPE_SCRIPT;
-            *data = (char*)msg->payload;
-            *size = (int)msg->size;
-            // detach bytes from packet.
-            msg->payload = NULL;
-        } else {
-            // ignore and continue
-            continue;
+        // process the got packet, if nothing, try again.
+        bool got_msg;
+        if ((ret = srs_rtmp_go_packet(context, msg, type, timestamp, data, size, &got_msg)) != ERROR_SUCCESS) {
+            return ret;
         }
         
         // got expected message.
-        break;
+        if (got_msg) {
+            break;
+        }
     }
     
     return ret;
@@ -19279,79 +32320,63 @@ int srs_rtmp_write_packet(srs_rtmp_t rtmp, char type, u_int32_t timestamp, char*
     Context* context = (Context*)rtmp;
     
     SrsSharedPtrMessage* msg = NULL;
-    
-    if (type == SRS_RTMP_TYPE_AUDIO) {
-        SrsMessageHeader header;
-        header.initialize_audio(size, timestamp, context->stream_id);
-        
-        msg = new SrsSharedPtrMessage();
-        if ((ret = msg->create(&header, data, size)) != ERROR_SUCCESS) {
-            srs_freep(data);
-            return ret;
-        }
-    } else if (type == SRS_RTMP_TYPE_VIDEO) {
-        SrsMessageHeader header;
-        header.initialize_video(size, timestamp, context->stream_id);
-        
-        msg = new SrsSharedPtrMessage();
-        if ((ret = msg->create(&header, data, size)) != ERROR_SUCCESS) {
-            srs_freep(data);
-            return ret;
-        }
-    } else if (type == SRS_RTMP_TYPE_SCRIPT) {
-        SrsMessageHeader header;
-        header.initialize_amf0_script(size, context->stream_id);
-        
-        msg = new SrsSharedPtrMessage();
-        if ((ret = msg->create(&header, data, size)) != ERROR_SUCCESS) {
-            srs_freep(data);
-            return ret;
-        }
+
+    if ((ret = srs_rtmp_create_msg(type, timestamp, data, size, context->stream_id, &msg)) != ERROR_SUCCESS) {
+        return ret;
     }
-    
-    if (msg) {
-        // send out encoded msg.
-        if ((ret = context->rtmp->send_and_free_message(msg, context->stream_id)) != ERROR_SUCCESS) {
-            return ret;
-        }
-    } else {
-        // directly free data if not sent out.
-        srs_freep(data);
+
+    srs_assert(msg);
+
+    // send out encoded msg.
+    if ((ret = context->rtmp->send_and_free_message(msg, context->stream_id)) != ERROR_SUCCESS) {
+        return ret;
     }
     
     return ret;
 }
 
+srs_bool srs_rtmp_is_onMetaData(char type, char* data, int size)
+{
+    int ret = ERROR_SUCCESS;
+    
+    if (type != SRS_RTMP_TYPE_SCRIPT) {
+        return false;
+    }
+    
+    SrsStream stream;
+    if ((ret = stream.initialize(data, size)) != ERROR_SUCCESS) {
+        return false;
+    }
+    
+    std::string name;
+    if ((ret = srs_amf0_read_string(&stream, name)) != ERROR_SUCCESS) {
+        return false;
+    }
+    
+    if (name == SRS_CONSTS_RTMP_ON_METADATA) {
+        return true;
+    }
+    
+    if (name == SRS_CONSTS_RTMP_SET_DATAFRAME) {
+        return true;
+    }
+    
+    return false;
+}
+
 /**
 * directly write a audio frame.
 */
-int __srs_write_audio_raw_frame(Context* context,
-    char sound_format, char sound_rate, char sound_size, char sound_type,
-    char aac_packet_type, char* frame, int frame_size, u_int32_t timestamp
+int srs_write_audio_raw_frame(Context* context,
+    char* frame, int frame_size, SrsRawAacStreamCodec* codec, u_int32_t timestamp
 ) {
-    
-    // for audio frame, there is 1 or 2 bytes header:
-    //      1bytes, SoundFormat|SoundRate|SoundSize|SoundType
-    //      1bytes, AACPacketType for SoundFormat == 10, 0 is sequence header.
-    int size = frame_size + 1;
-    if (sound_format == SrsCodecAudioAAC) {
-        size += 1;
+    int ret = ERROR_SUCCESS;
+
+    char* data = NULL;
+    int size = 0;
+    if ((ret = context->aac_raw.mux_aac2flv(frame, frame_size, codec, timestamp, &data, &size)) != ERROR_SUCCESS) {
+        return ret;
     }
-    char* data = new char[size];
-    char* p = data;
-    
-    u_int8_t audio_header = sound_type & 0x01;
-    audio_header |= (sound_size << 1) & 0x02;
-    audio_header |= (sound_rate << 2) & 0x0c;
-    audio_header |= (sound_format << 4) & 0xf0;
-    
-    *p++ = audio_header;
-    
-    if (sound_format == SrsCodecAudioAAC) {
-        *p++ = aac_packet_type;
-    }
-    
-    memcpy(p, frame, frame_size);
     
     return srs_rtmp_write_packet(context, SRS_RTMP_TYPE_AUDIO, timestamp, data, size);
 }
@@ -19359,200 +32384,61 @@ int __srs_write_audio_raw_frame(Context* context,
 /**
 * write aac frame in adts.
 */
-int __srs_write_aac_adts_frame(Context* context,
-    char sound_format, char sound_rate, char sound_size, char sound_type,
-    char aac_profile, char aac_samplerate, char aac_channel,
-    char* frame, int frame_size, u_int32_t timestamp
+int srs_write_aac_adts_frame(Context* context, 
+    SrsRawAacStreamCodec* codec, char* frame, int frame_size, u_int32_t timestamp
 ) {
     int ret = ERROR_SUCCESS;
     
-    // override the aac samplerate by user specified.
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/212#issuecomment-64146899
-    switch (sound_rate) {
-        case SrsCodecAudioSampleRate11025: 
-            aac_samplerate = 0x0a; break;
-        case SrsCodecAudioSampleRate22050: 
-            aac_samplerate = 0x07; break;
-        case SrsCodecAudioSampleRate44100: 
-            aac_samplerate = 0x04; break;
-        default:
-            break;
-    }
-    
     // send out aac sequence header if not sent.
     if (context->aac_specific_config.empty()) {
-        char ch = 0;
-        // @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf
-        // AudioSpecificConfig (), page 33
-        // 1.6.2.1 AudioSpecificConfig
-        // audioObjectType; 5 bslbf
-        ch = (aac_profile << 3) & 0xf8;
-        // 3bits left.
-        
-        // samplingFrequencyIndex; 4 bslbf
-        ch |= (aac_samplerate >> 1) & 0x07;
-        context->aac_specific_config += ch;
-        ch = (aac_samplerate << 7) & 0x80;
-        if (aac_samplerate == 0x0f) {
-            return ERROR_AAC_DATA_INVALID;
+        std::string sh;
+        if ((ret = context->aac_raw.mux_sequence_header(codec, sh)) != ERROR_SUCCESS) {
+            return ret;
         }
-        // 7bits left.
-        
-        // channelConfiguration; 4 bslbf
-        ch |= (aac_channel << 3) & 0x78;
-        // 3bits left.
-        
-        // only support aac profile 1-4.
-        if (aac_profile < 1 || aac_profile > 4) {
-            return ERROR_AAC_DATA_INVALID;
-        }
-        // GASpecificConfig(), page 451
-        // 4.4.1 Decoder configuration (GASpecificConfig)
-        // frameLengthFlag; 1 bslbf
-        // dependsOnCoreCoder; 1 bslbf
-        // extensionFlag; 1 bslbf
-        context->aac_specific_config += ch;
-        
-        char* sh = (char*)context->aac_specific_config.data();
-        int nb_sh = (int)context->aac_specific_config.length();
-        if ((ret = __srs_write_audio_raw_frame(context, 
-            sound_format, sound_rate, sound_size, sound_type, 
-            0, sh, nb_sh, timestamp)) != ERROR_SUCCESS
-        ) {
+        context->aac_specific_config = sh;
+
+        codec->aac_packet_type = 0;
+
+        if ((ret = srs_write_audio_raw_frame(context, (char*)sh.data(), (int)sh.length(), codec, timestamp)) != ERROR_SUCCESS) {
             return ret;
         }
     }
     
-    return __srs_write_audio_raw_frame(context, 
-        sound_format, sound_rate, sound_size, sound_type, 
-        1, frame, frame_size, timestamp);
+    codec->aac_packet_type = 1;
+    return srs_write_audio_raw_frame(context, frame, frame_size, codec, timestamp);
 }
 
 /**
 * write aac frames in adts.
 */
-int __srs_write_aac_adts_frames(Context* context,
+int srs_write_aac_adts_frames(Context* context,
     char sound_format, char sound_rate, char sound_size, char sound_type,
-    char* frame, int frame_size, u_int32_t timestamp
+    char* frames, int frames_size, u_int32_t timestamp
 ) {
     int ret = ERROR_SUCCESS;
     
     SrsStream* stream = &context->aac_raw_stream;
-    if ((ret = stream->initialize(frame, frame_size)) != ERROR_SUCCESS) {
+    if ((ret = stream->initialize(frames, frames_size)) != ERROR_SUCCESS) {
         return ret;
     }
     
     while (!stream->empty()) {
-        int adts_header_start = stream->pos();
-        
-        // decode the ADTS.
-        // @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 75,
-        //      1.A.2.2 Audio_Data_Transport_Stream frame, ADTS
-        // @see https://github.com/winlinvip/simple-rtmp-server/issues/212#issuecomment-64145885
-        // byte_alignment()
-        
-        // adts_fixed_header:
-        //      12bits syncword,
-        //      16bits left.
-        // adts_variable_header:
-        //      28bits
-        //      12+16+28=56bits
-        // adts_error_check:
-        //      16bits if protection_absent
-        //      56+16=72bits
-        // if protection_absent:
-        //      require(7bytes)=56bits
-        // else
-        //      require(9bytes)=72bits
-        if (!stream->require(7)) {
-            return ERROR_AAC_ADTS_HEADER;
-        }
-        
-        // for aac, the frame must be ADTS format.
-        if (!srs_aac_startswith_adts(stream)) {
-            return ERROR_AAC_REQUIRED_ADTS;
-        }
-        
-        // Syncword 12 bslbf
-        stream->read_1bytes();
-        // 4bits left.
-        // adts_fixed_header(), 1.A.2.2.1 Fixed Header of ADTS
-        // ID 1 bslbf
-        // Layer 2 uimsbf
-        // protection_absent 1 bslbf
-        int8_t fh0 = (stream->read_1bytes() & 0x0f);
-        /*int8_t fh_id = (fh0 >> 3) & 0x01;*/
-        /*int8_t fh_layer = (fh0 >> 1) & 0x03;*/
-        int8_t fh_protection_absent = fh0 & 0x01;
-        
-        int16_t fh1 = stream->read_2bytes();
-        // Profile_ObjectType 2 uimsbf
-        // sampling_frequency_index 4 uimsbf
-        // private_bit 1 bslbf
-        // channel_configuration 3 uimsbf
-        // original/copy 1 bslbf
-        // home 1 bslbf
-        int8_t fh_Profile_ObjectType = (fh1 >> 14) & 0x03;
-        int8_t fh_sampling_frequency_index = (fh1 >> 10) & 0x0f;
-        /*int8_t fh_private_bit = (fh1 >> 9) & 0x01;*/
-        int8_t fh_channel_configuration = (fh1 >> 6) & 0x07;
-        /*int8_t fh_original = (fh1 >> 5) & 0x01;*/
-        /*int8_t fh_home = (fh1 >> 4) & 0x01;*/
-        // @remark, Emphasis is removed, 
-        //      @see https://github.com/winlinvip/simple-rtmp-server/issues/212#issuecomment-64154736
-        //int8_t fh_Emphasis = (fh1 >> 2) & 0x03;
-        // 4bits left.
-        // adts_variable_header(), 1.A.2.2.2 Variable Header of ADTS
-        // copyright_identification_bit 1 bslbf
-        // copyright_identification_start 1 bslbf
-        /*int8_t fh_copyright_identification_bit = (fh1 >> 3) & 0x01;*/
-        /*int8_t fh_copyright_identification_start = (fh1 >> 2) & 0x01;*/
-        // aac_frame_length 13 bslbf: Length of the frame including headers and error_check in bytes.
-        // use the left 2bits as the 13 and 12 bit,
-        // the aac_frame_length is 13bits, so we move 13-2=11.
-        int16_t fh_aac_frame_length = (fh1 << 11) & 0x0800;
-        
-        int32_t fh2 = stream->read_3bytes();
-        // aac_frame_length 13 bslbf: consume the first 13-2=11bits
-        // the fh2 is 24bits, so we move right 24-11=13.
-        fh_aac_frame_length |= (fh2 >> 13) & 0x07ff;
-        // adts_buffer_fullness 11 bslbf
-        /*int16_t fh_adts_buffer_fullness = (fh2 >> 2) & 0x7ff;*/
-        // no_raw_data_blocks_in_frame 2 uimsbf
-        /*int16_t fh_no_raw_data_blocks_in_frame = fh2 & 0x03;*/
-        // adts_error_check(), 1.A.2.2.3 Error detection
-        if (!fh_protection_absent) {
-            if (!stream->require(2)) {
-                return ERROR_AAC_ADTS_HEADER;
-            }
-            // crc_check 16 Rpchof
-            /*int16_t crc_check = */stream->read_2bytes();
-        }
-        
-        // TODO: check the fh_sampling_frequency_index
-        // TODO: check the fh_channel_configuration
-        
-        // raw_data_blocks
-        int adts_header_size = stream->pos() - adts_header_start;
-        int raw_data_size = fh_aac_frame_length - adts_header_size;
-        if (!stream->require(raw_data_size)) {
-            return ERROR_AAC_ADTS_HEADER;
-        }
-        
-        // the profile = object_id + 1
-        // @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 78,
-        //      Table 1. A.9 – MPEG-2 Audio profiles and MPEG-4 Audio object types
-        char aac_profile = fh_Profile_ObjectType + 1;
-        
-        char* raw_data = stream->data() + stream->pos();
-        if ((ret = __srs_write_aac_adts_frame(context,
-            sound_format, sound_rate, sound_size, sound_type,
-            aac_profile, fh_sampling_frequency_index, fh_channel_configuration,
-            raw_data, raw_data_size, timestamp)) != ERROR_SUCCESS
-        ) {
+        char* frame = NULL;
+        int frame_size = 0;
+        SrsRawAacStreamCodec codec;
+        if ((ret = context->aac_raw.adts_demux(stream, &frame, &frame_size, codec)) != ERROR_SUCCESS) {
             return ret;
         }
-        stream->skip(raw_data_size);
+
+        // override by user specified.
+        codec.sound_format = sound_format;
+        codec.sound_rate = sound_rate;
+        codec.sound_size = sound_size;
+        codec.sound_type = sound_type;
+
+        if ((ret = srs_write_aac_adts_frame(context, &codec, frame, frame_size, timestamp)) != ERROR_SUCCESS) {
+            return ret;
+        }
     }
     
     return ret;
@@ -19577,14 +32463,20 @@ int srs_audio_write_raw_frame(srs_rtmp_t rtmp,
         }
         
         // for aac, demux the ADTS to RTMP format.
-        return __srs_write_aac_adts_frames(context, 
+        return srs_write_aac_adts_frames(context, 
             sound_format, sound_rate, sound_size, sound_type, 
             frame, frame_size, timestamp);
     } else {
+        // use codec info for aac.
+        SrsRawAacStreamCodec codec;
+        codec.sound_format = sound_format;
+        codec.sound_rate = sound_rate;
+        codec.sound_size = sound_size;
+        codec.sound_type = sound_type;
+        codec.aac_packet_type = 0;
+
         // for other data, directly write frame.
-        return __srs_write_audio_raw_frame(context, 
-            sound_format, sound_rate, sound_size, sound_type, 
-            0, frame, frame_size, timestamp);
+        return srs_write_audio_raw_frame(context, frame, frame_size, &codec, timestamp);
     }
     
     
@@ -19632,58 +32524,53 @@ int srs_aac_adts_frame_size(char* aac_raw_data, int ac_raw_size)
     
     return size;
 }
-
+    
 /**
-* write h264 packet, with rtmp header.
-* @param frame_type, SrsCodecVideoAVCFrameKeyFrame or SrsCodecVideoAVCFrameInterFrame.
-* @param avc_packet_type, SrsCodecVideoAVCTypeSequenceHeader or SrsCodecVideoAVCTypeNALU.
-* @param h264_raw_data the h.264 raw data, user must free it.
+* write h264 IPB-frame.
 */
-int __srs_write_h264_packet(Context* context, 
-    int8_t frame_type, int8_t avc_packet_type, 
-    char* h264_raw_data, int h264_raw_size, u_int32_t dts, u_int32_t pts
+int srs_write_h264_ipb_frame(Context* context, 
+    char* frame, int frame_size, u_int32_t dts, u_int32_t pts
 ) {
+    int ret = ERROR_SUCCESS;
+    
+    // when sps or pps not sent, ignore the packet.
+    // @see https://github.com/simple-rtmp-server/srs/issues/203
+    if (!context->h264_sps_pps_sent) {
+        return ERROR_H264_DROP_BEFORE_SPS_PPS;
+    }
+    
+    // 5bits, 7.3.1 NAL unit syntax,
+    // H.264-AVC-ISO_IEC_14496-10.pdf, page 44.
+    //  7: SPS, 8: PPS, 5: I Frame, 1: P Frame
+    SrsAvcNaluType nal_unit_type = (SrsAvcNaluType)(frame[0] & 0x1f);
+    
+    // for IDR frame, the frame is keyframe.
+    SrsCodecVideoAVCFrame frame_type = SrsCodecVideoAVCFrameInterFrame;
+    if (nal_unit_type == SrsAvcNaluTypeIDR) {
+        frame_type = SrsCodecVideoAVCFrameKeyFrame;
+    }
+    
+    std::string ibp;
+    if ((ret = context->avc_raw.mux_ipb_frame(frame, frame_size, ibp)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
+    int8_t avc_packet_type = SrsCodecVideoAVCTypeNALU;
+    char* flv = NULL;
+    int nb_flv = 0;
+    if ((ret = context->avc_raw.mux_avc2flv(ibp, frame_type, avc_packet_type, dts, pts, &flv, &nb_flv)) != ERROR_SUCCESS) {
+        return ret;
+    }
+    
     // the timestamp in rtmp message header is dts.
     u_int32_t timestamp = dts;
-    
-    // for h264 in RTMP video payload, there is 5bytes header:
-    //      1bytes, FrameType | CodecID
-    //      1bytes, AVCPacketType
-    //      3bytes, CompositionTime, the cts.
-    // @see: E.4.3 Video Tags, video_file_format_spec_v10_1.pdf, page 78
-    int size = h264_raw_size + 5;
-    char* data = new char[size];
-    char* p = data;
-    
-    // @see: E.4.3 Video Tags, video_file_format_spec_v10_1.pdf, page 78
-    // Frame Type, Type of video frame.
-    // CodecID, Codec Identifier.
-    // set the rtmp header
-    *p++ = (frame_type << 4) | SrsCodecVideoAVC;
-    
-    // AVCPacketType
-    *p++ = avc_packet_type;
-
-    // CompositionTime
-    // pts = dts + cts, or 
-    // cts = pts - dts.
-    // where cts is the header in rtmp video packet payload header.
-    u_int32_t cts = pts - dts;
-    char* pp = (char*)&cts;
-    *p++ = pp[2];
-    *p++ = pp[1];
-    *p++ = pp[0];
-    
-    // h.264 raw data.
-    memcpy(p, h264_raw_data, h264_raw_size);
-    
-    return srs_rtmp_write_packet(context, SRS_RTMP_TYPE_VIDEO, timestamp, data, size);
+    return srs_rtmp_write_packet(context, SRS_RTMP_TYPE_VIDEO, timestamp, flv, nb_flv);
 }
 
 /**
 * write the h264 sps/pps in context over RTMP.
 */
-int __srs_write_h264_sps_pps(Context* context, u_int32_t dts, u_int32_t pts)
+int srs_write_h264_sps_pps(Context* context, u_int32_t dts, u_int32_t pts)
 {
     int ret = ERROR_SUCCESS;
     
@@ -19692,78 +32579,19 @@ int __srs_write_h264_sps_pps(Context* context, u_int32_t dts, u_int32_t pts)
         return ret;
     }
     
-    // 5bytes sps/pps header:
-    //      configurationVersion, AVCProfileIndication, profile_compatibility,
-    //      AVCLevelIndication, lengthSizeMinusOne
-    // 3bytes size of sps:
-    //      numOfSequenceParameterSets, sequenceParameterSetLength(2B)
-    // Nbytes of sps.
-    //      sequenceParameterSetNALUnit
-    // 3bytes size of pps:
-    //      numOfPictureParameterSets, pictureParameterSetLength
-    // Nbytes of pps:
-    //      pictureParameterSetNALUnit
-    int nb_packet = 5 
-        + 3 + (int)context->h264_sps.length() 
-        + 3 + (int)context->h264_pps.length();
-    char* packet = new char[nb_packet];
-    SrsAutoFree(char, packet);
-    
-    // use stream to generate the h264 packet.
-    SrsStream stream;
-    if ((ret = stream.initialize(packet, nb_packet)) != ERROR_SUCCESS) {
+    // h264 raw to h264 packet.
+    std::string sh;
+    if ((ret = context->avc_raw.mux_sequence_header(context->h264_sps, context->h264_pps, dts, pts, sh)) != ERROR_SUCCESS) {
         return ret;
     }
     
-    // decode the SPS: 
-    // @see: 7.3.2.1.1, H.264-AVC-ISO_IEC_14496-10-2012.pdf, page 62
-    if (true) {
-        srs_assert((int)context->h264_sps.length() >= 4);
-        char* frame = (char*)context->h264_sps.data();
-    
-        // @see: Annex A Profiles and levels, H.264-AVC-ISO_IEC_14496-10.pdf, page 205
-        //      Baseline profile profile_idc is 66(0x42).
-        //      Main profile profile_idc is 77(0x4d).
-        //      Extended profile profile_idc is 88(0x58).
-        u_int8_t profile_idc = frame[1];
-        //u_int8_t constraint_set = frame[2];
-        u_int8_t level_idc = frame[3];
-        
-        // generate the sps/pps header
-        // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
-        // configurationVersion
-        stream.write_1bytes(0x01);
-        // AVCProfileIndication
-        stream.write_1bytes(profile_idc);
-        // profile_compatibility
-        stream.write_1bytes(0x00);
-        // AVCLevelIndication
-        stream.write_1bytes(level_idc);
-        // lengthSizeMinusOne, or NAL_unit_length, always use 4bytes size,
-        // so we always set it to 0x03.
-        stream.write_1bytes(0x03);
-    }
-    
-    // sps
-    if (true) {
-        // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
-        // numOfSequenceParameterSets, always 1
-        stream.write_1bytes(0x01);
-        // sequenceParameterSetLength
-        stream.write_2bytes(context->h264_sps.length());
-        // sequenceParameterSetNALUnit
-        stream.write_string(context->h264_sps);
-    }
-    
-    // pps
-    if (true) {
-        // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
-        // numOfPictureParameterSets, always 1
-        stream.write_1bytes(0x01);
-        // pictureParameterSetLength
-        stream.write_2bytes(context->h264_pps.length());
-        // pictureParameterSetNALUnit
-        stream.write_string(context->h264_pps);
+    // h264 packet to flv packet.
+    int8_t frame_type = SrsCodecVideoAVCFrameKeyFrame;
+    int8_t avc_packet_type = SrsCodecVideoAVCTypeSequenceHeader;
+    char* flv = NULL;
+    int nb_flv = 0;
+    if ((ret = context->avc_raw.mux_avc2flv(sh, frame_type, avc_packet_type, dts, pts, &flv, &nb_flv)) != ERROR_SUCCESS) {
+        return ret;
     }
     
     // reset sps and pps.
@@ -19771,104 +32599,25 @@ int __srs_write_h264_sps_pps(Context* context, u_int32_t dts, u_int32_t pts)
     context->h264_pps_changed = false;
     context->h264_sps_pps_sent = true;
     
-    // TODO: FIXME: for more profile.
-    // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
-    // profile_idc == 100 || profile_idc == 110 || profile_idc == 122 || profile_idc == 144
-    
-    // send out h264 packet.
-    int8_t frame_type = SrsCodecVideoAVCFrameKeyFrame;
-    int8_t avc_packet_type = SrsCodecVideoAVCTypeSequenceHeader;
-    return __srs_write_h264_packet(
-        context, frame_type, avc_packet_type,
-        packet, nb_packet, dts, pts
-    );
-}
-
-/**
-* write h264 IPB-frame.
-*/
-int __srs_write_h264_ipb_frame(Context* context, 
-    char* data, int size, u_int32_t dts, u_int32_t pts
-) {
-    int ret = ERROR_SUCCESS;
-    
-    // when sps or pps not sent, ignore the packet.
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/203
-    if (!context->h264_sps_pps_sent) {
-        return ERROR_H264_DROP_BEFORE_SPS_PPS;
-    }
-    
-    // 5bits, 7.3.1 NAL unit syntax, 
-    // H.264-AVC-ISO_IEC_14496-10.pdf, page 44.
-    //  7: SPS, 8: PPS, 5: I Frame, 1: P Frame
-    u_int8_t nal_unit_type = (char)data[0] & 0x1f;
-    
-    // 4bytes size of nalu:
-    //      NALUnitLength
-    // Nbytes of nalu.
-    //      NALUnit
-    int nb_packet = 4 + size;
-    char* packet = new char[nb_packet];
-    SrsAutoFree(char, packet);
-    
-    // use stream to generate the h264 packet.
-    SrsStream stream;
-    if ((ret = stream.initialize(packet, nb_packet)) != ERROR_SUCCESS) {
-        return ret;
-    }
-
-    // 5.3.4.2.1 Syntax, H.264-AVC-ISO_IEC_14496-15.pdf, page 16
-    // lengthSizeMinusOne, or NAL_unit_length, always use 4bytes size
-    u_int32_t NAL_unit_length = size;
-    
-    // mux the avc NALU in "ISO Base Media File Format" 
-    // from H.264-AVC-ISO_IEC_14496-15.pdf, page 20
-    // NALUnitLength
-    stream.write_4bytes(NAL_unit_length);
-    // NALUnit
-    stream.write_bytes(data, size);
-    
-    // send out h264 packet.
-    int8_t frame_type = SrsCodecVideoAVCFrameInterFrame;
-    if (nal_unit_type != 1) {
-        frame_type = SrsCodecVideoAVCFrameKeyFrame;
-    }
-    int8_t avc_packet_type = SrsCodecVideoAVCTypeNALU;
-    return __srs_write_h264_packet(
-        context, frame_type, avc_packet_type,
-        packet, nb_packet, dts, pts
-    );
-    
-    return ret;
+    // the timestamp in rtmp message header is dts.
+    u_int32_t timestamp = dts;
+    return srs_rtmp_write_packet(context, SRS_RTMP_TYPE_VIDEO, timestamp, flv, nb_flv);
 }
 
 /**
 * write h264 raw frame, maybe sps/pps/IPB-frame.
 */
-int __srs_write_h264_raw_frame(Context* context, 
+int srs_write_h264_raw_frame(Context* context, 
     char* frame, int frame_size, u_int32_t dts, u_int32_t pts
 ) {
     int ret = ERROR_SUCCESS;
-    
-    // ignore invalid frame,
-    // atleast 1bytes for SPS to decode the type
-    if (frame_size < 1) {
-        return ret;
-    }
-    
-    // 5bits, 7.3.1 NAL unit syntax, 
-    // H.264-AVC-ISO_IEC_14496-10.pdf, page 44.
-    //  7: SPS, 8: PPS, 5: I Frame, 1: P Frame
-    u_int8_t nal_unit_type = (char)frame[0] & 0x1f;
-    
-    if (nal_unit_type == 7) {
-        // atleast 1bytes for SPS to decode the type, profile, constrain and level.
-        if (frame_size < 4) {
+
+    // for sps
+    if (context->avc_raw.is_sps(frame, frame_size)) {
+        std::string sps;
+        if ((ret = context->avc_raw.sps_demux(frame, frame_size, sps)) != ERROR_SUCCESS) {
             return ret;
         }
-        
-        std::string sps;
-        sps.append(frame, frame_size);
         
         if (context->h264_sps == sps) {
             return ERROR_H264_DUPLICATED_SPS;
@@ -19876,11 +32625,15 @@ int __srs_write_h264_raw_frame(Context* context,
         context->h264_sps_changed = true;
         context->h264_sps = sps;
         
-        return __srs_write_h264_sps_pps(context, dts, pts);
-    } else if (nal_unit_type == 8) {
-        
+        return srs_write_h264_sps_pps(context, dts, pts);
+    }
+
+    // for pps
+    if (context->avc_raw.is_pps(frame, frame_size)) {
         std::string pps;
-        pps.append(frame, frame_size);
+        if ((ret = context->avc_raw.pps_demux(frame, frame_size, pps)) != ERROR_SUCCESS) {
+            return ret;
+        }
         
         if (context->h264_pps == pps) {
             return ERROR_H264_DUPLICATED_PPS;
@@ -19888,12 +32641,11 @@ int __srs_write_h264_raw_frame(Context* context,
         context->h264_pps_changed = true;
         context->h264_pps = pps;
         
-        return __srs_write_h264_sps_pps(context, dts, pts);
-    } else {
-        return __srs_write_h264_ipb_frame(context, frame, frame_size, dts, pts);
+        return srs_write_h264_sps_pps(context, dts, pts);
     }
-    
-    return ret;
+
+    // ibp frame.
+    return srs_write_h264_ipb_frame(context, frame, frame_size, dts, pts);
 }
 
 /**
@@ -19915,35 +32667,26 @@ int srs_h264_write_raw_frames(srs_rtmp_t rtmp,
     }
     
     // use the last error
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/203
-    // @see https://github.com/winlinvip/simple-rtmp-server/issues/204
+    // @see https://github.com/simple-rtmp-server/srs/issues/203
+    // @see https://github.com/simple-rtmp-server/srs/issues/204
     int error_code_return = ret;
     
     // send each frame.
     while (!context->h264_raw_stream.empty()) {
-        // each frame must prefixed by annexb format.
-        // about annexb, @see H.264-AVC-ISO_IEC_14496-10.pdf, page 211.
-        int pnb_start_code = 0;
-        if (!srs_avc_startswith_annexb(&context->h264_raw_stream, &pnb_start_code)) {
-            return ERROR_H264_API_NO_PREFIXED;
+        char* frame = NULL;
+        int frame_size = 0;
+        if ((ret = context->avc_raw.annexb_demux(&context->h264_raw_stream, &frame, &frame_size)) != ERROR_SUCCESS) {
+            return ret;
         }
-        int start = context->h264_raw_stream.pos() + pnb_start_code;
-        
-        // find the last frame prefixed by annexb format.
-        context->h264_raw_stream.skip(pnb_start_code);
-        while (!context->h264_raw_stream.empty()) {
-            if (srs_avc_startswith_annexb(&context->h264_raw_stream, NULL)) {
-                break;
-            }
-            context->h264_raw_stream.skip(1);
+    
+        // ignore invalid frame,
+        // atleast 1bytes for SPS to decode the type
+        if (frame_size <= 0) {
+            continue;
         }
-        int size = context->h264_raw_stream.pos() - start;
-        
-        // send out the frame.
-        char* frame = context->h264_raw_stream.data() + start;
 
         // it may be return error, but we must process all packets.
-        if ((ret = __srs_write_h264_raw_frame(context, frame, size, dts, pts)) != ERROR_SUCCESS) {
+        if ((ret = srs_write_h264_raw_frame(context, frame, frame_size, dts, pts)) != ERROR_SUCCESS) {
             error_code_return = ret;
             
             // ignore known error, process all packets.
@@ -20131,7 +32874,7 @@ int srs_flv_write_tag(srs_flv_t flv, char type, int32_t time, char* data, int si
     } else if (type == SRS_RTMP_TYPE_VIDEO) {
         return context->enc.write_video(time, data, size);
     } else {
-        return context->enc.write_metadata(data, size);
+        return context->enc.write_metadata(type, data, size);
     }
 
     return ret;
@@ -20197,6 +32940,11 @@ srs_amf0_t srs_amf0_parse(char* data, int size, int* nparsed)
     amf0 = (srs_amf0_t)any;
     
     return amf0;
+}
+
+srs_amf0_t srs_amf0_create_string(const char* value)
+{
+    return SrsAmf0Any::str(value);
 }
 
 srs_amf0_t srs_amf0_create_number(srs_amf0_number value)
@@ -20520,6 +33268,26 @@ int srs_utils_parse_timestamp(
     
     return ret;
 }
+    
+srs_bool srs_utils_flv_tag_is_ok(char type)
+{
+    return type == SRS_RTMP_TYPE_AUDIO || type == SRS_RTMP_TYPE_VIDEO || type == SRS_RTMP_TYPE_SCRIPT;
+}
+
+srs_bool srs_utils_flv_tag_is_audio(char type)
+{
+    return type == SRS_RTMP_TYPE_AUDIO;
+}
+    
+srs_bool srs_utils_flv_tag_is_video(char type)
+{
+    return type == SRS_RTMP_TYPE_VIDEO;
+}
+
+srs_bool srs_utils_flv_tag_is_av(char type)
+{
+    return type == SRS_RTMP_TYPE_AUDIO || type == SRS_RTMP_TYPE_VIDEO;
+}
 
 char srs_utils_flv_video_codec_id(char* data, int size)
 {
@@ -20642,7 +33410,6 @@ char srs_utils_flv_audio_aac_packet_type(char* data, int size)
     }
     
     u_int8_t aac_packet_type = data[1];
-    aac_packet_type = aac_packet_type;
     if (aac_packet_type > 1) {
         return -1;
     }
@@ -20841,26 +33608,39 @@ const char* srs_human_flv_audio_aac_packet_type2string(char aac_packet_type)
     
     return unknown;
 }
-
+    
 int srs_human_print_rtmp_packet(char type, u_int32_t timestamp, char* data, int size)
+{
+    return srs_human_print_rtmp_packet2(type, timestamp, data, size, 0);
+}
+
+int srs_human_print_rtmp_packet2(char type, u_int32_t timestamp, char* data, int size, u_int32_t pre_timestamp)
 {
     int ret = ERROR_SUCCESS;
     
+    int diff = 0;
+    if (pre_timestamp > 0) {
+        diff = (int)timestamp - (int)pre_timestamp;
+    }
+    
     u_int32_t pts;
     if (srs_utils_parse_timestamp(timestamp, type, data, size, &pts) != 0) {
+        srs_human_trace("Rtmp packet type=%s, dts=%d, diff=%d, size=%d, DecodeError",
+            srs_human_flv_tag_type2string(type), timestamp, diff, size
+        );
         return ret;
     }
     
     if (type == SRS_RTMP_TYPE_VIDEO) {
-        srs_human_trace("Video packet type=%s, dts=%d, pts=%d, size=%d, %s(%s,%s)", 
-            srs_human_flv_tag_type2string(type), timestamp, pts, size,
+        srs_human_trace("Video packet type=%s, dts=%d, pts=%d, diff=%d, size=%d, %s(%s,%s)",
+            srs_human_flv_tag_type2string(type), timestamp, pts, diff, size,
             srs_human_flv_video_codec_id2string(srs_utils_flv_video_codec_id(data, size)),
             srs_human_flv_video_avc_packet_type2string(srs_utils_flv_video_avc_packet_type(data, size)),
             srs_human_flv_video_frame_type2string(srs_utils_flv_video_frame_type(data, size))
         );
     } else if (type == SRS_RTMP_TYPE_AUDIO) {
-        srs_human_trace("Audio packet type=%s, dts=%d, pts=%d, size=%d, %s(%s,%s,%s,%s)", 
-            srs_human_flv_tag_type2string(type), timestamp, pts, size,
+        srs_human_trace("Audio packet type=%s, dts=%d, pts=%d, diff=%d, size=%d, %s(%s,%s,%s,%s)",
+            srs_human_flv_tag_type2string(type), timestamp, pts, diff, size,
             srs_human_flv_audio_sound_format2string(srs_utils_flv_audio_sound_format(data, size)),
             srs_human_flv_audio_sound_rate2string(srs_utils_flv_audio_sound_rate(data, size)),
             srs_human_flv_audio_sound_size2string(srs_utils_flv_audio_sound_size(data, size)),
@@ -20868,8 +33648,8 @@ int srs_human_print_rtmp_packet(char type, u_int32_t timestamp, char* data, int 
             srs_human_flv_audio_aac_packet_type2string(srs_utils_flv_audio_aac_packet_type(data, size))
         );
     } else if (type == SRS_RTMP_TYPE_SCRIPT) {
-        srs_human_verbose("Data packet type=%s, time=%d, size=%d", 
-            srs_human_flv_tag_type2string(type), timestamp, size);
+        srs_human_verbose("Data packet type=%s, time=%d, diff=%d, size=%d",
+        srs_human_flv_tag_type2string(type), timestamp, diff, size);
         int nparsed = 0;
         while (nparsed < size) {
             int nb_parsed_this = 0;
@@ -20877,7 +33657,7 @@ int srs_human_print_rtmp_packet(char type, u_int32_t timestamp, char* data, int 
             if (amf0 == NULL) {
                 break;
             }
-            
+    
             nparsed += nb_parsed_this;
             
             char* amf0_str = NULL;
@@ -20885,8 +33665,8 @@ int srs_human_print_rtmp_packet(char type, u_int32_t timestamp, char* data, int 
             srs_freep(amf0_str);
         }
     } else {
-        srs_human_trace("Unknown packet type=%s, dts=%d, pts=%d, size=%d", 
-            srs_human_flv_tag_type2string(type), timestamp, pts, size);
+        srs_human_trace("Rtmp packet type=%#x, dts=%d, pts=%d, diff=%d, size=%d",
+            type, timestamp, pts, diff, size);
     }
     
     return ret;
@@ -20916,7 +33696,7 @@ const char* srs_human_format_time()
         tm->tm_hour, tm->tm_min, tm->tm_sec, 
         (int)(tv.tv_usec / 1000));
         
-    // for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+    // for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
     buf[sizeof(buf) - 1] = 0;
     
     return buf;
@@ -20947,7 +33727,7 @@ srs_hijack_io_t srs_hijack_io_get(srs_rtmp_t rtmp)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -20971,7 +33751,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_kernel_error.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
     #define SOCKET_ETIME ETIME
     #define SOCKET_ECONNRESET ECONNRESET
@@ -20999,7 +33779,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     #define SOCKET_CLEANUP() socket_cleanup()
 #endif
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
     #include <unistd.h>
     #include <sys/socket.h>
@@ -21152,7 +33932,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         // the writev() function returns the number of bytes written.  On error, -1 is
         // returned, and errno is set appropriately.
         if (nb_write <= 0) {
-            // @see https://github.com/winlinvip/simple-rtmp-server/issues/200
+            // @see https://github.com/simple-rtmp-server/srs/issues/200
             if (nb_write < 0 && SOCKET_ERRNO() == SOCKET_ETIME) {
                 return ERROR_SOCKET_TIMEOUT;
             }
@@ -21209,7 +33989,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         }
         
         if (nb_write <= 0) {
-            // @see https://github.com/winlinvip/simple-rtmp-server/issues/200
+            // @see https://github.com/simple-rtmp-server/srs/issues/200
             if (nb_write < 0 && SOCKET_ERRNO() == SOCKET_ETIME) {
                 return ERROR_SOCKET_TIMEOUT;
             }
@@ -21328,7 +34108,7 @@ int SimpleSocketStream::write(void* buf, size_t size, ssize_t* nwrite)
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 winlin
+Copyright (c) 2013-2015 SRS(simple-rtmp-server)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -21350,7 +34130,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //#include <srs_lib_bandwidth.hpp>
 
-// for srs-librtmp, @see https://github.com/winlinvip/simple-rtmp-server/issues/213
+// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -21359,11 +34139,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 using namespace std;
 
 //#include <srs_kernel_error.hpp>
-//#include <srs_protocol_stack.hpp>
-//#include <srs_protocol_rtmp.hpp>
+//#include <srs_rtmp_stack.hpp>
+//#include <srs_rtmp_sdk.hpp>
 //#include <srs_core_autofree.hpp>
 //#include <srs_kernel_utility.hpp>
-//#include <srs_protocol_amf0.hpp>
+//#include <srs_rtmp_amf0.hpp>
 
 /**
 * recv bandwidth helper.

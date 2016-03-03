@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2015 SRS(simple-rtmp-server)
+Copyright (c) 2013-2015 SRS(ossrs)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -41,7 +41,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * Windows SRS-LIBRTMP pre-declare
 **************************************************************
 *************************************************************/
-// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+// for srs-librtmp, @see https://github.com/ossrs/srs/issues/213
 #ifdef _WIN32
     // include windows first.
     #include <windows.h>
@@ -49,6 +49,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     typedef unsigned long long u_int64_t;
     typedef long long int64_t;
     typedef unsigned int u_int32_t;
+    typedef u_int32_t uint32_t;
     typedef int int32_t;
     typedef unsigned char u_int8_t;
     typedef char int8_t;
@@ -320,7 +321,7 @@ extern srs_bool srs_rtmp_is_onMetaData(char type, char* data, int size);
 * @remark for aac, only support profile 1-4, AAC main/LC/SSR/LTP,
 *       @see aac-mp4a-format-ISO_IEC_14496-3+2001.pdf, page 23, 1.5.1.1 Audio object type
 *
-* @see https://github.com/simple-rtmp-server/srs/issues/212
+* @see https://github.com/ossrs/srs/issues/212
 * @see E.4.2.1 AUDIODATA of video_file_format_spec_v10_1.pdf
 * 
 * @return 0, success; otherswise, failed.
@@ -376,7 +377,7 @@ extern int srs_aac_adts_frame_size(char* aac_raw_data, int ac_raw_size);
 * @remark, cts = pts - dts
 * @remark, use srs_h264_startswith_annexb to check whether frame is annexb format.
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
-* @see https://github.com/simple-rtmp-server/srs/issues/66
+* @see https://github.com/ossrs/srs/issues/66
 * 
 * @return 0, success; otherswise, failed.
 *       for dvbsp error, @see srs_h264_is_dvbsp_error().
@@ -418,7 +419,7 @@ extern int srs_h264_write_raw_frames(srs_rtmp_t rtmp,
 /**
 * whether error_code is dvbsp(drop video before sps/pps/sequence-header) error.
 *
-* @see https://github.com/simple-rtmp-server/srs/issues/203
+* @see https://github.com/ossrs/srs/issues/203
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 * @remark why drop video?
 *       some encoder, for example, ipcamera, will send sps/pps before each IFrame,
@@ -429,14 +430,14 @@ extern srs_bool srs_h264_is_dvbsp_error(int error_code);
 /**
 * whether error_code is duplicated sps error.
 * 
-* @see https://github.com/simple-rtmp-server/srs/issues/204
+* @see https://github.com/ossrs/srs/issues/204
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 */
 extern srs_bool srs_h264_is_duplicated_sps_error(int error_code);
 /**
 * whether error_code is duplicated pps error.
 * 
-* @see https://github.com/simple-rtmp-server/srs/issues/204
+* @see https://github.com/ossrs/srs/issues/204
 * @example /trunk/research/librtmp/srs_h264_raw_publish.c
 */
 extern srs_bool srs_h264_is_duplicated_pps_error(int error_code);
@@ -903,7 +904,19 @@ extern const char* srs_human_flv_audio_aac_packet_type2string(char aac_packet_ty
 * @return an error code for parse the timetstamp to dts and pts.
  */
 extern int srs_human_print_rtmp_packet(char type, u_int32_t timestamp, char* data, int size);
+/**
+ * @param pre_timestamp the previous timestamp in ms to calc the diff.
+ */
 extern int srs_human_print_rtmp_packet2(char type, u_int32_t timestamp, char* data, int size, u_int32_t pre_timestamp);
+/**
+ * @param pre_now the previous system time in ms to calc the ndiff.
+ */
+extern int srs_human_print_rtmp_packet3(char type, u_int32_t timestamp, char* data, int size, u_int32_t pre_timestamp, int64_t pre_now);
+/**
+ * @param starttime the rtmpdump starttime in ms.
+ * @param nb_packets the number of packets received, to calc the packets interval in ms.
+ */
+extern int srs_human_print_rtmp_packet4(char type, u_int32_t timestamp, char* data, int size, u_int32_t pre_timestamp, int64_t pre_now, int64_t starttime, int64_t nb_packets);
 
 // log to console, for use srs-librtmp application.
 extern const char* srs_human_format_time();
@@ -1022,22 +1035,33 @@ typedef void* srs_hijack_io_t;
 * Windows SRS-LIBRTMP solution
 **************************************************************
 *************************************************************/
-// for srs-librtmp, @see https://github.com/simple-rtmp-server/srs/issues/213
+// for srs-librtmp, @see https://github.com/ossrs/srs/issues/213
 #ifdef _WIN32
+    // for time.
     #define _CRT_SECURE_NO_WARNINGS
     #include <time.h>
     int gettimeofday(struct timeval* tv, struct timezone* tz);
     #define PRId64 "lld"
     
+    // for inet helpers.
     typedef int socklen_t;
     const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
+    
+    // for mkdir().
+    #include<direct.h>
+    
+    // for open().
     typedef int mode_t;
     #define S_IRUSR 0
     #define S_IWUSR 0
+    #define S_IXUSR 0
     #define S_IRGRP 0
     #define S_IWGRP 0
+    #define S_IXGRP 0
     #define S_IROTH 0
+    #define S_IXOTH 0
     
+    // for file seek.
     #include <io.h>
     #include <fcntl.h>
     #define open _open
@@ -1046,14 +1070,19 @@ typedef void* srs_hijack_io_t;
     #define write _write
     #define read _read
     
+    // for pid.
     typedef int pid_t;
     pid_t getpid(void);
-    #define snprintf _snprintf
+    
+    // for socket.
     ssize_t writev(int fd, const struct iovec *iov, int iovcnt);
     typedef int64_t useconds_t;
     int usleep(useconds_t usec);
     int socket_setup();
     int socket_cleanup();
+    
+    // others.
+    #define snprintf _snprintf
 #endif
 
 #ifdef __cplusplus

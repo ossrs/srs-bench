@@ -157,7 +157,7 @@ int main(int argc, char** argv){
         std::string rtmp_url = url;
         size_t pos = std::string::npos;
         if ((pos = rtmp_url.find("{i}")) != std::string::npos) {
-            rtmp_url = rtmp_url.replace(pos, pos + 3, _index);
+            rtmp_url = rtmp_url.replace(pos, 3, _index);
         }
         
         if((ret = task->Initialize(input, rtmp_url, start, delay, error, count)) != ERROR_SUCCESS){

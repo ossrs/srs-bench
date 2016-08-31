@@ -72,6 +72,10 @@ int ProtocolUrl::Initialize(std::string http_url){
     
     path = Get(UF_PATH);
     
+    if (Get(UF_QUERY) != "") {
+        query = Get(UF_QUERY);
+    }
+    
     return ret;
 }
 
@@ -163,7 +167,11 @@ HttpUrl* HttpUrl::Copy(){
 }
 
 const char* HttpUrl::GetPath(){
-    return path.c_str();
+    path_query = path;
+    if (!query.empty()) {
+        path_query += "?" + query;
+    }
+    return path_query.c_str();
 }
 
 RtmpUrl::RtmpUrl(){
@@ -194,6 +202,9 @@ int RtmpUrl::Initialize(std::string http_url){
     
     stream = app.substr(pos + 1);
     app = app.substr(0, pos);
+    if (!query.empty()) {
+        stream += "?" + query;
+    }
     
     stringstream ss;
     ss << schema << "://" << vhost << ":" << port << "/" << app;

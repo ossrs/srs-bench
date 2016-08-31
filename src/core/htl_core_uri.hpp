@@ -51,6 +51,7 @@ protected:
     std::string host;
     int port;
     std::string path;
+    std::string query;
 public:
     ProtocolUrl();
     virtual ~ProtocolUrl();
@@ -72,6 +73,8 @@ protected:
 
 class HttpUrl : public ProtocolUrl
 {
+private:
+    std::string path_query;
 public:
     HttpUrl();
     virtual ~HttpUrl();

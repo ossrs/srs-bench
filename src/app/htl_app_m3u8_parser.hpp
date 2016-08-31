@@ -48,7 +48,7 @@ public:
     HlsM3u8Parser();
     virtual ~HlsM3u8Parser();
 public:
-    static int ParseM3u8Data(HttpUrl* url, std::string m3u8, std::vector<M3u8TS>& ts_objects, int& target_duration);
+    static int ParseM3u8Data(HttpUrl* url, std::string m3u8, std::vector<M3u8TS>& ts_objects, int& target_duration, std::string& variant);
 };
 
 #endif

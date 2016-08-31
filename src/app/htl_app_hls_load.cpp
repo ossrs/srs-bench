@@ -70,13 +70,12 @@ int StHlsTask::ProcessTask(){
     
     Trace("start to process HLS task #%d, schema=%s, host=%s, port=%d, path=%s, startup=%.2f, delay=%.2f, error=%.2f, count=%d", 
         GetId(), url.GetSchema(), url.GetHost(), url.GetPort(), url.GetPath(), startup_seconds, delay_seconds, error_seconds, count);
-        
-    StHttpClient client;
     
     // if count is zero, infinity loop.
     for(int i = 0; count == 0 || i < count; i++){
         statistic->OnTaskStart(GetId(), url.GetUrl());
         
+        StHttpClient client;
         if((ret = ProcessM3u8(client)) != ERROR_SUCCESS){
             statistic->OnTaskError(GetId(), 0);
             
@@ -101,9 +100,18 @@ int StHlsTask::ProcessM3u8(StHttpClient& client){
     }
     Trace("[HLS] get m3u8 %s get success, length=%"PRId64, url.GetUrl(), (int64_t)m3u8.length());
     
+    string variant;
     vector<M3u8TS> ts_objects;
-    if((ret = HlsM3u8Parser::ParseM3u8Data(&url, m3u8, ts_objects, target_duration)) != ERROR_SUCCESS){
+    if((ret = HlsM3u8Parser::ParseM3u8Data(&url, m3u8, ts_objects, target_duration, variant)) != ERROR_SUCCESS){
         Error("http client parse m3u8 content failed. ret=%d", ret);
+        return ret;
+    }
+    
+    if (!variant.empty()) {
+        if ((ret = url.Initialize(variant)) != ERROR_SUCCESS) {
+            Error("parse variant=%s failed, ret=%d", variant.c_str(), ret);
+            return ret;
+        }
         return ret;
     }
     

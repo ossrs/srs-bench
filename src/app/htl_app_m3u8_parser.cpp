@@ -128,7 +128,7 @@ HlsM3u8Parser::HlsM3u8Parser(){
 HlsM3u8Parser::~HlsM3u8Parser(){
 }
 
-int HlsM3u8Parser::ParseM3u8Data(HttpUrl* url, string m3u8, vector<M3u8TS>& ts_objects, int& target_duration){
+int HlsM3u8Parser::ParseM3u8Data(HttpUrl* url, string m3u8, vector<M3u8TS>& ts_objects, int& target_duration, string& variant){
     int ret = ERROR_SUCCESS;
     
     String data(m3u8);
@@ -156,6 +156,13 @@ int HlsM3u8Parser::ParseM3u8Data(HttpUrl* url, string m3u8, vector<M3u8TS>& ts_o
             target_duration = atoi(value.c_str());
             ts_object.duration = target_duration;
             continue;
+        }
+        
+        // #EXT-X-STREAM-INF:BANDWIDTH=3000000
+        // http://192.168.13.108:28080/gh.b0.upaiyun.com/app01/stream01.m3u8
+        if (line.startswith("#EXT-X-STREAM-INF:", &value)) {
+            variant = data.strip().getline();
+            return ret;
         }
         
         // http://tools.ietf.org/html/draft-pantos-http-live-streaming-08#section-3.3.2

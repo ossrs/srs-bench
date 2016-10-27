@@ -94,6 +94,9 @@ int StRtmpPublishClient::Publish(string input, RtmpUrl* url){
                 timebase, starttime, endtime, ret);
             continue;
         }
+        if (ret != ERROR_SUCCESS) {
+            break;
+        }
     }
     srs_flv_close(flv);
     

@@ -172,7 +172,7 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv,
         
         char* data = new char[size];
         if ((ret = srs_flv_read_tag_data(flv, data, size)) != ERROR_SUCCESS) {
-            delete data;
+            delete[] data;
             return ret;
         }
         
@@ -206,7 +206,7 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv,
                 srs_amf0_free(metadata);
                 
                 if (ret != ERROR_SUCCESS) {
-                    delete data;
+                    delete[] data;
                     return ret;
                 }
             }

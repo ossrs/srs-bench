@@ -102,7 +102,7 @@ int srs_hijack_io_writev(srs_hijack_io_t ctx, const iovec *iov, int iov_size, ss
     return skt->Writev(iov, iov_size, nwrite);
 }
 
-bool srs_hijack_io_is_never_timeout(srs_hijack_io_t /*ctx*/, int64_t /*tm*/)
+int srs_hijack_io_is_never_timeout(srs_hijack_io_t /*ctx*/, int64_t /*tm*/)
 {
     return true;
 }

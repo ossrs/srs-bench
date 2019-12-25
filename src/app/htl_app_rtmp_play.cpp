@@ -34,7 +34,7 @@ using namespace std;
 #include <htl_core_log.hpp>
 
 #include <htl_app_rtmp_play.hpp>
-#include <htl_app_rtmp_protocol.hpp>
+#include <srs_librtmp.h>
 #include <htl_app_srs_hijack.hpp>
 
 #define SOCK_READ_BUFFER 4096

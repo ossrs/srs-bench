@@ -33,7 +33,7 @@ using namespace std;
 #include <htl_core_log.hpp>
 #include <htl_core_error.hpp>
 #include <htl_app_rtmp_load.hpp>
-#include <htl_app_rtmp_protocol.hpp>
+#include <srs_librtmp.h>
 
 #include <htl_main_utility.hpp>
 

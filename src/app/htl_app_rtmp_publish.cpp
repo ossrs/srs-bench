@@ -34,7 +34,7 @@ using namespace std;
 #include <htl_core_log.hpp>
 
 #include <htl_app_rtmp_publish.hpp>
-#include <htl_app_rtmp_protocol.hpp>
+#include <srs_librtmp.h>
 
 StRtmpPublishClient::StRtmpPublishClient(){
     stream_id = 0;

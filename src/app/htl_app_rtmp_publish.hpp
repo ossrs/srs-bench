@@ -32,7 +32,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <htl_core_uri.hpp>
 #include <htl_os_st.hpp>
 
-#include <htl_app_rtmp_protocol.hpp>
+#include <srs_librtmp.h>
 
 class StRtmpPublishClient
 {

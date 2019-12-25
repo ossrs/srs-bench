@@ -26,7 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <htl_os_st.hpp>
 #include <htl_core_error.hpp>
-#include <htl_app_rtmp_protocol.hpp>
+#include <srs_librtmp.h>
 
 #ifndef SRS_HIJACK_IO
     #error "must hijack the srs-librtmp"

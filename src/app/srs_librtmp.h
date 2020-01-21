@@ -1036,7 +1036,7 @@ typedef void* srs_hijack_io_t;
     * whether the timeout is never timeout.
     * @return 0, success; otherswise, failed.
     */
-    extern bool srs_hijack_io_is_never_timeout(srs_hijack_io_t ctx, int64_t timeout_us);
+    extern int srs_hijack_io_is_never_timeout(srs_hijack_io_t ctx, int64_t timeout_us);
     /**
     * read fully, fill the buf exactly size bytes.
     * @return 0, success; otherswise, failed.

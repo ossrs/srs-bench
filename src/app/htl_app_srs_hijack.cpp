@@ -49,7 +49,7 @@ void srs_hijack_io_destroy(srs_hijack_io_t ctx)
     delete skt;
 }
 
-int srs_hijack_io_create_socket(srs_hijack_io_t /*ctx*/, srs_rtmp_t /*owner*/)
+int srs_hijack_io_create_socket(srs_hijack_io_t /*ctx*/)
 {
     return ERROR_SUCCESS;
 }

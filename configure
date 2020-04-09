@@ -176,7 +176,7 @@ MODULE_DEPENDS=("CORE" "OS" "APP")
 ModuleLibIncs=(${LibSTRoot} ${LibHttpParserRoot})
 MODULE_FILES=("htl_main_hls_load" "htl_main_http_load" "htl_main_rtmp_load" "htl_main_rtmp_load_fast" "htl_main_utility" "htl_main_rtmp_publish")
 MODULE_DIR="src/main" . auto/modules.sh
-MAIN_OBJS="${MODULE_OBJS[@].o}"
+MAIN_OBJS="${MODULE_OBJS[@]}"
 
 # all main entrances
 MAIN_ENTRANCES=("htl_main_hls_load" "htl_main_http_load" "htl_main_rtmp_load" "htl_main_rtmp_load_fast" "htl_main_rtmp_publish")

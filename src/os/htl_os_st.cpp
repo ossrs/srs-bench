@@ -171,7 +171,7 @@ int StFarm::Initialize(double report){
 int StFarm::Spawn(StTask* task){
     int ret = ERROR_SUCCESS;
     
-    if(st_thread_create(st_thread_function, task, 0, 0) == NULL){
+    if(st_thread_create(st_thread_function, task, 0, 8 * 1024 * 1024) == NULL){
         ret = ERROR_ST_THREAD_CREATE;
         Error("crate st_thread failed, ret=%d", ret);
         return ret;

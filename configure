@@ -16,11 +16,12 @@ fi
 echo "Is OSX: ${OS_IS_OSX}"
 
 # check the arm flag file, if flag changed, need to rebuild the st.
-_ST_MAKE=linux-debug && _ST_EXTRA_CFLAGS="-DMALLOC_STACK -DMD_HAVE_EPOLL"
+_ST_MAKE=linux-debug && _ST_EXTRA_CFLAGS="-DMD_HAVE_EPOLL"
 # for osx, use darwin for st, donot use epoll.
 if [ $OS_IS_OSX = YES ]; then
     _ST_MAKE=darwin-debug && _ST_EXTRA_CFLAGS="-DMD_HAVE_KQUEUE"
 fi
+_ST_EXTRA_CFLAGS="$_ST_EXTRA_CFLAGS -O0 -DMALLOC_STACK -UMD_HAVE_SENDMMSG -U_GNU_SOURCE"
 
 # st-1.9
 if [[ -f ${GLOBAL_DIR_OBJS}/st-1.9/obj/libst.a ]]; then
@@ -28,8 +29,9 @@ if [[ -f ${GLOBAL_DIR_OBJS}/st-1.9/obj/libst.a ]]; then
 else
     echo "build st-1.9t"; 
     (
-        rm -rf ${GLOBAL_DIR_OBJS}/st-1.9 && cd ${GLOBAL_DIR_OBJS} && unzip ../3rdparty/st-1.9.zip && cd st-1.9 && 
-        patch -p0 < ../../3rdparty/patches/1.st.arm.patch &&
+        rm -rf ${GLOBAL_DIR_OBJS}/st-1.9 && cd ${GLOBAL_DIR_OBJS} && mkdir -p st-1.9 && cd st-1.9 &&
+        ln -sf ../../3rdparty/st-srs/*.h . && ln -sf ../../3rdparty/st-srs/*.c . && ln -sf ../../3rdparty/st-srs/*.S . &&
+        ln -sf ../../3rdparty/st-srs/Makefile . && ln -sf ../../3rdparty/st-srs/st.pc.in . &&
         make EXTRA_CFLAGS="${_ST_EXTRA_CFLAGS}" ${_ST_MAKE}
     )
 fi

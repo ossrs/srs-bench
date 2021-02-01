@@ -1,4 +1,5 @@
-st-hls-load
-===========
+# srs-bench
 
-hls/http load test tool base on st(state-threads), support huge concurrency
+WebRTC benchmark on [pion/webrtc](https://github.com/pion/webrtc) for [SRS](https://github.com/ossrs/srs).
+
+2021.01, Winlin

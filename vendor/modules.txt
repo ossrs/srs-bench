@@ -1,5 +1,9 @@
 # github.com/google/uuid v1.1.2
 github.com/google/uuid
+# github.com/ossrs/go-oryx-lib v0.0.8
+## explicit
+github.com/ossrs/go-oryx-lib/errors
+github.com/ossrs/go-oryx-lib/logger
 # github.com/pion/datachannel v1.4.21
 github.com/pion/datachannel
 # github.com/pion/dtls/v2 v2.0.4

@@ -27,7 +27,7 @@ hls/http/rtmp-play/rtmp-publish load test tool base on st(state-threads), suppor
 ## Usage
 
 ```
-git clone https://github.com/simple-rtmp-server/srs-bench.git &&
+git clone https://github.com/ossrs/srs-bench.git &&
 cd srs-bench && ./configure && make &&
 ./objs/sb_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
 ```

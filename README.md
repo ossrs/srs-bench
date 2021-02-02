@@ -65,6 +65,10 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 
 首先，推流到SRS，参考[live](#player-for-live)。
 
+```bash
+ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/live/livestream
+```
+
 然后，启动录制：
 
 ```bash

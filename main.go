@@ -83,7 +83,9 @@ func main() {
 		go func(da, dv string) {
 			defer wg.Done()
 			if err := startPlay(ctx, pr, da, dv); err != nil {
-				logger.Wf(ctx, "Run err %+v", err)
+				if errors.Cause(err) != context.Canceled {
+					logger.Wf(ctx, "Run err %+v", err)
+				}
 			}
 		}(da, dv)
 	}
@@ -233,7 +235,12 @@ func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
 
 	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
 		logger.If(ctx, "ICE state %v", state)
+
 		if state == webrtc.ICEConnectionStateFailed || state == webrtc.ICEConnectionStateClosed {
+			if ctx.Err() != nil {
+				return
+			}
+
 			logger.Wf(ctx, "Close for ICE state %v", state)
 			cancel()
 		}

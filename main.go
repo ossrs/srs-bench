@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	"github.com/pion/rtcp"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
+	"github.com/pion/webrtc/v3/pkg/media/h264writer"
 	"github.com/pion/webrtc/v3/pkg/media/ivfwriter"
 	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
 	"io/ioutil"
@@ -19,6 +21,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -50,6 +53,11 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	logger.Tf(ctx, "The benchmark url=%v, da=%v, dv=%v, clients=%v",
 		r, dump_audio, dump_video, clients)
+
+	if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") && !strings.HasSuffix(dump_video, ".ivf") {
+		logger.Ef(ctx, "Should be .ivf or .264, actual %v", dump_video)
+		os.Exit(-1)
+	}
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
@@ -84,17 +92,8 @@ func main() {
 	logger.Tf(ctx, "Done")
 }
 
-func escapeSDP(sdp string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(sdp, "\r", "\\r"), "\n", "\\n")
-}
-
 func run(ctx context.Context, r, dump_audio, dump_video string) error {
 	ctx, cancel := context.WithCancel(logger.WithContext(ctx))
-
-	u, err := url.Parse(r)
-	if err != nil {
-		return errors.Wrapf(err, "Parse url %v", r)
-	}
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
@@ -118,81 +117,62 @@ func run(ctx context.Context, r, dump_audio, dump_video string) error {
 		return errors.Wrapf(err, "Set offer %v", offer)
 	}
 
-	api := fmt.Sprintf("http://%v:1985/rtc/v1/play/", u.Hostname())
-
-	reqBody := struct {
-		Api       string `json:"api"`
-		ClientIP  string `json:"clientip"`
-		SDP       string `json:"sdp"`
-		StreamURL string `json:"streamurl"`
-	}{
-		api, "", offer.SDP, r,
-	}
-
-	b, err := json.Marshal(reqBody)
+	answer, err := apiRtcPlay(ctx, r, offer.SDP)
 	if err != nil {
-		return errors.Wrapf(err, "Marshal body %v", reqBody)
+		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
 	}
-	logger.If(ctx, "Request url api=%v with %v", api, string(b))
-	logger.Tf(ctx, "Request url api=%v with %v bytes", api, len(b))
-
-	req, err := http.NewRequest("POST", api, strings.NewReader(string(b)))
-	if err != nil {
-		return errors.Wrapf(err, "HTTP request %v", string(b))
-	}
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return errors.Wrapf(err, "Do HTTP request %v", string(b))
-	}
-
-	b2, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return errors.Wrapf(err, "Read response for %v", string(b))
-	}
-	logger.If(ctx, "Response from %v is %v", api, string(b2))
-	logger.Tf(ctx, "Response from %v is %v bytes", api, len(b2))
-
-	resBody := struct {
-		Code    int    `json:"code"`
-		Session string `json:"sessionid"`
-		SDP     string `json:"sdp"`
-	}{}
-	if err := json.Unmarshal(b2, &resBody); err != nil {
-		return errors.Wrapf(err, "Marshal %v", string(b2))
-	}
-
-	if resBody.Code != 0 {
-		return errors.Errorf("Server fail code=%v %v", resBody.Code, string(b2))
-	}
-	logger.If(ctx, "Parse response to code=%v, session=%v, sdp=%v",
-		resBody.Code, resBody.Session, escapeSDP(resBody.SDP))
-	logger.Tf(ctx, "Parse response to code=%v, session=%v, sdp=%v bytes",
-		resBody.Code, resBody.Session, len(resBody.SDP))
 
 	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
-		Type: webrtc.SDPTypeAnswer, SDP: string(resBody.SDP),
+		Type: webrtc.SDPTypeAnswer, SDP: answer,
 	}); err != nil {
-		return errors.Wrapf(err, "Set answer %v", string(b2))
+		return errors.Wrapf(err, "Set answer %v", answer)
 	}
 
 	var da media.Writer
-	var dv media.Writer
+	var dv_vp8 media.Writer
+	var dv_h264 media.Writer
 	defer func() {
 		if da != nil {
 			da.Close()
 		}
-		if dv != nil {
-			dv.Close()
+		if dv_vp8 != nil {
+			dv_vp8.Close()
+		}
+		if dv_h264 != nil {
+			dv_h264.Close()
 		}
 	}()
 
 	pc.OnTrack(func(track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
-		codec := track.Codec()
-		if codec.MimeType == "audio/opus" {
-			logger.Tf(ctx, "Got track %v, pt=%v, tbn=%v %v",
-				codec.MimeType, codec.PayloadType, codec.ClockRate, codec.Channels)
+		// Send a PLI on an interval so that the publisher is pushing a keyframe
+		go func() {
+			if track.Kind() == webrtc.RTPCodecTypeAudio {
+				return
+			}
 
+			ticker := time.NewTicker(3 * time.Second)
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+					_ = pc.WriteRTCP([]rtcp.Packet{&rtcp.PictureLossIndication{
+						MediaSSRC: uint32(track.SSRC()),
+					}})
+				}
+			}
+		}()
+
+		codec := track.Codec()
+
+		trackDesc := fmt.Sprintf("channels=%v", codec.Channels)
+		if track.Kind() == webrtc.RTPCodecTypeVideo {
+			trackDesc = fmt.Sprintf("fmtp=%v", codec.SDPFmtpLine)
+		}
+		logger.Tf(ctx, "Got track %v, pt=%v, tbn=%v, %v",
+			codec.MimeType, codec.PayloadType, codec.ClockRate, trackDesc)
+
+		if codec.MimeType == "audio/opus" {
 			if da == nil && dump_audio != "" {
 				if da, err = oggwriter.New(dump_audio, codec.ClockRate, codec.Channels); err != nil {
 					cancel()
@@ -205,17 +185,37 @@ func run(ctx context.Context, r, dump_audio, dump_video string) error {
 				cancel()
 			}
 		} else if codec.MimeType == "video/VP8" {
-			logger.Tf(ctx, "Got track %v, pt=%v, tbn=%v %v",
-				codec.MimeType, codec.PayloadType, codec.ClockRate, codec.SDPFmtpLine)
+			if dump_video != "" && !strings.HasSuffix(dump_video, ".ivf") {
+				err = errors.Errorf("%v should be .ivf for VP8", dump_video)
+				cancel()
+				return
+			}
 
-			if dv == nil && dump_video != "" {
-				if dv, err = ivfwriter.New(dump_video); err != nil {
+			if dv_vp8 == nil && dump_video != "" {
+				if dv_vp8, err = ivfwriter.New(dump_video); err != nil {
 					cancel()
 				}
 				logger.Tf(ctx, "Open ivf writer file=%v", dump_video)
 			}
 
-			if err = writeDisk(ctx, dv, track); err != nil {
+			if err = writeDisk(ctx, dv_vp8, track); err != nil {
+				cancel()
+			}
+		} else if codec.MimeType == "video/H264" {
+			if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") {
+				err = errors.Errorf("%v should be .h264 for H264", dump_video)
+				cancel()
+				return
+			}
+
+			if dv_h264 == nil && dump_video != "" {
+				if dv_h264, err = h264writer.New(dump_video); err != nil {
+					cancel()
+				}
+				logger.Tf(ctx, "Open h264 writer file=%v", dump_video)
+			}
+
+			if err = writeDisk(ctx, dv_h264, track); err != nil {
 				cancel()
 			}
 		}
@@ -223,14 +223,75 @@ func run(ctx context.Context, r, dump_audio, dump_video string) error {
 
 	<-ctx.Done()
 
-	return nil
+	return err
+}
+
+func apiRtcPlay(ctx context.Context, r, offer string) (string, error) {
+	u, err := url.Parse(r)
+	if err != nil {
+		return "", errors.Wrapf(err, "Parse url %v", r)
+	}
+
+	api := fmt.Sprintf("http://%v:1985/rtc/v1/play/", u.Hostname())
+
+	reqBody := struct {
+		Api       string `json:"api"`
+		ClientIP  string `json:"clientip"`
+		SDP       string `json:"sdp"`
+		StreamURL string `json:"streamurl"`
+	}{
+		api, "", offer, r,
+	}
+
+	b, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", errors.Wrapf(err, "Marshal body %v", reqBody)
+	}
+	logger.If(ctx, "Request url api=%v with %v", api, string(b))
+	logger.Tf(ctx, "Request url api=%v with %v bytes", api, len(b))
+
+	req, err := http.NewRequest("POST", api, strings.NewReader(string(b)))
+	if err != nil {
+		return "", errors.Wrapf(err, "HTTP request %v", string(b))
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", errors.Wrapf(err, "Do HTTP request %v", string(b))
+	}
+
+	b2, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, "Read response for %v", string(b))
+	}
+	logger.If(ctx, "Response from %v is %v", api, string(b2))
+	logger.Tf(ctx, "Response from %v is %v bytes", api, len(b2))
+
+	resBody := struct {
+		Code    int    `json:"code"`
+		Session string `json:"sessionid"`
+		SDP     string `json:"sdp"`
+	}{}
+	if err := json.Unmarshal(b2, &resBody); err != nil {
+		return "", errors.Wrapf(err, "Marshal %v", string(b2))
+	}
+
+	if resBody.Code != 0 {
+		return "", errors.Errorf("Server fail code=%v %v", resBody.Code, string(b2))
+	}
+	logger.If(ctx, "Parse response to code=%v, session=%v, sdp=%v",
+		resBody.Code, resBody.Session, escapeSDP(resBody.SDP))
+	logger.Tf(ctx, "Parse response to code=%v, session=%v, sdp=%v bytes",
+		resBody.Code, resBody.Session, len(resBody.SDP))
+
+	return string(resBody.SDP), nil
 }
 
 func writeDisk(ctx context.Context, w media.Writer, track *webrtc.TrackRemote) error {
-	for ctx.Err() != nil {
+	for ctx.Err() == nil {
 		pkt, _, err := track.ReadRTP()
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "Read RTP")
 		}
 
 		if w == nil {
@@ -238,9 +299,13 @@ func writeDisk(ctx context.Context, w media.Writer, track *webrtc.TrackRemote) e
 		}
 
 		if err := w.WriteRTP(pkt); err != nil {
-			return err
+			logger.Wf(ctx, "Ignore write RTP err %+v", err)
 		}
 	}
 
 	return ctx.Err()
+}
+
+func escapeSDP(sdp string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(sdp, "\r", "\\r"), "\n", "\\n")
 }

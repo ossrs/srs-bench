@@ -25,9 +25,9 @@ import (
 )
 
 func main() {
-	var r, dump_audio, dump_video string
+	var pr, dump_audio, dump_video string
 	var clients int
-	flag.StringVar(&r, "url", "", "")
+	flag.StringVar(&pr, "pr", "", "")
 	flag.StringVar(&dump_audio, "da", "", "")
 	flag.StringVar(&dump_video, "dv", "", "")
 	flag.IntVar(&clients, "nn", 1, "")
@@ -35,24 +35,25 @@ func main() {
 	flag.Usage = func() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
-		fmt.Println(fmt.Sprintf("   -url    The url to play."))
+		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
+		fmt.Println(fmt.Sprintf("Player:"))
+		fmt.Println(fmt.Sprintf("   -pr     The url to play."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -dv     [Optional] The file path to dump video, ignore if empty."))
-		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
 		fmt.Println(fmt.Sprintf("For example:"))
-		fmt.Println(fmt.Sprintf("   %v -url webrtc://localhost/live/livestream", os.Args[0]))
-		fmt.Println(fmt.Sprintf("   %v -url webrtc://localhost/live/livestream -da a.ogg -dv v.ivf", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -da a.ogg -dv v.ivf", os.Args[0]))
 	}
 	flag.Parse()
 
-	if r == "" || clients <= 0 {
+	if pr == "" || clients <= 0 {
 		flag.Usage()
 		os.Exit(-1)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	logger.Tf(ctx, "The benchmark url=%v, da=%v, dv=%v, clients=%v",
-		r, dump_audio, dump_video, clients)
+	logger.Tf(ctx, "The benchmark play(url=%v, da=%v, dv=%v), clients=%v",
+		pr, dump_audio, dump_video, clients)
 
 	if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") && !strings.HasSuffix(dump_video, ".ivf") {
 		logger.Ef(ctx, "Should be .ivf or .264, actual %v", dump_video)
@@ -81,7 +82,7 @@ func main() {
 		wg.Add(1)
 		go func(da, dv string) {
 			defer wg.Done()
-			if err := startPlay(ctx, r, da, dv); err != nil {
+			if err := startPlay(ctx, pr, da, dv); err != nil {
 				logger.Wf(ctx, "Run err %+v", err)
 			}
 		}(da, dv)
@@ -226,6 +227,14 @@ func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
 		if err != nil {
 			codec := track.Codec()
 			err = errors.Wrapf(err, "Handle  track %v, pt=%v", codec.MimeType, codec.PayloadType)
+			cancel()
+		}
+	})
+
+	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
+		logger.If(ctx, "ICE state %v", state)
+		if state == webrtc.ICEConnectionStateFailed || state == webrtc.ICEConnectionStateClosed {
+			logger.Wf(ctx, "Close for ICE state %v", state)
 			cancel()
 		}
 	})

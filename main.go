@@ -25,11 +25,12 @@ import (
 )
 
 func main() {
-	var pr, dump_audio, dump_video string
-	var clients int
-	flag.StringVar(&pr, "pr", "", "")
+	var sr, dump_audio, dump_video string
+	flag.StringVar(&sr, "sr", "", "")
 	flag.StringVar(&dump_audio, "da", "", "")
 	flag.StringVar(&dump_video, "dv", "", "")
+
+	var clients int
 	flag.IntVar(&clients, "nn", 1, "")
 
 	flag.Usage = func() {
@@ -37,23 +38,23 @@ func main() {
 		fmt.Println(fmt.Sprintf("Options:"))
 		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
 		fmt.Println(fmt.Sprintf("Player:"))
-		fmt.Println(fmt.Sprintf("   -pr     The url to play."))
+		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -dv     [Optional] The file path to dump video, ignore if empty."))
 		fmt.Println(fmt.Sprintf("For example:"))
-		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream", os.Args[0]))
-		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -da a.ogg -dv v.ivf", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.ivf", os.Args[0]))
 	}
 	flag.Parse()
 
-	if pr == "" || clients <= 0 {
+	if sr == "" || clients <= 0 {
 		flag.Usage()
 		os.Exit(-1)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	logger.Tf(ctx, "The benchmark play(url=%v, da=%v, dv=%v), clients=%v",
-		pr, dump_audio, dump_video, clients)
+		sr, dump_audio, dump_video, clients)
 
 	if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") && !strings.HasSuffix(dump_video, ".ivf") {
 		logger.Ef(ctx, "Should be .ivf or .264, actual %v", dump_video)
@@ -82,7 +83,7 @@ func main() {
 		wg.Add(1)
 		go func(da, dv string) {
 			defer wg.Done()
-			if err := startPlay(ctx, pr, da, dv); err != nil {
+			if err := startPlay(ctx, sr, da, dv); err != nil {
 				if errors.Cause(err) != context.Canceled {
 					logger.Wf(ctx, "Run err %+v", err)
 				}

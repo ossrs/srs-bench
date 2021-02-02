@@ -81,7 +81,7 @@ func main() {
 		wg.Add(1)
 		go func(da, dv string) {
 			defer wg.Done()
-			if err := run(ctx, r, da, dv); err != nil {
+			if err := startPlay(ctx, r, da, dv); err != nil {
 				logger.Wf(ctx, "Run err %+v", err)
 			}
 		}(da, dv)
@@ -92,8 +92,8 @@ func main() {
 	logger.Tf(ctx, "Done")
 }
 
-func run(ctx context.Context, r, dump_audio, dump_video string) error {
-	ctx, cancel := context.WithCancel(logger.WithContext(ctx))
+func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
+	ctx = logger.WithContext(ctx)
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
@@ -143,7 +143,7 @@ func run(ctx context.Context, r, dump_audio, dump_video string) error {
 		}
 	}()
 
-	pc.OnTrack(func(track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
+	handleTrack := func(ctx context.Context, track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) error {
 		// Send a PLI on an interval so that the publisher is pushing a keyframe
 		go func() {
 			if track.Kind() == webrtc.RTPCodecTypeAudio {
@@ -175,49 +175,58 @@ func run(ctx context.Context, r, dump_audio, dump_video string) error {
 		if codec.MimeType == "audio/opus" {
 			if da == nil && dump_audio != "" {
 				if da, err = oggwriter.New(dump_audio, codec.ClockRate, codec.Channels); err != nil {
-					cancel()
+					return errors.Wrapf(err, "New audio dumper")
 				}
 				logger.Tf(ctx, "Open ogg writer file=%v, tbn=%v, channels=%v",
 					dump_audio, codec.ClockRate, codec.Channels)
 			}
 
-			if err = writeDisk(ctx, da, track); err != nil {
-				cancel()
+			if err = writeTrackToDisk(ctx, da, track); err != nil {
+				return errors.Wrapf(err, "Write audio disk")
 			}
 		} else if codec.MimeType == "video/VP8" {
 			if dump_video != "" && !strings.HasSuffix(dump_video, ".ivf") {
-				err = errors.Errorf("%v should be .ivf for VP8", dump_video)
-				cancel()
-				return
+				return errors.Errorf("%v should be .ivf for VP8", dump_video)
 			}
 
 			if dv_vp8 == nil && dump_video != "" {
 				if dv_vp8, err = ivfwriter.New(dump_video); err != nil {
-					cancel()
+					return errors.Wrapf(err, "New video dumper")
 				}
 				logger.Tf(ctx, "Open ivf writer file=%v", dump_video)
 			}
 
-			if err = writeDisk(ctx, dv_vp8, track); err != nil {
-				cancel()
+			if err = writeTrackToDisk(ctx, dv_vp8, track); err != nil {
+				return errors.Wrapf(err, "Write video disk")
 			}
 		} else if codec.MimeType == "video/H264" {
 			if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") {
-				err = errors.Errorf("%v should be .h264 for H264", dump_video)
-				cancel()
-				return
+				return errors.Errorf("%v should be .h264 for H264", dump_video)
 			}
 
 			if dv_h264 == nil && dump_video != "" {
 				if dv_h264, err = h264writer.New(dump_video); err != nil {
-					cancel()
+					return errors.Wrapf(err, "New video dumper")
 				}
 				logger.Tf(ctx, "Open h264 writer file=%v", dump_video)
 			}
 
-			if err = writeDisk(ctx, dv_h264, track); err != nil {
-				cancel()
+			if err = writeTrackToDisk(ctx, dv_h264, track); err != nil {
+				return errors.Wrapf(err, "Write video disk")
 			}
+		} else {
+			logger.Wf(ctx, "Ignore track %v pt=%v", codec.MimeType, codec.PayloadType)
+		}
+		return nil
+	}
+
+	ctx, cancel := context.WithCancel(ctx)
+	pc.OnTrack(func(track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
+		err = handleTrack(ctx, track, receiver)
+		if err != nil {
+			codec := track.Codec()
+			err = errors.Wrapf(err, "Handle  track %v, pt=%v", codec.MimeType, codec.PayloadType)
+			cancel()
 		}
 	})
 
@@ -287,7 +296,7 @@ func apiRtcPlay(ctx context.Context, r, offer string) (string, error) {
 	return string(resBody.SDP), nil
 }
 
-func writeDisk(ctx context.Context, w media.Writer, track *webrtc.TrackRemote) error {
+func writeTrackToDisk(ctx context.Context, w media.Writer, track *webrtc.TrackRemote) error {
 	for ctx.Err() == nil {
 		pkt, _, err := track.ReadRTP()
 		if err != nil {
@@ -299,7 +308,10 @@ func writeDisk(ctx context.Context, w media.Writer, track *webrtc.TrackRemote) e
 		}
 
 		if err := w.WriteRTP(pkt); err != nil {
-			logger.Wf(ctx, "Ignore write RTP err %+v", err)
+			if len(pkt.Payload) <= 2 {
+				continue
+			}
+			logger.Wf(ctx, "Ignore write RTP %vB err %+v", len(pkt.Payload), err)
 		}
 	}
 

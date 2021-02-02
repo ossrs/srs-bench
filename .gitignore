@@ -3,3 +3,4 @@ objs
 *.ogg
 *.ivf
 *.h264
+.DS_Store

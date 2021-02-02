@@ -58,19 +58,20 @@ func main() {
 		fmt.Println(fmt.Sprintf("   -fps    The fps of .h264 source file."))
 		fmt.Println(fmt.Sprintf("   -sa     [Optional] The file path to read audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -sv     [Optional] The file path to read video, ignore if empty."))
-		fmt.Println(fmt.Sprintf("例如，1个播放，1个推流:"))
+		fmt.Println(fmt.Sprintf("\n例如，1个播放，1个推流:"))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream", os.Args[0]))
 		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
-		fmt.Println(fmt.Sprintf("例如，1个流，3个播放，共3个客户端："))
+		fmt.Println(fmt.Sprintf("\n例如，1个流，3个播放，共3个客户端："))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -nn 3", os.Args[0]))
 		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
-		fmt.Println(fmt.Sprintf("例如，2个流，每个流3个播放，共6个客户端："))
+		fmt.Println(fmt.Sprintf("\n例如，2个流，每个流3个播放，共6个客户端："))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream_[s] -sn 2 -nn 3", os.Args[0]))
 		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_[s] -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
-		fmt.Println(fmt.Sprintf("例如，2个推流："))
+		fmt.Println(fmt.Sprintf("\n例如，2个推流："))
 		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_[s] -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
-		fmt.Println(fmt.Sprintf("例如，1个录制："))
+		fmt.Println(fmt.Sprintf("\n例如，1个录制："))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.h264", os.Args[0]))
+		fmt.Println()
 	}
 	flag.Parse()
 
@@ -128,7 +129,7 @@ func main() {
 	var wg sync.WaitGroup
 
 	for i := 0; sr != "" && i < streams; i++ {
-		r_auto := pr
+		r_auto := sr
 		if streams > 1 && !strings.Contains(r_auto, "[s]") {
 			r_auto += "_[s]"
 		}

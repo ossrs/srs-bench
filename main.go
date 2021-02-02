@@ -30,6 +30,11 @@ func main() {
 	flag.StringVar(&dump_audio, "da", "", "")
 	flag.StringVar(&dump_video, "dv", "", "")
 
+	var pr, source_audio, source_video string
+	flag.StringVar(&pr, "pr", "", "")
+	flag.StringVar(&source_audio, "sa", "", "")
+	flag.StringVar(&source_video, "sv", "", "")
+
 	var clients int
 	flag.IntVar(&clients, "nn", 1, "")
 
@@ -37,24 +42,42 @@ func main() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
 		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
-		fmt.Println(fmt.Sprintf("Player:"))
+		fmt.Println(fmt.Sprintf("Player or Subscriber:"))
 		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -dv     [Optional] The file path to dump video, ignore if empty."))
+		fmt.Println(fmt.Sprintf("Publisher:"))
+		fmt.Println(fmt.Sprintf("   -pr     The url to publish."))
+		fmt.Println(fmt.Sprintf("   -sa     [Optional] The file path to read audio, ignore if empty."))
+		fmt.Println(fmt.Sprintf("   -sv     [Optional] The file path to read video, ignore if empty."))
 		fmt.Println(fmt.Sprintf("For example:"))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream", os.Args[0]))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.ivf", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.ivf", os.Args[0]))
 	}
 	flag.Parse()
 
-	if sr == "" || clients <= 0 {
+	showHelp := (clients <= 0)
+	if sr == "" && pr == "" {
+		showHelp = true
+	}
+	if pr != "" && (source_audio == "" || source_video == "") {
+		showHelp = true
+	}
+	if showHelp {
 		flag.Usage()
 		os.Exit(-1)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	logger.Tf(ctx, "The benchmark play(url=%v, da=%v, dv=%v), clients=%v",
-		sr, dump_audio, dump_video, clients)
+	summaryDesc := fmt.Sprintf("clients=%v", clients)
+	if sr != "" {
+		summaryDesc = fmt.Sprintf("%v, play(url=%v, da=%v, dv=%v)", summaryDesc, sr, dump_audio, dump_video)
+	}
+	if pr != "" {
+		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v)", summaryDesc, pr, source_audio, source_video)
+	}
+	logger.Tf(ctx, "Start benchmark with %v", summaryDesc)
 
 	if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") && !strings.HasSuffix(dump_video, ".ivf") {
 		logger.Ef(ctx, "Should be .ivf or .264, actual %v", dump_video)
@@ -73,7 +96,7 @@ func main() {
 	// Run tasks.
 	var wg sync.WaitGroup
 
-	for i := 0; i < clients; i++ {
+	for i := 0; sr != "" && i < clients; i++ {
 		// Dump audio or video only for the first client.
 		da, dv := dump_audio, dump_video
 		if i > 0 {

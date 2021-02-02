@@ -8,37 +8,78 @@ import (
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/pion/webrtc/v3"
+	"github.com/pion/webrtc/v3/pkg/media"
+	"github.com/pion/webrtc/v3/pkg/media/ivfwriter"
+	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"strings"
+	"sync"
+	"syscall"
 )
 
 func main() {
-	var r string
+	var r, dump_audio, dump_video string
+	var clients int
 	flag.StringVar(&r, "url", "", "")
+	flag.StringVar(&dump_audio, "da", "", "")
+	flag.StringVar(&dump_video, "dv", "", "")
+	flag.IntVar(&clients, "nn", 1, "")
+
 	flag.Usage = func() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
-		fmt.Println(fmt.Sprintf("   -url    The url to play"))
+		fmt.Println(fmt.Sprintf("   -url    The url to play."))
+		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
+		fmt.Println(fmt.Sprintf("   -dv     [Optional] The file path to dump video, ignore if empty."))
+		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
 		fmt.Println(fmt.Sprintf("For example:"))
 		fmt.Println(fmt.Sprintf("   %v -url webrtc://localhost/live/livestream", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -url webrtc://localhost/live/livestream -da a.ogg -dv v.ivf", os.Args[0]))
 	}
 	flag.Parse()
 
-	if r == "" {
+	if r == "" || clients <= 0 {
 		flag.Usage()
 		os.Exit(-1)
 	}
 
-	ctx := context.Background()
-	logger.Tf(ctx, "The benchmark url is %v", r)
+	ctx, cancel := context.WithCancel(context.Background())
+	logger.Tf(ctx, "The benchmark url=%v, da=%v, dv=%v, clients=%v",
+		r, dump_audio, dump_video, clients)
 
-	if err := run(ctx, r); err != nil {
-		logger.Wf(ctx, "Run err %+v", err)
-		os.Exit(-1)
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		for sig := range sigs {
+			logger.Wf(ctx, "Quit for signal %v", sig)
+			cancel()
+		}
+	}()
+
+	// Run tasks.
+	var wg sync.WaitGroup
+
+	for i := 0; i < clients; i++ {
+		// Dump audio or video only for the first client.
+		da, dv := dump_audio, dump_video
+		if i > 0 {
+			da, dv = "", ""
+		}
+
+		wg.Add(1)
+		go func(da, dv string) {
+			defer wg.Done()
+			if err := run(ctx, r, da, dv); err != nil {
+				logger.Wf(ctx, "Run err %+v", err)
+			}
+		}(da, dv)
 	}
+
+	wg.Wait()
 
 	logger.Tf(ctx, "Done")
 }
@@ -47,8 +88,8 @@ func escapeSDP(sdp string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(sdp, "\r", "\\r"), "\n", "\\n")
 }
 
-func run(ctx context.Context, r string) error {
-	ctx = logger.WithContext(ctx)
+func run(ctx context.Context, r, dump_audio, dump_video string) error {
+	ctx, cancel := context.WithCancel(logger.WithContext(ctx))
 
 	u, err := url.Parse(r)
 	if err != nil {
@@ -135,13 +176,71 @@ func run(ctx context.Context, r string) error {
 		return errors.Wrapf(err, "Set answer %v", string(b2))
 	}
 
+	var da media.Writer
+	var dv media.Writer
+	defer func() {
+		if da != nil {
+			da.Close()
+		}
+		if dv != nil {
+			dv.Close()
+		}
+	}()
+
 	pc.OnTrack(func(track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
 		codec := track.Codec()
-		logger.Tf(ctx, "Got track %v, pt=%v, tbn=%v %v",
-			codec.MimeType, codec.PayloadType, codec.ClockRate, codec.SDPFmtpLine)
+		if codec.MimeType == "audio/opus" {
+			logger.Tf(ctx, "Got track %v, pt=%v, tbn=%v %v",
+				codec.MimeType, codec.PayloadType, codec.ClockRate, codec.Channels)
+
+			if da == nil && dump_audio != "" {
+				if da, err = oggwriter.New(dump_audio, codec.ClockRate, codec.Channels); err != nil {
+					cancel()
+				}
+				logger.Tf(ctx, "Open ogg writer file=%v, tbn=%v, channels=%v",
+					dump_audio, codec.ClockRate, codec.Channels)
+			}
+
+			if err = writeDisk(ctx, da, track); err != nil {
+				cancel()
+			}
+		} else if codec.MimeType == "video/VP8" {
+			logger.Tf(ctx, "Got track %v, pt=%v, tbn=%v %v",
+				codec.MimeType, codec.PayloadType, codec.ClockRate, codec.SDPFmtpLine)
+
+			if dv == nil && dump_video != "" {
+				if dv, err = ivfwriter.New(dump_video); err != nil {
+					cancel()
+				}
+				logger.Tf(ctx, "Open ivf writer file=%v", dump_video)
+			}
+
+			if err = writeDisk(ctx, dv, track); err != nil {
+				cancel()
+			}
+		}
 	})
 
 	<-ctx.Done()
 
 	return nil
+}
+
+func writeDisk(ctx context.Context, w media.Writer, track *webrtc.TrackRemote) error {
+	for ctx.Err() != nil {
+		pkt, _, err := track.ReadRTP()
+		if err != nil {
+			return err
+		}
+
+		if w == nil {
+			continue
+		}
+
+		if err := w.WriteRTP(pkt); err != nil {
+			return err
+		}
+	}
+
+	return ctx.Err()
 }

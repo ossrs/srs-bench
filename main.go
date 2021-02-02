@@ -40,30 +40,41 @@ func main() {
 	flag.StringVar(&source_video, "sv", "", "")
 	flag.IntVar(&fps, "fps", 0, "")
 
-	var clients int
+	var clients, streams int
 	flag.IntVar(&clients, "nn", 1, "")
+	flag.IntVar(&streams, "sn", 1, "")
 
 	flag.Usage = func() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
 		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
+		fmt.Println(fmt.Sprintf("   -sn     The number of streams to simulate. Variable: [s]. Default: 1"))
 		fmt.Println(fmt.Sprintf("Player or Subscriber:"))
-		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe."))
+		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe. If sn exceed 1, auto append variable [s]."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -dv     [Optional] The file path to dump video, ignore if empty."))
 		fmt.Println(fmt.Sprintf("Publisher:"))
-		fmt.Println(fmt.Sprintf("   -pr     The url to publish."))
+		fmt.Println(fmt.Sprintf("   -pr     The url to publish. If sn exceed 1, auto append variable [s]."))
 		fmt.Println(fmt.Sprintf("   -fps    The fps of .h264 source file."))
 		fmt.Println(fmt.Sprintf("   -sa     [Optional] The file path to read audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -sv     [Optional] The file path to read video, ignore if empty."))
-		fmt.Println(fmt.Sprintf("For example:"))
+		fmt.Println(fmt.Sprintf("例如，1个播放，1个推流:"))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream", os.Args[0]))
-		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.h264", os.Args[0]))
 		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
+		fmt.Println(fmt.Sprintf("例如，1个流，3个播放，共3个客户端："))
+		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -nn 3", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
+		fmt.Println(fmt.Sprintf("例如，2个流，每个流3个播放，共6个客户端："))
+		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream_[s] -sn 2 -nn 3", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_[s] -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
+		fmt.Println(fmt.Sprintf("例如，2个推流："))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_[s] -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
+		fmt.Println(fmt.Sprintf("例如，1个录制："))
+		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.h264", os.Args[0]))
 	}
 	flag.Parse()
 
-	showHelp := (clients <= 0)
+	showHelp := (clients <= 0 || streams <= 0)
 	if sr == "" && pr == "" {
 		showHelp = true
 	}
@@ -116,34 +127,48 @@ func main() {
 	// Run tasks.
 	var wg sync.WaitGroup
 
-	for i := 0; sr != "" && i < clients; i++ {
-		// Dump audio or video only for the first client.
-		da, dv := dump_audio, dump_video
-		if i > 0 {
-			da, dv = "", ""
+	for i := 0; sr != "" && i < streams; i++ {
+		r_auto := pr
+		if streams > 1 && !strings.Contains(r_auto, "[s]") {
+			r_auto += "_[s]"
 		}
+		r2 := strings.ReplaceAll(r_auto, "[s]", fmt.Sprintf("%v", i))
 
-		wg.Add(1)
-		go func(da, dv string) {
-			defer wg.Done()
-			if err := startPlay(ctx, sr, da, dv); err != nil {
-				if errors.Cause(err) != context.Canceled {
-					logger.Wf(ctx, "Run err %+v", err)
-				}
+		for j := 0; sr != "" && j < clients; j++ {
+			// Dump audio or video only for the first client.
+			da, dv := dump_audio, dump_video
+			if i > 0 {
+				da, dv = "", ""
 			}
-		}(da, dv)
+
+			wg.Add(1)
+			go func(sr, da, dv string) {
+				defer wg.Done()
+				if err := startPlay(ctx, sr, da, dv); err != nil {
+					if errors.Cause(err) != context.Canceled {
+						logger.Wf(ctx, "Run err %+v", err)
+					}
+				}
+			}(r2, da, dv)
+		}
 	}
 
-	for i := 0; pr != "" && i < clients; i++ {
+	for i := 0; pr != "" && i < streams; i++ {
+		r_auto := pr
+		if streams > 1 && !strings.Contains(r_auto, "[s]") {
+			r_auto += "_[s]"
+		}
+		r2 := strings.ReplaceAll(r_auto, "[s]", fmt.Sprintf("%v", i))
+
 		wg.Add(1)
-		go func() {
+		go func(pr string) {
 			defer wg.Done()
 			if err := startPublish(ctx, pr, source_audio, source_video, fps); err != nil {
 				if errors.Cause(err) != context.Canceled {
 					logger.Wf(ctx, "Run err %+v", err)
 				}
 			}
-		}()
+		}(r2)
 	}
 
 	wg.Wait()
@@ -154,6 +179,8 @@ func main() {
 // @see https://github.com/pion/webrtc/blob/master/examples/save-to-disk/main.go
 func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
 	ctx = logger.WithContext(ctx)
+
+	logger.Tf(ctx, "Start play url=%v, audio=%v, video=%v", r, dump_audio, dump_video)
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
@@ -400,6 +427,8 @@ func escapeSDP(sdp string) string {
 // @see https://github.com/pion/webrtc/blob/master/examples/play-from-disk/main.go
 func startPublish(ctx context.Context, r, source_audio, source_video string, fps int) error {
 	ctx = logger.WithContext(ctx)
+
+	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v", r, source_audio, source_video, fps)
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {

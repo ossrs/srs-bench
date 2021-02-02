@@ -58,8 +58,10 @@ github.com/pion/webrtc/v3
 github.com/pion/webrtc/v3/internal/mux
 github.com/pion/webrtc/v3/internal/util
 github.com/pion/webrtc/v3/pkg/media
+github.com/pion/webrtc/v3/pkg/media/h264reader
 github.com/pion/webrtc/v3/pkg/media/h264writer
 github.com/pion/webrtc/v3/pkg/media/ivfwriter
+github.com/pion/webrtc/v3/pkg/media/oggreader
 github.com/pion/webrtc/v3/pkg/media/oggwriter
 github.com/pion/webrtc/v3/pkg/rtcerr
 # github.com/pkg/errors v0.9.1

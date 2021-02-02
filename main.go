@@ -10,9 +10,12 @@ import (
 	"github.com/pion/rtcp"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
+	"github.com/pion/webrtc/v3/pkg/media/h264reader"
 	"github.com/pion/webrtc/v3/pkg/media/h264writer"
 	"github.com/pion/webrtc/v3/pkg/media/ivfwriter"
+	"github.com/pion/webrtc/v3/pkg/media/oggreader"
 	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -31,9 +34,11 @@ func main() {
 	flag.StringVar(&dump_video, "dv", "", "")
 
 	var pr, source_audio, source_video string
+	var fps int
 	flag.StringVar(&pr, "pr", "", "")
 	flag.StringVar(&source_audio, "sa", "", "")
 	flag.StringVar(&source_video, "sv", "", "")
+	flag.IntVar(&fps, "fps", 0, "")
 
 	var clients int
 	flag.IntVar(&clients, "nn", 1, "")
@@ -48,12 +53,13 @@ func main() {
 		fmt.Println(fmt.Sprintf("   -dv     [Optional] The file path to dump video, ignore if empty."))
 		fmt.Println(fmt.Sprintf("Publisher:"))
 		fmt.Println(fmt.Sprintf("   -pr     The url to publish."))
+		fmt.Println(fmt.Sprintf("   -fps    The fps of .h264 source file."))
 		fmt.Println(fmt.Sprintf("   -sa     [Optional] The file path to read audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -sv     [Optional] The file path to read video, ignore if empty."))
 		fmt.Println(fmt.Sprintf("For example:"))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream", os.Args[0]))
-		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.ivf", os.Args[0]))
-		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.ivf", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.h264", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
 	}
 	flag.Parse()
 
@@ -61,7 +67,7 @@ func main() {
 	if sr == "" && pr == "" {
 		showHelp = true
 	}
-	if pr != "" && (source_audio == "" || source_video == "") {
+	if pr != "" && (source_audio == "" && source_video == "") {
 		showHelp = true
 	}
 	if showHelp {
@@ -75,12 +81,26 @@ func main() {
 		summaryDesc = fmt.Sprintf("%v, play(url=%v, da=%v, dv=%v)", summaryDesc, sr, dump_audio, dump_video)
 	}
 	if pr != "" {
-		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v)", summaryDesc, pr, source_audio, source_video)
+		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v, fps=%v)", summaryDesc, pr, source_audio, source_video, fps)
 	}
 	logger.Tf(ctx, "Start benchmark with %v", summaryDesc)
 
-	if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") && !strings.HasSuffix(dump_video, ".ivf") {
-		logger.Ef(ctx, "Should be .ivf or .264, actual %v", dump_video)
+	checkFlag := func() error {
+		if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") && !strings.HasSuffix(dump_video, ".ivf") {
+			return errors.Errorf("Should be .ivf or .264, actual %v", dump_video)
+		}
+
+		if source_video != "" && !strings.HasSuffix(source_video, ".h264") {
+			return errors.Errorf("Should be .264, actual %v", source_video)
+		}
+
+		if source_video != "" && strings.HasSuffix(source_video, ".h264") && fps <= 0 {
+			return errors.Errorf("Video fps should >0, actual %v", fps)
+		}
+		return nil
+	}
+	if err := checkFlag(); err != nil {
+		logger.Ef(ctx, "Check faile err %+v", err)
 		os.Exit(-1)
 	}
 
@@ -114,11 +134,24 @@ func main() {
 		}(da, dv)
 	}
 
+	for i := 0; pr != "" && i < clients; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if err := startPublish(ctx, pr, source_audio, source_video, fps); err != nil {
+				if errors.Cause(err) != context.Canceled {
+					logger.Wf(ctx, "Run err %+v", err)
+				}
+			}
+		}()
+	}
+
 	wg.Wait()
 
 	logger.Tf(ctx, "Done")
 }
 
+// @see https://github.com/pion/webrtc/blob/master/examples/save-to-disk/main.go
 func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
 	ctx = logger.WithContext(ctx)
 
@@ -144,7 +177,7 @@ func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
 		return errors.Wrapf(err, "Set offer %v", offer)
 	}
 
-	answer, err := apiRtcPlay(ctx, r, offer.SDP)
+	answer, err := apiRtcRequest(ctx, "/rtc/v1/play", r, offer.SDP)
 	if err != nil {
 		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
 	}
@@ -271,17 +304,19 @@ func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
 	})
 
 	<-ctx.Done()
-
 	return err
 }
 
-func apiRtcPlay(ctx context.Context, r, offer string) (string, error) {
+func apiRtcRequest(ctx context.Context, apiPath, r, offer string) (string, error) {
 	u, err := url.Parse(r)
 	if err != nil {
 		return "", errors.Wrapf(err, "Parse url %v", r)
 	}
 
-	api := fmt.Sprintf("http://%v:1985/rtc/v1/play/", u.Hostname())
+	api := fmt.Sprintf("http://%v:1985%v", u.Hostname(), apiPath)
+	if !strings.HasSuffix(api, "/") {
+		api += "/"
+	}
 
 	reqBody := struct {
 		Api       string `json:"api"`
@@ -360,4 +395,266 @@ func writeTrackToDisk(ctx context.Context, w media.Writer, track *webrtc.TrackRe
 
 func escapeSDP(sdp string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(sdp, "\r", "\\r"), "\n", "\\n")
+}
+
+// @see https://github.com/pion/webrtc/blob/master/examples/play-from-disk/main.go
+func startPublish(ctx context.Context, r, source_audio, source_video string, fps int) error {
+	ctx = logger.WithContext(ctx)
+
+	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	if err != nil {
+		return errors.Wrapf(err, "Create PC")
+	}
+
+	var sv_track *webrtc.TrackLocalStaticSample
+	var sv_sender *webrtc.RTPSender
+	if source_video != "" {
+		mimeType, trackID := "video/H264", "video"
+		if strings.HasSuffix(source_video, ".ivf") {
+			mimeType = "video/VP8"
+		}
+
+		sv_track, err = webrtc.NewTrackLocalStaticSample(
+			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 90000}, trackID, "pion",
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Create video track")
+		}
+
+		sv_sender, err = pc.AddTrack(sv_track)
+		if err != nil {
+			return errors.Wrapf(err, "Add video track")
+		}
+	}
+
+	var sa_track *webrtc.TrackLocalStaticSample
+	var sa_sender *webrtc.RTPSender
+	if source_audio != "" {
+		mimeType, trackID := "audio/opus", "audio"
+		sa_track, err = webrtc.NewTrackLocalStaticSample(
+			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 48000, Channels: 2}, trackID, "pion",
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Create audio track")
+		}
+
+		sa_sender, err = pc.AddTrack(sa_track)
+		if err != nil {
+			return errors.Wrapf(err, "Add audio track")
+		}
+	}
+
+	offer, err := pc.CreateOffer(nil)
+	if err != nil {
+		return errors.Wrapf(err, "Create Offer")
+	}
+
+	if err := pc.SetLocalDescription(offer); err != nil {
+		return errors.Wrapf(err, "Set offer %v", offer)
+	}
+
+	answer, err := apiRtcRequest(ctx, "/rtc/v1/publish", r, offer.SDP)
+	if err != nil {
+		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
+	}
+
+	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
+		Type: webrtc.SDPTypeAnswer, SDP: answer,
+	}); err != nil {
+		return errors.Wrapf(err, "Set answer %v", answer)
+	}
+
+	ctx, cancel := context.WithCancel(ctx)
+
+	// ICE state management.
+	iceDone := make(chan bool, 1)
+	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
+		logger.If(ctx, "ICE state %v", state)
+
+		if state == webrtc.ICEConnectionStateConnected {
+			close(iceDone)
+		}
+
+		if state == webrtc.ICEConnectionStateFailed || state == webrtc.ICEConnectionStateClosed {
+			if ctx.Err() != nil {
+				return
+			}
+
+			logger.Wf(ctx, "Close for ICE state %v", state)
+			cancel()
+		}
+	})
+
+	// Wait for event from context or tracks.
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-ctx.Done()
+
+		if sa_sender != nil {
+			sa_sender.Stop()
+		}
+
+		if sv_sender != nil {
+			sv_sender.Stop()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if sa_sender == nil {
+			return
+		}
+
+		buf := make([]byte, 1500)
+		for ctx.Err() == nil {
+			if _, _, err := sa_sender.Read(buf); err != nil {
+				return
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if sa_track == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-iceDone:
+			logger.Tf(ctx, "ICE done, start ingest audio %v", source_audio)
+		}
+
+		for ctx.Err() == nil {
+			if err := readAudioTrackFromDisk(ctx, source_audio, sa_track); err != nil {
+				if errors.Cause(err) == io.EOF {
+					logger.Tf(ctx, "EOF, restart ingest audio %v", source_audio)
+					continue
+				}
+				logger.Wf(ctx, "Ignore audio err %+v", err)
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if sv_sender == nil {
+			return
+		}
+
+		buf := make([]byte, 1500)
+		for ctx.Err() == nil {
+			if _, _, err := sv_sender.Read(buf); err != nil {
+				return
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if sv_track == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-iceDone:
+			logger.Tf(ctx, "ICE done, start ingest video %v", source_video)
+		}
+
+		for ctx.Err() == nil {
+			if err := readVideoTrackFromDisk(ctx, source_video, fps, sv_track); err != nil {
+				if errors.Cause(err) == io.EOF {
+					logger.Tf(ctx, "EOF, restart ingest video %v", source_video)
+					continue
+				}
+				logger.Wf(ctx, "Ignore video err %+v", err)
+			}
+		}
+	}()
+
+	wg.Wait()
+	return nil
+}
+
+func readAudioTrackFromDisk(ctx context.Context, source string, track *webrtc.TrackLocalStaticSample) error {
+	f, err := os.Open(source)
+	if err != nil {
+		return errors.Wrapf(err, "Open file %v", source)
+	}
+	defer f.Close()
+
+	ogg, _, err := oggreader.NewWith(f)
+	if err != nil {
+		return errors.Wrapf(err, "Open ogg %v", source)
+	}
+
+	codec := track.Codec()
+	var lastGranule uint64
+	for ctx.Err() == nil {
+		pageData, pageHeader, err := ogg.ParseNextPage()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return errors.Wrapf(err, "Read ogg")
+		}
+
+		// The amount of samples is the difference between the last and current timestamp
+		sampleCount := uint64(pageHeader.GranulePosition - lastGranule)
+		lastGranule = pageHeader.GranulePosition
+		sampleDuration := time.Duration(uint64(time.Millisecond) * 1000 * sampleCount / uint64(codec.ClockRate))
+
+		if err = track.WriteSample(media.Sample{Data: pageData, Duration: sampleDuration}); err != nil {
+			return errors.Wrapf(err, "Write sample")
+		}
+
+		time.Sleep(sampleDuration)
+	}
+
+	return nil
+}
+
+func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *webrtc.TrackLocalStaticSample) error {
+	f, err := os.Open(source)
+	if err != nil {
+		return errors.Wrapf(err, "Open file %v", source)
+	}
+	defer f.Close()
+
+	// TODO: FIXME: Support ivf for vp8.
+	h264, err := h264reader.NewReader(f)
+	if err != nil {
+		return errors.Wrapf(err, "Open h264 %v", source)
+	}
+
+	sleepTime := time.Duration(uint64(time.Millisecond) * 1000 / uint64(fps))
+	for ctx.Err() == nil {
+		frame, err := h264.NextNAL()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return errors.Wrapf(err, "Read h264")
+		}
+
+		if err = track.WriteSample(media.Sample{Data: frame.Data, Duration: sleepTime}); err != nil {
+			return errors.Wrapf(err, "Write sample")
+		}
+
+		time.Sleep(sleepTime)
+	}
+
+	return nil
 }

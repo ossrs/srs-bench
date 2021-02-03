@@ -341,11 +341,23 @@ func apiRtcRequest(ctx context.Context, apiPath, r, offer string) (string, error
 		return "", errors.Wrapf(err, "Parse url %v", r)
 	}
 
-	api := fmt.Sprintf("http://%v:1985%v", u.Hostname(), apiPath)
-	if !strings.HasSuffix(api, "/") {
+	// Build api url.
+	host := u.Host
+	if !strings.Contains(host, ":") {
+		host += ":1985"
+	}
+
+	api := fmt.Sprintf("http://%v", host)
+	if !strings.HasPrefix(apiPath, "/") {
+		api += "/"
+	}
+	api += apiPath
+
+	if !strings.HasSuffix(apiPath, "/") {
 		api += "/"
 	}
 
+	// Build JSON body.
 	reqBody := struct {
 		Api       string `json:"api"`
 		ClientIP  string `json:"clientip"`

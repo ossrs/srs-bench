@@ -130,14 +130,14 @@ func main() {
 	// Run tasks.
 	var wg sync.WaitGroup
 
-	for i := 0; sr != "" && i < streams; i++ {
+	for i := 0; sr != "" && i < streams && ctx.Err() == nil; i++ {
 		r_auto := sr
 		if streams > 1 && !strings.Contains(r_auto, "[s]") {
 			r_auto += "_[s]"
 		}
 		r2 := strings.ReplaceAll(r_auto, "[s]", fmt.Sprintf("%v", i))
 
-		for j := 0; sr != "" && j < clients; j++ {
+		for j := 0; sr != "" && j < clients && ctx.Err() == nil; j++ {
 			// Dump audio or video only for the first client.
 			da, dv := dump_audio, dump_video
 			if i > 0 {
@@ -158,7 +158,7 @@ func main() {
 		}
 	}
 
-	for i := 0; pr != "" && i < streams; i++ {
+	for i := 0; pr != "" && i < streams && ctx.Err() == nil; i++ {
 		r_auto := pr
 		if streams > 1 && !strings.Contains(r_auto, "[s]") {
 			r_auto += "_[s]"
@@ -385,7 +385,7 @@ func apiRtcRequest(ctx context.Context, apiPath, r, offer string) (string, error
 		return "", errors.Wrapf(err, "HTTP request %v", string(b))
 	}
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
 		return "", errors.Wrapf(err, "Do HTTP request %v", string(b))
 	}

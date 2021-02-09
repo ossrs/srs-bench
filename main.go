@@ -515,12 +515,12 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 	ctx, cancel := context.WithCancel(ctx)
 
 	// ICE state management.
-	iceDone := make(chan bool, 1)
+	iceDone, iceDoneCancel := context.WithCancel(context.Background())
 	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
 		logger.If(ctx, "ICE state %v", state)
 
 		if state == webrtc.ICEConnectionStateConnected {
-			close(iceDone)
+			iceDoneCancel()
 		}
 
 		if state == webrtc.ICEConnectionStateFailed || state == webrtc.ICEConnectionStateClosed {
@@ -576,7 +576,7 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 
 		select {
 		case <-ctx.Done():
-		case <-iceDone:
+		case <-iceDone.Done():
 			logger.Tf(ctx, "ICE done, start ingest audio %v", source_audio)
 		}
 
@@ -617,7 +617,7 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 
 		select {
 		case <-ctx.Done():
-		case <-iceDone:
+		case <-iceDone.Done():
 			logger.Tf(ctx, "ICE done, start ingest video %v", source_video)
 		}
 

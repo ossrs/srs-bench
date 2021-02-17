@@ -300,7 +300,7 @@ OBJS        += $(EXTRA_OBJS)
 HEADER      = $(TARGETDIR)/st.h
 SLIBRARY    = $(TARGETDIR)/libst.a
 DLIBRARY    = $(TARGETDIR)/libst.$(DSO_SUFFIX).$(VERSION)
-EXAMPLES    = examples
+EXAMPLES    = 
 
 LINKNAME    = libst.$(DSO_SUFFIX)
 SONAME      = libst.$(DSO_SUFFIX).$(MAJOR)

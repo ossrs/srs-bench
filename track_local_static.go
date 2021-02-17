@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"github.com/pion/rtp"
-	"github.com/pion/rtp/codecs"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
 	"strings"
@@ -245,55 +243,4 @@ func (s *TrackLocalStaticSample) WriteSample(sample media.Sample) error {
 	}
 
 	return FlattenErrs(writeErrs)
-}
-
-// Do a fuzzy find for a codec in the list of codecs
-// Used for lookup up a codec in an existing list to find a match
-func codecParametersFuzzySearch(needle webrtc.RTPCodecParameters, haystack []webrtc.RTPCodecParameters) (webrtc.RTPCodecParameters, error) {
-	// First attempt to match on MimeType + SDPFmtpLine
-	for _, c := range haystack {
-		if strings.EqualFold(c.RTPCodecCapability.MimeType, needle.RTPCodecCapability.MimeType) &&
-			c.RTPCodecCapability.SDPFmtpLine == needle.RTPCodecCapability.SDPFmtpLine {
-			return c, nil
-		}
-	}
-
-	// Fallback to just MimeType
-	for _, c := range haystack {
-		if strings.EqualFold(c.RTPCodecCapability.MimeType, needle.RTPCodecCapability.MimeType) {
-			return c, nil
-		}
-	}
-
-	return webrtc.RTPCodecParameters{}, webrtc.ErrCodecNotFound
-}
-
-func payloaderForCodec(codec webrtc.RTPCodecCapability) (rtp.Payloader, error) {
-	switch strings.ToLower(codec.MimeType) {
-	case strings.ToLower(webrtc.MimeTypeH264):
-		return &codecs.H264Payloader{}, nil
-	case strings.ToLower(webrtc.MimeTypeOpus):
-		return &codecs.OpusPayloader{}, nil
-	case strings.ToLower(webrtc.MimeTypeVP8):
-		return &codecs.VP8Payloader{}, nil
-	case strings.ToLower(webrtc.MimeTypeVP9):
-		return &codecs.VP9Payloader{}, nil
-	case strings.ToLower(webrtc.MimeTypeG722):
-		return &codecs.G722Payloader{}, nil
-	case strings.ToLower(webrtc.MimeTypePCMU), strings.ToLower(webrtc.MimeTypePCMA):
-		return &codecs.G711Payloader{}, nil
-	default:
-		return nil, webrtc.ErrNoPayloaderForCodec
-	}
-}
-
-const (
-	rtpOutboundMTU = 1200
-)
-
-func FlattenErrs(errors []error) error {
-	if len(errors) == 0 {
-		return nil
-	}
-	return fmt.Errorf("%v", errors)
 }

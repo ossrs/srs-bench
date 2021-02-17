@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
@@ -344,27 +343,4 @@ func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *
 	}
 
 	return nil
-}
-
-func packageAsSTAPA(frames ...*h264reader.NAL) *h264reader.NAL {
-	first := frames[0]
-
-	buf := bytes.Buffer{}
-	buf.WriteByte(
-		byte(first.RefIdc<<5)&0x60 | byte(24), // STAP-A
-	)
-
-	for _, frame := range frames {
-		buf.WriteByte(byte(len(frame.Data) >> 8))
-		buf.WriteByte(byte(len(frame.Data)))
-		buf.Write(frame.Data)
-	}
-
-	return &h264reader.NAL{
-		PictureOrderCount: first.PictureOrderCount,
-		ForbiddenZeroBit:  false,
-		RefIdc:            first.RefIdc,
-		UnitType:          h264reader.NalUnitType(24), // STAP-A
-		Data:              buf.Bytes(),
-	}
 }

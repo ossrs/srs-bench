@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"flag"
@@ -8,6 +9,7 @@ import (
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/pion/rtcp"
+	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
 	"github.com/pion/webrtc/v3/pkg/media/h264reader"
@@ -28,16 +30,16 @@ import (
 )
 
 func main() {
-	var sr, dump_audio, dump_video string
+	var sr, dumpAudio, dumpVideo string
 	flag.StringVar(&sr, "sr", "", "")
-	flag.StringVar(&dump_audio, "da", "", "")
-	flag.StringVar(&dump_video, "dv", "", "")
+	flag.StringVar(&dumpAudio, "da", "", "")
+	flag.StringVar(&dumpVideo, "dv", "", "")
 
-	var pr, source_audio, source_video string
+	var pr, sourceAudio, sourceVideo string
 	var fps int
 	flag.StringVar(&pr, "pr", "", "")
-	flag.StringVar(&source_audio, "sa", "", "")
-	flag.StringVar(&source_video, "sv", "", "")
+	flag.StringVar(&sourceAudio, "sa", "", "")
+	flag.StringVar(&sourceVideo, "sv", "", "")
 	flag.IntVar(&fps, "fps", 0, "")
 
 	var clients, streams, delay int
@@ -81,7 +83,7 @@ func main() {
 	if sr == "" && pr == "" {
 		showHelp = true
 	}
-	if pr != "" && (source_audio == "" && source_video == "") {
+	if pr != "" && (sourceAudio == "" && sourceVideo == "") {
 		showHelp = true
 	}
 	if showHelp {
@@ -92,23 +94,23 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	summaryDesc := fmt.Sprintf("clients=%v, delay=%v", clients, delay)
 	if sr != "" {
-		summaryDesc = fmt.Sprintf("%v, play(url=%v, da=%v, dv=%v)", summaryDesc, sr, dump_audio, dump_video)
+		summaryDesc = fmt.Sprintf("%v, play(url=%v, da=%v, dv=%v)", summaryDesc, sr, dumpAudio, dumpVideo)
 	}
 	if pr != "" {
-		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v, fps=%v)", summaryDesc, pr, source_audio, source_video, fps)
+		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v, fps=%v)", summaryDesc, pr, sourceAudio, sourceVideo, fps)
 	}
 	logger.Tf(ctx, "Start benchmark with %v", summaryDesc)
 
 	checkFlag := func() error {
-		if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") && !strings.HasSuffix(dump_video, ".ivf") {
-			return errors.Errorf("Should be .ivf or .264, actual %v", dump_video)
+		if dumpVideo != "" && !strings.HasSuffix(dumpVideo, ".h264") && !strings.HasSuffix(dumpVideo, ".ivf") {
+			return errors.Errorf("Should be .ivf or .264, actual %v", dumpVideo)
 		}
 
-		if source_video != "" && !strings.HasSuffix(source_video, ".h264") {
-			return errors.Errorf("Should be .264, actual %v", source_video)
+		if sourceVideo != "" && !strings.HasSuffix(sourceVideo, ".h264") {
+			return errors.Errorf("Should be .264, actual %v", sourceVideo)
 		}
 
-		if source_video != "" && strings.HasSuffix(source_video, ".h264") && fps <= 0 {
+		if sourceVideo != "" && strings.HasSuffix(sourceVideo, ".h264") && fps <= 0 {
 			return errors.Errorf("Video fps should >0, actual %v", fps)
 		}
 		return nil
@@ -139,7 +141,7 @@ func main() {
 
 		for j := 0; sr != "" && j < clients && ctx.Err() == nil; j++ {
 			// Dump audio or video only for the first client.
-			da, dv := dump_audio, dump_video
+			da, dv := dumpAudio, dumpVideo
 			if i > 0 {
 				da, dv = "", ""
 			}
@@ -168,7 +170,7 @@ func main() {
 		wg.Add(1)
 		go func(pr string) {
 			defer wg.Done()
-			if err := startPublish(ctx, pr, source_audio, source_video, fps); err != nil {
+			if err := startPublish(ctx, pr, sourceAudio, sourceVideo, fps); err != nil {
 				if errors.Cause(err) != context.Canceled {
 					logger.Wf(ctx, "Run err %+v", err)
 				}
@@ -184,10 +186,10 @@ func main() {
 }
 
 // @see https://github.com/pion/webrtc/blob/master/examples/save-to-disk/main.go
-func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
+func startPlay(ctx context.Context, r, dumpAudio, dumpVideo string) error {
 	ctx = logger.WithContext(ctx)
 
-	logger.Tf(ctx, "Start play url=%v, audio=%v, video=%v", r, dump_audio, dump_video)
+	logger.Tf(ctx, "Start play url=%v, audio=%v, video=%v", r, dumpAudio, dumpVideo)
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
@@ -267,42 +269,42 @@ func startPlay(ctx context.Context, r, dump_audio, dump_video string) error {
 			codec.MimeType, codec.PayloadType, codec.ClockRate, trackDesc)
 
 		if codec.MimeType == "audio/opus" {
-			if da == nil && dump_audio != "" {
-				if da, err = oggwriter.New(dump_audio, codec.ClockRate, codec.Channels); err != nil {
+			if da == nil && dumpAudio != "" {
+				if da, err = oggwriter.New(dumpAudio, codec.ClockRate, codec.Channels); err != nil {
 					return errors.Wrapf(err, "New audio dumper")
 				}
 				logger.Tf(ctx, "Open ogg writer file=%v, tbn=%v, channels=%v",
-					dump_audio, codec.ClockRate, codec.Channels)
+					dumpAudio, codec.ClockRate, codec.Channels)
 			}
 
 			if err = writeTrackToDisk(ctx, da, track); err != nil {
 				return errors.Wrapf(err, "Write audio disk")
 			}
 		} else if codec.MimeType == "video/VP8" {
-			if dump_video != "" && !strings.HasSuffix(dump_video, ".ivf") {
-				return errors.Errorf("%v should be .ivf for VP8", dump_video)
+			if dumpVideo != "" && !strings.HasSuffix(dumpVideo, ".ivf") {
+				return errors.Errorf("%v should be .ivf for VP8", dumpVideo)
 			}
 
-			if dv_vp8 == nil && dump_video != "" {
-				if dv_vp8, err = ivfwriter.New(dump_video); err != nil {
+			if dv_vp8 == nil && dumpVideo != "" {
+				if dv_vp8, err = ivfwriter.New(dumpVideo); err != nil {
 					return errors.Wrapf(err, "New video dumper")
 				}
-				logger.Tf(ctx, "Open ivf writer file=%v", dump_video)
+				logger.Tf(ctx, "Open ivf writer file=%v", dumpVideo)
 			}
 
 			if err = writeTrackToDisk(ctx, dv_vp8, track); err != nil {
 				return errors.Wrapf(err, "Write video disk")
 			}
 		} else if codec.MimeType == "video/H264" {
-			if dump_video != "" && !strings.HasSuffix(dump_video, ".h264") {
-				return errors.Errorf("%v should be .h264 for H264", dump_video)
+			if dumpVideo != "" && !strings.HasSuffix(dumpVideo, ".h264") {
+				return errors.Errorf("%v should be .h264 for H264", dumpVideo)
 			}
 
-			if dv_h264 == nil && dump_video != "" {
-				if dv_h264, err = h264writer.New(dump_video); err != nil {
+			if dv_h264 == nil && dumpVideo != "" {
+				if dv_h264, err = h264writer.New(dumpVideo); err != nil {
 					return errors.Wrapf(err, "New video dumper")
 				}
-				logger.Tf(ctx, "Open h264 writer file=%v", dump_video)
+				logger.Tf(ctx, "Open h264 writer file=%v", dumpVideo)
 			}
 
 			if err = writeTrackToDisk(ctx, dv_h264, track); err != nil {
@@ -444,49 +446,49 @@ func escapeSDP(sdp string) string {
 }
 
 // @see https://github.com/pion/webrtc/blob/master/examples/play-from-disk/main.go
-func startPublish(ctx context.Context, r, source_audio, source_video string, fps int) error {
+func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int) error {
 	ctx = logger.WithContext(ctx)
 
-	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v", r, source_audio, source_video, fps)
+	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v", r, sourceAudio, sourceVideo, fps)
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
 
-	var sv_track *webrtc.TrackLocalStaticSample
-	var sv_sender *webrtc.RTPSender
-	if source_video != "" {
+	var sVideoTrack *TrackLocalStaticSample
+	var sVideoSender *webrtc.RTPSender
+	if sourceVideo != "" {
 		mimeType, trackID := "video/H264", "video"
-		if strings.HasSuffix(source_video, ".ivf") {
+		if strings.HasSuffix(sourceVideo, ".ivf") {
 			mimeType = "video/VP8"
 		}
 
-		sv_track, err = webrtc.NewTrackLocalStaticSample(
+		sVideoTrack, err = NewTrackLocalStaticSample(
 			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 90000}, trackID, "pion",
 		)
 		if err != nil {
 			return errors.Wrapf(err, "Create video track")
 		}
 
-		sv_sender, err = pc.AddTrack(sv_track)
+		sVideoSender, err = pc.AddTrack(sVideoTrack)
 		if err != nil {
 			return errors.Wrapf(err, "Add video track")
 		}
 	}
 
-	var sa_track *webrtc.TrackLocalStaticSample
-	var sa_sender *webrtc.RTPSender
-	if source_audio != "" {
+	var sAudioTrack *TrackLocalStaticSample
+	var sAudioSender *webrtc.RTPSender
+	if sourceAudio != "" {
 		mimeType, trackID := "audio/opus", "audio"
-		sa_track, err = webrtc.NewTrackLocalStaticSample(
+		sAudioTrack, err = NewTrackLocalStaticSample(
 			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 48000, Channels: 2}, trackID, "pion",
 		)
 		if err != nil {
 			return errors.Wrapf(err, "Create audio track")
 		}
 
-		sa_sender, err = pc.AddTrack(sa_track)
+		sAudioSender, err = pc.AddTrack(sAudioTrack)
 		if err != nil {
 			return errors.Wrapf(err, "Add audio track")
 		}
@@ -515,20 +517,28 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 	ctx, cancel := context.WithCancel(ctx)
 
 	// ICE state management.
-	iceDone, iceDoneCancel := context.WithCancel(context.Background())
 	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
-		logger.If(ctx, "ICE state %v", state)
+		logger.Tf(ctx, "ICE state %v", state)
+	})
 
-		if state == webrtc.ICEConnectionStateConnected {
-			iceDoneCancel()
+	sAudioSender.Transport().OnStateChange(func(state webrtc.DTLSTransportState) {
+		logger.Tf(ctx, "DTLS state %v", state)
+	})
+
+	pcDone, pcDoneCancel := context.WithCancel(context.Background())
+	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
+		logger.Tf(ctx, "PC state %v", state)
+
+		if state == webrtc.PeerConnectionStateConnected {
+			pcDoneCancel()
 		}
 
-		if state == webrtc.ICEConnectionStateFailed || state == webrtc.ICEConnectionStateClosed {
+		if state == webrtc.PeerConnectionStateFailed || state == webrtc.PeerConnectionStateClosed {
 			if ctx.Err() != nil {
 				return
 			}
 
-			logger.Wf(ctx, "Close for ICE state %v", state)
+			logger.Wf(ctx, "Close for PC state %v", state)
 			cancel()
 		}
 	})
@@ -541,12 +551,12 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 		defer wg.Done()
 		<-ctx.Done()
 
-		if sa_sender != nil {
-			sa_sender.Stop()
+		if sAudioSender != nil {
+			sAudioSender.Stop()
 		}
 
-		if sv_sender != nil {
-			sv_sender.Stop()
+		if sVideoSender != nil {
+			sVideoSender.Stop()
 		}
 	}()
 
@@ -554,13 +564,19 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 	go func() {
 		defer wg.Done()
 
-		if sa_sender == nil {
+		if sAudioSender == nil {
 			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDone.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read audio %v", sourceAudio)
 		}
 
 		buf := make([]byte, 1500)
 		for ctx.Err() == nil {
-			if _, _, err := sa_sender.Read(buf); err != nil {
+			if _, _, err := sAudioSender.Read(buf); err != nil {
 				return
 			}
 		}
@@ -570,20 +586,20 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 	go func() {
 		defer wg.Done()
 
-		if sa_track == nil {
+		if sAudioTrack == nil {
 			return
 		}
 
 		select {
 		case <-ctx.Done():
-		case <-iceDone.Done():
-			logger.Tf(ctx, "ICE done, start ingest audio %v", source_audio)
+		case <-pcDone.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest audio %v", sourceAudio)
 		}
 
 		for ctx.Err() == nil {
-			if err := readAudioTrackFromDisk(ctx, source_audio, sa_track); err != nil {
+			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioTrack); err != nil {
 				if errors.Cause(err) == io.EOF {
-					logger.Tf(ctx, "EOF, restart ingest audio %v", source_audio)
+					logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
 					continue
 				}
 				logger.Wf(ctx, "Ignore audio err %+v", err)
@@ -595,13 +611,19 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 	go func() {
 		defer wg.Done()
 
-		if sv_sender == nil {
+		if sVideoSender == nil {
 			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDone.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video %v", sourceVideo)
 		}
 
 		buf := make([]byte, 1500)
 		for ctx.Err() == nil {
-			if _, _, err := sv_sender.Read(buf); err != nil {
+			if _, _, err := sVideoSender.Read(buf); err != nil {
 				return
 			}
 		}
@@ -611,20 +633,20 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 	go func() {
 		defer wg.Done()
 
-		if sv_track == nil {
+		if sVideoTrack == nil {
 			return
 		}
 
 		select {
 		case <-ctx.Done():
-		case <-iceDone.Done():
-			logger.Tf(ctx, "ICE done, start ingest video %v", source_video)
+		case <-pcDone.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest video %v", sourceVideo)
 		}
 
 		for ctx.Err() == nil {
-			if err := readVideoTrackFromDisk(ctx, source_video, fps, sv_track); err != nil {
+			if err := readVideoTrackFromDisk(ctx, sourceVideo, fps, sVideoTrack); err != nil {
 				if errors.Cause(err) == io.EOF {
-					logger.Tf(ctx, "EOF, restart ingest video %v", source_video)
+					logger.Tf(ctx, "EOF, restart ingest video %v", sourceVideo)
 					continue
 				}
 				logger.Wf(ctx, "Ignore video err %+v", err)
@@ -636,7 +658,7 @@ func startPublish(ctx context.Context, r, source_audio, source_video string, fps
 	return nil
 }
 
-func readAudioTrackFromDisk(ctx context.Context, source string, track *webrtc.TrackLocalStaticSample) error {
+func readAudioTrackFromDisk(ctx context.Context, source string, track *TrackLocalStaticSample) error {
 	f, err := os.Open(source)
 	if err != nil {
 		return errors.Wrapf(err, "Open file %v", source)
@@ -674,7 +696,7 @@ func readAudioTrackFromDisk(ctx context.Context, source string, track *webrtc.Tr
 	return nil
 }
 
-func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *webrtc.TrackLocalStaticSample) error {
+func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *TrackLocalStaticSample) error {
 	f, err := os.Open(source)
 	if err != nil {
 		return errors.Wrapf(err, "Open file %v", source)
@@ -689,20 +711,88 @@ func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *
 
 	sleepTime := time.Duration(uint64(time.Millisecond) * 1000 / uint64(fps))
 	for ctx.Err() == nil {
-		frame, err := h264.NextNAL()
-		if err == io.EOF {
-			return nil
-		}
-		if err != nil {
-			return errors.Wrapf(err, "Read h264")
+		var sps, pps *h264reader.NAL
+		var oFrames []*h264reader.NAL
+		for ctx.Err() == nil {
+			frame, err := h264.NextNAL()
+			if err == io.EOF {
+				return nil
+			}
+			if err != nil {
+				return errors.Wrapf(err, "Read h264")
+			}
+
+			oFrames = append(oFrames, frame)
+			logger.If(ctx, "NALU %v PictureOrderCount=%v, ForbiddenZeroBit=%v, RefIdc=%v, %v bytes",
+				frame.UnitType.String(), frame.PictureOrderCount, frame.ForbiddenZeroBit, frame.RefIdc, len(frame.Data))
+
+			if frame.UnitType == h264reader.NalUnitTypeSPS {
+				sps = frame
+			} else if frame.UnitType == h264reader.NalUnitTypePPS {
+				pps = frame
+			} else {
+				break
+			}
 		}
 
-		if err = track.WriteSample(media.Sample{Data: frame.Data, Duration: sleepTime}); err != nil {
-			return errors.Wrapf(err, "Write sample")
+		var frames []*h264reader.NAL
+		// Package SPS/PPS to STAP-A
+		if sps != nil && pps != nil {
+			stapA := packageAsSTAPA(sps, pps)
+			frames = append(frames, stapA)
+		}
+		// Append other original frames.
+		for _, frame := range oFrames {
+			if frame.UnitType != h264reader.NalUnitTypeSPS && frame.UnitType != h264reader.NalUnitTypePPS {
+				frames = append(frames, frame)
+			}
+		}
+
+		// Covert frames to sample(buffers).
+		for i, frame := range frames {
+			sample := media.Sample{Data: frame.Data, Duration: sleepTime}
+			// Use the sample timestamp for frames.
+			if i != len(frames)-1 {
+				sample.Duration = 0
+			}
+
+			// For STAP-A, set marker to false, to make Chrome happy.
+			track.OnBeforeWritePacket = func(p *rtp.Packet) {
+				if i < len(frames)-1 {
+					p.Header.Marker = false
+				}
+			}
+
+			if err = track.WriteSample(sample); err != nil {
+				return errors.Wrapf(err, "Write sample")
+			}
 		}
 
 		time.Sleep(sleepTime)
 	}
 
 	return nil
+}
+
+func packageAsSTAPA(frames ...*h264reader.NAL) *h264reader.NAL {
+	first := frames[0]
+
+	buf := bytes.Buffer{}
+	buf.WriteByte(
+		byte(first.RefIdc<<5)&0x60 | byte(24), // STAP-A
+	)
+
+	for _, frame := range frames {
+		buf.WriteByte(byte(len(frame.Data) >> 8))
+		buf.WriteByte(byte(len(frame.Data)))
+		buf.Write(frame.Data)
+	}
+
+	return &h264reader.NAL{
+		PictureOrderCount: first.PictureOrderCount,
+		ForbiddenZeroBit:  false,
+		RefIdc:            first.RefIdc,
+		UnitType:          h264reader.NalUnitType(24), // STAP-A
+		Data:              buf.Bytes(),
+	}
 }

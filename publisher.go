@@ -241,6 +241,8 @@ func readAudioTrackFromDisk(ctx context.Context, source string, track *TrackLoca
 		return errors.Wrapf(err, "Open ogg %v", source)
 	}
 
+	clock := NewWallClock()
+
 	codec := track.Codec()
 	var lastGranule uint64
 	for ctx.Err() == nil {
@@ -261,7 +263,9 @@ func readAudioTrackFromDisk(ctx context.Context, source string, track *TrackLoca
 			return errors.Wrapf(err, "Write sample")
 		}
 
-		time.Sleep(sampleDuration)
+		if d := clock.Tick(sampleDuration); d > 0 {
+			time.Sleep(d)
+		}
 	}
 
 	return nil
@@ -280,7 +284,8 @@ func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *
 		return errors.Wrapf(err, "Open h264 %v", source)
 	}
 
-	sleepTime := time.Duration(uint64(time.Millisecond) * 1000 / uint64(fps))
+	clock := NewWallClock()
+	sampleDuration := time.Duration(uint64(time.Millisecond) * 1000 / uint64(fps))
 	for ctx.Err() == nil {
 		var sps, pps *h264reader.NAL
 		var oFrames []*h264reader.NAL
@@ -321,7 +326,7 @@ func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *
 
 		// Covert frames to sample(buffers).
 		for i, frame := range frames {
-			sample := media.Sample{Data: frame.Data, Duration: sleepTime}
+			sample := media.Sample{Data: frame.Data, Duration: sampleDuration}
 			// Use the sample timestamp for frames.
 			if i != len(frames)-1 {
 				sample.Duration = 0
@@ -339,7 +344,9 @@ func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *
 			}
 		}
 
-		time.Sleep(sleepTime)
+		if d := clock.Tick(sampleDuration); d > 0 {
+			time.Sleep(d)
+		}
 	}
 
 	return nil

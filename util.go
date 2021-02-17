@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 func apiRtcRequest(ctx context.Context, apiPath, r, offer string) (string, error) {
@@ -115,4 +116,24 @@ func packageAsSTAPA(frames ...*h264reader.NAL) *h264reader.NAL {
 		UnitType:          h264reader.NalUnitType(24), // STAP-A
 		Data:              buf.Bytes(),
 	}
+}
+
+type WallClock struct {
+	start    time.Time
+	duration time.Duration
+}
+
+func NewWallClock() *WallClock {
+	return &WallClock{start: time.Now()}
+}
+
+func (v *WallClock) Tick(d time.Duration) time.Duration {
+	v.duration += d
+
+	wc := time.Now().Sub(v.start)
+	re := v.duration - wc
+	if re > 30*time.Millisecond {
+		return re
+	}
+	return 0
 }

@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	"github.com/pion/interceptor"
 	"github.com/pion/rtp"
+	"github.com/pion/sdp/v3"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
 	"github.com/pion/webrtc/v3/pkg/media/h264reader"
@@ -17,12 +19,45 @@ import (
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/play-from-disk/main.go
-func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int) error {
+func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int, enableAudioLevel bool) error {
 	ctx = logger.WithContext(ctx)
 
 	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v", r, sourceAudio, sourceVideo, fps)
 
-	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	// For audio-level.
+	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
+		m := &webrtc.MediaEngine{}
+		if err := m.RegisterDefaultCodecs(); err != nil {
+			return nil, err
+		}
+
+		for _, extension := range []string{sdp.SDESMidURI, sdp.SDESRTPStreamIDURI, sdp.TransportCCURI} {
+			if err := m.RegisterHeaderExtension(webrtc.RTPHeaderExtensionCapability{URI: extension}, webrtc.RTPCodecTypeVideo); err != nil {
+				return nil, err
+			}
+		}
+
+		// https://github.com/pion/ion/issues/130
+		// https://github.com/pion/ion-sfu/pull/373/files#diff-6f42c5ac6f8192dd03e5a17e9d109e90cb76b1a4a7973be6ce44a89ffd1b5d18R73
+		for _, extension := range []string{sdp.SDESMidURI, sdp.SDESRTPStreamIDURI, sdp.AudioLevelURI} {
+			if extension == sdp.AudioLevelURI && !enableAudioLevel {
+				continue
+			}
+			if err := m.RegisterHeaderExtension(webrtc.RTPHeaderExtensionCapability{URI: extension}, webrtc.RTPCodecTypeAudio); err != nil {
+				return nil, err
+			}
+		}
+
+		i := &interceptor.Registry{}
+		if err := webrtc.RegisterDefaultInterceptors(m, i); err != nil {
+			return nil, err
+		}
+
+		api := webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(i))
+		return api.NewPeerConnection(configuration)
+	}
+
+	pc, err := webrtcNewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
@@ -85,17 +120,22 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		return errors.Wrapf(err, "Set answer %v", answer)
 	}
 
-	ctx, cancel := context.WithCancel(ctx)
+	logger.Tf(ctx, "State signaling=%v, ice=%v, conn=%v", pc.SignalingState(), pc.ICEConnectionState(), pc.ConnectionState())
 
 	// ICE state management.
 	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
 		logger.Tf(ctx, "ICE state %v", state)
 	})
 
+	pc.OnSignalingStateChange(func(state webrtc.SignalingState) {
+		logger.Tf(ctx, "Signaling state %v", state)
+	})
+
 	sAudioSender.Transport().OnStateChange(func(state webrtc.DTLSTransportState) {
 		logger.Tf(ctx, "DTLS state %v", state)
 	})
 
+	ctx, cancel := context.WithCancel(ctx)
 	pcDone, pcDoneCancel := context.WithCancel(context.Background())
 	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
 		logger.Tf(ctx, "PC state %v", state)
@@ -168,7 +208,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		}
 
 		for ctx.Err() == nil {
-			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioTrack); err != nil {
+			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack); err != nil {
 				if errors.Cause(err) == io.EOF {
 					logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
 					continue
@@ -215,7 +255,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		}
 
 		for ctx.Err() == nil {
-			if err := readVideoTrackFromDisk(ctx, sourceVideo, fps, sVideoTrack); err != nil {
+			if err := readVideoTrackFromDisk(ctx, sourceVideo, sVideoSender, fps, sVideoTrack); err != nil {
 				if errors.Cause(err) == io.EOF {
 					logger.Tf(ctx, "EOF, restart ingest video %v", sourceVideo)
 					continue
@@ -229,7 +269,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 	return nil
 }
 
-func readAudioTrackFromDisk(ctx context.Context, source string, track *TrackLocalStaticSample) error {
+func readAudioTrackFromDisk(ctx context.Context, source string, sender *webrtc.RTPSender, track *TrackLocalStaticSample) error {
 	f, err := os.Open(source)
 	if err != nil {
 		return errors.Wrapf(err, "Open file %v", source)
@@ -241,10 +281,23 @@ func readAudioTrackFromDisk(ctx context.Context, source string, track *TrackLoca
 		return errors.Wrapf(err, "Open ogg %v", source)
 	}
 
-	clock := NewWallClock()
+	enc := sender.GetParameters().Encodings[0]
+	codec := sender.GetParameters().Codecs[0]
+	headers := sender.GetParameters().HeaderExtensions
+	logger.Tf(ctx, "Audio %v, tbn=%v, channels=%v, ssrc=%v, pt=%v, header=%v",
+		codec.MimeType, codec.ClockRate, codec.Channels, enc.SSRC, codec.PayloadType, headers)
 
-	codec := track.Codec()
+	// Whether should encode the audio-level in RTP header.
+	var audioLevel *webrtc.RTPHeaderExtensionParameter
+	for _, h := range headers {
+		if h.URI == sdp.AudioLevelURI {
+			audioLevel = &h
+		}
+	}
+
+	clock := NewWallClock()
 	var lastGranule uint64
+
 	for ctx.Err() == nil {
 		pageData, pageHeader, err := ogg.ParseNextPage()
 		if err == io.EOF {
@@ -259,6 +312,15 @@ func readAudioTrackFromDisk(ctx context.Context, source string, track *TrackLoca
 		lastGranule = pageHeader.GranulePosition
 		sampleDuration := time.Duration(uint64(time.Millisecond) * 1000 * sampleCount / uint64(codec.ClockRate))
 
+		// For audio-level, set the extensions if negotiated.
+		track.OnBeforeWritePacket = func(p *rtp.Packet) {
+			if audioLevel != nil {
+				if b, err := new(rtp.AudioLevelExtension).Marshal(); err == nil {
+					p.SetExtension(uint8(audioLevel.ID), b)
+				}
+			}
+		}
+
 		if err = track.WriteSample(media.Sample{Data: pageData, Duration: sampleDuration}); err != nil {
 			return errors.Wrapf(err, "Write sample")
 		}
@@ -271,7 +333,7 @@ func readAudioTrackFromDisk(ctx context.Context, source string, track *TrackLoca
 	return nil
 }
 
-func readVideoTrackFromDisk(ctx context.Context, source string, fps int, track *TrackLocalStaticSample) error {
+func readVideoTrackFromDisk(ctx context.Context, source string, sender *webrtc.RTPSender, fps int, track *TrackLocalStaticSample) error {
 	f, err := os.Open(source)
 	if err != nil {
 		return errors.Wrapf(err, "Open file %v", source)

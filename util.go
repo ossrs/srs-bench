@@ -36,6 +36,9 @@ func apiRtcRequest(ctx context.Context, apiPath, r, offer string) (string, error
 	if !strings.HasSuffix(apiPath, "/") {
 		api += "/"
 	}
+	if u.RawQuery != "" {
+		api += "?" + u.RawQuery
+	}
 
 	// Build JSON body.
 	reqBody := struct {

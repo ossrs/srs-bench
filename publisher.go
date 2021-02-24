@@ -346,6 +346,12 @@ func readVideoTrackFromDisk(ctx context.Context, source string, sender *webrtc.R
 		return errors.Wrapf(err, "Open h264 %v", source)
 	}
 
+	enc := sender.GetParameters().Encodings[0]
+	codec := sender.GetParameters().Codecs[0]
+	headers := sender.GetParameters().HeaderExtensions
+	logger.Tf(ctx, "Video %v, tbn=%v, fps=%v, ssrc=%v, pt=%v, header=%v",
+		codec.MimeType, codec.ClockRate, fps, enc.SSRC, codec.PayloadType, headers)
+
 	clock := NewWallClock()
 	sampleDuration := time.Duration(uint64(time.Millisecond) * 1000 / uint64(fps))
 	for ctx.Err() == nil {

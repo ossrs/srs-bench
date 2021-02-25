@@ -19,10 +19,11 @@ import (
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/play-from-disk/main.go
-func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int, enableAudioLevel bool) error {
+func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int, enableAudioLevel, enableTWCC bool) error {
 	ctx = logger.WithContext(ctx)
 
-	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v", r, sourceAudio, sourceVideo, fps)
+	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v, audio-level=%v, twcc=%v",
+		r, sourceAudio, sourceVideo, fps, enableAudioLevel, enableTWCC)
 
 	// For audio-level.
 	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
@@ -32,6 +33,9 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		}
 
 		for _, extension := range []string{sdp.SDESMidURI, sdp.SDESRTPStreamIDURI, sdp.TransportCCURI} {
+			if extension == sdp.TransportCCURI && !enableTWCC {
+				continue
+			}
 			if err := m.RegisterHeaderExtension(webrtc.RTPHeaderExtensionCapability{URI: extension}, webrtc.RTPCodecTypeVideo); err != nil {
 				return nil, err
 			}

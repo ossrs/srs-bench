@@ -77,4 +77,22 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 
 > 备注：录制下来的`a.ogg`和`v.h264`可以用做推流。
 
+## RTC Plaintext
+
+压测RTC明文播放：
+
+首先，推流到SRS：
+
+```bash
+ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/live/livestream
+```
+
+然后，启动压测，指定是明文（非加密），比如100个：
+
+```bash
+./objs/srs_bench -sr webrtc://localhost/live/livestream?encrypt=false -nn 100
+```
+
+> Note: 可以传递更多参数，详细参考SRS支持的参数。
+
 2021.01, Winlin

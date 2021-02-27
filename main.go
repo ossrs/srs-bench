@@ -65,6 +65,8 @@ func main() {
 		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_[s] -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
 		fmt.Println(fmt.Sprintf("\n例如，1个录制："))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.h264", os.Args[0]))
+		fmt.Println(fmt.Sprintf("\n例如，1个明文播放："))
+		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream?encrypt=false", os.Args[0]))
 		fmt.Println()
 	}
 	flag.Parse()

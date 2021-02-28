@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	"github.com/pion/interceptor"
 	"github.com/pion/rtcp"
+	"github.com/pion/sdp/v3"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media"
 	"github.com/pion/webrtc/v3/pkg/media/h264writer"
@@ -16,12 +18,49 @@ import (
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/save-to-disk/main.go
-func startPlay(ctx context.Context, r, dumpAudio, dumpVideo string) error {
+func startPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioLevel, enableTWCC bool) error {
 	ctx = logger.WithContext(ctx)
 
-	logger.Tf(ctx, "Start play url=%v, audio=%v, video=%v", r, dumpAudio, dumpVideo)
+	logger.Tf(ctx, "Start play url=%v, audio=%v, video=%v, audio-level=%v, twcc=%v",
+		r, dumpAudio, dumpVideo, enableAudioLevel, enableTWCC)
 
-	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	// For audio-level.
+	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
+		m := &webrtc.MediaEngine{}
+		if err := m.RegisterDefaultCodecs(); err != nil {
+			return nil, err
+		}
+
+		for _, extension := range []string{sdp.SDESMidURI, sdp.SDESRTPStreamIDURI, sdp.TransportCCURI} {
+			if extension == sdp.TransportCCURI && !enableTWCC {
+				continue
+			}
+			if err := m.RegisterHeaderExtension(webrtc.RTPHeaderExtensionCapability{URI: extension}, webrtc.RTPCodecTypeVideo); err != nil {
+				return nil, err
+			}
+		}
+
+		// https://github.com/pion/ion/issues/130
+		// https://github.com/pion/ion-sfu/pull/373/files#diff-6f42c5ac6f8192dd03e5a17e9d109e90cb76b1a4a7973be6ce44a89ffd1b5d18R73
+		for _, extension := range []string{sdp.SDESMidURI, sdp.SDESRTPStreamIDURI, sdp.AudioLevelURI} {
+			if extension == sdp.AudioLevelURI && !enableAudioLevel {
+				continue
+			}
+			if err := m.RegisterHeaderExtension(webrtc.RTPHeaderExtensionCapability{URI: extension}, webrtc.RTPCodecTypeAudio); err != nil {
+				return nil, err
+			}
+		}
+
+		i := &interceptor.Registry{}
+		if err := webrtc.RegisterDefaultInterceptors(m, i); err != nil {
+			return nil, err
+		}
+
+		api := webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(i))
+		return api.NewPeerConnection(configuration)
+	}
+
+	pc, err := webrtcNewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
@@ -94,6 +133,9 @@ func startPlay(ctx context.Context, r, dumpAudio, dumpVideo string) error {
 		trackDesc := fmt.Sprintf("channels=%v", codec.Channels)
 		if track.Kind() == webrtc.RTPCodecTypeVideo {
 			trackDesc = fmt.Sprintf("fmtp=%v", codec.SDPFmtpLine)
+		}
+		if headers := receiver.GetParameters().HeaderExtensions; len(headers) > 0 {
+			trackDesc = fmt.Sprintf("%v, header=%v", trackDesc, headers)
 		}
 		logger.Tf(ctx, "Got track %v, pt=%v, tbn=%v, %v",
 			codec.MimeType, codec.PayloadType, codec.ClockRate, trackDesc)

@@ -22,11 +22,12 @@ func main() {
 
 	var pr, sourceAudio, sourceVideo string
 	var fps int
-	var audioLevel, videoTWCC bool
 	flag.StringVar(&pr, "pr", "", "")
 	flag.StringVar(&sourceAudio, "sa", "", "")
 	flag.StringVar(&sourceVideo, "sv", "", "")
 	flag.IntVar(&fps, "fps", 0, "")
+
+	var audioLevel, videoTWCC bool
 	flag.BoolVar(&audioLevel, "al", true, "")
 	flag.BoolVar(&videoTWCC, "twcc", true, "")
 
@@ -41,6 +42,8 @@ func main() {
 		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
 		fmt.Println(fmt.Sprintf("   -sn     The number of streams to simulate. Variable: [s]. Default: 1"))
 		fmt.Println(fmt.Sprintf("   -delay  The start delay in ms for each client or stream to simulate. Default: 50"))
+		fmt.Println(fmt.Sprintf("   -al     [Optional] Whether enable audio-level. Default: true"))
+		fmt.Println(fmt.Sprintf("   -twcc   [Optional] Whether enable vdieo-twcc. Default: true"))
 		fmt.Println(fmt.Sprintf("Player or Subscriber:"))
 		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe. If sn exceed 1, auto append variable [s]."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
@@ -50,8 +53,6 @@ func main() {
 		fmt.Println(fmt.Sprintf("   -fps    The fps of .h264 source file."))
 		fmt.Println(fmt.Sprintf("   -sa     [Optional] The file path to read audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -sv     [Optional] The file path to read video, ignore if empty."))
-		fmt.Println(fmt.Sprintf("   -al     [Optional] Whether enable audio-level. Default: true"))
-		fmt.Println(fmt.Sprintf("   -twcc   [Optional] Whether enable vdieo-twcc. Default: true"))
 		fmt.Println(fmt.Sprintf("\n例如，1个播放，1个推流:"))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream", os.Args[0]))
 		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
@@ -84,13 +85,13 @@ func main() {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	summaryDesc := fmt.Sprintf("clients=%v, delay=%v", clients, delay)
+	summaryDesc := fmt.Sprintf("clients=%v, delay=%v, al=%v, twcc=%v", clients, delay, audioLevel, videoTWCC)
 	if sr != "" {
 		summaryDesc = fmt.Sprintf("%v, play(url=%v, da=%v, dv=%v)", summaryDesc, sr, dumpAudio, dumpVideo)
 	}
 	if pr != "" {
-		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v, fps=%v, al=%v, twcc=%v)",
-			summaryDesc, pr, sourceAudio, sourceVideo, fps, audioLevel, videoTWCC)
+		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v, fps=%v)",
+			summaryDesc, pr, sourceAudio, sourceVideo, fps)
 	}
 	logger.Tf(ctx, "Start benchmark with %v", summaryDesc)
 
@@ -142,7 +143,7 @@ func main() {
 			wg.Add(1)
 			go func(sr, da, dv string) {
 				defer wg.Done()
-				if err := startPlay(ctx, sr, da, dv); err != nil {
+				if err := startPlay(ctx, sr, da, dv, audioLevel, videoTWCC); err != nil {
 					if errors.Cause(err) != context.Canceled {
 						logger.Wf(ctx, "Run err %+v", err)
 					}

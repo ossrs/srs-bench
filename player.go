@@ -219,6 +219,8 @@ func startPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioL
 	go func() {
 		defer wg.Done()
 		<-ctx.Done()
+
+		pc.Close()
 	}()
 
 	wg.Add(1)
@@ -243,6 +245,9 @@ func writeTrackToDisk(ctx context.Context, w media.Writer, track *webrtc.TrackRe
 	for ctx.Err() == nil {
 		pkt, _, err := track.ReadRTP()
 		if err != nil {
+			if ctx.Err() != nil {
+				return nil
+			}
 			return errors.Wrapf(err, "Read RTP")
 		}
 

@@ -173,6 +173,8 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		if sVideoSender != nil {
 			sVideoSender.Stop()
 		}
+
+		pc.Close()
 	}()
 
 	wg.Add(1)

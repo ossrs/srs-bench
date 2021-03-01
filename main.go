@@ -40,16 +40,16 @@ func main() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
 		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
-		fmt.Println(fmt.Sprintf("   -sn     The number of streams to simulate. Variable: [s]. Default: 1"))
+		fmt.Println(fmt.Sprintf("   -sn     The number of streams to simulate. Variable: %%d. Default: 1"))
 		fmt.Println(fmt.Sprintf("   -delay  The start delay in ms for each client or stream to simulate. Default: 50"))
 		fmt.Println(fmt.Sprintf("   -al     [Optional] Whether enable audio-level. Default: true"))
 		fmt.Println(fmt.Sprintf("   -twcc   [Optional] Whether enable vdieo-twcc. Default: true"))
 		fmt.Println(fmt.Sprintf("Player or Subscriber:"))
-		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe. If sn exceed 1, auto append variable [s]."))
+		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe. If sn exceed 1, auto append variable %%d."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -dv     [Optional] The file path to dump video, ignore if empty."))
 		fmt.Println(fmt.Sprintf("Publisher:"))
-		fmt.Println(fmt.Sprintf("   -pr     The url to publish. If sn exceed 1, auto append variable [s]."))
+		fmt.Println(fmt.Sprintf("   -pr     The url to publish. If sn exceed 1, auto append variable %%d."))
 		fmt.Println(fmt.Sprintf("   -fps    The fps of .h264 source file."))
 		fmt.Println(fmt.Sprintf("   -sa     [Optional] The file path to read audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -sv     [Optional] The file path to read video, ignore if empty."))
@@ -60,10 +60,10 @@ func main() {
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -nn 3", os.Args[0]))
 		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
 		fmt.Println(fmt.Sprintf("\n例如，2个流，每个流3个播放，共6个客户端："))
-		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream_[s] -sn 2 -nn 3", os.Args[0]))
-		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_[s] -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream_%%d -sn 2 -nn 3", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_%%d -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
 		fmt.Println(fmt.Sprintf("\n例如，2个推流："))
-		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_[s] -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
+		fmt.Println(fmt.Sprintf("   %v -pr webrtc://localhost/live/livestream_%%d -sn 2 -sa a.ogg -sv v.h264 -fps 25", os.Args[0]))
 		fmt.Println(fmt.Sprintf("\n例如，1个录制："))
 		fmt.Println(fmt.Sprintf("   %v -sr webrtc://localhost/live/livestream -da a.ogg -dv v.h264", os.Args[0]))
 		fmt.Println(fmt.Sprintf("\n例如，1个明文播放："))
@@ -128,10 +128,14 @@ func main() {
 
 	for i := 0; sr != "" && i < streams && ctx.Err() == nil; i++ {
 		r_auto := sr
-		if streams > 1 && !strings.Contains(r_auto, "[s]") {
-			r_auto += "_[s]"
+		if streams > 1 && !strings.Contains(r_auto, "%") {
+			r_auto += "%d"
 		}
-		r2 := strings.ReplaceAll(r_auto, "[s]", fmt.Sprintf("%v", i))
+
+		r2 := r_auto
+		if strings.Contains(r2, "%") {
+			r2 = fmt.Sprintf(r2, i)
+		}
 
 		for j := 0; sr != "" && j < clients && ctx.Err() == nil; j++ {
 			// Dump audio or video only for the first client.
@@ -156,10 +160,14 @@ func main() {
 
 	for i := 0; pr != "" && i < streams && ctx.Err() == nil; i++ {
 		r_auto := pr
-		if streams > 1 && !strings.Contains(r_auto, "[s]") {
-			r_auto += "_[s]"
+		if streams > 1 && !strings.Contains(r_auto, "%") {
+			r_auto += "%d"
 		}
-		r2 := strings.ReplaceAll(r_auto, "[s]", fmt.Sprintf("%v", i))
+
+		r2 := r_auto
+		if strings.Contains(r2, "%") {
+			r2 = fmt.Sprintf(r2, i)
+		}
 
 		wg.Add(1)
 		go func(pr string) {

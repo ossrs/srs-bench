@@ -36,7 +36,7 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 然后，启动推流压测，比如100个流：
 
 ```bash
-./objs/srs_bench -pr webrtc://localhost/live/livestream_[s] -sn 100 -sa a.ogg -sv v.h264 -fps 25
+./objs/srs_bench -pr webrtc://localhost/live/livestream_%d -sn 100 -sa a.ogg -sv v.h264 -fps 25
 ```
 
 > 注意：帧率是原始视频的帧率，由于264中没有这个信息所以需要传递。
@@ -48,16 +48,18 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 首先，启动推流压测，比如3个流：
 
 ```bash
-./objs/srs_bench -pr webrtc://localhost/live/livestream_[s] -sn 3 -sa a.ogg -sv v.h264 -fps 25
+./objs/srs_bench -pr webrtc://localhost/live/livestream_%d -sn 3 -sa a.ogg -sv v.h264 -fps 25
 ```
 
 然后，每个流都启动播放压测，比如每个流2个播放：
 
 ```bash
-./objs/srs_bench -sr webrtc://localhost/live/livestream_[s] -sn 3 -nn 2
+./objs/srs_bench -sr webrtc://localhost/live/livestream_%d -sn 3 -nn 2
 ```
 
 > 备注：压测都是基于流，可以任意设计推流和播放的流路数，实现不同的场景。
+
+> 备注：URL的变量格式参考Go的`fmt.Sprintf`，比如可以用`webrtc://localhost/live/livestream_%03d`。
 
 ## DVR
 

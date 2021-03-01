@@ -186,7 +186,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		select {
 		case <-ctx.Done():
 		case <-pcDone.Done():
-			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read audio %v", sourceAudio)
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read audio packets")
 		}
 
 		buf := make([]byte, 1500)
@@ -233,7 +233,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		select {
 		case <-ctx.Done():
 		case <-pcDone.Done():
-			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video %v", sourceVideo)
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video packets")
 		}
 
 		buf := make([]byte, 1500)
@@ -265,6 +265,20 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 					continue
 				}
 				logger.Wf(ctx, "Ignore video err %+v", err)
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(5 * time.Second):
+				statRTC.PeerConnection = pc.GetStats()
 			}
 		}
 	}()

@@ -14,6 +14,7 @@ import (
 	"github.com/pion/webrtc/v3/pkg/media/ivfwriter"
 	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -211,7 +212,30 @@ func startPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioL
 		}
 	})
 
-	<-ctx.Done()
+	// Wait for event from context or tracks.
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-ctx.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(5 * time.Second):
+				statRTC.PeerConnection = pc.GetStats()
+			}
+		}
+	}()
+
+	wg.Wait()
 	return err
 }
 

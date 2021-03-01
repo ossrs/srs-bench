@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -36,6 +38,9 @@ func main() {
 	flag.IntVar(&streams, "sn", 1, "")
 	flag.IntVar(&delay, "delay", 50, "")
 
+	var statListen string
+	flag.StringVar(&statListen, "stat", ":8000", "")
+
 	flag.Usage = func() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
@@ -44,6 +49,7 @@ func main() {
 		fmt.Println(fmt.Sprintf("   -delay  The start delay in ms for each client or stream to simulate. Default: 50"))
 		fmt.Println(fmt.Sprintf("   -al     [Optional] Whether enable audio-level. Default: true"))
 		fmt.Println(fmt.Sprintf("   -twcc   [Optional] Whether enable vdieo-twcc. Default: true"))
+		fmt.Println(fmt.Sprintf("   -stat   [Optional] The stat server API listen port. Default: :8000"))
 		fmt.Println(fmt.Sprintf("Player or Subscriber:"))
 		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe. If sn exceed 1, auto append variable %%d."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
@@ -84,8 +90,12 @@ func main() {
 		os.Exit(-1)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	summaryDesc := fmt.Sprintf("clients=%v, delay=%v, al=%v, twcc=%v", clients, delay, audioLevel, videoTWCC)
+	if statListen != "" && !strings.Contains(statListen, ":") {
+		statListen = ":" + statListen
+	}
+
+	ctx := context.Background()
+	summaryDesc := fmt.Sprintf("clients=%v, delay=%v, al=%v, twcc=%v, stat=%v", clients, delay, audioLevel, videoTWCC, statListen)
 	if sr != "" {
 		summaryDesc = fmt.Sprintf("%v, play(url=%v, da=%v, dv=%v)", summaryDesc, sr, dumpAudio, dumpVideo)
 	}
@@ -114,9 +124,12 @@ func main() {
 		os.Exit(-1)
 	}
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+	ctx, cancel := context.WithCancel(ctx)
+
+	// Process all signals.
 	go func() {
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
 		for sig := range sigs {
 			logger.Wf(ctx, "Quit for signal %v", sig)
 			cancel()
@@ -126,6 +139,49 @@ func main() {
 	// Run tasks.
 	var wg sync.WaitGroup
 
+	// Start STAT API server.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if statListen == "" {
+			return
+		}
+
+		var lc net.ListenConfig
+		ln, err := lc.Listen(ctx, "tcp", statListen)
+		if err != nil {
+			logger.Ef(ctx, "stat listen err+%v", err)
+			cancel()
+			return
+		}
+
+		mux := http.NewServeMux()
+		handleStat(ctx, mux, statListen)
+
+		srv := &http.Server{
+			Handler: mux,
+			BaseContext: func(listener net.Listener) context.Context {
+				return ctx
+			},
+		}
+
+		go func() {
+			<-ctx.Done()
+			srv.Shutdown(ctx)
+		}()
+
+		logger.Tf(ctx, "Stat listen at %v", statListen)
+		if err := srv.Serve(ln); err != nil {
+			if ctx.Err() == nil {
+				logger.Ef(ctx, "stat serve err+%v", err)
+				cancel()
+			}
+			return
+		}
+	}()
+
+	// Start all subscribers or players.
 	for i := 0; sr != "" && i < streams && ctx.Err() == nil; i++ {
 		r_auto := sr
 		if streams > 1 && !strings.Contains(r_auto, "%") {
@@ -144,9 +200,16 @@ func main() {
 				da, dv = "", ""
 			}
 
+			statRTC.Subscribers.Expect++
+			statRTC.Subscribers.Alive++
+
 			wg.Add(1)
 			go func(sr, da, dv string) {
 				defer wg.Done()
+				defer func() {
+					statRTC.Subscribers.Alive--
+				}()
+
 				if err := startPlay(ctx, sr, da, dv, audioLevel, videoTWCC); err != nil {
 					if errors.Cause(err) != context.Canceled {
 						logger.Wf(ctx, "Run err %+v", err)
@@ -158,6 +221,7 @@ func main() {
 		}
 	}
 
+	// Start all publishers.
 	for i := 0; pr != "" && i < streams && ctx.Err() == nil; i++ {
 		r_auto := pr
 		if streams > 1 && !strings.Contains(r_auto, "%") {
@@ -169,9 +233,16 @@ func main() {
 			r2 = fmt.Sprintf(r2, i)
 		}
 
+		statRTC.Publishers.Expect++
+		statRTC.Publishers.Alive++
+
 		wg.Add(1)
 		go func(pr string) {
 			defer wg.Done()
+			defer func() {
+				statRTC.Publishers.Alive--
+			}()
+
 			if err := startPublish(ctx, pr, sourceAudio, sourceVideo, fps, audioLevel, videoTWCC); err != nil {
 				if errors.Cause(err) != context.Canceled {
 					logger.Wf(ctx, "Run err %+v", err)

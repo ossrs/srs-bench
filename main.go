@@ -39,7 +39,7 @@ func main() {
 	flag.IntVar(&delay, "delay", 50, "")
 
 	var statListen string
-	flag.StringVar(&statListen, "stat", ":8000", "")
+	flag.StringVar(&statListen, "stat", ":18000", "")
 
 	flag.Usage = func() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
@@ -49,7 +49,7 @@ func main() {
 		fmt.Println(fmt.Sprintf("   -delay  The start delay in ms for each client or stream to simulate. Default: 50"))
 		fmt.Println(fmt.Sprintf("   -al     [Optional] Whether enable audio-level. Default: true"))
 		fmt.Println(fmt.Sprintf("   -twcc   [Optional] Whether enable vdieo-twcc. Default: true"))
-		fmt.Println(fmt.Sprintf("   -stat   [Optional] The stat server API listen port. Default: :8000"))
+		fmt.Println(fmt.Sprintf("   -stat   [Optional] The stat server API listen port. Default: :18000"))
 		fmt.Println(fmt.Sprintf("Player or Subscriber:"))
 		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe. If sn exceed 1, auto append variable %%d."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))

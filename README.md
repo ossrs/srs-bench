@@ -99,7 +99,18 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 
 ## Regression Test
 
-支持回归测试，使用方法：
+回归测试需要先启动[SRS](https://github.com/ossrs/srs/issues/307)，支持WebRTC推拉流：
+
+```bash
+eip=$(ifconfig en0 inet| grep 'inet '|awk '{print $2}')
+if [[ ! -z $eip ]]; then 
+  docker run -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
+      --rm --env CANDIDATE=$(ifconfig en0 inet| grep 'inet '|awk '{print $2}')\
+      registry.cn-hangzhou.aliyuncs.com/ossrs/srs:v4.0.76 objs/srs -c conf/rtc.conf
+fi
+```
+
+然后运行回归测试用例，如果只跑一次，可以直接运行：
 
 ```bash
 go test ./srs -v

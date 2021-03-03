@@ -102,13 +102,21 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 支持回归测试，使用方法：
 
 ```bash
-go test ./srs
+go test ./srs -v
 ```
 
-可以给回归测试传参数，比如：
+也可以用make编译出重复使用的二进制：
 
 ```bash
-go test ./srs -rtc-server=127.0.0.1
+make test && ./objs/srs_test -test.v
+```
+
+可以给回归测试传参数，这样可以测试不同的序列，比如：
+
+```bash
+go test ./srs -v -rtc-server=127.0.0.1
+# Or
+make test && ./objs/srs_test -test.v -rtc-server=127.0.0.1
 ```
 
 支持的参数如下：

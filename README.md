@@ -97,4 +97,22 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 
 > Note: 可以传递更多参数，详细参考SRS支持的参数。
 
+## 回归测试
+
+支持回归测试，使用方法：
+
+```bash
+go test ./srs
+```
+
+可以给回归测试传参数，比如：
+
+```bash
+go test ./srs -rtc-server=127.0.0.1
+```
+
+支持的参数如下：
+
+* `-rtc-server`，设置RTC服务器地址，默认是本机即`127.0.0.1`。
+
 2021.01, Winlin

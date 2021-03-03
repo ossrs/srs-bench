@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	"github.com/ossrs/srs-bench/srs"
 	"net"
 	"net/http"
 	"os"
@@ -157,7 +158,7 @@ func main() {
 		}
 
 		mux := http.NewServeMux()
-		handleStat(ctx, mux, statListen)
+		srs.HandleStat(ctx, mux, statListen)
 
 		srv := &http.Server{
 			Handler: mux,
@@ -200,17 +201,17 @@ func main() {
 				da, dv = "", ""
 			}
 
-			statRTC.Subscribers.Expect++
-			statRTC.Subscribers.Alive++
+			srs.StatRTC.Subscribers.Expect++
+			srs.StatRTC.Subscribers.Alive++
 
 			wg.Add(1)
 			go func(sr, da, dv string) {
 				defer wg.Done()
 				defer func() {
-					statRTC.Subscribers.Alive--
+					srs.StatRTC.Subscribers.Alive--
 				}()
 
-				if err := startPlay(ctx, sr, da, dv, audioLevel, videoTWCC); err != nil {
+				if err := srs.StartPlay(ctx, sr, da, dv, audioLevel, videoTWCC); err != nil {
 					if errors.Cause(err) != context.Canceled {
 						logger.Wf(ctx, "Run err %+v", err)
 					}
@@ -233,17 +234,17 @@ func main() {
 			r2 = fmt.Sprintf(r2, i)
 		}
 
-		statRTC.Publishers.Expect++
-		statRTC.Publishers.Alive++
+		srs.StatRTC.Publishers.Expect++
+		srs.StatRTC.Publishers.Alive++
 
 		wg.Add(1)
 		go func(pr string) {
 			defer wg.Done()
 			defer func() {
-				statRTC.Publishers.Alive--
+				srs.StatRTC.Publishers.Alive--
 			}()
 
-			if err := startPublish(ctx, pr, sourceAudio, sourceVideo, fps, audioLevel, videoTWCC); err != nil {
+			if err := srs.StartPublish(ctx, pr, sourceAudio, sourceVideo, fps, audioLevel, videoTWCC); err != nil {
 				if errors.Cause(err) != context.Canceled {
 					logger.Wf(ctx, "Run err %+v", err)
 				}

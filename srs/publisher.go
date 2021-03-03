@@ -1,9 +1,10 @@
-package main
+package srs
 
 import (
 	"context"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	"github.com/ossrs/srs-bench/rtc"
 	"github.com/pion/interceptor"
 	"github.com/pion/rtp"
 	"github.com/pion/sdp/v3"
@@ -19,7 +20,7 @@ import (
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/play-from-disk/main.go
-func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int, enableAudioLevel, enableTWCC bool) error {
+func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int, enableAudioLevel, enableTWCC bool) error {
 	ctx = logger.WithContext(ctx)
 
 	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v, audio-level=%v, twcc=%v",
@@ -66,7 +67,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		return errors.Wrapf(err, "Create PC")
 	}
 
-	var sVideoTrack *TrackLocalStaticSample
+	var sVideoTrack *rtc.TrackLocalStaticSample
 	var sVideoSender *webrtc.RTPSender
 	if sourceVideo != "" {
 		mimeType, trackID := "video/H264", "video"
@@ -74,7 +75,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 			mimeType = "video/VP8"
 		}
 
-		sVideoTrack, err = NewTrackLocalStaticSample(
+		sVideoTrack, err = rtc.NewTrackLocalStaticSample(
 			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 90000}, trackID, "pion",
 		)
 		if err != nil {
@@ -87,11 +88,11 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		}
 	}
 
-	var sAudioTrack *TrackLocalStaticSample
+	var sAudioTrack *rtc.TrackLocalStaticSample
 	var sAudioSender *webrtc.RTPSender
 	if sourceAudio != "" {
 		mimeType, trackID := "audio/opus", "audio"
-		sAudioTrack, err = NewTrackLocalStaticSample(
+		sAudioTrack, err = rtc.NewTrackLocalStaticSample(
 			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 48000, Channels: 2}, trackID, "pion",
 		)
 		if err != nil {
@@ -280,7 +281,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 			case <-ctx.Done():
 				return
 			case <-time.After(5 * time.Second):
-				statRTC.PeerConnection = pc.GetStats()
+				StatRTC.PeerConnection = pc.GetStats()
 			}
 		}
 	}()
@@ -289,7 +290,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 	return nil
 }
 
-func readAudioTrackFromDisk(ctx context.Context, source string, sender *webrtc.RTPSender, track *TrackLocalStaticSample) error {
+func readAudioTrackFromDisk(ctx context.Context, source string, sender *webrtc.RTPSender, track *rtc.TrackLocalStaticSample) error {
 	f, err := os.Open(source)
 	if err != nil {
 		return errors.Wrapf(err, "Open file %v", source)
@@ -353,7 +354,7 @@ func readAudioTrackFromDisk(ctx context.Context, source string, sender *webrtc.R
 	return nil
 }
 
-func readVideoTrackFromDisk(ctx context.Context, source string, sender *webrtc.RTPSender, fps int, track *TrackLocalStaticSample) error {
+func readVideoTrackFromDisk(ctx context.Context, source string, sender *webrtc.RTPSender, fps int, track *rtc.TrackLocalStaticSample) error {
 	f, err := os.Open(source)
 	if err != nil {
 		return errors.Wrapf(err, "Open file %v", source)

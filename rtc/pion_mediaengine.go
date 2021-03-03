@@ -1,4 +1,4 @@
-package main
+package rtc
 
 import (
 	"github.com/pion/rtp"

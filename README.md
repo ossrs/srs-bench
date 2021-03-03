@@ -97,7 +97,7 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 
 > Note: 可以传递更多参数，详细参考SRS支持的参数。
 
-## 回归测试
+## Regression Test
 
 支持回归测试，使用方法：
 

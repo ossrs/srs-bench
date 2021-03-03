@@ -1,6 +1,9 @@
-.PHONY: help default bench test
+.PHONY: help default clean bench test
 
 default: bench
+
+clean:
+	rm -f ./objs/srs_bench ./objs/srs_test
 
 bench: ./objs/srs_bench
 
@@ -11,6 +14,7 @@ bench: ./objs/srs_bench
 test: ./objs/srs_test
 
 ./objs/srs_test: *.go rtc/*.go srs/*.go
+	gofmt -w .
 	go test ./srs -o ./objs/srs_test
 
 help:

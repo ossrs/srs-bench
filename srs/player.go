@@ -221,14 +221,6 @@ func StartPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioL
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		<-ctx.Done()
-
-		pc.Close()
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
 
 		for {
 			select {

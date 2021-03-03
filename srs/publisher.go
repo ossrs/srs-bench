@@ -66,6 +66,7 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
+	defer pc.Close()
 
 	var sVideoTrack *rtc.TrackLocalStaticSample
 	var sVideoSender *webrtc.RTPSender
@@ -86,6 +87,7 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		if err != nil {
 			return errors.Wrapf(err, "Add video track")
 		}
+		sVideoSender.Stop()
 	}
 
 	var sAudioTrack *rtc.TrackLocalStaticSample
@@ -103,6 +105,7 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		if err != nil {
 			return errors.Wrapf(err, "Add audio track")
 		}
+		defer sAudioSender.Stop()
 	}
 
 	offer, err := pc.CreateOffer(nil)
@@ -161,22 +164,6 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 
 	// Wait for event from context or tracks.
 	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		<-ctx.Done()
-
-		if sAudioSender != nil {
-			sAudioSender.Stop()
-		}
-
-		if sVideoSender != nil {
-			sVideoSender.Stop()
-		}
-
-		pc.Close()
-	}()
 
 	wg.Add(1)
 	go func() {

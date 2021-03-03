@@ -125,9 +125,9 @@ make test && ./objs/srs_test -test.v
 可以给回归测试传参数，这样可以测试不同的序列，比如：
 
 ```bash
-go test ./srs -v -rtc-server=127.0.0.1
+go test ./srs -v -srs-server=127.0.0.1
 # Or
-make test && ./objs/srs_test -test.v -rtc-server=127.0.0.1
+make test && ./objs/srs_test -test.v -srs-server=127.0.0.1
 ```
 
 支持的参数如下：

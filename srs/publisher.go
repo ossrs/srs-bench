@@ -316,7 +316,7 @@ func readAudioTrackFromDisk(ctx context.Context, source string, sender *webrtc.R
 		}
 	}
 
-	clock := NewWallClock()
+	clock := newWallClock()
 	var lastGranule uint64
 
 	for ctx.Err() == nil {
@@ -373,7 +373,7 @@ func readVideoTrackFromDisk(ctx context.Context, source string, sender *webrtc.R
 	logger.Tf(ctx, "Video %v, tbn=%v, fps=%v, ssrc=%v, pt=%v, header=%v",
 		codec.MimeType, codec.ClockRate, fps, enc.SSRC, codec.PayloadType, headers)
 
-	clock := NewWallClock()
+	clock := newWallClock()
 	sampleDuration := time.Duration(uint64(time.Millisecond) * 1000 / uint64(fps))
 	for ctx.Err() == nil {
 		var sps, pps *h264reader.NAL

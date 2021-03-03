@@ -121,16 +121,16 @@ func packageAsSTAPA(frames ...*h264reader.NAL) *h264reader.NAL {
 	}
 }
 
-type WallClock struct {
+type wallClock struct {
 	start    time.Time
 	duration time.Duration
 }
 
-func NewWallClock() *WallClock {
-	return &WallClock{start: time.Now()}
+func newWallClock() *wallClock {
+	return &wallClock{start: time.Now()}
 }
 
-func (v *WallClock) Tick(d time.Duration) time.Duration {
+func (v *wallClock) Tick(d time.Duration) time.Duration {
 	v.duration += d
 
 	wc := time.Now().Sub(v.start)

@@ -19,9 +19,11 @@ import (
 
 func main() {
 	var sr, dumpAudio, dumpVideo string
+	var pli int
 	flag.StringVar(&sr, "sr", "", "")
 	flag.StringVar(&dumpAudio, "da", "", "")
 	flag.StringVar(&dumpVideo, "dv", "", "")
+	flag.IntVar(&pli, "pli", 10, "")
 
 	var pr, sourceAudio, sourceVideo string
 	var fps int
@@ -55,6 +57,7 @@ func main() {
 		fmt.Println(fmt.Sprintf("   -sr     The url to play/subscribe. If sn exceed 1, auto append variable %%d."))
 		fmt.Println(fmt.Sprintf("   -da     [Optional] The file path to dump audio, ignore if empty."))
 		fmt.Println(fmt.Sprintf("   -dv     [Optional] The file path to dump video, ignore if empty."))
+		fmt.Println(fmt.Sprintf("   -pli    [Optional] PLI request interval in seconds. Default: 10"))
 		fmt.Println(fmt.Sprintf("Publisher:"))
 		fmt.Println(fmt.Sprintf("   -pr     The url to publish. If sn exceed 1, auto append variable %%d."))
 		fmt.Println(fmt.Sprintf("   -fps    The fps of .h264 source file."))
@@ -98,7 +101,7 @@ func main() {
 	ctx := context.Background()
 	summaryDesc := fmt.Sprintf("clients=%v, delay=%v, al=%v, twcc=%v, stat=%v", clients, delay, audioLevel, videoTWCC, statListen)
 	if sr != "" {
-		summaryDesc = fmt.Sprintf("%v, play(url=%v, da=%v, dv=%v)", summaryDesc, sr, dumpAudio, dumpVideo)
+		summaryDesc = fmt.Sprintf("%v, play(url=%v, da=%v, dv=%v, pli=%v)", summaryDesc, sr, dumpAudio, dumpVideo, pli)
 	}
 	if pr != "" {
 		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v, fps=%v)",
@@ -211,7 +214,7 @@ func main() {
 					srs.StatRTC.Subscribers.Alive--
 				}()
 
-				if err := srs.StartPlay(ctx, sr, da, dv, audioLevel, videoTWCC); err != nil {
+				if err := srs.StartPlay(ctx, sr, da, dv, audioLevel, videoTWCC, pli); err != nil {
 					if errors.Cause(err) != context.Canceled {
 						logger.Wf(ctx, "Run err %+v", err)
 					}

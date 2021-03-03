@@ -19,7 +19,7 @@ import (
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/save-to-disk/main.go
-func StartPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioLevel, enableTWCC bool) error {
+func StartPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioLevel, enableTWCC bool, pli int) error {
 	ctx = logger.WithContext(ctx)
 
 	logger.Tf(ctx, "Start play url=%v, audio=%v, video=%v, audio-level=%v, twcc=%v",
@@ -116,12 +116,15 @@ func StartPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioL
 				return
 			}
 
-			ticker := time.NewTicker(3 * time.Second)
+			if pli <= 0 {
+				return
+			}
+
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case <-ticker.C:
+				case <-time.After(time.Duration(pli) * time.Second):
 					_ = pc.WriteRTCP([]rtcp.Packet{&rtcp.PictureLossIndication{
 						MediaSSRC: uint32(track.SSRC()),
 					}})

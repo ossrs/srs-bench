@@ -1,21 +1,23 @@
 .PHONY: help default clean bench test
 
-default: bench
+default: bench test
 
 clean:
 	rm -f ./objs/srs_bench ./objs/srs_test
 
+.format.txt: *.go rtc/*.go srs/*.go
+	gofmt -w .
+	echo "done" > .format.txt
+
 bench: ./objs/srs_bench
 
-./objs/srs_bench: *.go rtc/*.go srs/*.go
-	gofmt -w .
+./objs/srs_bench: .format.txt *.go rtc/*.go srs/*.go Makefile
 	go build -mod=vendor -o objs/srs_bench .
 
 test: ./objs/srs_test
 
-./objs/srs_test: *.go rtc/*.go srs/*.go
-	gofmt -w .
-	go test ./srs -o ./objs/srs_test
+./objs/srs_test: .format.txt *.go rtc/*.go srs/*.go Makefile
+	go test ./srs -c -o ./objs/srs_test
 
 help:
 	@echo "Usage: make [bench|test]"

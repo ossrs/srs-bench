@@ -121,6 +121,8 @@ make test && ./objs/srs_test -test.v -rtc-server=127.0.0.1
 
 支持的参数如下：
 
-* `-rtc-server`，设置RTC服务器地址，默认是本机即`127.0.0.1`。
+* `-srs-server`，设置RTC服务器地址，默认是本机即`127.0.0.1`。
+* `-srs-timeout`，设置Case的超时时间，毫秒，默认3000，即3秒。
+* `-srs-play-ok-packets`，设置播放时，收到多少个包认为是测试通过，默认是10个。
 
 2021.01, Winlin

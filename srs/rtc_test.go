@@ -47,8 +47,6 @@ func TestMain(m *testing.M) {
 	}
 
 	// Disable the logger during all tests.
-	logger.Tf(nil, "sys log %v", *srsLog)
-
 	if *srsLog == false {
 		olw := logger.Switch(ioutil.Discard)
 		defer func() {

@@ -102,8 +102,7 @@ ffmpeg -re -i doc/source.200kbps.768x320.flv -c copy -f flv -y rtmp://localhost/
 回归测试需要先启动[SRS](https://github.com/ossrs/srs/issues/307)，支持WebRTC推拉流：
 
 ```bash
-eip=$(ifconfig en0 inet| grep 'inet '|awk '{print $2}')
-if [[ ! -z $eip ]]; then 
+if [[ ! -z $(ifconfig en0 inet| grep 'inet '|awk '{print $2}') ]]; then 
   docker run -p 1935:1935 -p 8080:8080 -p 1985:1985 -p 8000:8000/udp \
       --rm --env CANDIDATE=$(ifconfig en0 inet| grep 'inet '|awk '{print $2}')\
       registry.cn-hangzhou.aliyuncs.com/ossrs/srs:v4.0.76 objs/srs -c conf/rtc.conf
@@ -119,7 +118,18 @@ go test ./srs -mod=vendor -v
 也可以用make编译出重复使用的二进制：
 
 ```bash
-make test && ./objs/srs_test -test.v
+make && ./objs/srs_test -test.v
+```
+
+运行结果如下：
+
+```bash
+$ make && ./objs/srs_test -test.v
+=== RUN   TestRTCServerVersion
+--- PASS: TestRTCServerVersion (0.00s)
+=== RUN   TestRTCServerPublishPlay
+--- PASS: TestRTCServerPublishPlay (1.28s)
+PASS
 ```
 
 可以给回归测试传参数，这样可以测试不同的序列，比如：
@@ -127,7 +137,7 @@ make test && ./objs/srs_test -test.v
 ```bash
 go test ./srs -mod=vendor -v -srs-server=127.0.0.1
 # Or
-make test && ./objs/srs_test -test.v -srs-server=127.0.0.1
+make && ./objs/srs_test -test.v -srs-server=127.0.0.1
 ```
 
 支持的参数如下：

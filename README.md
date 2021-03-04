@@ -133,6 +133,7 @@ make test && ./objs/srs_test -test.v -srs-server=127.0.0.1
 支持的参数如下：
 
 * `-srs-server`，RTC服务器地址。默认值：`127.0.0.1`
+* `-srs-stream`，RTC流地址。默认值：`/rtc/regression`
 * `-srs-log`，是否开启详细日志。默认值：`false`
 * `-srs-timeout`，每个Case的超时时间，毫秒。默认值：`3000`，即3秒。
 * `-srs-play-pli`，播放时，PLI的间隔，毫秒。默认值：`5000`，即5秒。
@@ -140,5 +141,9 @@ make test && ./objs/srs_test -test.v -srs-server=127.0.0.1
 * `-srs-publish-audio`，推流时，使用的音频文件。默认值：`avatar.ogg`
 * `-srs-publish-video`，推流时，使用的视频文件。默认值：`avatar.h264`
 * `-srs-publish-video-fps`，推流时，视频文件的FPS。默认值：`25`
+
+其他不常用参数：
+
+* `-srs-https`，是否连接HTTPS-API。默认值：`false`，即连接HTTP-API。
 
 2021.01, Winlin

@@ -20,7 +20,10 @@ import (
 	"time"
 )
 
+var srsSchema = "http"
+var srsHttps = flag.Bool("srs-https", false, "Whther connect to HTTPS-API")
 var srsServer = flag.String("srs-server", "127.0.0.1", "The RTC server to connect to")
+var srsStream = flag.String("srs-stream", "/rtc/regression", "The RTC stream to play")
 var srsLog = flag.Bool("srs-log", false, "Whether enable the detail log")
 var srsTimeout = flag.Int("srs-timeout", 3000, "For each case, the timeout in ms")
 var srsPlayPLI = flag.Int("srs-play-pli", 5000, "The PLI interval in seconds for player.")
@@ -32,6 +35,16 @@ var srsPublishVideoFps = flag.Int("srs-publish-video-fps", 25, "The video fps fo
 func TestMain(m *testing.M) {
 	// Should parse it first.
 	flag.Parse()
+
+	// The stream should starts with /, for example, /rtc/regression
+	if strings.HasPrefix(*srsStream, "/") {
+		*srsStream = "/" + *srsStream
+	}
+
+	// Generate srs protocol from whether use HTTPS.
+	if *srsHttps {
+		srsSchema = "https"
+	}
 
 	// Disable the logger during all tests.
 	logger.Tf(nil, "sys log %v", *srsLog)
@@ -95,7 +108,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithCancel(ctx)
 
-	r := fmt.Sprintf("http://%v/live/livestream", *srsServer)
+	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
 	publishReady, publishReadyCancel := context.WithCancel(context.Background())
 
 	startPlay := func(ctx context.Context) error {

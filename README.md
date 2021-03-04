@@ -146,4 +146,21 @@ make test && ./objs/srs_test -test.v -srs-server=127.0.0.1
 
 * `-srs-https`，是否连接HTTPS-API。默认值：`false`，即连接HTTP-API。
 
+## GCOVR
+
+本机生成覆盖率时，我们使用工具[gcovr](https://gcovr.com/en/stable/guide.html)。
+
+在macOS上安装gcovr：
+
+```bash
+pip3 install gcovr
+```
+
+在CentOS上安装gcovr：
+
+```bash
+yum install -y python2-pip &&
+pip install lxml && pip install gcovr
+```
+
 2021.01, Winlin

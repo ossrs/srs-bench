@@ -4,3 +4,5 @@ objs
 *.ivf
 *.h264
 .DS_Store
+
+.format.txt

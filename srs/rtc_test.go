@@ -60,9 +60,10 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-type OnPacketFunc func(p *rtp.Packet)
+type TestPlayer struct {
+}
 
-func testStartPlay(ctx context.Context, cancel context.CancelFunc) error {
+func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
 	pli := time.Duration(*srsPlayPLI) * time.Millisecond
 	playOK := *srsPlayOKPackets
@@ -154,7 +155,12 @@ func testStartPlay(ctx context.Context, cancel context.CancelFunc) error {
 	return err
 }
 
-func testStartPublish(ctx context.Context, cancel, ready context.CancelFunc, onPacket OnPacketFunc) error {
+type TestPublisher struct {
+	onPacket func(p *rtp.Packet)
+	ready    context.CancelFunc
+}
+
+func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) error {
 	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
 	sourceVideo := *srsPublishVideo
 	sourceAudio := *srsPublishAudio
@@ -237,8 +243,8 @@ func testStartPublish(ctx context.Context, cancel, ready context.CancelFunc, onP
 
 		if state == webrtc.PeerConnectionStateConnected {
 			pcDoneCancel()
-			if ready != nil {
-				ready()
+			if v.ready != nil {
+				v.ready()
 			}
 		}
 
@@ -286,7 +292,7 @@ func testStartPublish(ctx context.Context, cancel, ready context.CancelFunc, onP
 		}
 
 		for ctx.Err() == nil {
-			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack, onPacket); err != nil {
+			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack, v.onPacket); err != nil {
 				if errors.Cause(err) == io.EOF {
 					logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
 					continue
@@ -412,7 +418,8 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		case <-publishReady.Done():
 		}
 
-		if err := testStartPlay(logger.WithContext(ctx), cancel); err != nil {
+		p := &TestPlayer{}
+		if err := p.Run(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
 			}
@@ -424,7 +431,8 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		defer wg.Done()
 		defer cancel()
 
-		if err := testStartPublish(logger.WithContext(ctx), cancel, publishReadyCancel, nil); err != nil {
+		p := &TestPublisher{ready: publishReadyCancel}
+		if err := p.Run(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
 			}
@@ -454,7 +462,8 @@ func TestRTCServerPublishDTLS(t *testing.T) {
 		}
 	}
 
-	if err := testStartPublish(ctx, cancel, nil, onSendPacket); err != nil {
+	p := &TestPublisher{onPacket: onSendPacket}
+	if err := p.Run(ctx, cancel); err != nil {
 		if err != context.Canceled {
 			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)
 		}

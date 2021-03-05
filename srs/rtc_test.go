@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
-	"github.com/ossrs/srs-bench/rtc"
+	"github.com/pion/interceptor"
 	"github.com/pion/rtcp"
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3"
@@ -157,8 +157,27 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 
 type TestPublisher struct {
 	onOffer  func(s *webrtc.SessionDescription) error
-	onPacket func(p *rtp.Packet)
+	onPacket func(p *rtp.Header, payload []byte)
 	ready    context.CancelFunc
+	// internal objects
+	aIngester *audioIngester
+	vIngester *videoIngester
+	pc        *webrtc.PeerConnection
+}
+
+func (v *TestPublisher) Close() error {
+	if v.vIngester != nil {
+		v.vIngester.Close()
+	}
+
+	if v.aIngester != nil {
+		v.aIngester.Close()
+	}
+
+	if v.pc != nil {
+		v.pc.Close()
+	}
+	return nil
 }
 
 func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) error {
@@ -170,50 +189,59 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
 		r, sourceAudio, sourceVideo, fps)
 
-	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	// Filter for SPS/PPS marker.
+	counterInterceptor := &rtpInterceptor{}
+	counterInterceptor.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
+		if v.onPacket != nil {
+			v.onPacket(header, payload)
+		}
+		return counterInterceptor.nextRTPWriter.Write(header, payload, attributes)
+	}
+
+	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
+		m := &webrtc.MediaEngine{}
+		if err := m.RegisterDefaultCodecs(); err != nil {
+			return nil, err
+		}
+
+		registry := &interceptor.Registry{}
+		if err := webrtc.RegisterDefaultInterceptors(m, registry); err != nil {
+			return nil, err
+		}
+
+		for _, bi := range []interceptor.Interceptor{counterInterceptor} {
+			registry.Add(bi)
+		}
+
+		if sourceAudio != "" {
+			v.aIngester = NewAudioIngester(registry, sourceAudio)
+		}
+		if sourceVideo != "" {
+			v.vIngester = NewVideoIngester(registry, sourceVideo)
+		}
+
+		api := webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(registry))
+		return api.NewPeerConnection(configuration)
+	}
+
+	pc, err := webrtcNewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
-	defer pc.Close()
+	v.pc = pc
 
-	var sVideoTrack *rtc.TrackLocalStaticSample
-	var sVideoSender *webrtc.RTPSender
-	if sourceVideo != "" {
-		mimeType, trackID := "video/H264", "video"
-		if strings.HasSuffix(sourceVideo, ".ivf") {
-			mimeType = "video/VP8"
+	if v.vIngester != nil {
+		if err := v.vIngester.AddTrack(pc, fps); err != nil {
+			return errors.Wrapf(err, "Add track")
 		}
-
-		sVideoTrack, err = rtc.NewTrackLocalStaticSample(
-			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 90000}, trackID, "pion",
-		)
-		if err != nil {
-			return errors.Wrapf(err, "Create video track")
-		}
-
-		sVideoSender, err = pc.AddTrack(sVideoTrack)
-		if err != nil {
-			return errors.Wrapf(err, "Add video track")
-		}
-		sVideoSender.Stop()
+		defer v.vIngester.Close()
 	}
 
-	var sAudioTrack *rtc.TrackLocalStaticSample
-	var sAudioSender *webrtc.RTPSender
-	if sourceAudio != "" {
-		mimeType, trackID := "audio/opus", "audio"
-		sAudioTrack, err = rtc.NewTrackLocalStaticSample(
-			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 48000, Channels: 2}, trackID, "pion",
-		)
-		if err != nil {
-			return errors.Wrapf(err, "Create audio track")
+	if v.aIngester != nil {
+		if err := v.aIngester.AddTrack(pc); err != nil {
+			return errors.Wrapf(err, "Add track")
 		}
-
-		sAudioSender, err = pc.AddTrack(sAudioTrack)
-		if err != nil {
-			return errors.Wrapf(err, "Add audio track")
-		}
-		defer sAudioSender.Stop()
+		defer v.aIngester.Close()
 	}
 
 	offer, err := pc.CreateOffer(nil)
@@ -268,7 +296,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	go func() {
 		defer wg.Done()
 
-		if sAudioSender == nil {
+		if v.aIngester == nil {
 			return
 		}
 
@@ -279,7 +307,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 
 		buf := make([]byte, 1500)
 		for ctx.Err() == nil {
-			if _, _, err := sAudioSender.Read(buf); err != nil {
+			if _, _, err := v.aIngester.sAudioSender.Read(buf); err != nil {
 				return
 			}
 		}
@@ -289,7 +317,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	go func() {
 		defer wg.Done()
 
-		if sAudioTrack == nil {
+		if v.aIngester == nil {
 			return
 		}
 
@@ -299,7 +327,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		}
 
 		for ctx.Err() == nil {
-			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack, v.onPacket); err != nil {
+			if err := v.aIngester.Ingest(ctx); err != nil {
 				if errors.Cause(err) == io.EOF {
 					logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
 					continue
@@ -313,7 +341,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	go func() {
 		defer wg.Done()
 
-		if sVideoSender == nil {
+		if v.vIngester == nil {
 			return
 		}
 
@@ -325,7 +353,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 
 		buf := make([]byte, 1500)
 		for ctx.Err() == nil {
-			if _, _, err := sVideoSender.Read(buf); err != nil {
+			if _, _, err := v.vIngester.sVideoSender.Read(buf); err != nil {
 				return
 			}
 		}
@@ -335,7 +363,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	go func() {
 		defer wg.Done()
 
-		if sVideoTrack == nil {
+		if v.vIngester == nil {
 			return
 		}
 
@@ -346,7 +374,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		}
 
 		for ctx.Err() == nil {
-			if err := readVideoTrackFromDisk(ctx, sourceVideo, sVideoSender, fps, sVideoTrack); err != nil {
+			if err := v.vIngester.Ingest(ctx); err != nil {
 				if errors.Cause(err) == io.EOF {
 					logger.Tf(ctx, "EOF, restart ingest video %v", sourceVideo)
 					continue
@@ -470,13 +498,15 @@ func TestRTCServerDTLSArq(t *testing.T) {
 	publishOK := *srsPublishOKPackets
 
 	var nn int64
-	onSendPacket := func(p *rtp.Packet) {
+	onSendPacket := func(p *rtp.Header, payload []byte) {
 		if nn++; nn >= int64(publishOK) {
 			cancel() // Send enough packets, done.
 		}
 	}
 
 	p := &TestPublisher{onPacket: onSendPacket, onOffer: testUtilSetupActive}
+	defer p.Close()
+
 	if err := p.Run(ctx, cancel); err != nil {
 		if err != context.Canceled {
 			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)

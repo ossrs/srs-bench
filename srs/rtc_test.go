@@ -60,6 +60,291 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+type OnPacketFunc func(p *rtp.Packet)
+
+func testStartPlay(ctx context.Context, cancel context.CancelFunc) error {
+	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
+	logger.Tf(ctx, "Start play url=%v", r)
+
+	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	if err != nil {
+		return errors.Wrapf(err, "Create PC")
+	}
+	defer pc.Close()
+
+	pc.AddTransceiverFromKind(webrtc.RTPCodecTypeAudio, webrtc.RTPTransceiverInit{
+		Direction: webrtc.RTPTransceiverDirectionRecvonly,
+	})
+	pc.AddTransceiverFromKind(webrtc.RTPCodecTypeVideo, webrtc.RTPTransceiverInit{
+		Direction: webrtc.RTPTransceiverDirectionRecvonly,
+	})
+
+	offer, err := pc.CreateOffer(nil)
+	if err != nil {
+		return errors.Wrapf(err, "Create Offer")
+	}
+
+	if err := pc.SetLocalDescription(offer); err != nil {
+		return errors.Wrapf(err, "Set offer %v", offer)
+	}
+
+	answer, err := apiRtcRequest(ctx, "/rtc/v1/play", r, offer.SDP)
+	if err != nil {
+		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
+	}
+
+	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
+		Type: webrtc.SDPTypeAnswer, SDP: answer,
+	}); err != nil {
+		return errors.Wrapf(err, "Set answer %v", answer)
+	}
+
+	handleTrack := func(ctx context.Context, track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) error {
+		// Send a PLI on an interval so that the publisher is pushing a keyframe
+		go func() {
+			if track.Kind() == webrtc.RTPCodecTypeAudio {
+				return
+			}
+
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(time.Duration(*srsPlayPLI) * time.Millisecond):
+					_ = pc.WriteRTCP([]rtcp.Packet{&rtcp.PictureLossIndication{
+						MediaSSRC: uint32(track.SSRC()),
+					}})
+				}
+			}
+		}()
+
+		// Try to read packets of track.
+		for i := 0; i < *srsPlayOKPackets && ctx.Err() == nil; i++ {
+			_, _, err := track.ReadRTP()
+			if err != nil {
+				return errors.Wrapf(err, "Read RTP")
+			}
+		}
+
+		// Completed.
+		cancel()
+
+		return nil
+	}
+
+	pc.OnTrack(func(track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
+		err = handleTrack(ctx, track, receiver)
+		if err != nil {
+			codec := track.Codec()
+			err = errors.Wrapf(err, "Handle  track %v, pt=%v", codec.MimeType, codec.PayloadType)
+			cancel()
+		}
+	})
+
+	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
+		if state == webrtc.ICEConnectionStateFailed || state == webrtc.ICEConnectionStateClosed {
+			err = errors.Errorf("Close for ICE state %v", state)
+			cancel()
+		}
+	})
+
+	<-ctx.Done()
+	return err
+}
+
+func testStartPublish(ctx context.Context, cancel, ready context.CancelFunc, onPacket OnPacketFunc) error {
+	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
+	sourceVideo := *srsPublishVideo
+	sourceAudio := *srsPublishAudio
+	fps := *srsPublishVideoFps
+
+	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
+		r, sourceAudio, sourceVideo, fps)
+
+	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	if err != nil {
+		return errors.Wrapf(err, "Create PC")
+	}
+	defer pc.Close()
+
+	var sVideoTrack *rtc.TrackLocalStaticSample
+	var sVideoSender *webrtc.RTPSender
+	if sourceVideo != "" {
+		mimeType, trackID := "video/H264", "video"
+		if strings.HasSuffix(sourceVideo, ".ivf") {
+			mimeType = "video/VP8"
+		}
+
+		sVideoTrack, err = rtc.NewTrackLocalStaticSample(
+			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 90000}, trackID, "pion",
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Create video track")
+		}
+
+		sVideoSender, err = pc.AddTrack(sVideoTrack)
+		if err != nil {
+			return errors.Wrapf(err, "Add video track")
+		}
+		sVideoSender.Stop()
+	}
+
+	var sAudioTrack *rtc.TrackLocalStaticSample
+	var sAudioSender *webrtc.RTPSender
+	if sourceAudio != "" {
+		mimeType, trackID := "audio/opus", "audio"
+		sAudioTrack, err = rtc.NewTrackLocalStaticSample(
+			webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 48000, Channels: 2}, trackID, "pion",
+		)
+		if err != nil {
+			return errors.Wrapf(err, "Create audio track")
+		}
+
+		sAudioSender, err = pc.AddTrack(sAudioTrack)
+		if err != nil {
+			return errors.Wrapf(err, "Add audio track")
+		}
+		defer sAudioSender.Stop()
+	}
+
+	offer, err := pc.CreateOffer(nil)
+	if err != nil {
+		return errors.Wrapf(err, "Create Offer")
+	}
+
+	if err := pc.SetLocalDescription(offer); err != nil {
+		return errors.Wrapf(err, "Set offer %v", offer)
+	}
+
+	answer, err := apiRtcRequest(ctx, "/rtc/v1/publish", r, offer.SDP)
+	if err != nil {
+		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
+	}
+
+	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
+		Type: webrtc.SDPTypeAnswer, SDP: answer,
+	}); err != nil {
+		return errors.Wrapf(err, "Set answer %v", answer)
+	}
+
+	logger.Tf(ctx, "State signaling=%v, ice=%v, conn=%v", pc.SignalingState(), pc.ICEConnectionState(), pc.ConnectionState())
+
+	pcDone, pcDoneCancel := context.WithCancel(context.Background())
+	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
+		logger.Tf(ctx, "PC state %v", state)
+
+		if state == webrtc.PeerConnectionStateConnected {
+			pcDoneCancel()
+			if ready != nil {
+				ready()
+			}
+		}
+
+		if state == webrtc.PeerConnectionStateFailed || state == webrtc.PeerConnectionStateClosed {
+			err = errors.Errorf("Close for PC state %v", state)
+			cancel()
+		}
+	})
+
+	// Wait for event from context or tracks.
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if sAudioSender == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDone.Done():
+		}
+
+		buf := make([]byte, 1500)
+		for ctx.Err() == nil {
+			if _, _, err := sAudioSender.Read(buf); err != nil {
+				return
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if sAudioTrack == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDone.Done():
+		}
+
+		for ctx.Err() == nil {
+			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack, onPacket); err != nil {
+				if errors.Cause(err) == io.EOF {
+					logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
+					continue
+				}
+				logger.Wf(ctx, "Ignore audio err %+v", err)
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if sVideoSender == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDone.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video packets")
+		}
+
+		buf := make([]byte, 1500)
+		for ctx.Err() == nil {
+			if _, _, err := sVideoSender.Read(buf); err != nil {
+				return
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if sVideoTrack == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDone.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest video %v", sourceVideo)
+		}
+
+		for ctx.Err() == nil {
+			if err := readVideoTrackFromDisk(ctx, sourceVideo, sVideoSender, fps, sVideoTrack); err != nil {
+				if errors.Cause(err) == io.EOF {
+					logger.Tf(ctx, "EOF, restart ingest video %v", sourceVideo)
+					continue
+				}
+				logger.Wf(ctx, "Ignore video err %+v", err)
+			}
+		}
+	}()
+
+	wg.Wait()
+	return err
+}
+
 func TestRTCServerVersion(t *testing.T) {
 	api := fmt.Sprintf("http://%v:1985/api/v1/versions", *srsServer)
 	req, err := http.NewRequest("POST", api, nil)
@@ -108,287 +393,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
 
-	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
 	publishReady, publishReadyCancel := context.WithCancel(context.Background())
-
-	startPlay := func(ctx context.Context) error {
-		logger.Tf(ctx, "Start play url=%v", r)
-
-		pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
-		if err != nil {
-			return errors.Wrapf(err, "Create PC")
-		}
-		defer pc.Close()
-
-		pc.AddTransceiverFromKind(webrtc.RTPCodecTypeAudio, webrtc.RTPTransceiverInit{
-			Direction: webrtc.RTPTransceiverDirectionRecvonly,
-		})
-		pc.AddTransceiverFromKind(webrtc.RTPCodecTypeVideo, webrtc.RTPTransceiverInit{
-			Direction: webrtc.RTPTransceiverDirectionRecvonly,
-		})
-
-		offer, err := pc.CreateOffer(nil)
-		if err != nil {
-			return errors.Wrapf(err, "Create Offer")
-		}
-
-		if err := pc.SetLocalDescription(offer); err != nil {
-			return errors.Wrapf(err, "Set offer %v", offer)
-		}
-
-		answer, err := apiRtcRequest(ctx, "/rtc/v1/play", r, offer.SDP)
-		if err != nil {
-			return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
-		}
-
-		if err := pc.SetRemoteDescription(webrtc.SessionDescription{
-			Type: webrtc.SDPTypeAnswer, SDP: answer,
-		}); err != nil {
-			return errors.Wrapf(err, "Set answer %v", answer)
-		}
-
-		handleTrack := func(ctx context.Context, track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) error {
-			// Send a PLI on an interval so that the publisher is pushing a keyframe
-			go func() {
-				if track.Kind() == webrtc.RTPCodecTypeAudio {
-					return
-				}
-
-				for {
-					select {
-					case <-ctx.Done():
-						return
-					case <-time.After(time.Duration(*srsPlayPLI) * time.Millisecond):
-						_ = pc.WriteRTCP([]rtcp.Packet{&rtcp.PictureLossIndication{
-							MediaSSRC: uint32(track.SSRC()),
-						}})
-					}
-				}
-			}()
-
-			// Try to read packets of track.
-			for i := 0; i < *srsPlayOKPackets && ctx.Err() == nil; i++ {
-				_, _, err := track.ReadRTP()
-				if err != nil {
-					return errors.Wrapf(err, "Read RTP")
-				}
-			}
-
-			// Completed.
-			cancel()
-
-			return nil
-		}
-
-		pc.OnTrack(func(track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
-			err = handleTrack(ctx, track, receiver)
-			if err != nil {
-				codec := track.Codec()
-				err = errors.Wrapf(err, "Handle  track %v, pt=%v", codec.MimeType, codec.PayloadType)
-				cancel()
-			}
-		})
-
-		pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
-			if state == webrtc.ICEConnectionStateFailed || state == webrtc.ICEConnectionStateClosed {
-				err = errors.Errorf("Close for ICE state %v", state)
-				cancel()
-			}
-		})
-
-		<-ctx.Done()
-		return err
-	}
-
-	startPublish := func(ctx context.Context) error {
-		sourceVideo := *srsPublishVideo
-		sourceAudio := *srsPublishAudio
-		fps := *srsPublishVideoFps
-
-		logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
-			r, sourceAudio, sourceVideo, fps)
-
-		pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
-		if err != nil {
-			return errors.Wrapf(err, "Create PC")
-		}
-		defer pc.Close()
-
-		var sVideoTrack *rtc.TrackLocalStaticSample
-		var sVideoSender *webrtc.RTPSender
-		if sourceVideo != "" {
-			mimeType, trackID := "video/H264", "video"
-			if strings.HasSuffix(sourceVideo, ".ivf") {
-				mimeType = "video/VP8"
-			}
-
-			sVideoTrack, err = rtc.NewTrackLocalStaticSample(
-				webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 90000}, trackID, "pion",
-			)
-			if err != nil {
-				return errors.Wrapf(err, "Create video track")
-			}
-
-			sVideoSender, err = pc.AddTrack(sVideoTrack)
-			if err != nil {
-				return errors.Wrapf(err, "Add video track")
-			}
-			sVideoSender.Stop()
-		}
-
-		var sAudioTrack *rtc.TrackLocalStaticSample
-		var sAudioSender *webrtc.RTPSender
-		if sourceAudio != "" {
-			mimeType, trackID := "audio/opus", "audio"
-			sAudioTrack, err = rtc.NewTrackLocalStaticSample(
-				webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 48000, Channels: 2}, trackID, "pion",
-			)
-			if err != nil {
-				return errors.Wrapf(err, "Create audio track")
-			}
-
-			sAudioSender, err = pc.AddTrack(sAudioTrack)
-			if err != nil {
-				return errors.Wrapf(err, "Add audio track")
-			}
-			defer sAudioSender.Stop()
-		}
-
-		offer, err := pc.CreateOffer(nil)
-		if err != nil {
-			return errors.Wrapf(err, "Create Offer")
-		}
-
-		if err := pc.SetLocalDescription(offer); err != nil {
-			return errors.Wrapf(err, "Set offer %v", offer)
-		}
-
-		answer, err := apiRtcRequest(ctx, "/rtc/v1/publish", r, offer.SDP)
-		if err != nil {
-			return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
-		}
-
-		if err := pc.SetRemoteDescription(webrtc.SessionDescription{
-			Type: webrtc.SDPTypeAnswer, SDP: answer,
-		}); err != nil {
-			return errors.Wrapf(err, "Set answer %v", answer)
-		}
-
-		logger.Tf(ctx, "State signaling=%v, ice=%v, conn=%v", pc.SignalingState(), pc.ICEConnectionState(), pc.ConnectionState())
-
-		pcDone, pcDoneCancel := context.WithCancel(context.Background())
-		pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
-			logger.Tf(ctx, "PC state %v", state)
-
-			if state == webrtc.PeerConnectionStateConnected {
-				pcDoneCancel()
-				publishReadyCancel()
-			}
-
-			if state == webrtc.PeerConnectionStateFailed || state == webrtc.PeerConnectionStateClosed {
-				err = errors.Errorf("Close for PC state %v", state)
-				cancel()
-			}
-		})
-
-		// Wait for event from context or tracks.
-		var wg sync.WaitGroup
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			if sAudioSender == nil {
-				return
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-pcDone.Done():
-			}
-
-			buf := make([]byte, 1500)
-			for ctx.Err() == nil {
-				if _, _, err := sAudioSender.Read(buf); err != nil {
-					return
-				}
-			}
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			if sAudioTrack == nil {
-				return
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-pcDone.Done():
-			}
-
-			for ctx.Err() == nil {
-				if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack, nil); err != nil {
-					if errors.Cause(err) == io.EOF {
-						logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
-						continue
-					}
-					logger.Wf(ctx, "Ignore audio err %+v", err)
-				}
-			}
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			if sVideoSender == nil {
-				return
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-pcDone.Done():
-				logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video packets")
-			}
-
-			buf := make([]byte, 1500)
-			for ctx.Err() == nil {
-				if _, _, err := sVideoSender.Read(buf); err != nil {
-					return
-				}
-			}
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			if sVideoTrack == nil {
-				return
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-pcDone.Done():
-				logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest video %v", sourceVideo)
-			}
-
-			for ctx.Err() == nil {
-				if err := readVideoTrackFromDisk(ctx, sourceVideo, sVideoSender, fps, sVideoTrack); err != nil {
-					if errors.Cause(err) == io.EOF {
-						logger.Tf(ctx, "EOF, restart ingest video %v", sourceVideo)
-						continue
-					}
-					logger.Wf(ctx, "Ignore video err %+v", err)
-				}
-			}
-		}()
-
-		wg.Wait()
-		return err
-	}
 
 	var wg sync.WaitGroup
 	var r0, r1 error
@@ -405,7 +410,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		case <-publishReady.Done():
 		}
 
-		if err := startPlay(logger.WithContext(ctx)); err != nil {
+		if err := testStartPlay(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
 			}
@@ -417,7 +422,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		defer wg.Done()
 		defer cancel()
 
-		if err := startPublish(logger.WithContext(ctx)); err != nil {
+		if err := testStartPublish(logger.WithContext(ctx), cancel, publishReadyCancel, nil); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
 			}
@@ -436,208 +441,17 @@ func TestRTCServerPublishDTLS(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
 
-	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
+	var nn int64
+	onSendPacket := func(p *rtp.Packet) {
+		nn++
 
-	sourceVideo := *srsPublishVideo
-	sourceAudio := *srsPublishAudio
-	fps := *srsPublishVideoFps
-
-	startPublish := func(ctx context.Context) error {
-		logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
-			r, sourceAudio, sourceVideo, fps)
-
-		pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
-		if err != nil {
-			return errors.Wrapf(err, "Create PC")
+		// Got enough packets, done.
+		if nn >= int64(*srsPublishOKPackets) {
+			cancel()
 		}
-		defer pc.Close()
-
-		var sVideoTrack *rtc.TrackLocalStaticSample
-		var sVideoSender *webrtc.RTPSender
-		if sourceVideo != "" {
-			mimeType, trackID := "video/H264", "video"
-			if strings.HasSuffix(sourceVideo, ".ivf") {
-				mimeType = "video/VP8"
-			}
-
-			sVideoTrack, err = rtc.NewTrackLocalStaticSample(
-				webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 90000}, trackID, "pion",
-			)
-			if err != nil {
-				return errors.Wrapf(err, "Create video track")
-			}
-
-			sVideoSender, err = pc.AddTrack(sVideoTrack)
-			if err != nil {
-				return errors.Wrapf(err, "Add video track")
-			}
-			sVideoSender.Stop()
-		}
-
-		var sAudioTrack *rtc.TrackLocalStaticSample
-		var sAudioSender *webrtc.RTPSender
-		if sourceAudio != "" {
-			mimeType, trackID := "audio/opus", "audio"
-			sAudioTrack, err = rtc.NewTrackLocalStaticSample(
-				webrtc.RTPCodecCapability{MimeType: mimeType, ClockRate: 48000, Channels: 2}, trackID, "pion",
-			)
-			if err != nil {
-				return errors.Wrapf(err, "Create audio track")
-			}
-
-			sAudioSender, err = pc.AddTrack(sAudioTrack)
-			if err != nil {
-				return errors.Wrapf(err, "Add audio track")
-			}
-			defer sAudioSender.Stop()
-		}
-
-		offer, err := pc.CreateOffer(nil)
-		if err != nil {
-			return errors.Wrapf(err, "Create Offer")
-		}
-
-		if err := pc.SetLocalDescription(offer); err != nil {
-			return errors.Wrapf(err, "Set offer %v", offer)
-		}
-
-		answer, err := apiRtcRequest(ctx, "/rtc/v1/publish", r, offer.SDP)
-		if err != nil {
-			return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
-		}
-
-		if err := pc.SetRemoteDescription(webrtc.SessionDescription{
-			Type: webrtc.SDPTypeAnswer, SDP: answer,
-		}); err != nil {
-			return errors.Wrapf(err, "Set answer %v", answer)
-		}
-
-		logger.Tf(ctx, "State signaling=%v, ice=%v, conn=%v", pc.SignalingState(), pc.ICEConnectionState(), pc.ConnectionState())
-
-		pcDone, pcDoneCancel := context.WithCancel(context.Background())
-		pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
-			logger.Tf(ctx, "PC state %v", state)
-
-			if state == webrtc.PeerConnectionStateConnected {
-				pcDoneCancel()
-			}
-
-			if state == webrtc.PeerConnectionStateFailed || state == webrtc.PeerConnectionStateClosed {
-				err = errors.Errorf("Close for PC state %v", state)
-				cancel()
-			}
-		})
-
-		// Wait for event from context or tracks.
-		var wg sync.WaitGroup
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			if sAudioSender == nil {
-				return
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-pcDone.Done():
-			}
-
-			buf := make([]byte, 1500)
-			for ctx.Err() == nil {
-				if _, _, err := sAudioSender.Read(buf); err != nil {
-					return
-				}
-			}
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			if sAudioTrack == nil {
-				return
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-pcDone.Done():
-			}
-
-			var nn int64
-			onSendPacket := func(p *rtp.Packet) {
-				nn++
-
-				// Got enough packets, done.
-				if nn >= int64(*srsPublishOKPackets) {
-					cancel()
-				}
-			}
-
-			for ctx.Err() == nil {
-				if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack, onSendPacket); err != nil {
-					if errors.Cause(err) == io.EOF {
-						logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
-						continue
-					}
-					logger.Wf(ctx, "Ignore audio err %+v", err)
-				}
-			}
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			if sVideoSender == nil {
-				return
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-pcDone.Done():
-				logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video packets")
-			}
-
-			buf := make([]byte, 1500)
-			for ctx.Err() == nil {
-				if _, _, err := sVideoSender.Read(buf); err != nil {
-					return
-				}
-			}
-		}()
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-
-			if sVideoTrack == nil {
-				return
-			}
-
-			select {
-			case <-ctx.Done():
-			case <-pcDone.Done():
-				logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest video %v", sourceVideo)
-			}
-
-			for ctx.Err() == nil {
-				if err := readVideoTrackFromDisk(ctx, sourceVideo, sVideoSender, fps, sVideoTrack); err != nil {
-					if errors.Cause(err) == io.EOF {
-						logger.Tf(ctx, "EOF, restart ingest video %v", sourceVideo)
-						continue
-					}
-					logger.Wf(ctx, "Ignore video err %+v", err)
-				}
-			}
-		}()
-
-		wg.Wait()
-		return err
 	}
 
-	if err := startPublish(ctx); err != nil {
+	if err := testStartPublish(ctx, cancel, nil, onSendPacket); err != nil {
 		if err != context.Canceled {
 			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)
 		}

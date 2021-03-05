@@ -190,12 +190,12 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		r, sourceAudio, sourceVideo, fps)
 
 	// Filter for SPS/PPS marker.
-	counterInterceptor := &rtpInterceptor{}
-	counterInterceptor.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
+	onPacketInterceptor := &rtpInterceptor{}
+	onPacketInterceptor.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
 		if v.onPacket != nil {
 			v.onPacket(header, payload)
 		}
-		return counterInterceptor.nextRTPWriter.Write(header, payload, attributes)
+		return onPacketInterceptor.nextRTPWriter.Write(header, payload, attributes)
 	}
 
 	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
@@ -209,15 +209,17 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 			return nil, err
 		}
 
-		for _, bi := range []interceptor.Interceptor{counterInterceptor} {
+		for _, bi := range []interceptor.Interceptor{onPacketInterceptor} {
 			registry.Add(bi)
 		}
 
 		if sourceAudio != "" {
-			v.aIngester = NewAudioIngester(registry, sourceAudio)
+			v.aIngester = NewAudioIngester(sourceAudio)
+			registry.Add(v.aIngester.audioLevelInterceptor)
 		}
 		if sourceVideo != "" {
-			v.vIngester = NewVideoIngester(registry, sourceVideo)
+			v.vIngester = NewVideoIngester(sourceVideo)
+			registry.Add(v.vIngester.markerInterceptor)
 		}
 
 		api := webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(registry))

@@ -56,10 +56,12 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		}
 
 		if sourceAudio != "" {
-			aIngester = NewAudioIngester(registry, sourceAudio)
+			aIngester = NewAudioIngester(sourceAudio)
+			registry.Add(aIngester.audioLevelInterceptor)
 		}
 		if sourceVideo != "" {
-			vIngester = NewVideoIngester(registry, sourceVideo)
+			vIngester = NewVideoIngester(sourceVideo)
+			registry.Add(vIngester.markerInterceptor)
 		}
 
 		api := webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(registry))

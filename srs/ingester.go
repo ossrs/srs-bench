@@ -25,10 +25,8 @@ type videoIngester struct {
 	sVideoSender      *webrtc.RTPSender
 }
 
-func NewVideoIngester(i *interceptor.Registry, sourceVideo string) *videoIngester {
-	v := &videoIngester{markerInterceptor: &rtpInterceptor{}, sourceVideo: sourceVideo}
-	i.Add(v.markerInterceptor)
-	return v
+func NewVideoIngester(sourceVideo string) *videoIngester {
+	return &videoIngester{markerInterceptor: &rtpInterceptor{}, sourceVideo: sourceVideo}
 }
 
 func (v *videoIngester) Close() error {
@@ -162,10 +160,8 @@ type audioIngester struct {
 	sAudioSender          *webrtc.RTPSender
 }
 
-func NewAudioIngester(i *interceptor.Registry, sourceAudio string) *audioIngester {
-	v := &audioIngester{audioLevelInterceptor: &rtpInterceptor{}, sourceAudio: sourceAudio}
-	i.Add(v.audioLevelInterceptor)
-	return v
+func NewAudioIngester(sourceAudio string) *audioIngester {
+	return &audioIngester{audioLevelInterceptor: &rtpInterceptor{}, sourceAudio: sourceAudio}
 }
 
 func (v *audioIngester) Close() error {

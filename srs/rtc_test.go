@@ -156,6 +156,7 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 }
 
 type TestPublisher struct {
+	onOffer  func(s *webrtc.SessionDescription) error
 	onPacket func(p *rtp.Packet)
 	ready    context.CancelFunc
 }
@@ -222,6 +223,12 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 
 	if err := pc.SetLocalDescription(offer); err != nil {
 		return errors.Wrapf(err, "Set offer %v", offer)
+	}
+
+	if v.onOffer != nil {
+		if err := v.onOffer(&offer); err != nil {
+			return errors.Wrapf(err, "sdp %v %v", offer.Type, offer.SDP)
+		}
 	}
 
 	answer, err := apiRtcRequest(ctx, "/rtc/v1/publish", r, offer.SDP)
@@ -353,6 +360,16 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	return err
 }
 
+// Set to active, as DTLS client, to start ClientHello.
+func testUtilSetupActive(s *webrtc.SessionDescription) error {
+	if strings.Contains(s.SDP, "setup:passive") {
+		return errors.New("set to active")
+	}
+
+	s.SDP = strings.ReplaceAll(s.SDP, "setup:actpass", "setup:active")
+	return nil
+}
+
 func TestRTCServerVersion(t *testing.T) {
 	api := fmt.Sprintf("http://%v:1985/api/v1/versions", *srsServer)
 	req, err := http.NewRequest("POST", api, nil)
@@ -447,22 +464,19 @@ func TestRTCServerPublishPlay(t *testing.T) {
 	}
 }
 
-func TestRTCServerPublishDTLS(t *testing.T) {
+func TestRTCServerDTLSArq(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
 	publishOK := *srsPublishOKPackets
 
 	var nn int64
 	onSendPacket := func(p *rtp.Packet) {
-		nn++
-
-		// Got enough packets, done.
-		if nn >= int64(publishOK) {
-			cancel()
+		if nn++; nn >= int64(publishOK) {
+			cancel() // Send enough packets, done.
 		}
 	}
 
-	p := &TestPublisher{onPacket: onSendPacket}
+	p := &TestPublisher{onPacket: onSendPacket, onOffer: testUtilSetupActive}
 	if err := p.Run(ctx, cancel); err != nil {
 		if err != context.Canceled {
 			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)

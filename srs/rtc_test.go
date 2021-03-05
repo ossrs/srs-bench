@@ -64,6 +64,8 @@ type OnPacketFunc func(p *rtp.Packet)
 
 func testStartPlay(ctx context.Context, cancel context.CancelFunc) error {
 	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
+	pli := time.Duration(*srsPlayPLI) * time.Millisecond
+	playOK := *srsPlayOKPackets
 	logger.Tf(ctx, "Start play url=%v", r)
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
@@ -110,7 +112,7 @@ func testStartPlay(ctx context.Context, cancel context.CancelFunc) error {
 				select {
 				case <-ctx.Done():
 					return
-				case <-time.After(time.Duration(*srsPlayPLI) * time.Millisecond):
+				case <-time.After(pli):
 					_ = pc.WriteRTCP([]rtcp.Packet{&rtcp.PictureLossIndication{
 						MediaSSRC: uint32(track.SSRC()),
 					}})
@@ -119,7 +121,7 @@ func testStartPlay(ctx context.Context, cancel context.CancelFunc) error {
 		}()
 
 		// Try to read packets of track.
-		for i := 0; i < *srsPlayOKPackets && ctx.Err() == nil; i++ {
+		for i := 0; i < playOK && ctx.Err() == nil; i++ {
 			_, _, err := track.ReadRTP()
 			if err != nil {
 				return errors.Wrapf(err, "Read RTP")
@@ -440,13 +442,14 @@ func TestRTCServerPublishPlay(t *testing.T) {
 func TestRTCServerPublishDTLS(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+	publishOK := *srsPublishOKPackets
 
 	var nn int64
 	onSendPacket := func(p *rtp.Packet) {
 		nn++
 
 		// Got enough packets, done.
-		if nn >= int64(*srsPublishOKPackets) {
+		if nn >= int64(publishOK) {
 			cancel()
 		}
 	}

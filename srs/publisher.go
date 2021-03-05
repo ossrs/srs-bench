@@ -201,8 +201,26 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest audio %v", sourceAudio)
 		}
 
+		// Whether should encode the audio-level in RTP header.
+		headers := sAudioSender.GetParameters().HeaderExtensions
+		var audioLevel *webrtc.RTPHeaderExtensionParameter
+		for _, h := range headers {
+			if h.URI == sdp.AudioLevelURI {
+				audioLevel = &h
+			}
+		}
+
+		onSendPacket := func(p *rtp.Packet) {
+			if audioLevel != nil {
+				if b, err := new(rtp.AudioLevelExtension).Marshal(); err == nil {
+					p.SetExtension(uint8(audioLevel.ID), b)
+				}
+			}
+		}
+
+		// Read audio and send out.
 		for ctx.Err() == nil {
-			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack); err != nil {
+			if err := readAudioTrackFromDisk(ctx, sourceAudio, sAudioSender, sAudioTrack, onSendPacket); err != nil {
 				if errors.Cause(err) == io.EOF {
 					logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
 					continue
@@ -277,7 +295,10 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 	return nil
 }
 
-func readAudioTrackFromDisk(ctx context.Context, source string, sender *webrtc.RTPSender, track *rtc.TrackLocalStaticSample) error {
+func readAudioTrackFromDisk(ctx context.Context,
+	source string, sender *webrtc.RTPSender, track *rtc.TrackLocalStaticSample,
+	onSendPacket func(pkt *rtp.Packet),
+) error {
 	f, err := os.Open(source)
 	if err != nil {
 		return errors.Wrapf(err, "Open file %v", source)
@@ -294,14 +315,6 @@ func readAudioTrackFromDisk(ctx context.Context, source string, sender *webrtc.R
 	headers := sender.GetParameters().HeaderExtensions
 	logger.Tf(ctx, "Audio %v, tbn=%v, channels=%v, ssrc=%v, pt=%v, header=%v",
 		codec.MimeType, codec.ClockRate, codec.Channels, enc.SSRC, codec.PayloadType, headers)
-
-	// Whether should encode the audio-level in RTP header.
-	var audioLevel *webrtc.RTPHeaderExtensionParameter
-	for _, h := range headers {
-		if h.URI == sdp.AudioLevelURI {
-			audioLevel = &h
-		}
-	}
 
 	clock := newWallClock()
 	var lastGranule uint64
@@ -321,13 +334,7 @@ func readAudioTrackFromDisk(ctx context.Context, source string, sender *webrtc.R
 		sampleDuration := time.Duration(uint64(time.Millisecond) * 1000 * sampleCount / uint64(codec.ClockRate))
 
 		// For audio-level, set the extensions if negotiated.
-		track.OnBeforeWritePacket = func(p *rtp.Packet) {
-			if audioLevel != nil {
-				if b, err := new(rtp.AudioLevelExtension).Marshal(); err == nil {
-					p.SetExtension(uint8(audioLevel.ID), b)
-				}
-			}
-		}
+		track.OnBeforeWritePacket = onSendPacket
 
 		if err = track.WriteSample(media.Sample{Data: pageData, Duration: sampleDuration}); err != nil {
 			return errors.Wrapf(err, "Write sample")

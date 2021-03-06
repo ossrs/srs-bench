@@ -78,14 +78,6 @@ func prepareTest() error {
 		return err
 	}
 
-	// Disable the logger during all tests.
-	if *srsLog == false {
-		olw := logger.Switch(ioutil.Discard)
-		defer func() {
-			logger.Switch(olw)
-		}()
-	}
-
 	return nil
 }
 
@@ -93,6 +85,14 @@ func TestMain(m *testing.M) {
 	if err := prepareTest(); err != nil {
 		logger.Ef(nil, "Prepare test fail, err %+v", err)
 		os.Exit(-1)
+	}
+
+	// Disable the logger during all tests.
+	if *srsLog == false {
+		olw := logger.Switch(ioutil.Discard)
+		defer func() {
+			logger.Switch(olw)
+		}()
 	}
 
 	os.Exit(m.Run())
@@ -243,15 +243,6 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
 		r, sourceAudio, sourceVideo, fps)
 
-	// Filter for SPS/PPS marker.
-	onPacketInterceptor := &rtpInterceptor{}
-	onPacketInterceptor.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
-		if v.onPacket != nil {
-			v.onPacket(header, payload)
-		}
-		return onPacketInterceptor.nextRTPWriter.Write(header, payload, attributes)
-	}
-
 	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
 		m := &webrtc.MediaEngine{}
 		if err := m.RegisterDefaultCodecs(); err != nil {
@@ -263,17 +254,44 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 			return nil, err
 		}
 
-		for _, bi := range []interceptor.Interceptor{onPacketInterceptor} {
-			registry.Add(bi)
-		}
+		var interceptors []interceptor.Interceptor
 
+		// Filter for all RTP packets.
+		rtpInterceptor := &RTPInterceptor{}
+		rtpInterceptor.rtpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
+			return rtpInterceptor.nextRTPReader.Read(buf, attributes)
+		}
+		rtpInterceptor.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
+			if v.onPacket != nil {
+				v.onPacket(header, payload)
+			}
+			return rtpInterceptor.nextRTPWriter.Write(header, payload, attributes)
+		}
+		interceptors = append(interceptors, rtpInterceptor)
+
+		// Filter for RTCP packets.
+		rtcpInterceptor := &RTCPInterceptor{}
+		rtcpInterceptor.rtcpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
+			return rtcpInterceptor.nextRTCPReader.Read(buf, attributes)
+		}
+		rtcpInterceptor.rtcpWriter = func(pkts []rtcp.Packet, attributes interceptor.Attributes) (int, error) {
+			return rtcpInterceptor.rtcpWriter.Write(pkts, attributes)
+		}
+		interceptors = append(interceptors, rtcpInterceptor)
+
+		// Filter for ingesters.
 		if sourceAudio != "" {
 			v.aIngester = NewAudioIngester(sourceAudio)
-			registry.Add(v.aIngester.audioLevelInterceptor)
+			interceptors = append(interceptors, v.aIngester.audioLevelInterceptor)
 		}
 		if sourceVideo != "" {
 			v.vIngester = NewVideoIngester(sourceVideo)
-			registry.Add(v.vIngester.markerInterceptor)
+			interceptors = append(interceptors, v.vIngester.markerInterceptor)
+		}
+
+		// Install all fitlers.
+		for _, bi := range interceptors {
+			registry.Add(bi)
 		}
 
 		api := webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(registry))
@@ -327,6 +345,21 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	}
 
 	logger.Tf(ctx, "State signaling=%v, ice=%v, conn=%v", pc.SignalingState(), pc.ICEConnectionState(), pc.ConnectionState())
+
+	// ICE state management.
+	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
+		logger.Tf(ctx, "ICE state %v", state)
+	})
+
+	pc.OnSignalingStateChange(func(state webrtc.SignalingState) {
+		logger.Tf(ctx, "Signaling state %v", state)
+	})
+
+	if v.aIngester != nil {
+		v.aIngester.sAudioSender.Transport().OnStateChange(func(state webrtc.DTLSTransportState) {
+			logger.Tf(ctx, "DTLS state %v", state)
+		})
+	}
 
 	pcDone, pcDoneCancel := context.WithCancel(context.Background())
 	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {

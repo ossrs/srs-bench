@@ -20,13 +20,13 @@ import (
 type videoIngester struct {
 	sourceVideo       string
 	fps               int
-	markerInterceptor *rtpInterceptor
+	markerInterceptor *RTPInterceptor
 	sVideoTrack       *webrtc.TrackLocalStaticSample
 	sVideoSender      *webrtc.RTPSender
 }
 
 func NewVideoIngester(sourceVideo string) *videoIngester {
-	return &videoIngester{markerInterceptor: &rtpInterceptor{}, sourceVideo: sourceVideo}
+	return &videoIngester{markerInterceptor: &RTPInterceptor{}, sourceVideo: sourceVideo}
 }
 
 func (v *videoIngester) Close() error {
@@ -155,13 +155,13 @@ func (v *videoIngester) Ingest(ctx context.Context) error {
 
 type audioIngester struct {
 	sourceAudio           string
-	audioLevelInterceptor *rtpInterceptor
+	audioLevelInterceptor *RTPInterceptor
 	sAudioTrack           *webrtc.TrackLocalStaticSample
 	sAudioSender          *webrtc.RTPSender
 }
 
 func NewAudioIngester(sourceAudio string) *audioIngester {
-	return &audioIngester{audioLevelInterceptor: &rtpInterceptor{}, sourceAudio: sourceAudio}
+	return &audioIngester{audioLevelInterceptor: &RTPInterceptor{}, sourceAudio: sourceAudio}
 }
 
 func (v *audioIngester) Close() error {

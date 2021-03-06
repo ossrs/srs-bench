@@ -406,16 +406,6 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	return err
 }
 
-// Set to active, as DTLS client, to start ClientHello.
-func testUtilSetupActive(s *webrtc.SessionDescription) error {
-	if strings.Contains(s.SDP, "setup:passive") {
-		return errors.New("set to active")
-	}
-
-	s.SDP = strings.ReplaceAll(s.SDP, "setup:actpass", "setup:active")
-	return nil
-}
-
 func TestRTCServerVersion(t *testing.T) {
 	api := fmt.Sprintf("http://%v:1985/api/v1/versions", *srsServer)
 	req, err := http.NewRequest("POST", api, nil)

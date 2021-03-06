@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media/h264reader"
 	"io/ioutil"
 	"net/http"
@@ -139,4 +140,14 @@ func (v *wallClock) Tick(d time.Duration) time.Duration {
 		return re
 	}
 	return 0
+}
+
+// Set to active, as DTLS client, to start ClientHello.
+func testUtilSetupActive(s *webrtc.SessionDescription) error {
+	if strings.Contains(s.SDP, "setup:passive") {
+		return errors.New("set to active")
+	}
+
+	s.SDP = strings.ReplaceAll(s.SDP, "setup:actpass", "setup:active")
+	return nil
 }

@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -150,4 +151,38 @@ func testUtilSetupActive(s *webrtc.SessionDescription) error {
 
 	s.SDP = strings.ReplaceAll(s.SDP, "setup:actpass", "setup:active")
 	return nil
+}
+
+// Parse address from SDP.
+// candidate:0 1 udp 2130706431 192.168.3.8 8000 typ host generation 0
+func parseAddressOfCandidate(answerSDP string) (string, error) {
+	answer := webrtc.SessionDescription{Type: webrtc.SDPTypeAnswer, SDP: answerSDP}
+	answerObject, err := answer.Unmarshal()
+	if err != nil {
+		return "", errors.Wrapf(err, "unmarshal answer %v", answerSDP)
+	}
+
+	if len(answerObject.MediaDescriptions) == 0 {
+		return "", errors.New("no media")
+	}
+
+	candidate, ok := answerObject.MediaDescriptions[0].Attribute("candidate")
+	if !ok {
+		return "", errors.New("no candidate")
+	}
+
+	// candidate:0 1 udp 2130706431 192.168.3.8 8000 typ host generation 0
+	attrs := strings.Split(candidate, " ")
+	if len(attrs) <= 6 {
+		return "", errors.Errorf("no address in %v", candidate)
+	}
+
+	// Parse ip and port from answer.
+	ip := attrs[4]
+	port, err := strconv.Atoi(attrs[5])
+	if err != nil {
+		return "", errors.Wrapf(err, "invalid port %v", candidate)
+	}
+
+	return fmt.Sprintf("%v:%v", ip, port), nil
 }

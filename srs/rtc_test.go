@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	vnet2 "github.com/ossrs/srs-bench/vnet"
 	"github.com/pion/interceptor"
+	"github.com/pion/logging"
 	"github.com/pion/rtcp"
 	"github.com/pion/rtp"
+	"github.com/pion/transport/vnet"
 	"github.com/pion/webrtc/v3"
 	"io/ioutil"
 	"net/http"
@@ -33,6 +36,7 @@ var srsPublishOKPackets = flag.Int("srs-publish-ok-packets", 10, "If send N pack
 var srsPublishAudio = flag.String("srs-publish-audio", "avatar.ogg", "The audio file for publisher.")
 var srsPublishVideo = flag.String("srs-publish-video", "avatar.h264", "The video file for publisher.")
 var srsPublishVideoFps = flag.Int("srs-publish-video-fps", 25, "The video fps for publisher.")
+var srsVnetClientIP = flag.String("srs-vnet-client-ip", "192.168.168.168", "The client ip in pion/vnet.")
 
 func prepareTest() error {
 	var err error
@@ -217,6 +221,10 @@ type TestPublisher struct {
 	aIngester *audioIngester
 	vIngester *videoIngester
 	pc        *webrtc.PeerConnection
+	// pion vnet
+	wan        *vnet.Router
+	proxy      *vnet2.UDPProxy
+	vnetFilter vnet.ChunkFilter
 }
 
 func (v *TestPublisher) Close() error {
@@ -231,15 +239,25 @@ func (v *TestPublisher) Close() error {
 	if v.pc != nil {
 		v.pc.Close()
 	}
+
+	if v.proxy != nil {
+		v.proxy.Stop()
+	}
+
+	if v.wan != nil {
+		v.wan.Stop()
+		v.wan = nil
+	}
 	return nil
 }
 
 func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) error {
 	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
 	sourceVideo, sourceAudio, fps := *srsPublishVideo, *srsPublishAudio, *srsPublishVideoFps
+	vnetClientIP := *srsVnetClientIP
 
-	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
-		r, sourceAudio, sourceVideo, fps)
+	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v, vip=%v",
+		r, sourceAudio, sourceVideo, fps, vnetClientIP)
 
 	// Setup the interceptors for packets.
 	setupInterceptors := func(registry *interceptor.Registry) {
@@ -284,6 +302,31 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		}
 	}
 
+	// Setting engine for https://github.com/pion/transport/tree/master/vnet
+	setupVnet := func(sNg *webrtc.SettingEngine) (err error) {
+		if v.wan, err = vnet.NewRouter(&vnet.RouterConfig{
+			CIDR:          "0.0.0.0/0", // Accept all ip, no sub router.
+			LoggerFactory: logging.NewDefaultLoggerFactory(),
+		}); err != nil {
+			return err
+		}
+
+		nw := vnet.NewNet(&vnet.NetConfig{
+			StaticIP: vnetClientIP,
+		})
+		if err = v.wan.AddNet(nw); err != nil {
+			return nil
+		}
+
+		if v.vnetFilter != nil {
+			v.wan.AddChunkFilter(v.vnetFilter)
+		}
+
+		sNg.SetVNet(nw)
+
+		return v.wan.Start()
+	}
+
 	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
 		mNg := &webrtc.MediaEngine{}
 		if err := mNg.RegisterDefaultCodecs(); err != nil {
@@ -296,8 +339,14 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		}
 		setupInterceptors(registry)
 
+		sNg := webrtc.SettingEngine{}
+		if err := setupVnet(&sNg); err != nil {
+			return nil, err
+		}
+
 		api := webrtc.NewAPI(
 			webrtc.WithMediaEngine(mNg), webrtc.WithInterceptorRegistry(registry),
+			webrtc.WithSettingEngine(sNg),
 		)
 		return api.NewPeerConnection(configuration)
 	}
@@ -340,6 +389,19 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	answer, err := apiRtcRequest(ctx, "/rtc/v1/publish", r, offer.SDP)
 	if err != nil {
 		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
+	}
+
+	// Start a proxy for real server and vnet.
+	if address, err := parseAddressOfCandidate(answer); err != nil {
+		return errors.Wrapf(err, "parse address of %v", answer)
+	} else {
+		if v.proxy, err = vnet2.NewProxy("udp4", address); err != nil {
+			return err
+		}
+
+		if err := v.proxy.Start(v.wan); err != nil {
+			return err
+		}
 	}
 
 	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
@@ -452,6 +514,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	}()
 
 	wg.Wait()
+
 	return finalErr
 }
 
@@ -577,6 +640,10 @@ func TestRTCServerDTLSArq(t *testing.T) {
 		}
 	}, onOffer: testUtilSetupActive}
 	defer p.Close()
+
+	p.vnetFilter = func(c vnet.Chunk) bool {
+		return true // keep chunk
+	}
 
 	if err := p.Run(ctx, cancel); err != nil {
 		if err != context.Canceled {

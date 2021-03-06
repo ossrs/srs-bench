@@ -148,6 +148,7 @@ make && ./objs/srs_test -test.v -srs-server=127.0.0.1
 * `-srs-publish-audio`，推流时，使用的音频文件。默认值：`avatar.ogg`
 * `-srs-publish-video`，推流时，使用的视频文件。默认值：`avatar.h264`
 * `-srs-publish-video-fps`，推流时，视频文件的FPS。默认值：`25`
+* `-srs-vnet-client-ip`，设置[pion/vnet](https://github.com/ossrs/srs-bench/blob/feature/rtc/vnet/example_test.go)客户端的虚拟IP，不能和服务器IP冲突。默认值：`192.168.168.168`
 
 其他不常用参数：
 

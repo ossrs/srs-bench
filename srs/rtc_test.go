@@ -236,24 +236,13 @@ func (v *TestPublisher) Close() error {
 
 func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) error {
 	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
-	sourceVideo := *srsPublishVideo
-	sourceAudio := *srsPublishAudio
-	fps := *srsPublishVideoFps
+	sourceVideo, sourceAudio, fps := *srsPublishVideo, *srsPublishAudio, *srsPublishVideoFps
 
 	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
 		r, sourceAudio, sourceVideo, fps)
 
-	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
-		m := &webrtc.MediaEngine{}
-		if err := m.RegisterDefaultCodecs(); err != nil {
-			return nil, err
-		}
-
-		registry := &interceptor.Registry{}
-		if err := webrtc.RegisterDefaultInterceptors(m, registry); err != nil {
-			return nil, err
-		}
-
+	// Setup the interceptors for packets.
+	setupInterceptors := func(registry *interceptor.Registry) {
 		var interceptors []interceptor.Interceptor
 
 		// Filter for all RTP packets.
@@ -293,8 +282,23 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		for _, bi := range interceptors {
 			registry.Add(bi)
 		}
+	}
 
-		api := webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithInterceptorRegistry(registry))
+	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
+		mNg := &webrtc.MediaEngine{}
+		if err := mNg.RegisterDefaultCodecs(); err != nil {
+			return nil, err
+		}
+
+		registry := &interceptor.Registry{}
+		if err := webrtc.RegisterDefaultInterceptors(mNg, registry); err != nil {
+			return nil, err
+		}
+		setupInterceptors(registry)
+
+		api := webrtc.NewAPI(
+			webrtc.WithMediaEngine(mNg), webrtc.WithInterceptorRegistry(registry),
+		)
 		return api.NewPeerConnection(configuration)
 	}
 

@@ -1,3 +1,23 @@
+// The MIT License (MIT)
+//
+// Copyright (c) 2021 srs-bench(ossrs)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package srs
 
 import (
@@ -214,17 +234,17 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 }
 
 type TestPublisher struct {
-	onOffer  func(s *webrtc.SessionDescription) error
-	onPacket func(p *rtp.Header, payload []byte)
-	ready    context.CancelFunc
+	onOffer    func(s *webrtc.SessionDescription) error
+	onPacket   func(p *rtp.Header, payload []byte)
+	vnetFilter vnet.ChunkFilter
+	ready      context.CancelFunc
 	// internal objects
 	aIngester *audioIngester
 	vIngester *videoIngester
 	pc        *webrtc.PeerConnection
 	// pion vnet
-	wan        *vnet.Router
-	proxy      *vnet2.UDPProxy
-	vnetFilter vnet.ChunkFilter
+	wan   *vnet.Router
+	proxy *vnet2.UDPProxy
 }
 
 func (v *TestPublisher) Close() error {
@@ -413,6 +433,13 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	logger.Tf(ctx, "State signaling=%v, ice=%v, conn=%v", pc.SignalingState(), pc.ICEConnectionState(), pc.ConnectionState())
 
 	// ICE state management.
+	pc.OnICEGatheringStateChange(func(state webrtc.ICEGathererState) {
+		logger.Tf(ctx, "ICE gather state %v", state)
+	})
+	pc.OnICECandidate(func(candidate *webrtc.ICECandidate) {
+		logger.Tf(ctx, "ICE candidate %v %v:%v", candidate.Protocol, candidate.Address, candidate.Port)
+
+	})
 	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
 		logger.Tf(ctx, "ICE state %v", state)
 	})
@@ -515,7 +542,10 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 
 	wg.Wait()
 
-	return finalErr
+	if finalErr != nil {
+		return finalErr
+	}
+	return ctx.Err()
 }
 
 func TestRTCServerVersion(t *testing.T) {
@@ -584,14 +614,16 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		case <-publishReady.Done():
 		}
 
+		p := &TestPlayer{}
+		defer p.Close()
+
 		var nn uint64
-		p := &TestPlayer{onPacket: func(p *rtp.Packet) {
+		p.onPacket = func(p *rtp.Packet) {
 			nn++
 			if nn >= uint64(playOK) {
 				cancel() // Completed.
 			}
-		}}
-		defer p.Close()
+		}
 
 		if err := p.Run(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
@@ -633,13 +665,15 @@ func TestRTCServerDTLSArq(t *testing.T) {
 		s.Stop()
 	}
 
+	p := &TestPublisher{onOffer: testUtilSetupActive}
+	defer p.Close()
+
 	var nn int64
-	p := &TestPublisher{onPacket: func(p *rtp.Header, payload []byte) {
+	p.onPacket = func(p *rtp.Header, payload []byte) {
 		if nn++; nn >= int64(publishOK) {
 			cancel() // Send enough packets, done.
 		}
-	}, onOffer: testUtilSetupActive}
-	defer p.Close()
+	}
 
 	p.vnetFilter = func(c vnet.Chunk) bool {
 		return true // keep chunk

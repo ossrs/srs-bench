@@ -11,10 +11,10 @@ import (
 	"github.com/pion/rtcp"
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 	"sync"
 	"testing"
@@ -34,7 +34,9 @@ var srsPublishAudio = flag.String("srs-publish-audio", "avatar.ogg", "The audio 
 var srsPublishVideo = flag.String("srs-publish-video", "avatar.h264", "The video file for publisher.")
 var srsPublishVideoFps = flag.Int("srs-publish-video-fps", 25, "The video fps for publisher.")
 
-func TestMain(m *testing.M) {
+func prepareTest() error {
+	var err error
+
 	// Should parse it first.
 	flag.Parse()
 
@@ -48,6 +50,34 @@ func TestMain(m *testing.M) {
 		srsSchema = "https"
 	}
 
+	// Check file.
+	tryOpenFile := func(filename string) (string, error) {
+		if filename == "" {
+			return filename, nil
+		}
+
+		f, err := os.Open(filename)
+		if err != nil {
+			nfilename := path.Join("../", filename)
+			if fi, r0 := os.Stat(nfilename); r0 != nil && !fi.IsDir() {
+				return filename, errors.Wrapf(err, "No video file at %v or %v", filename, nfilename)
+			}
+
+			return nfilename, nil
+		}
+		defer f.Close()
+
+		return filename, nil
+	}
+
+	if *srsPublishVideo, err = tryOpenFile(*srsPublishVideo); err != nil {
+		return err
+	}
+
+	if *srsPublishAudio, err = tryOpenFile(*srsPublishAudio); err != nil {
+		return err
+	}
+
 	// Disable the logger during all tests.
 	if *srsLog == false {
 		olw := logger.Switch(ioutil.Discard)
@@ -56,7 +86,15 @@ func TestMain(m *testing.M) {
 		}()
 	}
 
-	// Run tests.
+	return nil
+}
+
+func TestMain(m *testing.M) {
+	if err := prepareTest(); err != nil {
+		logger.Ef(nil, "Prepare test fail, err %+v", err)
+		os.Exit(-1)
+	}
+
 	os.Exit(m.Run())
 }
 
@@ -309,6 +347,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 
 	// Wait for event from context or tracks.
 	var wg sync.WaitGroup
+	var finalErr error
 
 	wg.Add(1)
 	go func() {
@@ -323,56 +362,21 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		case <-pcDone.Done():
 		}
 
-		buf := make([]byte, 1500)
-		for ctx.Err() == nil {
-			if _, _, err := v.aIngester.sAudioSender.Read(buf); err != nil {
-				return
-			}
-		}
-	}()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		if v.aIngester == nil {
-			return
-		}
-
-		select {
-		case <-ctx.Done():
-		case <-pcDone.Done():
-		}
-
-		for ctx.Err() == nil {
-			if err := v.aIngester.Ingest(ctx); err != nil {
-				if errors.Cause(err) == io.EOF {
-					logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
-					continue
+			buf := make([]byte, 1500)
+			for ctx.Err() == nil {
+				if _, _, err := v.aIngester.sAudioSender.Read(buf); err != nil {
+					return
 				}
-				logger.Wf(ctx, "Ignore audio err %+v", err)
 			}
-		}
-	}()
+		}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		if v.vIngester == nil {
-			return
-		}
-
-		select {
-		case <-ctx.Done():
-		case <-pcDone.Done():
-			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video packets")
-		}
-
-		buf := make([]byte, 1500)
-		for ctx.Err() == nil {
-			if _, _, err := v.vIngester.sVideoSender.Read(buf); err != nil {
-				return
+		if err := v.aIngester.Ingest(ctx); err != nil {
+			if err != context.Canceled {
+				finalErr = errors.Wrapf(err, "audio")
 			}
 		}
 	}()
@@ -391,19 +395,27 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest video %v", sourceVideo)
 		}
 
-		for ctx.Err() == nil {
-			if err := v.vIngester.Ingest(ctx); err != nil {
-				if errors.Cause(err) == io.EOF {
-					logger.Tf(ctx, "EOF, restart ingest video %v", sourceVideo)
-					continue
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			buf := make([]byte, 1500)
+			for ctx.Err() == nil {
+				if _, _, err := v.vIngester.sVideoSender.Read(buf); err != nil {
+					return
 				}
-				logger.Wf(ctx, "Ignore video err %+v", err)
+			}
+		}()
+
+		if err := v.vIngester.Ingest(ctx); err != nil {
+			if err != context.Canceled {
+				finalErr = errors.Wrapf(err, "video")
 			}
 		}
 	}()
 
 	wg.Wait()
-	return err
+	return finalErr
 }
 
 func TestRTCServerVersion(t *testing.T) {

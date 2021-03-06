@@ -65,7 +65,14 @@ func StartPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioL
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
-	defer pc.Close()
+
+	var receivers []*webrtc.RTPReceiver
+	defer func() {
+		pc.Close()
+		for _, receiver := range receivers {
+			receiver.Stop()
+		}
+	}()
 
 	pc.AddTransceiverFromKind(webrtc.RTPCodecTypeAudio, webrtc.RTPTransceiverInit{
 		Direction: webrtc.RTPTransceiverDirectionRecvonly,
@@ -131,6 +138,8 @@ func StartPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioL
 				}
 			}
 		}()
+
+		receivers = append(receivers, receiver)
 
 		codec := track.Codec()
 

@@ -61,19 +61,35 @@ func TestMain(m *testing.M) {
 }
 
 type TestPlayer struct {
+	onPacket  func(p *rtp.Packet)
+	pc        *webrtc.PeerConnection
+	receivers []*webrtc.RTPReceiver
+}
+
+func (v *TestPlayer) Close() error {
+	if v.pc != nil {
+		v.pc.Close()
+		v.pc = nil
+	}
+
+	for _, receiver := range v.receivers {
+		receiver.Stop()
+	}
+	v.receivers = nil
+
+	return nil
 }
 
 func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
 	pli := time.Duration(*srsPlayPLI) * time.Millisecond
-	playOK := *srsPlayOKPackets
 	logger.Tf(ctx, "Start play url=%v", r)
 
 	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
-	defer pc.Close()
+	v.pc = pc
 
 	pc.AddTransceiverFromKind(webrtc.RTPCodecTypeAudio, webrtc.RTPTransceiverInit{
 		Direction: webrtc.RTPTransceiverDirectionRecvonly,
@@ -121,16 +137,16 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 			}
 		}()
 
-		// Try to read packets of track.
-		for i := 0; i < playOK && ctx.Err() == nil; i++ {
-			_, _, err := track.ReadRTP()
-			if err != nil {
-				return errors.Wrapf(err, "Read RTP")
-			}
+		v.receivers = append(v.receivers, receiver)
+
+		pkt, _, err := track.ReadRTP()
+		if err != nil {
+			return errors.Wrapf(err, "Read RTP")
 		}
 
-		// Completed.
-		cancel()
+		if v.onPacket != nil {
+			v.onPacket(pkt)
+		}
 
 		return nil
 	}
@@ -447,6 +463,7 @@ func TestRTCServerVersion(t *testing.T) {
 func TestRTCServerPublishPlay(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+	playOK := *srsPlayOKPackets
 
 	publishReady, publishReadyCancel := context.WithCancel(context.Background())
 
@@ -465,7 +482,15 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		case <-publishReady.Done():
 		}
 
-		p := &TestPlayer{}
+		var nn uint64
+		p := &TestPlayer{onPacket: func(p *rtp.Packet) {
+			nn++
+			if nn >= uint64(playOK) {
+				cancel() // Completed.
+			}
+		}}
+		defer p.Close()
+
 		if err := p.Run(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
@@ -479,6 +504,8 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		defer cancel()
 
 		p := &TestPublisher{ready: publishReadyCancel}
+		defer p.Close()
+
 		if err := p.Run(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
@@ -499,14 +526,17 @@ func TestRTCServerDTLSArq(t *testing.T) {
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
 	publishOK := *srsPublishOKPackets
 
+	var ss []*webrtc.RTPReceiver
+	for _, s := range ss {
+		s.Stop()
+	}
+
 	var nn int64
-	onSendPacket := func(p *rtp.Header, payload []byte) {
+	p := &TestPublisher{onPacket: func(p *rtp.Header, payload []byte) {
 		if nn++; nn >= int64(publishOK) {
 			cancel() // Send enough packets, done.
 		}
-	}
-
-	p := &TestPublisher{onPacket: onSendPacket, onOffer: testUtilSetupActive}
+	}, onOffer: testUtilSetupActive}
 	defer p.Close()
 
 	if err := p.Run(ctx, cancel); err != nil {

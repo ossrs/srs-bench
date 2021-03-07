@@ -36,7 +36,6 @@ import (
 	"github.com/pion/webrtc/v3"
 	"io"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"os"
 	"path"
@@ -296,15 +295,8 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 	// Start a proxy for real server and vnet.
 	if address, err := parseAddressOfCandidate(answer); err != nil {
 		return errors.Wrapf(err, "parse address of %v", answer)
-	} else {
-		addr, err := net.ResolveUDPAddr("udp4", address)
-		if err != nil {
-			return errors.Wrapf(err, "parse %v", address)
-		}
-
-		if err := v.api.proxy.Proxy(v.api.network, addr); err != nil {
-			return errors.Wrapf(err, "proxy %v to %v", v.api.network, addr)
-		}
+	} else if err := v.api.proxy.Proxy(v.api.network, address); err != nil {
+		return errors.Wrapf(err, "proxy %v to %v", v.api.network, address)
 	}
 
 	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
@@ -504,15 +496,8 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	// Start a proxy for real server and vnet.
 	if address, err := parseAddressOfCandidate(answerSDP); err != nil {
 		return errors.Wrapf(err, "parse address of %v", answerSDP)
-	} else {
-		addr, err := net.ResolveUDPAddr("udp4", address)
-		if err != nil {
-			return errors.Wrapf(err, "parse %v", address)
-		}
-
-		if err := v.api.proxy.Proxy(v.api.network, addr); err != nil {
-			return errors.Wrapf(err, "proxy %v to %v", v.api.network, addr)
-		}
+	} else if err := v.api.proxy.Proxy(v.api.network, address); err != nil {
+		return errors.Wrapf(err, "proxy %v to %v", v.api.network, address)
 	}
 
 	answer := &webrtc.SessionDescription{

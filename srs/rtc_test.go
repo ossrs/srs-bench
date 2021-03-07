@@ -728,6 +728,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 	api, err := NewTestWebRTCAPI()
 	if err != nil {
 		t.Error(err)
+		return
 	}
 	defer api.Close()
 
@@ -739,6 +740,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 
 	if err := api.Setup(vnetClientIP); err != nil {
 		t.Error(err)
+		return
 	}
 
 	// The event notify.
@@ -813,6 +815,7 @@ func TestRTCServerDTLSArqServerHello(t *testing.T) {
 	api, err := NewTestWebRTCAPI()
 	if err != nil {
 		t.Error(err)
+		return
 	}
 	defer api.Close()
 
@@ -821,6 +824,7 @@ func TestRTCServerDTLSArqServerHello(t *testing.T) {
 
 	if err := api.Setup(vnetClientIP); err != nil {
 		t.Error(err)
+		return
 	}
 
 	// Send enough packets, done.
@@ -842,16 +846,87 @@ func TestRTCServerDTLSArqServerHello(t *testing.T) {
 	// Hijack the network packets.
 	api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
 		chunk, parsed := NewChunkMessageType(c)
-		defer func() {
-			logger.Tf(ctx, "NN=%v, Chunk %v, parsed=%v, ok=%v %v bytes", nnServerHello, chunk, parsed, ok, len(c.UserData()))
-		}()
+		if !parsed {
+			return true
+		}
 
-		if !parsed || chunk.content != DTLSContentTypeHandshake || chunk.handshake != DTLSHandshakeTypeServerHello {
+		if chunk.content != DTLSContentTypeHandshake || chunk.handshake != DTLSHandshakeTypeServerHello {
 			ok = true
 		} else {
 			nnServerHello++
 			ok = (nnServerHello > nnMaxDrop)
+
+			// Matched, slow down for test case.
+			time.Sleep(10 * time.Millisecond)
 		}
+
+		logger.Tf(ctx, "NN=%v, Chunk %v, ok=%v %v bytes", nnServerHello, chunk, ok, len(c.UserData()))
+		return
+	})
+
+	if err := p.Run(ctx, cancel); err != nil {
+		if err != context.Canceled {
+			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)
+		}
+	}
+}
+
+func TestRTCServerDTLSArqChangeCipherSpec(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+	publishOK := *srsPublishOKPackets
+	vnetClientIP := *srsVnetClientIP
+
+	// Create top level test object.
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer api.Close()
+
+	p := NewTestPublisher(api)
+	defer p.Close()
+
+	if err := api.Setup(vnetClientIP); err != nil {
+		t.Error(err)
+		return
+	}
+
+	// Send enough packets, done.
+	var nn int64
+	p.onPacket = func(p *rtp.Header, payload []byte) {
+		if nn++; nn >= int64(publishOK) {
+			cancel()
+		}
+	}
+
+	// Force to DTLS client.
+	p.onOffer = testUtilSetupActive
+
+	// How many ChangeCipherSpec we got.
+	var nnChangeCipherSpec int
+	// How many packets should we drop.
+	const nnMaxDrop = 1
+
+	// Hijack the network packets.
+	api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
+		chunk, parsed := NewChunkMessageType(c)
+		if !parsed {
+			return true
+		}
+
+		if chunk.content != DTLSContentTypeChangeCipherSpec {
+			ok = true
+		} else {
+			nnChangeCipherSpec++
+			ok = (nnChangeCipherSpec > nnMaxDrop)
+
+			// Matched, slow down for test case.
+			time.Sleep(10 * time.Millisecond)
+		}
+
+		logger.Tf(ctx, "NN=%v, Chunk %v, ok=%v %v bytes", nnChangeCipherSpec, chunk, ok, len(c.UserData()))
 		return
 	})
 

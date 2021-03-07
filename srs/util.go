@@ -175,6 +175,16 @@ func testUtilSetupActive(s *webrtc.SessionDescription) error {
 	return nil
 }
 
+// Set to passive, as DTLS client, to start ClientHello.
+func testUtilSetupPassive(s *webrtc.SessionDescription) error {
+	if strings.Contains(s.SDP, "setup:active") {
+		return errors.New("set to passive")
+	}
+
+	s.SDP = strings.ReplaceAll(s.SDP, "setup:actpass", "setup:passive")
+	return nil
+}
+
 // Parse address from SDP.
 // candidate:0 1 udp 2130706431 192.168.3.8 8000 typ host generation 0
 func parseAddressOfCandidate(answerSDP string) (*net.UDPAddr, error) {

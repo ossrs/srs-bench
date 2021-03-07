@@ -805,6 +805,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 	}
 }
 
+// SRS is DTLS server, we are DTLS client which is active mode.
 func TestRTCServerDTLSArqServerHello(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
@@ -835,7 +836,7 @@ func TestRTCServerDTLSArqServerHello(t *testing.T) {
 		}
 	}
 
-	// Force to DTLS client.
+	// Force to DTLS client, setup:active mode.
 	p.onOffer = testUtilSetupActive
 
 	// How many ServerHello we got.
@@ -871,6 +872,7 @@ func TestRTCServerDTLSArqServerHello(t *testing.T) {
 	}
 }
 
+// SRS is DTLS server, we are DTLS client which is active mode.
 func TestRTCServerDTLSArqChangeCipherSpec(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
@@ -901,7 +903,7 @@ func TestRTCServerDTLSArqChangeCipherSpec(t *testing.T) {
 		}
 	}
 
-	// Force to DTLS client.
+	// Force to DTLS client, setup:active mode.
 	p.onOffer = testUtilSetupActive
 
 	// How many ChangeCipherSpec we got.
@@ -927,6 +929,140 @@ func TestRTCServerDTLSArqChangeCipherSpec(t *testing.T) {
 		}
 
 		logger.Tf(ctx, "NN=%v, Chunk %v, ok=%v %v bytes", nnChangeCipherSpec, chunk, ok, len(c.UserData()))
+		return
+	})
+
+	if err := p.Run(ctx, cancel); err != nil {
+		if err != context.Canceled {
+			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)
+		}
+	}
+}
+
+// SRS is DTLS client, we are DTLS server which is passive mode.
+func TestRTCClientDTLSArqClientHello(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+	publishOK := *srsPublishOKPackets
+	vnetClientIP := *srsVnetClientIP
+
+	// Create top level test object.
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer api.Close()
+
+	p := NewTestPublisher(api)
+	defer p.Close()
+
+	if err := api.Setup(vnetClientIP); err != nil {
+		t.Error(err)
+		return
+	}
+
+	// Send enough packets, done.
+	var nn int64
+	p.onPacket = func(p *rtp.Header, payload []byte) {
+		if nn++; nn >= int64(publishOK) {
+			cancel()
+		}
+	}
+
+	// Force to DTLS server, setup:active mode.
+	p.onOffer = testUtilSetupPassive
+
+	// How many ClientHello we got.
+	var nnClientHello int
+	// How many packets should we drop.
+	const nnMaxDrop = 1
+
+	// Hijack the network packets.
+	api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
+		chunk, parsed := NewChunkMessageType(c)
+		if !parsed {
+			return true
+		}
+
+		if chunk.content != DTLSContentTypeHandshake || chunk.handshake != DTLSHandshakeTypeClientHello {
+			ok = true
+		} else {
+			nnClientHello++
+			ok = (nnClientHello > nnMaxDrop)
+
+			// Matched, slow down for test case.
+			time.Sleep(10 * time.Millisecond)
+		}
+
+		logger.Tf(ctx, "NN=%v, Chunk %v, ok=%v %v bytes", nnClientHello, chunk, ok, len(c.UserData()))
+		return
+	})
+
+	if err := p.Run(ctx, cancel); err != nil {
+		if err != context.Canceled {
+			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)
+		}
+	}
+}
+
+// SRS is DTLS client, we are DTLS server which is passive mode.
+func TestRTCClientDTLSArqCertificate(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+	publishOK := *srsPublishOKPackets
+	vnetClientIP := *srsVnetClientIP
+
+	// Create top level test object.
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer api.Close()
+
+	p := NewTestPublisher(api)
+	defer p.Close()
+
+	if err := api.Setup(vnetClientIP); err != nil {
+		t.Error(err)
+		return
+	}
+
+	// Send enough packets, done.
+	var nn int64
+	p.onPacket = func(p *rtp.Header, payload []byte) {
+		if nn++; nn >= int64(publishOK) {
+			cancel()
+		}
+	}
+
+	// Force to DTLS server, setup:active mode.
+	p.onOffer = testUtilSetupPassive
+
+	// How many Certificate we got.
+	var nnCertificate int
+	// How many packets should we drop.
+	const nnMaxDrop = 1
+
+	// Hijack the network packets.
+	api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
+		chunk, parsed := NewChunkMessageType(c)
+		if !parsed {
+			return true
+		}
+
+		if chunk.content != DTLSContentTypeHandshake || chunk.handshake != DTLSHandshakeTypeCertificate {
+			ok = true
+		} else {
+			nnCertificate++
+			ok = (nnCertificate > nnMaxDrop)
+
+			// Matched, slow down for test case.
+			time.Sleep(10 * time.Millisecond)
+		}
+
+		logger.Tf(ctx, "NN=%v, Chunk %v, ok=%v %v bytes", nnCertificate, chunk, ok, len(c.UserData()))
 		return
 	})
 

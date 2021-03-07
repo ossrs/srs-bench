@@ -100,6 +100,83 @@ func ExampleUDPProxyManyToOne() {
 	client2.WriteTo([]byte("Hello"), serverAddr)
 }
 
+// Proxy many vnet endpoint to one real server endpoint.
+// For example:
+//		vnet(10.0.0.11:5787) => proxy => 192.168.1.10:8000
+//		vnet(10.0.0.11:5788) => proxy => 192.168.1.10:8000
+func ExampleUDPProxyMultileTimes() {
+	var clientNetwork *vnet.Net
+
+	serverAddr, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8000")
+	if err != nil {
+		// handle error
+	}
+
+	// Setup the network and proxy.
+	var proxy *vnet_proxy.UDPProxy
+	if true {
+		// Create vnet WAN with one endpoint, please read from
+		// https://github.com/pion/transport/tree/master/vnet#example-wan-with-one-endpoint-vnet
+		router, err := vnet.NewRouter(&vnet.RouterConfig{
+			CIDR:          "0.0.0.0/0",
+			LoggerFactory: logging.NewDefaultLoggerFactory(),
+		})
+		if err != nil {
+			// handle error
+		}
+
+		// Create a network and add to router, for example, for client.
+		clientNetwork = vnet.NewNet(&vnet.NetConfig{
+			StaticIP: "10.0.0.11",
+		})
+		if err = router.AddNet(clientNetwork); err != nil {
+			// handle error
+		}
+
+		// Start the router.
+		if err := router.Start(); err != nil {
+			// handle error
+		}
+		defer router.Stop()
+
+		// Create a proxy, bind to the router.
+		proxy, err = vnet_proxy.NewProxy(router)
+		if err != nil {
+			// handle error
+		}
+		defer proxy.Close()
+	}
+
+	if true {
+		// Start to proxy some addresses, clientNetwork is a hit for proxy,
+		// that the client in vnet is from this network.
+		if err := proxy.Proxy(clientNetwork, serverAddr); err != nil {
+			// handle error
+		}
+
+		// Now, all packets from client, will be proxy to real server, vice versa.
+		client0, err := clientNetwork.ListenPacket("udp4", "10.0.0.11:5787")
+		if err != nil {
+			// handle error
+		}
+		client0.WriteTo([]byte("Hello"), serverAddr)
+	}
+
+	if true {
+		// It's ok to proxy multiple times, for example, the publisher and player
+		// might need to proxy when got answer.
+		if err := proxy.Proxy(clientNetwork, serverAddr); err != nil {
+			// handle error
+		}
+
+		client1, err := clientNetwork.ListenPacket("udp4", "10.0.0.11:5788")
+		if err != nil {
+			// handle error
+		}
+		client1.WriteTo([]byte("Hello"), serverAddr)
+	}
+}
+
 // Proxy one vnet endpoint to one real server endpoint.
 // For example:
 //		vnet(10.0.0.11:5787) => proxy0 => 192.168.1.10:8000

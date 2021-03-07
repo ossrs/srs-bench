@@ -36,6 +36,7 @@ import (
 	"github.com/pion/webrtc/v3"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"path"
@@ -126,13 +127,19 @@ func TestMain(m *testing.M) {
 type TestWebRTCAPISetupFunc func(api *TestWebRTCAPI)
 
 type TestWebRTCAPI struct {
+	// The options to setup the api.
+	options []TestWebRTCAPISetupFunc
+	// The api and settings.
 	api           *webrtc.API
 	mediaEngine   *webrtc.MediaEngine
 	registry      *interceptor.Registry
 	settingEngine *webrtc.SettingEngine
-	// pion vnet
-	wan     *vnet.Router
-	options []TestWebRTCAPISetupFunc
+	// The vnet router, can be shared by different apis, but we do not share it.
+	router *vnet.Router
+	// The network for api.
+	network *vnet.Net
+	// The vnet UDP proxy bind to the router.
+	proxy *vnet_proxy.UDPProxy
 }
 
 func NewTestWebRTCAPI(options ...TestWebRTCAPISetupFunc) (*TestWebRTCAPI, error) {
@@ -158,9 +165,14 @@ func NewTestWebRTCAPI(options ...TestWebRTCAPISetupFunc) (*TestWebRTCAPI, error)
 }
 
 func (v *TestWebRTCAPI) Close() error {
-	if v.wan != nil {
-		v.wan.Stop()
-		v.wan = nil
+	if v.proxy != nil {
+		v.proxy.Close()
+		v.proxy = nil
+	}
+
+	if v.router != nil {
+		v.router.Stop()
+		v.router = nil
 	}
 
 	return nil
@@ -169,23 +181,33 @@ func (v *TestWebRTCAPI) Close() error {
 func (v *TestWebRTCAPI) Setup(vnetClientIP string, options ...TestWebRTCAPISetupFunc) error {
 	// Setting engine for https://github.com/pion/transport/tree/master/vnet
 	setupVnet := func(vnetClientIP string) (err error) {
-		if v.wan, err = vnet.NewRouter(&vnet.RouterConfig{
+		// We create a private router for a api, however, it's possible to share the
+		// same router between apis.
+		if v.router, err = vnet.NewRouter(&vnet.RouterConfig{
 			CIDR:          "0.0.0.0/0", // Accept all ip, no sub router.
 			LoggerFactory: logging.NewDefaultLoggerFactory(),
 		}); err != nil {
-			return err
+			return errors.Wrapf(err, "create router for api")
 		}
 
-		nw := vnet.NewNet(&vnet.NetConfig{
+		// Each api should bind to a network, however, it's possible to share it
+		// for different apis.
+		v.network = vnet.NewNet(&vnet.NetConfig{
 			StaticIP: vnetClientIP,
 		})
-		if err = v.wan.AddNet(nw); err != nil {
-			return nil
+
+		if err = v.router.AddNet(v.network); err != nil {
+			return errors.Wrapf(err, "create network for api")
 		}
 
-		v.settingEngine.SetVNet(nw)
+		v.settingEngine.SetVNet(v.network)
 
-		return v.wan.Start()
+		// Create a proxy bind to the router.
+		if v.proxy, err = vnet_proxy.NewProxy(v.router); err != nil {
+			return errors.Wrapf(err, "create proxy for router")
+		}
+
+		return v.router.Start()
 	}
 	if err := setupVnet(vnetClientIP); err != nil {
 		return err
@@ -218,8 +240,6 @@ type TestPlayer struct {
 	receivers []*webrtc.RTPReceiver
 	// root api object
 	api *TestWebRTCAPI
-	// pion vnet
-	proxy *vnet_proxy.UDPProxy
 }
 
 func NewTestPlayer(api *TestWebRTCAPI) *TestPlayer {
@@ -238,9 +258,6 @@ func (v *TestPlayer) Close() error {
 	}
 	v.receivers = nil
 
-	if v.proxy != nil {
-		v.proxy.Stop()
-	}
 	return nil
 }
 
@@ -280,12 +297,13 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 	if address, err := parseAddressOfCandidate(answer); err != nil {
 		return errors.Wrapf(err, "parse address of %v", answer)
 	} else {
-		if v.proxy, err = vnet_proxy.NewProxy("udp4", address); err != nil {
-			return err
+		addr, err := net.ResolveUDPAddr("udp4", address)
+		if err != nil {
+			return errors.Wrapf(err, "parse %v", address)
 		}
 
-		if err := v.proxy.Start(v.api.wan); err != nil {
-			return err
+		if err := v.api.proxy.Proxy(v.api.network, addr); err != nil {
+			return errors.Wrapf(err, "proxy %v to %v", v.api.network, addr)
 		}
 	}
 
@@ -361,8 +379,6 @@ type TestPublisher struct {
 	pc        *webrtc.PeerConnection
 	// root api object
 	api *TestWebRTCAPI
-	// pion vnet
-	proxy *vnet_proxy.UDPProxy
 }
 
 func NewTestPublisher(api *TestWebRTCAPI) *TestPublisher {
@@ -435,9 +451,6 @@ func (v *TestPublisher) Close() error {
 		v.pc.Close()
 	}
 
-	if v.proxy != nil {
-		v.proxy.Stop()
-	}
 	return nil
 }
 
@@ -492,12 +505,13 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	if address, err := parseAddressOfCandidate(answerSDP); err != nil {
 		return errors.Wrapf(err, "parse address of %v", answerSDP)
 	} else {
-		if v.proxy, err = vnet_proxy.NewProxy("udp4", address); err != nil {
-			return err
+		addr, err := net.ResolveUDPAddr("udp4", address)
+		if err != nil {
+			return errors.Wrapf(err, "parse %v", address)
 		}
 
-		if err := v.proxy.Start(v.api.wan); err != nil {
-			return err
+		if err := v.api.proxy.Proxy(v.api.network, addr); err != nil {
+			return errors.Wrapf(err, "proxy %v to %v", v.api.network, addr)
 		}
 	}
 
@@ -834,7 +848,7 @@ func TestRTCServerDTLSArq(t *testing.T) {
 	p.onOffer = testUtilSetupActive
 
 	// Handle all network packets.
-	api.wan.AddChunkFilter(func(c vnet.Chunk) bool {
+	api.router.AddChunkFilter(func(c vnet.Chunk) bool {
 		return true // keep chunk
 	})
 

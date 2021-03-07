@@ -21,10 +21,10 @@
 package vnet
 
 import (
-	"context"
 	"github.com/pion/transport/vnet"
 	"net"
 	"sync"
+	"time"
 )
 
 // A UDP proxy between real server(net.UDPConn) and vnet.UDPConn.
@@ -67,119 +67,88 @@ import (
 //                           :      +-------+                     :
 //                           ......................................
 type UDPProxy struct {
-	// The real server address to proxy to.
-	realServerAddr *net.UDPAddr
-	// Connect to vnet connection, which proxy with.
-	vnetSocket vnet.UDPPacketConn
+	// The router bind to.
+	router *vnet.Router
+
+	// Each vnet source, bind to a real socket to server.
+	// key is real server addr, which is net.Addr
+	// value is *aUDPProxyWorker
+	workers sync.Map
+
+	// For each endpoint, we never know when to start and stop proxy,
+	// so we stop the endpoint when timeout.
+	timeout time.Duration
+
+	// For utest, to mock the target real server.
+	// Optional, use the address of received client packet.
+	mockRealServerAddr *net.UDPAddr
+}
+
+// The router for this proxy belongs/bind to. Please create a new proxy for other routers.
+// For all addresses we proxy, we will create a vnet.Net in this router and proxy all packets.
+func NewProxy(router *vnet.Router) (*UDPProxy, error) {
+	v := &UDPProxy{router: router, timeout: 2 * time.Minute}
+	return v, nil
+}
+
+func (v *UDPProxy) Close() error {
+	// TODO: FIXME: Do cleanup.
+	return nil
+}
+
+func (v *UDPProxy) Proxy(client *vnet.Net, server *net.UDPAddr) error {
+	// Note that even if the worker exists, it's also ok to create a same worker,
+	// because the router will use the last one, and the real server will see a address
+	// change event after we switch to the next worker.
+	if _, ok := v.workers.Load(server.String()); ok {
+		// TODO: Need to restart the stopped worker?
+		return nil
+	}
+
+	// Not exists, create a new one.
+	worker := &aUDPProxyWorker{
+		router: v.router, mockRealServerAddr: v.mockRealServerAddr,
+	}
+	v.workers.Store(server.String(), worker)
+
+	return worker.Proxy(client, server)
+}
+
+// A proxy worker for a specified proxy server.
+type aUDPProxyWorker struct {
+	router             *vnet.Router
+	mockRealServerAddr *net.UDPAddr
 
 	// Each vnet source, bind to a real socket to server.
 	// key is vnet client addr, which is net.Addr
 	// value is *net.UDPConn
 	endpoints sync.Map
-
-	// For state sync.
-	wg             sync.WaitGroup
-	disposed       context.Context
-	disposedCancel context.CancelFunc
-	starting       bool
-	started        bool
 }
 
-// The network and address of real server.
-func NewProxy(network, address string) (*UDPProxy, error) {
-	addr, err := net.ResolveUDPAddr(network, address)
-	if err != nil {
-		return nil, err
-	}
-
-	v := &UDPProxy{}
-	if actual, ok := proxyMux.LoadOrStore(addr.String(), v); ok {
-		v = actual.(*UDPProxy) // Reuse the same proxy.
-		return v, nil
-	}
-
-	v.realServerAddr = addr
-	v.disposed, v.disposedCancel = context.WithCancel(context.Background())
-
-	return v, nil
-}
-
-func (v *UDPProxy) RealServerAddr() net.Addr {
-	return v.realServerAddr
-}
-
-func (v *UDPProxy) Start(router *vnet.Router) error {
-	if v.starting || v.started {
-		return nil
-	}
-	v.starting = true
-
-	// Create vnet for real server.
+func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error {
+	// Create vnet for real server by serverAddr.
 	nw := vnet.NewNet(&vnet.NetConfig{
-		StaticIP: v.realServerAddr.IP.String(),
+		StaticIP: serverAddr.IP.String(),
 	})
-	if err := router.AddNet(nw); err != nil {
+	if err := v.router.AddNet(nw); err != nil {
 		return err
 	}
 
 	// We must create a "same" vnet.UDPConn as the net.UDPConn,
 	// which has the same ip:port, to copy packets between them.
-	var err error
-	if v.vnetSocket, err = nw.ListenUDP("udp4", v.realServerAddr); err != nil {
+	vnetSocket, err := nw.ListenUDP("udp4", serverAddr)
+	if err != nil {
 		return err
 	}
 
-	// Got new vnet client, start a new endpoint.
-	findEndpointBy := func(addr net.Addr) (*net.UDPConn, error) {
-		// Exists binding.
-		if value, ok := v.endpoints.Load(addr.String()); ok {
-			// Exists endpoint, reuse it.
-			return value.(*net.UDPConn), nil
-		}
-
-		// Got new vnet client, create new endpoint.
-		realSocket, err := net.DialUDP("udp4", nil, v.realServerAddr)
-		if err != nil {
-			return nil, nil // Drop packet.
-		}
-
-		// Bind address.
-		v.endpoints.Store(addr.String(), realSocket)
-
-		// Got packet from real server, we should proxy it to vnet.
-		v.wg.Add(1)
-		go func(vnetClientAddr net.Addr) {
-			defer v.wg.Done()
-
-			buf := make([]byte, 1500)
-			for v.disposed.Err() == nil {
-				n, addr, err := realSocket.ReadFrom(buf)
-				if err != nil {
-					return
-				}
-
-				if n <= 0 || addr == nil {
-					continue // Drop packet
-				}
-
-				if _, err := v.vnetSocket.WriteTo(buf[:n], vnetClientAddr); err != nil {
-					return
-				}
-			}
-		}(addr)
-
-		return realSocket, nil
-	}
-
-	// Got packet from client, we should proxy it to real server.
-	v.wg.Add(1)
+	// Start a proxy goroutine.
+	var findEndpointBy func(router *vnet.Router, nw *vnet.Net, addr net.Addr) (*net.UDPConn, error)
+	// TODO: FIXME: Do cleanup.
 	go func() {
-		defer v.wg.Done()
-
 		buf := make([]byte, 1500)
 
-		for v.disposed.Err() == nil {
-			n, addr, err := v.vnetSocket.ReadFrom(buf)
+		for {
+			n, addr, err := vnetSocket.ReadFrom(buf)
 			if err != nil {
 				return
 			}
@@ -188,7 +157,7 @@ func (v *UDPProxy) Start(router *vnet.Router) error {
 				continue // Drop packet
 			}
 
-			realSocket, err := findEndpointBy(addr)
+			realSocket, err := findEndpointBy(v.router, nw, addr)
 			if err != nil {
 				continue // Drop packet.
 			}
@@ -199,39 +168,51 @@ func (v *UDPProxy) Start(router *vnet.Router) error {
 		}
 	}()
 
-	v.started = true
-	return nil
-}
-
-func (v *UDPProxy) Stop() error {
-	v.disposedCancel()
-
-	if v.realServerAddr != nil {
-		proxyMux.Delete(v.realServerAddr.String())
-	}
-
-	v.endpoints.Range(func(key, value interface{}) bool {
-		if realSocket, ok := value.(*net.UDPConn); ok {
-			realSocket.Close()
+	// Got new vnet client, start a new endpoint.
+	findEndpointBy = func(router *vnet.Router, nw *vnet.Net, addr net.Addr) (*net.UDPConn, error) {
+		// Exists binding.
+		if value, ok := v.endpoints.Load(addr.String()); ok {
+			// Exists endpoint, reuse it.
+			return value.(*net.UDPConn), nil
 		}
-		return true
-	})
 
-	if v.vnetSocket != nil {
-		v.vnetSocket.Close()
+		// The real server we proxy to, for utest to mock it.
+		realAddr := serverAddr
+		if v.mockRealServerAddr != nil {
+			realAddr = v.mockRealServerAddr
+		}
+
+		// Got new vnet client, create new endpoint.
+		realSocket, err := net.DialUDP("udp4", nil, realAddr)
+		if err != nil {
+			return nil, nil // Drop packet.
+		}
+
+		// Bind address.
+		v.endpoints.Store(addr.String(), realSocket)
+
+		// Got packet from real serverAddr, we should proxy it to vnet.
+		// TODO: FIXME: Do cleanup.
+		go func(vnetClientAddr net.Addr) {
+			buf := make([]byte, 1500)
+			for {
+				n, addr, err := realSocket.ReadFrom(buf)
+				if err != nil {
+					return
+				}
+
+				if n <= 0 || addr == nil {
+					continue // Drop packet
+				}
+
+				if _, err := vnetSocket.WriteTo(buf[:n], vnetClientAddr); err != nil {
+					return
+				}
+			}
+		}(addr)
+
+		return realSocket, nil
 	}
 
-	if v.starting || v.started {
-		v.wg.Wait()
-	}
 	return nil
 }
-
-// To support many-to-one mux, for example:
-//		vnet(10.0.0.11:5787) => proxy => 192.168.1.10:8000
-//		vnet(10.0.0.11:5788) => proxy => 192.168.1.10:8000
-//		vnet(10.0.0.11:5789) => proxy => 192.168.1.10:8000
-//
-// key is string, the UDPProxy.realServerAddr.String()
-// value is *UDPProxy
-var proxyMux sync.Map

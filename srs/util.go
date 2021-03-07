@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
+	"github.com/pion/transport/vnet"
 	"github.com/pion/webrtc/v3"
 	"github.com/pion/webrtc/v3/pkg/media/h264reader"
 	"io/ioutil"
@@ -239,4 +240,143 @@ func srsIsRTPOrRTCP(b []byte) bool {
 // @see srs_is_rtcp of https://github.com/ossrs/srs
 func srsIsRTCP(b []byte) bool {
 	return (len(b) >= 12) && (b[0]&0x80) != 0 && (b[1] >= 192 && b[1] <= 223)
+}
+
+type ChunkType int
+
+const (
+	ChunkTypeICE ChunkType = iota + 1
+	ChunkTypeDTLS
+	ChunkTypeRTP
+	ChunkTypeRTCP
+)
+
+func (v ChunkType) String() string {
+	switch v {
+	case ChunkTypeICE:
+		return "ICE"
+	case ChunkTypeDTLS:
+		return "DTLS"
+	case ChunkTypeRTP:
+		return "RTP"
+	case ChunkTypeRTCP:
+		return "RTCP"
+	default:
+		return "Unknown"
+	}
+}
+
+type DTLSContentType int
+
+const (
+	DTLSContentTypeHandshake        DTLSContentType = 22
+	DTLSContentTypeChangeCipherSpec DTLSContentType = 20
+)
+
+func (v DTLSContentType) String() string {
+	switch v {
+	case DTLSContentTypeHandshake:
+		return "Handshake"
+	case DTLSContentTypeChangeCipherSpec:
+		return "ChangeCipherSpec"
+	default:
+		return "Unknown"
+	}
+}
+
+type DTLSHandshakeType int
+
+const (
+	DTLSHandshakeTypeClientHello        DTLSHandshakeType = 1
+	DTLSHandshakeTypeServerHello        DTLSHandshakeType = 2
+	DTLSHandshakeTypeCertificate        DTLSHandshakeType = 11
+	DTLSHandshakeTypeServerKeyExchange  DTLSHandshakeType = 12
+	DTLSHandshakeTypeCertificateRequest DTLSHandshakeType = 13
+	DTLSHandshakeTypeServerDone         DTLSHandshakeType = 14
+	DTLSHandshakeTypeCertificateVerify  DTLSHandshakeType = 15
+	DTLSHandshakeTypeClientKeyExchange  DTLSHandshakeType = 16
+	DTLSHandshakeTypeFinished           DTLSHandshakeType = 20
+)
+
+func (v DTLSHandshakeType) String() string {
+	switch v {
+	case DTLSHandshakeTypeClientHello:
+		return "ClientHello"
+	case DTLSHandshakeTypeServerHello:
+		return "ServerHello"
+	case DTLSHandshakeTypeCertificate:
+		return "Certificate"
+	case DTLSHandshakeTypeServerKeyExchange:
+		return "ServerKeyExchange"
+	case DTLSHandshakeTypeCertificateRequest:
+		return "CertificateRequest"
+	case DTLSHandshakeTypeServerDone:
+		return "ServerDone"
+	case DTLSHandshakeTypeCertificateVerify:
+		return "CertificateVerify"
+	case DTLSHandshakeTypeClientKeyExchange:
+		return "ClientKeyExchange"
+	case DTLSHandshakeTypeFinished:
+		return "Finished"
+	default:
+		return "Unknown"
+	}
+}
+
+type ChunkMessageType struct {
+	chunk     ChunkType
+	content   DTLSContentType
+	handshake DTLSHandshakeType
+}
+
+func (v *ChunkMessageType) String() string {
+	if v.chunk == ChunkTypeDTLS {
+		return fmt.Sprintf("type=%v, content=%v, handshake=%v", v.chunk, v.content, v.handshake)
+	}
+	return fmt.Sprintf("type=%v", v.chunk)
+}
+
+// The WebRTC active handshake for DTLS:
+//		No.1 Client: ClientHello
+//		No.2 Server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
+//		No.3 Client: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+//		No.4 Server: ChangeCipherSpec, Encrypted(Finished)
+func NewChunkMessageType(c vnet.Chunk) (*ChunkMessageType, bool) {
+	b := c.UserData()
+
+	if len(b) == 0 {
+		return nil, false
+	}
+
+	v := &ChunkMessageType{}
+
+	if srsIsRTPOrRTCP(b) {
+		if srsIsRTCP(b) {
+			v.chunk = ChunkTypeRTCP
+		} else {
+			v.chunk = ChunkTypeRTP
+		}
+		return v, true
+	}
+
+	if srsIsStun(b) {
+		v.chunk = ChunkTypeICE
+		return v, true
+	}
+
+	if !srsIsDTLS(b) {
+		return nil, false
+	}
+
+	v.chunk, v.content = ChunkTypeDTLS, DTLSContentType(b[0])
+	if v.content == DTLSContentTypeChangeCipherSpec {
+		return v, true
+	}
+
+	if v.content != DTLSContentTypeHandshake || len(b) < 14 {
+		return v, false
+	}
+
+	v.handshake = DTLSHandshakeType(b[13])
+	return v, true
 }

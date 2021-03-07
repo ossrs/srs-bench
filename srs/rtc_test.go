@@ -836,43 +836,23 @@ func TestRTCServerDTLSArqServerHello(t *testing.T) {
 
 	// How many ServerHello we got.
 	var nnServerHello int
+	// How many packets should we drop.
+	const nnMaxDrop = 1
 
 	// Hijack the network packets.
-	api.router.AddChunkFilter(func(c vnet.Chunk) bool {
-		b := c.UserData()
+	api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
+		chunk, parsed := NewChunkMessageType(c)
+		defer func() {
+			logger.Tf(ctx, "NN=%v, Chunk %v, parsed=%v, ok=%v %v bytes", nnServerHello, chunk, parsed, ok, len(c.UserData()))
+		}()
 
-		// We only handle DTLS message, ignore ICE/STUN/RTP/RTCP message.
-		if !srsIsDTLS(b) {
-			return true
-		}
-
-		// Ignore other DTLS messages, except handshake packets.
-		if len(b) < 14 || (b[0] != 22 && b[0] != 20) {
-			return true
-		}
-
-		// The WebRTC active handshake:
-		//		No.1 Client: ClientHello
-		//		No.2 Server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
-		//		No.3 Client: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
-		//		No.4 Server: ChangeCipherSpec, Encrypted(Finished)
-		isClientHello := (b[0] == 22 && b[13] == 1)
-		isServerHello := (b[0] == 22 && b[13] == 2)
-		isCertificate := (b[0] == 22 && b[13] == 11)
-		isChangeCipherSpec := (b[0] == 20)
-		if !isClientHello && !isServerHello && !isCertificate && !isChangeCipherSpec {
-			return true
-		}
-
-		// If we(Client) drop the No.2 ServerHello message, sever should retransmit it.
-		// We only drop the first ServerHello, to check whether the retransmit ServerHello is
-		// ok to do the handshake.
-		if isServerHello && nnServerHello == 0 {
+		if !parsed || chunk.content != DTLSContentTypeHandshake || chunk.handshake != DTLSHandshakeTypeServerHello {
+			ok = true
+		} else {
 			nnServerHello++
-			return false
+			ok = (nnServerHello > nnMaxDrop)
 		}
-
-		return true
+		return
 	})
 
 	if err := p.Run(ctx, cancel); err != nil {

@@ -213,3 +213,30 @@ func parseAddressOfCandidate(answerSDP string) (*net.UDPAddr, error) {
 
 	return addr, nil
 }
+
+// For STUN packet, 0x00 is binding request, 0x01 is binding success response.
+// @see srs_is_stun of https://github.com/ossrs/srs
+func srsIsStun(b []byte) bool {
+	return len(b) > 0 && (b[0] == 0 || b[0] == 1)
+}
+
+// change_cipher_spec(20), alert(21), handshake(22), application_data(23)
+// @see https://tools.ietf.org/html/rfc2246#section-6.2.1
+// @see srs_is_dtls of https://github.com/ossrs/srs
+func srsIsDTLS(b []byte) bool {
+	return (len(b) >= 13 && (b[0] > 19 && b[0] < 64))
+}
+
+// For RTP or RTCP, the V=2 which is in the high 2bits, 0xC0 (1100 0000)
+// @see srs_is_rtp_or_rtcp of https://github.com/ossrs/srs
+func srsIsRTPOrRTCP(b []byte) bool {
+	return (len(b) >= 12 && (b[0]&0xC0) == 0x80)
+}
+
+// For RTCP, PT is [128, 223] (or without marker [0, 95]).
+// Literally, RTCP starts from 64 not 0, so PT is [192, 223] (or without marker [64, 95]).
+// @note For RTP, the PT is [96, 127], or [224, 255] with marker.
+// @see srs_is_rtcp of https://github.com/ossrs/srs
+func srsIsRTCP(b []byte) bool {
+	return (len(b) >= 12) && (b[0]&0x80) != 0 && (b[1] >= 192 && b[1] <= 223)
+}

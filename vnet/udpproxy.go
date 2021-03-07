@@ -159,11 +159,9 @@ func (v *UDPProxy) Start(router *vnet.Router) error {
 				}
 
 				if n <= 0 || addr == nil {
-					continue
+					continue // Drop packet
 				}
 
-				//fmt.Println(fmt.Sprintf("Proxy %v=>%v=>%v %v byte",
-				//	addr, realSocket.LocalAddr(), vnetClientAddr, n))
 				if _, err := v.vnetSocket.WriteTo(buf[:n], vnetClientAddr); err != nil {
 					return
 				}
@@ -187,7 +185,7 @@ func (v *UDPProxy) Start(router *vnet.Router) error {
 			}
 
 			if n <= 0 || addr == nil {
-				continue
+				continue // Drop packet
 			}
 
 			realSocket, err := findEndpointBy(addr)
@@ -195,8 +193,6 @@ func (v *UDPProxy) Start(router *vnet.Router) error {
 				continue // Drop packet.
 			}
 
-			//fmt.Println(fmt.Sprintf("Proxy %v=>%v=>%v %v byte",
-			//	addr, realSocket.LocalAddr(), realSocket.RemoteAddr(), n))
 			if _, err := realSocket.Write(buf[:n]); err != nil {
 				return
 			}
@@ -209,6 +205,10 @@ func (v *UDPProxy) Start(router *vnet.Router) error {
 
 func (v *UDPProxy) Stop() error {
 	v.disposedCancel()
+
+	if v.realServerAddr != nil {
+		proxyMux.Delete(v.realServerAddr.String())
+	}
 
 	v.endpoints.Range(func(key, value interface{}) bool {
 		if realSocket, ok := value.(*net.UDPConn); ok {

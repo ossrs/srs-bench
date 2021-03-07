@@ -109,7 +109,7 @@ func (v *videoIngester) Ingest(ctx context.Context) error {
 		for ctx.Err() == nil {
 			frame, err := h264.NextNAL()
 			if err == io.EOF {
-				return nil
+				return io.EOF
 			}
 			if err != nil {
 				return errors.Wrapf(err, "Read h264")
@@ -170,7 +170,7 @@ func (v *videoIngester) Ingest(ctx context.Context) error {
 		}
 	}
 
-	return nil
+	return ctx.Err()
 }
 
 type audioIngester struct {
@@ -245,7 +245,7 @@ func (v *audioIngester) Ingest(ctx context.Context) error {
 	for ctx.Err() == nil {
 		pageData, pageHeader, err := ogg.ParseNextPage()
 		if err == io.EOF {
-			return nil
+			return io.EOF
 		}
 		if err != nil {
 			return errors.Wrapf(err, "Read ogg")
@@ -281,5 +281,5 @@ func (v *audioIngester) Ingest(ctx context.Context) error {
 		}
 	}
 
-	return nil
+	return ctx.Err()
 }

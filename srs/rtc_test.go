@@ -34,6 +34,7 @@ import (
 	"github.com/pion/rtp"
 	"github.com/pion/transport/vnet"
 	"github.com/pion/webrtc/v3"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -49,7 +50,7 @@ var srsHttps = flag.Bool("srs-https", false, "Whther connect to HTTPS-API")
 var srsServer = flag.String("srs-server", "127.0.0.1", "The RTC server to connect to")
 var srsStream = flag.String("srs-stream", "/rtc/regression", "The RTC stream to play")
 var srsLog = flag.Bool("srs-log", false, "Whether enable the detail log")
-var srsTimeout = flag.Int("srs-timeout", 3000, "For each case, the timeout in ms")
+var srsTimeout = flag.Int("srs-timeout", 5000, "For each case, the timeout in ms")
 var srsPlayPLI = flag.Int("srs-play-pli", 5000, "The PLI interval in seconds for player.")
 var srsPlayOKPackets = flag.Int("srs-play-ok-packets", 10, "If got N packets, it's ok, or fail")
 var srsPublishOKPackets = flag.Int("srs-publish-ok-packets", 10, "If send N packets, it's ok, or fail")
@@ -315,13 +316,15 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 
 		v.receivers = append(v.receivers, receiver)
 
-		pkt, _, err := track.ReadRTP()
-		if err != nil {
-			return errors.Wrapf(err, "Read RTP")
-		}
+		for ctx.Err() == nil {
+			pkt, _, err := track.ReadRTP()
+			if err != nil {
+				return errors.Wrapf(err, "Read RTP")
+			}
 
-		if v.onPacket != nil {
-			v.onPacket(pkt)
+			if v.onPacket != nil {
+				v.onPacket(pkt)
+			}
 		}
 
 		return nil
@@ -349,8 +352,9 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 
 type TestPublisher struct {
 	onOffer  func(s *webrtc.SessionDescription) error
+	onAnswer func(s *webrtc.SessionDescription) error
 	onPacket func(p *rtp.Header, payload []byte)
-	ready    context.CancelFunc
+	iceReady context.CancelFunc
 	// internal objects
 	aIngester *audioIngester
 	vIngester *videoIngester
@@ -365,6 +369,14 @@ func NewTestPublisher(api *TestWebRTCAPI) *TestPublisher {
 	sourceVideo, sourceAudio := *srsPublishVideo, *srsPublishAudio
 
 	v := &TestPublisher{api: api}
+
+	// Create ingesters.
+	if sourceAudio != "" {
+		v.aIngester = NewAudioIngester(sourceAudio)
+	}
+	if sourceVideo != "" {
+		v.vIngester = NewVideoIngester(sourceVideo)
+	}
 
 	// Setup the interceptors for packets.
 	api.options = append(api.options, func(api *TestWebRTCAPI) {
@@ -389,17 +401,15 @@ func NewTestPublisher(api *TestWebRTCAPI) *TestPublisher {
 			return rtcpInterceptor.nextRTCPReader.Read(buf, attributes)
 		}
 		rtcpInterceptor.rtcpWriter = func(pkts []rtcp.Packet, attributes interceptor.Attributes) (int, error) {
-			return rtcpInterceptor.rtcpWriter.Write(pkts, attributes)
+			return rtcpInterceptor.nextRTCPWriter.Write(pkts, attributes)
 		}
 		interceptors = append(interceptors, rtcpInterceptor)
 
 		// Filter for ingesters.
 		if sourceAudio != "" {
-			v.aIngester = NewAudioIngester(sourceAudio)
 			interceptors = append(interceptors, v.aIngester.audioLevelInterceptor)
 		}
 		if sourceVideo != "" {
-			v.vIngester = NewVideoIngester(sourceVideo)
 			interceptors = append(interceptors, v.vIngester.markerInterceptor)
 		}
 
@@ -473,14 +483,14 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		}
 	}
 
-	answer, err := apiRtcRequest(ctx, "/rtc/v1/publish", r, offer.SDP)
+	answerSDP, err := apiRtcRequest(ctx, "/rtc/v1/publish", r, offer.SDP)
 	if err != nil {
 		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
 	}
 
 	// Start a proxy for real server and vnet.
-	if address, err := parseAddressOfCandidate(answer); err != nil {
-		return errors.Wrapf(err, "parse address of %v", answer)
+	if address, err := parseAddressOfCandidate(answerSDP); err != nil {
+		return errors.Wrapf(err, "parse address of %v", answerSDP)
 	} else {
 		if v.proxy, err = vnet_proxy.NewProxy("udp4", address); err != nil {
 			return err
@@ -491,10 +501,17 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		}
 	}
 
-	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
-		Type: webrtc.SDPTypeAnswer, SDP: answer,
-	}); err != nil {
-		return errors.Wrapf(err, "Set answer %v", answer)
+	answer := &webrtc.SessionDescription{
+		Type: webrtc.SDPTypeAnswer, SDP: answerSDP,
+	}
+	if v.onAnswer != nil {
+		if err := v.onAnswer(answer); err != nil {
+			return errors.Wrapf(err, "on answerSDP")
+		}
+	}
+
+	if err := pc.SetRemoteDescription(*answer); err != nil {
+		return errors.Wrapf(err, "Set answerSDP %v", answerSDP)
 	}
 
 	logger.Tf(ctx, "State signaling=%v, ice=%v, conn=%v", pc.SignalingState(), pc.ICEConnectionState(), pc.ConnectionState())
@@ -527,8 +544,8 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 
 		if state == webrtc.PeerConnectionStateConnected {
 			pcDoneCancel()
-			if v.ready != nil {
-				v.ready()
+			if v.iceReady != nil {
+				v.iceReady()
 			}
 		}
 
@@ -545,6 +562,23 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer logger.Tf(ctx, "ingest notify done")
+
+		<-ctx.Done()
+
+		if v.aIngester != nil && v.aIngester.sAudioSender != nil {
+			v.aIngester.sAudioSender.Stop()
+		}
+
+		if v.vIngester != nil && v.vIngester.sVideoSender != nil {
+			v.vIngester.sVideoSender.Stop()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
 
 		if v.aIngester == nil {
 			return
@@ -558,6 +592,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			defer logger.Tf(ctx, "aingester sender read done")
 
 			buf := make([]byte, 1500)
 			for ctx.Err() == nil {
@@ -567,9 +602,18 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 			}
 		}()
 
-		if err := v.aIngester.Ingest(ctx); err != nil {
-			if err != context.Canceled {
-				finalErr = errors.Wrapf(err, "audio")
+		for {
+			if err := v.aIngester.Ingest(ctx); err != nil {
+				if err == io.EOF {
+					logger.Tf(ctx, "aingester retry for %v", err)
+					continue
+				}
+				if err != context.Canceled {
+					finalErr = errors.Wrapf(err, "audio")
+				}
+
+				logger.Tf(ctx, "aingester err=%v, final=%v", err, finalErr)
+				return
 			}
 		}
 	}()
@@ -577,6 +621,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer cancel()
 
 		if v.vIngester == nil {
 			return
@@ -591,24 +636,37 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			defer logger.Tf(ctx, "vingester sender read done")
 
 			buf := make([]byte, 1500)
 			for ctx.Err() == nil {
+				// The Read() might block in r.rtcpInterceptor.Read(b, a),
+				// so that the Stop() can not stop it.
 				if _, _, err := v.vIngester.sVideoSender.Read(buf); err != nil {
 					return
 				}
 			}
 		}()
 
-		if err := v.vIngester.Ingest(ctx); err != nil {
-			if err != context.Canceled {
-				finalErr = errors.Wrapf(err, "video")
+		for {
+			if err := v.vIngester.Ingest(ctx); err != nil {
+				if err == io.EOF {
+					logger.Tf(ctx, "vingester retry for %v", err)
+					continue
+				}
+				if err != context.Canceled {
+					finalErr = errors.Wrapf(err, "video")
+				}
+
+				logger.Tf(ctx, "vingester err=%v, final=%v", err, finalErr)
+				return
 			}
 		}
 	}()
 
 	wg.Wait()
 
+	logger.Tf(ctx, "ingester done ctx=%v, final=%v", ctx.Err(), finalErr)
 	if finalErr != nil {
 		return finalErr
 	}
@@ -684,7 +742,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 
 	// The event notify.
 	publishReady, publishReadyCancel := context.WithCancel(context.Background())
-	pub.ready = publishReadyCancel
+	pub.iceReady = publishReadyCancel
 
 	var wg sync.WaitGroup
 	var r0, r1 error
@@ -704,6 +762,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		var nn uint64
 		play.onPacket = func(p *rtp.Packet) {
 			nn++
+			logger.Tf(ctx, "play got %v packets", nn)
 			if nn >= uint64(playOK) {
 				cancel() // Completed.
 			}
@@ -714,6 +773,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 				r0 = err
 			}
 		}
+		logger.Tf(ctx, "play done")
 	}()
 
 	wg.Add(1)
@@ -721,16 +781,22 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		defer wg.Done()
 		defer cancel()
 
+		pub.onPacket = func(p *rtp.Header, payload []byte) {
+			logger.If(ctx, "pub send packet %v bytes", len(payload))
+		}
+
 		if err := pub.Run(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
 			}
 		}
+		logger.Tf(ctx, "pub done")
 	}()
 
 	// Handle errs, the test result.
 	wg.Wait()
 
+	logger.Tf(ctx, "test done, r0=%v, r1=%v", r0, r1)
 	if r0 != nil || r1 != nil {
 		t.Errorf("Error ctx %v r0 %+v, r1 %+v", ctx.Err(), r0, r1)
 	}

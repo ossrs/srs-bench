@@ -43,7 +43,8 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 	var aIngester *audioIngester
 	var vIngester *videoIngester
 
-	// For audio-level.
+	// For audio-level and sps/pps marker.
+	// TODO: FIXME: Should share with player.
 	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
 		m := &webrtc.MediaEngine{}
 		if err := m.RegisterDefaultCodecs(); err != nil {

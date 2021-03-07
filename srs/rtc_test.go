@@ -27,7 +27,7 @@ import (
 	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
-	vnet2 "github.com/ossrs/srs-bench/vnet"
+	vnet_proxy "github.com/ossrs/srs-bench/vnet"
 	"github.com/pion/interceptor"
 	"github.com/pion/logging"
 	"github.com/pion/rtcp"
@@ -65,7 +65,7 @@ func prepareTest() error {
 	flag.Parse()
 
 	// The stream should starts with /, for example, /rtc/regression
-	if strings.HasPrefix(*srsStream, "/") {
+	if !strings.HasPrefix(*srsStream, "/") {
 		*srsStream = "/" + *srsStream
 	}
 
@@ -122,10 +122,108 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+type TestWebRTCAPISetupFunc func(api *TestWebRTCAPI)
+
+type TestWebRTCAPI struct {
+	api           *webrtc.API
+	mediaEngine   *webrtc.MediaEngine
+	registry      *interceptor.Registry
+	settingEngine *webrtc.SettingEngine
+	// pion vnet
+	wan     *vnet.Router
+	options []TestWebRTCAPISetupFunc
+}
+
+func NewTestWebRTCAPI(options ...TestWebRTCAPISetupFunc) (*TestWebRTCAPI, error) {
+	v := &TestWebRTCAPI{}
+
+	v.mediaEngine = &webrtc.MediaEngine{}
+	if err := v.mediaEngine.RegisterDefaultCodecs(); err != nil {
+		return nil, err
+	}
+
+	v.registry = &interceptor.Registry{}
+	if err := webrtc.RegisterDefaultInterceptors(v.mediaEngine, v.registry); err != nil {
+		return nil, err
+	}
+
+	for _, setup := range options {
+		setup(v)
+	}
+
+	v.settingEngine = &webrtc.SettingEngine{}
+
+	return v, nil
+}
+
+func (v *TestWebRTCAPI) Close() error {
+	if v.wan != nil {
+		v.wan.Stop()
+		v.wan = nil
+	}
+
+	return nil
+}
+
+func (v *TestWebRTCAPI) Setup(vnetClientIP string, options ...TestWebRTCAPISetupFunc) error {
+	// Setting engine for https://github.com/pion/transport/tree/master/vnet
+	setupVnet := func(vnetClientIP string) (err error) {
+		if v.wan, err = vnet.NewRouter(&vnet.RouterConfig{
+			CIDR:          "0.0.0.0/0", // Accept all ip, no sub router.
+			LoggerFactory: logging.NewDefaultLoggerFactory(),
+		}); err != nil {
+			return err
+		}
+
+		nw := vnet.NewNet(&vnet.NetConfig{
+			StaticIP: vnetClientIP,
+		})
+		if err = v.wan.AddNet(nw); err != nil {
+			return nil
+		}
+
+		v.settingEngine.SetVNet(nw)
+
+		return v.wan.Start()
+	}
+	if err := setupVnet(vnetClientIP); err != nil {
+		return err
+	}
+
+	for _, setup := range options {
+		setup(v)
+	}
+
+	for _, setup := range v.options {
+		setup(v)
+	}
+
+	v.api = webrtc.NewAPI(
+		webrtc.WithMediaEngine(v.mediaEngine),
+		webrtc.WithInterceptorRegistry(v.registry),
+		webrtc.WithSettingEngine(*v.settingEngine),
+	)
+
+	return nil
+}
+
+func (v *TestWebRTCAPI) NewPeerConnection(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
+	return v.api.NewPeerConnection(configuration)
+}
+
 type TestPlayer struct {
 	onPacket  func(p *rtp.Packet)
 	pc        *webrtc.PeerConnection
 	receivers []*webrtc.RTPReceiver
+	// root api object
+	api *TestWebRTCAPI
+	// pion vnet
+	proxy *vnet_proxy.UDPProxy
+}
+
+func NewTestPlayer(api *TestWebRTCAPI) *TestPlayer {
+	v := &TestPlayer{api: api}
+	return v
 }
 
 func (v *TestPlayer) Close() error {
@@ -139,6 +237,9 @@ func (v *TestPlayer) Close() error {
 	}
 	v.receivers = nil
 
+	if v.proxy != nil {
+		v.proxy.Stop()
+	}
 	return nil
 }
 
@@ -147,7 +248,7 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 	pli := time.Duration(*srsPlayPLI) * time.Millisecond
 	logger.Tf(ctx, "Start play url=%v", r)
 
-	pc, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	pc, err := v.api.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
@@ -172,6 +273,19 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 	answer, err := apiRtcRequest(ctx, "/rtc/v1/play", r, offer.SDP)
 	if err != nil {
 		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
+	}
+
+	// Start a proxy for real server and vnet.
+	if address, err := parseAddressOfCandidate(answer); err != nil {
+		return errors.Wrapf(err, "parse address of %v", answer)
+	} else {
+		if v.proxy, err = vnet_proxy.NewProxy("udp4", address); err != nil {
+			return err
+		}
+
+		if err := v.proxy.Start(v.api.wan); err != nil {
+			return err
+		}
 	}
 
 	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
@@ -234,53 +348,26 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 }
 
 type TestPublisher struct {
-	onOffer    func(s *webrtc.SessionDescription) error
-	onPacket   func(p *rtp.Header, payload []byte)
-	vnetFilter vnet.ChunkFilter
-	ready      context.CancelFunc
+	onOffer  func(s *webrtc.SessionDescription) error
+	onPacket func(p *rtp.Header, payload []byte)
+	ready    context.CancelFunc
 	// internal objects
 	aIngester *audioIngester
 	vIngester *videoIngester
 	pc        *webrtc.PeerConnection
+	// root api object
+	api *TestWebRTCAPI
 	// pion vnet
-	wan   *vnet.Router
-	proxy *vnet2.UDPProxy
+	proxy *vnet_proxy.UDPProxy
 }
 
-func (v *TestPublisher) Close() error {
-	if v.vIngester != nil {
-		v.vIngester.Close()
-	}
+func NewTestPublisher(api *TestWebRTCAPI) *TestPublisher {
+	sourceVideo, sourceAudio := *srsPublishVideo, *srsPublishAudio
 
-	if v.aIngester != nil {
-		v.aIngester.Close()
-	}
-
-	if v.pc != nil {
-		v.pc.Close()
-	}
-
-	if v.proxy != nil {
-		v.proxy.Stop()
-	}
-
-	if v.wan != nil {
-		v.wan.Stop()
-		v.wan = nil
-	}
-	return nil
-}
-
-func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) error {
-	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
-	sourceVideo, sourceAudio, fps := *srsPublishVideo, *srsPublishAudio, *srsPublishVideoFps
-	vnetClientIP := *srsVnetClientIP
-
-	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v, vip=%v",
-		r, sourceAudio, sourceVideo, fps, vnetClientIP)
+	v := &TestPublisher{api: api}
 
 	// Setup the interceptors for packets.
-	setupInterceptors := func(registry *interceptor.Registry) {
+	api.options = append(api.options, func(api *TestWebRTCAPI) {
 		var interceptors []interceptor.Interceptor
 
 		// Filter for all RTP packets.
@@ -318,60 +405,40 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 
 		// Install all fitlers.
 		for _, bi := range interceptors {
-			registry.Add(bi)
+			api.registry.Add(bi)
 		}
+	})
+
+	return v
+}
+
+func (v *TestPublisher) Close() error {
+	if v.vIngester != nil {
+		v.vIngester.Close()
 	}
 
-	// Setting engine for https://github.com/pion/transport/tree/master/vnet
-	setupVnet := func(sNg *webrtc.SettingEngine) (err error) {
-		if v.wan, err = vnet.NewRouter(&vnet.RouterConfig{
-			CIDR:          "0.0.0.0/0", // Accept all ip, no sub router.
-			LoggerFactory: logging.NewDefaultLoggerFactory(),
-		}); err != nil {
-			return err
-		}
-
-		nw := vnet.NewNet(&vnet.NetConfig{
-			StaticIP: vnetClientIP,
-		})
-		if err = v.wan.AddNet(nw); err != nil {
-			return nil
-		}
-
-		if v.vnetFilter != nil {
-			v.wan.AddChunkFilter(v.vnetFilter)
-		}
-
-		sNg.SetVNet(nw)
-
-		return v.wan.Start()
+	if v.aIngester != nil {
+		v.aIngester.Close()
 	}
 
-	webrtcNewPeerConnection := func(configuration webrtc.Configuration) (*webrtc.PeerConnection, error) {
-		mNg := &webrtc.MediaEngine{}
-		if err := mNg.RegisterDefaultCodecs(); err != nil {
-			return nil, err
-		}
-
-		registry := &interceptor.Registry{}
-		if err := webrtc.RegisterDefaultInterceptors(mNg, registry); err != nil {
-			return nil, err
-		}
-		setupInterceptors(registry)
-
-		sNg := webrtc.SettingEngine{}
-		if err := setupVnet(&sNg); err != nil {
-			return nil, err
-		}
-
-		api := webrtc.NewAPI(
-			webrtc.WithMediaEngine(mNg), webrtc.WithInterceptorRegistry(registry),
-			webrtc.WithSettingEngine(sNg),
-		)
-		return api.NewPeerConnection(configuration)
+	if v.pc != nil {
+		v.pc.Close()
 	}
 
-	pc, err := webrtcNewPeerConnection(webrtc.Configuration{})
+	if v.proxy != nil {
+		v.proxy.Stop()
+	}
+	return nil
+}
+
+func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) error {
+	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
+	sourceVideo, sourceAudio, fps := *srsPublishVideo, *srsPublishAudio, *srsPublishVideoFps
+
+	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
+		r, sourceAudio, sourceVideo, fps)
+
+	pc, err := v.api.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
@@ -415,11 +482,11 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	if address, err := parseAddressOfCandidate(answer); err != nil {
 		return errors.Wrapf(err, "parse address of %v", answer)
 	} else {
-		if v.proxy, err = vnet2.NewProxy("udp4", address); err != nil {
+		if v.proxy, err = vnet_proxy.NewProxy("udp4", address); err != nil {
 			return err
 		}
 
-		if err := v.proxy.Start(v.wan); err != nil {
+		if err := v.proxy.Start(v.api.wan); err != nil {
 			return err
 		}
 	}
@@ -596,8 +663,28 @@ func TestRTCServerPublishPlay(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
 	playOK := *srsPlayOKPackets
+	vnetClientIP := *srsVnetClientIP
 
+	// Create top level test object.
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		t.Error(err)
+	}
+	defer api.Close()
+
+	play := NewTestPlayer(api)
+	defer play.Close()
+
+	pub := NewTestPublisher(api)
+	defer pub.Close()
+
+	if err := api.Setup(vnetClientIP); err != nil {
+		t.Error(err)
+	}
+
+	// The event notify.
 	publishReady, publishReadyCancel := context.WithCancel(context.Background())
+	pub.ready = publishReadyCancel
 
 	var wg sync.WaitGroup
 	var r0, r1 error
@@ -614,18 +701,15 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		case <-publishReady.Done():
 		}
 
-		p := &TestPlayer{}
-		defer p.Close()
-
 		var nn uint64
-		p.onPacket = func(p *rtp.Packet) {
+		play.onPacket = func(p *rtp.Packet) {
 			nn++
 			if nn >= uint64(playOK) {
 				cancel() // Completed.
 			}
 		}
 
-		if err := p.Run(logger.WithContext(ctx), cancel); err != nil {
+		if err := play.Run(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
 			}
@@ -637,10 +721,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 		defer wg.Done()
 		defer cancel()
 
-		p := &TestPublisher{ready: publishReadyCancel}
-		defer p.Close()
-
-		if err := p.Run(logger.WithContext(ctx), cancel); err != nil {
+		if err := pub.Run(logger.WithContext(ctx), cancel); err != nil {
 			if errors.Cause(err) != context.Canceled {
 				r0 = err
 			}
@@ -659,25 +740,37 @@ func TestRTCServerDTLSArq(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
 	publishOK := *srsPublishOKPackets
+	vnetClientIP := *srsVnetClientIP
 
-	var ss []*webrtc.RTPReceiver
-	for _, s := range ss {
-		s.Stop()
+	// Create top level test object.
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		t.Error(err)
 	}
+	defer api.Close()
 
-	p := &TestPublisher{onOffer: testUtilSetupActive}
+	p := NewTestPublisher(api)
 	defer p.Close()
 
+	if err := api.Setup(vnetClientIP); err != nil {
+		t.Error(err)
+	}
+
+	// Send enough packets, done.
 	var nn int64
 	p.onPacket = func(p *rtp.Header, payload []byte) {
 		if nn++; nn >= int64(publishOK) {
-			cancel() // Send enough packets, done.
+			cancel()
 		}
 	}
 
-	p.vnetFilter = func(c vnet.Chunk) bool {
+	// Force to DTLS client.
+	p.onOffer = testUtilSetupActive
+
+	// Handle all network packets.
+	api.wan.AddChunkFilter(func(c vnet.Chunk) bool {
 		return true // keep chunk
-	}
+	})
 
 	if err := p.Run(ctx, cancel); err != nil {
 		if err != context.Canceled {

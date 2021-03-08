@@ -21,14 +21,13 @@
 package vnet
 
 import (
-	"github.com/pion/transport/vnet"
 	"net"
 )
 
-func (v *UDPProxy) Deliver(c vnet.Chunk) (err error) {
+func (v *UDPProxy) Deliver(sourceAddr, destAddr net.Addr, b []byte) (err error) {
 	v.workers.Range(func(key, value interface{}) bool {
 		var ok bool
-		if ok, err = value.(*aUDPProxyWorker).Deliver(c); err != nil {
+		if ok, err = value.(*aUDPProxyWorker).Deliver(sourceAddr, destAddr, b); err != nil {
 			return false // Fail, abort.
 		} else if ok {
 			return false // Done.
@@ -40,8 +39,8 @@ func (v *UDPProxy) Deliver(c vnet.Chunk) (err error) {
 }
 
 // TODO: Support deliver packet to vnet.
-func (v *aUDPProxyWorker) Deliver(c vnet.Chunk) (ok bool, err error) {
-	addr, ok := c.SourceAddr().(*net.UDPAddr)
+func (v *aUDPProxyWorker) Deliver(sourceAddr, destAddr net.Addr, b []byte) (ok bool, err error) {
+	addr, ok := sourceAddr.(*net.UDPAddr)
 	if !ok {
 		return false, nil
 	}
@@ -55,7 +54,7 @@ func (v *aUDPProxyWorker) Deliver(c vnet.Chunk) (ok bool, err error) {
 	}
 
 	// Send to real server.
-	if _, err := realSocket.Write(c.UserData()); err != nil {
+	if _, err := realSocket.Write(b); err != nil {
 		return false, err
 	}
 

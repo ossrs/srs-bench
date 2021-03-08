@@ -352,7 +352,8 @@ func TestRTCServerDTLSArqAlert(t *testing.T) {
 
 				// Copy the alert to server, ignore error.
 				if chunk.content == DTLSContentTypeAlert {
-					_ = api.proxy.Deliver(c)
+					_ = api.proxy.Deliver(c.SourceAddr(), c.DestinationAddr(), c.UserData())
+					_ = api.proxy.Deliver(c.SourceAddr(), c.DestinationAddr(), c.UserData())
 				}
 
 				logger.Tf(ctx, "Chunk %v, ok=%v %v bytes", chunk, ok, len(c.UserData()))
@@ -410,7 +411,8 @@ func TestRTCClientDTLSArqAlert(t *testing.T) {
 
 				// Copy the alert to server, ignore error.
 				if chunk.content == DTLSContentTypeAlert {
-					_ = api.proxy.Deliver(c)
+					_ = api.proxy.Deliver(c.SourceAddr(), c.DestinationAddr(), c.UserData())
+					_ = api.proxy.Deliver(c.SourceAddr(), c.DestinationAddr(), c.UserData())
 				}
 
 				logger.Tf(ctx, "Chunk %v, ok=%v %v bytes", chunk, ok, len(c.UserData()))

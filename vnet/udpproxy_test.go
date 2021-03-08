@@ -228,10 +228,6 @@ func TestUDPProxyOne2One(t *testing.T) {
 					return err
 				} else if n != 5 || addr == nil {
 					return fmt.Errorf("n=%v, addr=%v", n, addr)
-				} else if addr2, ok := addr.(*net.UDPAddr); !ok {
-					return fmt.Errorf("addr=%v", addr)
-				} else if addr2.String() != "192.168.1.10:8000" {
-					return fmt.Errorf("addr %v", addr2)
 				} else if string(buf[:n]) != "Hello" {
 					return fmt.Errorf("data %v", buf[:n])
 				}
@@ -377,10 +373,6 @@ func TestUDPProxyTwo2One(t *testing.T) {
 						return err
 					} else if n != len(echoData) || addr == nil {
 						return fmt.Errorf("n=%v, addr=%v", n, addr)
-					} else if addr2, ok := addr.(*net.UDPAddr); !ok {
-						return fmt.Errorf("addr=%v", addr)
-					} else if addr2.String() != "192.168.1.10:8000" {
-						return fmt.Errorf("addr %v", addr2)
 					} else if string(buf[:n]) != echoData {
 						return fmt.Errorf("data %v", buf[:n])
 					}
@@ -559,10 +551,6 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 						return err
 					} else if n != len(echoData) || addr == nil {
 						return fmt.Errorf("n=%v, addr=%v", n, addr)
-					} else if addr2, ok := addr.(*net.UDPAddr); !ok {
-						return fmt.Errorf("addr=%v", addr)
-					} else if addr2.String() != "192.168.1.10:8000" {
-						return fmt.Errorf("addr %v", addr2)
 					} else if string(buf[:n]) != echoData {
 						return fmt.Errorf("data %v", buf[:n])
 					}

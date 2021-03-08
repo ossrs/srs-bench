@@ -24,12 +24,11 @@ import (
 	"net"
 )
 
-func (v *UDPProxy) Deliver(sourceAddr, destAddr net.Addr, b []byte) (err error) {
+func (v *UDPProxy) Deliver(sourceAddr, destAddr net.Addr, b []byte) (nn int, err error) {
 	v.workers.Range(func(key, value interface{}) bool {
-		var ok bool
-		if ok, err = value.(*aUDPProxyWorker).Deliver(sourceAddr, destAddr, b); err != nil {
+		if nn, err := value.(*aUDPProxyWorker).Deliver(sourceAddr, destAddr, b); err != nil {
 			return false // Fail, abort.
-		} else if ok {
+		} else if nn == len(b) {
 			return false // Done.
 		}
 
@@ -39,24 +38,24 @@ func (v *UDPProxy) Deliver(sourceAddr, destAddr net.Addr, b []byte) (err error) 
 }
 
 // TODO: Support deliver packet to vnet.
-func (v *aUDPProxyWorker) Deliver(sourceAddr, destAddr net.Addr, b []byte) (ok bool, err error) {
+func (v *aUDPProxyWorker) Deliver(sourceAddr, destAddr net.Addr, b []byte) (nn int, err error) {
 	addr, ok := sourceAddr.(*net.UDPAddr)
 	if !ok {
-		return false, nil
+		return 0, nil
 	}
 
 	// If chunk is from vent, proxy to real server.
 	var realSocket *net.UDPConn
 	if value, ok := v.endpoints.Load(addr.String()); !ok {
-		return false, nil
+		return 0, nil
 	} else {
 		realSocket = value.(*net.UDPConn)
 	}
 
 	// Send to real server.
 	if _, err := realSocket.Write(b); err != nil {
-		return false, err
+		return 0, err
 	}
 
-	return true, nil
+	return len(b), nil
 }

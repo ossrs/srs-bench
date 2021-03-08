@@ -26,6 +26,8 @@ import (
 	"github.com/pion/rtp"
 )
 
+type RTPInterceptorOptionFunc func(i *RTPInterceptor)
+
 // Common RTP packet interceptor for benchmark.
 // @remark Should never merge with RTCPInterceptor, because they has the same Write interface.
 type RTPInterceptor struct {
@@ -38,6 +40,14 @@ type RTPInterceptor struct {
 	rtpWriter     interceptor.RTPWriterFunc
 	nextRTPWriter interceptor.RTPWriter
 	BypassInterceptor
+}
+
+func NewRTPInterceptor(options ...RTPInterceptorOptionFunc) *RTPInterceptor {
+	v := &RTPInterceptor{}
+	for _, opt := range options {
+		opt(v)
+	}
+	return v
 }
 
 func (v *RTPInterceptor) BindLocalStream(info *interceptor.StreamInfo, writer interceptor.RTPWriter) interceptor.RTPWriter {

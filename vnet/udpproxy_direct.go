@@ -37,14 +37,14 @@ func (v *UDPProxy) Deliver(sourceAddr, destAddr net.Addr, b []byte) (nn int, err
 	return
 }
 
-// TODO: Support deliver packet to vnet.
 func (v *aUDPProxyWorker) Deliver(sourceAddr, destAddr net.Addr, b []byte) (nn int, err error) {
 	addr, ok := sourceAddr.(*net.UDPAddr)
 	if !ok {
 		return 0, nil
 	}
 
-	// If chunk is from vent, proxy to real server.
+	// TODO: Support deliver packet from real server to vnet.
+	// If packet is from vent, proxy to real server.
 	var realSocket *net.UDPConn
 	if value, ok := v.endpoints.Load(addr.String()); !ok {
 		return 0, nil

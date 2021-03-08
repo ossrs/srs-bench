@@ -825,7 +825,7 @@ func TestRTCServerPublishPlay(t *testing.T) {
 //     No.2 srs-server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
 //     No.3  srs-bench: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
 //     No.4 srs-server: ChangeCipherSpec, Encrypted(Finished)
-func TestRTCServerDTLSNoArq(t *testing.T) {
+func TestRTCServerDTLSDefault(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
 	publishOK := *srsPublishOKPackets
@@ -887,7 +887,7 @@ func TestRTCServerDTLSNoArq(t *testing.T) {
 //     No.2  srs-bench: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
 //     No.3 srs-server: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
 //     No.4  srs-bench: ChangeCipherSpec, Encrypted(Finished)
-func TestRTCClientDTLSNoArq(t *testing.T) {
+func TestRTCClientDTLSDefault(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
 	publishOK := *srsPublishOKPackets

@@ -270,7 +270,10 @@ func (v *TestPlayer) Close() error {
 }
 
 func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
-	r := fmt.Sprintf("%v://%v%v%v", srsSchema, *srsServer, *srsStream, v.streamSuffix)
+	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
+	if v.streamSuffix != "" {
+		r = fmt.Sprintf("%v-%v", r, v.streamSuffix)
+	}
 	pli := time.Duration(*srsPlayPLI) * time.Millisecond
 	logger.Tf(ctx, "Start play url=%v", r)
 
@@ -444,7 +447,10 @@ func (v *TestPublisher) SetStreamSuffix(suffix string) *TestPublisher {
 }
 
 func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) error {
-	r := fmt.Sprintf("%v://%v%v%v", srsSchema, *srsServer, *srsStream, v.streamSuffix)
+	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
+	if v.streamSuffix != "" {
+		r = fmt.Sprintf("%v-%v", r, v.streamSuffix)
+	}
 	sourceVideo, sourceAudio, fps := *srsPublishVideo, *srsPublishAudio, *srsPublishVideoFps
 
 	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
@@ -814,7 +820,137 @@ func TestRTCServerPublishPlay(t *testing.T) {
 	}
 }
 
-// SRS is DTLS server, we are DTLS client which is active mode.
+// The srs-server is DTLS server, srs-bench is DTLS client which is active mode.
+//     No.1  srs-bench: ClientHello
+//     No.2 srs-server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
+//     No.3  srs-bench: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+//     No.4 srs-server: ChangeCipherSpec, Encrypted(Finished)
+func TestRTCServerDTLSNoArq(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+	publishOK := *srsPublishOKPackets
+	vnetClientIP := *srsVnetClientIP
+
+	// Create top level test object.
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer api.Close()
+
+	streamSuffix := fmt.Sprintf("dtls-server-no-arq-%v-%v", os.Getpid(), rand.Int())
+	p := NewTestPublisher(api, func(p *TestPublisher) {
+		p.streamSuffix = streamSuffix
+
+		// Force to DTLS client, setup:active mode.
+		p.onOffer = testUtilSetupActive
+	})
+	defer p.Close()
+
+	if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		// Send enough packets, done.
+		var nn int64
+		api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
+			i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
+				if nn++; nn >= int64(publishOK) {
+					cancel()
+				}
+				logger.Tf(ctx, "publish write %v packets", nn)
+				return i.nextRTPWriter.Write(header, payload, attributes)
+			}
+		}))
+	}, func(api *TestWebRTCAPI) {
+		api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
+			chunk, parsed := NewChunkMessageType(c)
+			if !parsed {
+				return true
+			}
+
+			logger.Tf(ctx, "Chunk %v, ok=%v %v bytes", chunk, ok, len(c.UserData()))
+			return true
+		})
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+
+	if err := p.Run(ctx, cancel); err != nil {
+		if err != context.Canceled {
+			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)
+		}
+	}
+}
+
+// The srs-server is DTLS clint, srs-bench is DTLS server which is passive mode.
+//     No.1 srs-server: ClientHello
+//     No.2  srs-bench: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
+//     No.3 srs-server: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+//     No.4  srs-bench: ChangeCipherSpec, Encrypted(Finished)
+func TestRTCClientDTLSNoArq(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+	publishOK := *srsPublishOKPackets
+	vnetClientIP := *srsVnetClientIP
+
+	// Create top level test object.
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer api.Close()
+
+	streamSuffix := fmt.Sprintf("dtls-client-no-arq-%v-%v", os.Getpid(), rand.Int())
+	p := NewTestPublisher(api, func(p *TestPublisher) {
+		p.streamSuffix = streamSuffix
+
+		// Force to DTLS server, setup:passive mode.
+		p.onOffer = testUtilSetupPassive
+	})
+	defer p.Close()
+
+	if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		// Send enough packets, done.
+		var nn int64
+		api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
+			i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
+				if nn++; nn >= int64(publishOK) {
+					cancel()
+				}
+				logger.Tf(ctx, "publish write %v packets", nn)
+				return i.nextRTPWriter.Write(header, payload, attributes)
+			}
+		}))
+	}, func(api *TestWebRTCAPI) {
+		api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
+			chunk, parsed := NewChunkMessageType(c)
+			if !parsed {
+				return true
+			}
+
+			logger.Tf(ctx, "Chunk %v, ok=%v %v bytes", chunk, ok, len(c.UserData()))
+			return true
+		})
+	}); err != nil {
+		t.Error(err)
+		return
+	}
+
+	if err := p.Run(ctx, cancel); err != nil {
+		if err != context.Canceled {
+			t.Errorf("Error ctx=%v err %+v", ctx.Err(), err)
+		}
+	}
+}
+
+// The srs-server is DTLS server, srs-bench is DTLS client which is active mode.
+//        No.1  srs-bench: ClientHello
+// [Drop] No.2 srs-server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
+// [ARQ]  No.3  srs-bench: ClientHello
+//        No.4 srs-server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
+//        No.5  srs-bench: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+//        No.6 srs-server: ChangeCipherSpec, Encrypted(Finished)
 func TestRTCServerDTLSArqServerHello(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
@@ -888,7 +1024,13 @@ func TestRTCServerDTLSArqServerHello(t *testing.T) {
 	}
 }
 
-// SRS is DTLS server, we are DTLS client which is active mode.
+// The srs-server is DTLS server, srs-bench is DTLS client which is active mode.
+//        No.1  srs-bench: ClientHello
+//        No.2 srs-server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
+//        No.3  srs-bench: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+// [Drop] No.4 srs-server: ChangeCipherSpec, Encrypted(Finished)
+// [ARQ]  No.5  srs-bench: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+//        No.6 srs-server: ChangeCipherSpec, Encrypted(Finished)
 func TestRTCServerDTLSArqChangeCipherSpec(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
@@ -962,7 +1104,12 @@ func TestRTCServerDTLSArqChangeCipherSpec(t *testing.T) {
 	}
 }
 
-// SRS is DTLS client, we are DTLS server which is passive mode.
+// The srs-server is DTLS client, srs-bench is DTLS server which is passive mode.
+// [Drop] No.1 srs-server: ClientHello
+// [ARQ]  No.2 srs-server: ClientHello
+//        No.3  srs-bench: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
+//        No.4 srs-server: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+//        No.5  srs-bench: ChangeCipherSpec, Encrypted(Finished)
 func TestRTCClientDTLSArqClientHello(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
@@ -1036,7 +1183,12 @@ func TestRTCClientDTLSArqClientHello(t *testing.T) {
 	}
 }
 
-// SRS is DTLS client, we are DTLS server which is passive mode.
+// The srs-server is DTLS client, srs-bench is DTLS server which is passive mode.
+//        No.1 srs-server: ClientHello
+//        No.2  srs-bench: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
+// [Drop] No.3 srs-server: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+// [ARQ]  No.4 srs-server: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
+//        No.5  srs-bench: ChangeCipherSpec, Encrypted(Finished)
 func TestRTCClientDTLSArqCertificate(t *testing.T) {
 	ctx := logger.WithContext(context.Background())
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)

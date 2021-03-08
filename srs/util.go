@@ -346,11 +346,6 @@ func (v *ChunkMessageType) String() string {
 	return fmt.Sprintf("type=%v", v.chunk)
 }
 
-// The WebRTC active handshake for DTLS:
-//		No.1 Client: ClientHello
-//		No.2 Server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
-//		No.3 Client: Certificate, ClientKeyExchange, CertificateVerify, ChangeCipherSpec, Encrypted(Finished)
-//		No.4 Server: ChangeCipherSpec, Encrypted(Finished)
 func NewChunkMessageType(c vnet.Chunk) (*ChunkMessageType, bool) {
 	b := c.UserData()
 

@@ -225,6 +225,31 @@ func parseAddressOfCandidate(answerSDP string) (*net.UDPAddr, error) {
 	return addr, nil
 }
 
+// Filter the test error, ignore context.Canceled
+func filterTestError(errs ...error) error {
+	var filteredErrors []error
+
+	for _, err := range errs {
+		if err == nil || errors.Cause(err) == context.Canceled {
+			continue
+		}
+		filteredErrors = append(filteredErrors, err)
+	}
+
+	if len(filteredErrors) == 0 {
+		return nil
+	}
+	if len(filteredErrors) == 1 {
+		return filteredErrors[0]
+	}
+
+	var descs []string
+	for i, err := range filteredErrors[1:] {
+		descs = append(descs, fmt.Sprintf("err #%d, %+v", i, err))
+	}
+	return errors.Wrapf(filteredErrors[0], "with %v", strings.Join(descs, ","))
+}
+
 // For STUN packet, 0x00 is binding request, 0x01 is binding success response.
 // @see srs_is_stun of https://github.com/ossrs/srs
 func srsIsStun(b []byte) bool {
@@ -281,6 +306,7 @@ type DTLSContentType int
 const (
 	DTLSContentTypeHandshake        DTLSContentType = 22
 	DTLSContentTypeChangeCipherSpec DTLSContentType = 20
+	DTLSContentTypeAlert            DTLSContentType = 21
 )
 
 func (v DTLSContentType) String() string {
@@ -374,14 +400,13 @@ func NewChunkMessageType(c vnet.Chunk) (*ChunkMessageType, bool) {
 	}
 
 	v.chunk, v.content = ChunkTypeDTLS, DTLSContentType(b[0])
-	if v.content == DTLSContentTypeChangeCipherSpec {
+	if v.content != DTLSContentTypeHandshake {
 		return v, true
 	}
 
-	if v.content != DTLSContentTypeHandshake || len(b) < 14 {
+	if len(b) < 14 {
 		return v, false
 	}
-
 	v.handshake = DTLSHandshakeType(b[13])
 	return v, true
 }

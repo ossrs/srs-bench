@@ -142,7 +142,7 @@ func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error
 	}
 
 	// Start a proxy goroutine.
-	var findEndpointBy func(router *vnet.Router, nw *vnet.Net, addr net.Addr) (*net.UDPConn, error)
+	var findEndpointBy func(addr net.Addr) (*net.UDPConn, error)
 	// TODO: FIXME: Do cleanup.
 	go func() {
 		buf := make([]byte, 1500)
@@ -157,7 +157,7 @@ func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error
 				continue // Drop packet
 			}
 
-			realSocket, err := findEndpointBy(v.router, nw, addr)
+			realSocket, err := findEndpointBy(addr)
 			if err != nil {
 				continue // Drop packet.
 			}
@@ -169,7 +169,7 @@ func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error
 	}()
 
 	// Got new vnet client, start a new endpoint.
-	findEndpointBy = func(router *vnet.Router, nw *vnet.Net, addr net.Addr) (*net.UDPConn, error) {
+	findEndpointBy = func(addr net.Addr) (*net.UDPConn, error) {
 		// Exists binding.
 		if value, ok := v.endpoints.Load(addr.String()); ok {
 			// Exists endpoint, reuse it.

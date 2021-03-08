@@ -97,6 +97,8 @@ func (v *RTPInterceptor) UnbindRemoteStream(info *interceptor.StreamInfo) {
 	v.remoteInfo = nil
 }
 
+type RTCPInterceptorOptionFunc func(i *RTCPInterceptor)
+
 // Common RTCP packet interceptor for benchmark.
 // @remark Should never merge with RTPInterceptor, because they has the same Write interface.
 type RTCPInterceptor struct {
@@ -107,6 +109,14 @@ type RTCPInterceptor struct {
 	rtcpWriter     interceptor.RTCPWriterFunc
 	nextRTCPWriter interceptor.RTCPWriter
 	BypassInterceptor
+}
+
+func NewRTCPInterceptor(options ...RTCPInterceptorOptionFunc) *RTCPInterceptor {
+	v := &RTCPInterceptor{}
+	for _, opt := range options {
+		opt(v)
+	}
+	return v
 }
 
 func (v *RTCPInterceptor) BindRTCPReader(reader interceptor.RTCPReader) interceptor.RTCPReader {

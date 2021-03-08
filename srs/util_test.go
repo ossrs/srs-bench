@@ -369,9 +369,9 @@ func (v *TestPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 type TestPublisherOptionFunc func(p *TestPublisher)
 
 type TestPublisher struct {
-	onOffer  func(s *webrtc.SessionDescription) error
-	onAnswer func(s *webrtc.SessionDescription) error
-	iceReady context.CancelFunc
+	onOffer        func(s *webrtc.SessionDescription) error
+	onAnswer       func(s *webrtc.SessionDescription) error
+	iceReadyCancel context.CancelFunc
 	// internal objects
 	aIngester *audioIngester
 	vIngester *videoIngester
@@ -544,8 +544,8 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 
 		if state == webrtc.PeerConnectionStateConnected {
 			pcDoneCancel()
-			if v.iceReady != nil {
-				v.iceReady()
+			if v.iceReadyCancel != nil {
+				v.iceReadyCancel()
 			}
 		}
 

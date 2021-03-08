@@ -367,9 +367,9 @@ type ChunkMessageType struct {
 
 func (v *ChunkMessageType) String() string {
 	if v.chunk == ChunkTypeDTLS {
-		return fmt.Sprintf("type=%v, content=%v, handshake=%v", v.chunk, v.content, v.handshake)
+		return fmt.Sprintf("%v-%v-%v", v.chunk, v.content, v.handshake)
 	}
-	return fmt.Sprintf("type=%v", v.chunk)
+	return fmt.Sprintf("%v", v.chunk)
 }
 
 func NewChunkMessageType(c vnet.Chunk) (*ChunkMessageType, bool) {
@@ -409,4 +409,48 @@ func NewChunkMessageType(c vnet.Chunk) (*ChunkMessageType, bool) {
 	}
 	v.handshake = DTLSHandshakeType(b[13])
 	return v, true
+}
+
+func (v *ChunkMessageType) IsCertificate() bool {
+	return v.chunk == ChunkTypeDTLS && v.content == DTLSContentTypeHandshake && v.handshake == DTLSHandshakeTypeCertificate
+}
+
+func (v *ChunkMessageType) IsChangeCipherSpec() bool {
+	return v.chunk == ChunkTypeDTLS && v.content == DTLSContentTypeChangeCipherSpec
+}
+
+type DTLSRecord struct {
+	ContentType    DTLSContentType
+	Version        uint16
+	Epoch          uint16
+	SequenceNumber uint64
+	Length         uint16
+	Data           []byte
+}
+
+func NewDTLSRecord(b []byte) (*DTLSRecord, error) {
+	v := &DTLSRecord{}
+	return v, v.Unmarshal(b)
+}
+
+func (v *DTLSRecord) String() string {
+	return fmt.Sprintf("epoch=%v, sequence=%v", v.Epoch, v.SequenceNumber)
+}
+
+func (v *DTLSRecord) Equals(p *DTLSRecord) bool {
+	return v.Epoch == p.Epoch && v.SequenceNumber == p.SequenceNumber
+}
+
+func (v *DTLSRecord) Unmarshal(b []byte) error {
+	if len(b) < 13 {
+		return errors.Errorf("requires 13B only %v", len(b))
+	}
+
+	v.ContentType = DTLSContentType(uint8(b[0]))
+	v.Version = uint16(b[1])<<8 | uint16(b[2])
+	v.Epoch = uint16(b[3])<<8 | uint16(b[4])
+	v.SequenceNumber = uint64(b[5])<<40 | uint64(b[6])<<32 | uint64(b[7])<<24 | uint64(b[8])<<16 | uint64(b[9])<<8 | uint64(b[10])
+	v.Length = uint16(b[11])<<8 | uint16(b[12])
+	v.Data = b[13:]
+	return nil
 }

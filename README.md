@@ -121,6 +121,8 @@ go test ./srs -mod=vendor -v
 make && ./objs/srs_test -test.v
 ```
 
+> Note: 注意由于pion不支持`DTLS 1.0`，所以SFU必须要支持`DTLS 1.2`才行。
+
 运行结果如下：
 
 ```bash

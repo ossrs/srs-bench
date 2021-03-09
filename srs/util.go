@@ -411,6 +411,18 @@ func NewChunkMessageType(c vnet.Chunk) (*ChunkMessageType, bool) {
 	return v, true
 }
 
+func (v *ChunkMessageType) IsHandshake() bool {
+	return v.chunk == ChunkTypeDTLS && v.content == DTLSContentTypeHandshake
+}
+
+func (v *ChunkMessageType) IsClientHello() bool {
+	return v.chunk == ChunkTypeDTLS && v.content == DTLSContentTypeHandshake && v.handshake == DTLSHandshakeTypeClientHello
+}
+
+func (v *ChunkMessageType) IsServerHello() bool {
+	return v.chunk == ChunkTypeDTLS && v.content == DTLSContentTypeHandshake && v.handshake == DTLSHandshakeTypeServerHello
+}
+
 func (v *ChunkMessageType) IsCertificate() bool {
 	return v.chunk == ChunkTypeDTLS && v.content == DTLSContentTypeHandshake && v.handshake == DTLSHandshakeTypeCertificate
 }

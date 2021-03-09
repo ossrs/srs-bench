@@ -21,10 +21,11 @@
 package vnet
 
 import (
-	"github.com/pion/transport/vnet"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/pion/transport/vnet"
 )
 
 // A UDP proxy between real server(net.UDPConn) and vnet.UDPConn.
@@ -84,24 +85,27 @@ type UDPProxy struct {
 	mockRealServerAddr *net.UDPAddr
 }
 
-// The router for this proxy belongs/bind to. Please create a new proxy for other routers.
-// For all addresses we proxy, we will create a vnet.Net in this router and proxy all packets.
+// NewProxy create a proxy, the router for this proxy belongs/bind to. If need to proxy for
+// please create a new proxy for each router. For all addresses we proxy, we will create a
+// vnet.Net in this router and proxy all packets.
 func NewProxy(router *vnet.Router) (*UDPProxy, error) {
 	v := &UDPProxy{router: router, timeout: 2 * time.Minute}
 	return v, nil
 }
 
+// Close the proxy, stop all workers.
 func (v *UDPProxy) Close() error {
-	// TODO: FIXME: Do cleanup.
+	// nolint:godox // TODO: FIXME: Do cleanup.
 	return nil
 }
 
+// Proxy starts a worker for server, ignore if already started.
 func (v *UDPProxy) Proxy(client *vnet.Net, server *net.UDPAddr) error {
 	// Note that even if the worker exists, it's also ok to create a same worker,
 	// because the router will use the last one, and the real server will see a address
 	// change event after we switch to the next worker.
 	if _, ok := v.workers.Load(server.String()); ok {
-		// TODO: Need to restart the stopped worker?
+		// nolint:godox // TODO: Need to restart the stopped worker?
 		return nil
 	}
 
@@ -125,7 +129,7 @@ type aUDPProxyWorker struct {
 	endpoints sync.Map
 }
 
-func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error {
+func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error { // nolint:gocognit
 	// Create vnet for real server by serverAddr.
 	nw := vnet.NewNet(&vnet.NetConfig{
 		StaticIP: serverAddr.IP.String(),
@@ -143,7 +147,7 @@ func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error
 
 	// Start a proxy goroutine.
 	var findEndpointBy func(addr net.Addr) (*net.UDPConn, error)
-	// TODO: FIXME: Do cleanup.
+	// nolint:godox // TODO: FIXME: Do cleanup.
 	go func() {
 		buf := make([]byte, 1500)
 
@@ -185,23 +189,23 @@ func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error
 		// Got new vnet client, create new endpoint.
 		realSocket, err := net.DialUDP("udp4", nil, realAddr)
 		if err != nil {
-			return nil, nil // Drop packet.
+			return nil, err
 		}
 
 		// Bind address.
 		v.endpoints.Store(addr.String(), realSocket)
 
 		// Got packet from real serverAddr, we should proxy it to vnet.
-		// TODO: FIXME: Do cleanup.
+		// nolint:godox // TODO: FIXME: Do cleanup.
 		go func(vnetClientAddr net.Addr) {
 			buf := make([]byte, 1500)
 			for {
-				n, addr, err := realSocket.ReadFrom(buf)
+				n, _, err := realSocket.ReadFrom(buf)
 				if err != nil {
 					return
 				}
 
-				if n <= 0 || addr == nil {
+				if n <= 0 {
 					continue // Drop packet
 				}
 

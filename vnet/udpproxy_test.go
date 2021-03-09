@@ -22,15 +22,17 @@ package vnet
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
-	"github.com/pion/logging"
-	"github.com/pion/transport/vnet"
 	"net"
 	"os"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/pion/logging"
+	"github.com/pion/transport/vnet"
 )
 
 type MockUDPEchoServer struct {
@@ -65,7 +67,7 @@ func (v *MockUDPEchoServer) doMockUDPServer(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 		selfKillCancel()
-		conn.Close()
+		_ = conn.Close()
 	}()
 
 	// Note that if they has the same ID, the address should not changed.
@@ -76,22 +78,22 @@ func (v *MockUDPEchoServer) doMockUDPServer(ctx context.Context) error {
 	for ctx.Err() == nil {
 		n, addr, err := conn.ReadFrom(buf)
 		if err != nil {
-			if selfKill.Err() == context.Canceled {
+			if errors.Is(selfKill.Err(), context.Canceled) {
 				return nil
 			}
 			return err
 		} else if n == 0 || addr == nil {
-			return fmt.Errorf("n=%v, addr=%v", n, addr)
+			return fmt.Errorf("n=%v, addr=%v", n, addr) // nolint:goerr113
 		} else if nn, err := conn.WriteTo(buf[:n], addr); err != nil {
 			return err
 		} else if nn != n {
-			return fmt.Errorf("nn=%v, n=%v", nn, n)
+			return fmt.Errorf("nn=%v, n=%v", nn, n) // nolint:goerr113
 		}
 
 		// Check the address, shold not change, use content as ID.
 		clientID := string(buf[:n])
 		if oldAddr, ok := addrs[clientID]; ok && oldAddr.String() != addr.String() {
-			return fmt.Errorf("address change %v to %v", oldAddr.String(), addr.String())
+			return fmt.Errorf("address change %v to %v", oldAddr.String(), addr.String()) // nolint:goerr113
 		}
 		addrs[clientID] = addr
 	}
@@ -99,7 +101,7 @@ func (v *MockUDPEchoServer) doMockUDPServer(ctx context.Context) error {
 	return nil
 }
 
-var testTimeout = flag.Int("timeout", 5000, "For each case, the timeout in ms")
+var testTimeout = flag.Int("timeout", 5000, "For each case, the timeout in ms") // nolint:gochecknoglobals
 
 func TestMain(m *testing.M) {
 	flag.Parse()
@@ -132,7 +134,7 @@ func TestUDPProxyOne2One(t *testing.T) {
 		select {
 		case <-ctx.Done():
 		case <-time.After(time.Duration(*testTimeout) * time.Millisecond):
-			r2 = fmt.Errorf("timeout")
+			r2 = fmt.Errorf("timeout") // nolint:goerr113
 		}
 	}()
 
@@ -176,16 +178,16 @@ func TestUDPProxyOne2One(t *testing.T) {
 				return err
 			}
 
-			if err := router.Start(); err != nil {
+			if err = router.Start(); err != nil {
 				return err
 			}
-			defer router.Stop()
+			defer router.Stop() // nolint:errcheck
 
 			proxy, err := NewProxy(router)
 			if err != nil {
 				return err
 			}
-			defer proxy.Close()
+			defer proxy.Close() // nolint:errcheck
 
 			// For utest, mock the target real server.
 			proxy.mockRealServerAddr = mockServer.realServerAddr
@@ -197,7 +199,7 @@ func TestUDPProxyOne2One(t *testing.T) {
 				return err
 			}
 
-			if err := proxy.Proxy(clientNetwork, serverAddr); err != nil {
+			if err = proxy.Proxy(clientNetwork, serverAddr); err != nil {
 				return err
 			}
 
@@ -212,24 +214,26 @@ func TestUDPProxyOne2One(t *testing.T) {
 			go func() {
 				<-ctx.Done()
 				selfKillCancel()
-				client.Close()
+				_ = client.Close() // nolint:errcheck
 			}()
 
 			for i := 0; i < 10; i++ {
-				if _, err := client.WriteTo([]byte("Hello"), serverAddr); err != nil {
+				if _, err = client.WriteTo([]byte("Hello"), serverAddr); err != nil {
 					return err
 				}
 
+				var n int
+				var addr net.Addr
 				buf := make([]byte, 1500)
-				if n, addr, err := client.ReadFrom(buf); err != nil {
-					if selfKill.Err() == context.Canceled {
+				if n, addr, err = client.ReadFrom(buf); err != nil { // nolint:gocritic
+					if errors.Is(selfKill.Err(), context.Canceled) {
 						return nil
 					}
 					return err
 				} else if n != 5 || addr == nil {
-					return fmt.Errorf("n=%v, addr=%v", n, addr)
+					return fmt.Errorf("n=%v, addr=%v", n, addr) // nolint:goerr113
 				} else if string(buf[:n]) != "Hello" {
-					return fmt.Errorf("data %v", buf[:n])
+					return fmt.Errorf("data %v", buf[:n]) // nolint:goerr113
 				}
 
 				// Wait for awhile for each UDP packet, to simulate real network.
@@ -276,7 +280,7 @@ func TestUDPProxyTwo2One(t *testing.T) {
 		select {
 		case <-ctx.Done():
 		case <-time.After(time.Duration(*testTimeout) * time.Millisecond):
-			r2 = fmt.Errorf("timeout")
+			r2 = fmt.Errorf("timeout") // nolint:goerr113
 		}
 	}()
 
@@ -320,16 +324,16 @@ func TestUDPProxyTwo2One(t *testing.T) {
 				return err
 			}
 
-			if err := router.Start(); err != nil {
+			if err = router.Start(); err != nil {
 				return err
 			}
-			defer router.Stop()
+			defer router.Stop() // nolint:errcheck
 
 			proxy, err := NewProxy(router)
 			if err != nil {
 				return err
 			}
-			defer proxy.Close()
+			defer proxy.Close() // nolint:errcheck
 
 			// For utest, mock the target real server.
 			proxy.mockRealServerAddr = mockServer.realServerAddr
@@ -341,13 +345,13 @@ func TestUDPProxyTwo2One(t *testing.T) {
 				return err
 			}
 
-			if err := proxy.Proxy(clientNetwork, serverAddr); err != nil {
+			if err = proxy.Proxy(clientNetwork, serverAddr); err != nil {
 				return err
 			}
 
 			handClient := func(address, echoData string) error {
 				// Now, all packets from client, will be proxy to real server, vice versa.
-				client, err := clientNetwork.ListenPacket("udp4", address)
+				client, err := clientNetwork.ListenPacket("udp4", address) // nolint:govet
 				if err != nil {
 					return err
 				}
@@ -357,24 +361,26 @@ func TestUDPProxyTwo2One(t *testing.T) {
 				go func() {
 					<-ctx.Done()
 					selfKillCancel()
-					client.Close()
+					_ = client.Close()
 				}()
 
 				for i := 0; i < 10; i++ {
-					if _, err := client.WriteTo([]byte(echoData), serverAddr); err != nil {
+					if _, err := client.WriteTo([]byte(echoData), serverAddr); err != nil { // nolint:govet
 						return err
 					}
 
-					buf := make([]byte, 1500)
-					if n, addr, err := client.ReadFrom(buf); err != nil {
-						if selfKill.Err() == context.Canceled {
+					var n int
+					var addr net.Addr
+					buf := make([]byte, 1400)
+					if n, addr, err = client.ReadFrom(buf); err != nil { // nolint:gocritic
+						if errors.Is(selfKill.Err(), context.Canceled) {
 							return nil
 						}
 						return err
 					} else if n != len(echoData) || addr == nil {
-						return fmt.Errorf("n=%v, addr=%v", n, addr)
+						return fmt.Errorf("n=%v, addr=%v", n, addr) // nolint:goerr113
 					} else if string(buf[:n]) != echoData {
-						return fmt.Errorf("data %v", buf[:n])
+						return fmt.Errorf("check data %v", buf[:n]) // nolint:goerr113
 					}
 
 					// Wait for awhile for each UDP packet, to simulate real network.
@@ -392,8 +398,8 @@ func TestUDPProxyTwo2One(t *testing.T) {
 			go func() {
 				defer client0Cancel()
 				address := "10.0.0.11:5787"
-				if err := handClient(address, "Hello"); err != nil {
-					r3 = fmt.Errorf("client %v err %v", address, err)
+				if err := handClient(address, "Hello"); err != nil { // nolint:govet
+					r3 = fmt.Errorf("client %v err %v", address, err) // nolint:goerr113
 				}
 			}()
 
@@ -401,8 +407,8 @@ func TestUDPProxyTwo2One(t *testing.T) {
 			go func() {
 				defer client1Cancel()
 				address := "10.0.0.11:5788"
-				if err := handClient(address, "World"); err != nil {
-					r3 = fmt.Errorf("client %v err %v", address, err)
+				if err := handClient(address, "World"); err != nil { // nolint:govet
+					r3 = fmt.Errorf("client %v err %v", address, err) // nolint:goerr113
 				}
 			}()
 
@@ -452,7 +458,7 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 		select {
 		case <-ctx.Done():
 		case <-time.After(time.Duration(*testTimeout) * time.Millisecond):
-			r2 = fmt.Errorf("timeout")
+			r2 = fmt.Errorf("timeout") // nolint:goerr113
 		}
 	}()
 
@@ -496,16 +502,16 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 				return err
 			}
 
-			if err := router.Start(); err != nil {
+			if err = router.Start(); err != nil {
 				return err
 			}
-			defer router.Stop()
+			defer router.Stop() // nolint:errcheck
 
 			proxy, err := NewProxy(router)
 			if err != nil {
 				return err
 			}
-			defer proxy.Close()
+			defer proxy.Close() // nolint:errcheck
 
 			// For utest, mock the target real server.
 			proxy.mockRealServerAddr = mockServer.realServerAddr
@@ -520,12 +526,12 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 			handClient := func(address, echoData string) error {
 				// We proxy multiple times, for example, in publisher and player, both call
 				// the proxy when got answer.
-				if err := proxy.Proxy(clientNetwork, serverAddr); err != nil {
+				if err := proxy.Proxy(clientNetwork, serverAddr); err != nil { // nolint:govet
 					return err
 				}
 
 				// Now, all packets from client, will be proxy to real server, vice versa.
-				client, err := clientNetwork.ListenPacket("udp4", address)
+				client, err := clientNetwork.ListenPacket("udp4", address) // nolint:govet
 				if err != nil {
 					return err
 				}
@@ -535,24 +541,24 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 				go func() {
 					<-ctx.Done()
 					selfKillCancel()
-					client.Close()
+					_ = client.Close() // nolint:errcheck
 				}()
 
 				for i := 0; i < 10; i++ {
-					if _, err := client.WriteTo([]byte(echoData), serverAddr); err != nil {
+					if _, err = client.WriteTo([]byte(echoData), serverAddr); err != nil {
 						return err
 					}
 
 					buf := make([]byte, 1500)
-					if n, addr, err := client.ReadFrom(buf); err != nil {
-						if selfKill.Err() == context.Canceled {
+					if n, addr, err := client.ReadFrom(buf); err != nil { // nolint:gocritic,govet
+						if errors.Is(selfKill.Err(), context.Canceled) {
 							return nil
 						}
 						return err
 					} else if n != len(echoData) || addr == nil {
-						return fmt.Errorf("n=%v, addr=%v", n, addr)
+						return fmt.Errorf("n=%v, addr=%v", n, addr) // nolint:goerr113
 					} else if string(buf[:n]) != echoData {
-						return fmt.Errorf("data %v", buf[:n])
+						return fmt.Errorf("verify data %v", buf[:n]) // nolint:goerr113
 					}
 
 					// Wait for awhile for each UDP packet, to simulate real network.
@@ -570,8 +576,8 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 			go func() {
 				defer client0Cancel()
 				address := "10.0.0.11:5787"
-				if err := handClient(address, "Hello"); err != nil {
-					r3 = fmt.Errorf("client %v err %v", address, err)
+				if err = handClient(address, "Hello"); err != nil {
+					r3 = fmt.Errorf("client %v err %v", address, err) // nolint:goerr113
 				}
 			}()
 
@@ -588,8 +594,8 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 				}
 
 				address := "10.0.0.11:5788"
-				if err := handClient(address, "World"); err != nil {
-					r3 = fmt.Errorf("client %v err %v", address, err)
+				if err = handClient(address, "World"); err != nil {
+					r3 = fmt.Errorf("client %v err %v", address, err) // nolint:goerr113
 				}
 			}()
 

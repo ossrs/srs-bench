@@ -21,10 +21,11 @@
 package vnet_test
 
 import (
+	"net"
+
 	vnet_proxy "github.com/ossrs/srs-bench/vnet"
 	"github.com/pion/logging"
 	"github.com/pion/transport/vnet"
-	"net"
 )
 
 // Proxy many vnet endpoint to one real server endpoint.
@@ -32,12 +33,14 @@ import (
 //		vnet(10.0.0.11:5787) => proxy => 192.168.1.10:8000
 //		vnet(10.0.0.11:5788) => proxy => 192.168.1.10:8000
 //		vnet(10.0.0.11:5789) => proxy => 192.168.1.10:8000
-func ExampleUDPProxyManyToOne() {
+func ExampleUDPProxyManyToOne() { // nolint:govet
 	var clientNetwork *vnet.Net
 
-	serverAddr, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8000")
-	if err != nil {
+	var serverAddr *net.UDPAddr
+	if addr, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8000"); err != nil {
 		// handle error
+	} else {
+		serverAddr = addr
 	}
 
 	// Setup the network and proxy.
@@ -61,17 +64,17 @@ func ExampleUDPProxyManyToOne() {
 		}
 
 		// Start the router.
-		if err := router.Start(); err != nil {
+		if err = router.Start(); err != nil {
 			// handle error
 		}
-		defer router.Stop()
+		defer router.Stop() // nolint:errcheck
 
 		// Create a proxy, bind to the router.
 		proxy, err := vnet_proxy.NewProxy(router)
 		if err != nil {
 			// handle error
 		}
-		defer proxy.Close()
+		defer proxy.Close() // nolint:errcheck
 
 		// Start to proxy some addresses, clientNetwork is a hit for proxy,
 		// that the client in vnet is from this network.
@@ -85,31 +88,33 @@ func ExampleUDPProxyManyToOne() {
 	if err != nil {
 		// handle error
 	}
-	client0.WriteTo([]byte("Hello"), serverAddr)
+	_, _ = client0.WriteTo([]byte("Hello"), serverAddr)
 
 	client1, err := clientNetwork.ListenPacket("udp4", "10.0.0.11:5788")
 	if err != nil {
 		// handle error
 	}
-	client1.WriteTo([]byte("Hello"), serverAddr)
+	_, _ = client1.WriteTo([]byte("Hello"), serverAddr)
 
 	client2, err := clientNetwork.ListenPacket("udp4", "10.0.0.11:5789")
 	if err != nil {
 		// handle error
 	}
-	client2.WriteTo([]byte("Hello"), serverAddr)
+	_, _ = client2.WriteTo([]byte("Hello"), serverAddr)
 }
 
 // Proxy many vnet endpoint to one real server endpoint.
 // For example:
 //		vnet(10.0.0.11:5787) => proxy => 192.168.1.10:8000
 //		vnet(10.0.0.11:5788) => proxy => 192.168.1.10:8000
-func ExampleUDPProxyMultileTimes() {
+func ExampleUDPProxyMultileTimes() { // nolint:govet
 	var clientNetwork *vnet.Net
 
-	serverAddr, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8000")
-	if err != nil {
+	var serverAddr *net.UDPAddr
+	if addr, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8000"); err != nil {
 		// handle error
+	} else {
+		serverAddr = addr
 	}
 
 	// Setup the network and proxy.
@@ -134,17 +139,17 @@ func ExampleUDPProxyMultileTimes() {
 		}
 
 		// Start the router.
-		if err := router.Start(); err != nil {
+		if err = router.Start(); err != nil {
 			// handle error
 		}
-		defer router.Stop()
+		defer router.Stop() // nolint:errcheck
 
 		// Create a proxy, bind to the router.
 		proxy, err = vnet_proxy.NewProxy(router)
 		if err != nil {
 			// handle error
 		}
-		defer proxy.Close()
+		defer proxy.Close() // nolint:errcheck
 	}
 
 	if true {
@@ -159,7 +164,7 @@ func ExampleUDPProxyMultileTimes() {
 		if err != nil {
 			// handle error
 		}
-		client0.WriteTo([]byte("Hello"), serverAddr)
+		_, _ = client0.WriteTo([]byte("Hello"), serverAddr)
 	}
 
 	if true {
@@ -173,7 +178,7 @@ func ExampleUDPProxyMultileTimes() {
 		if err != nil {
 			// handle error
 		}
-		client1.WriteTo([]byte("Hello"), serverAddr)
+		_, _ = client1.WriteTo([]byte("Hello"), serverAddr)
 	}
 }
 
@@ -182,22 +187,28 @@ func ExampleUDPProxyMultileTimes() {
 //		vnet(10.0.0.11:5787) => proxy0 => 192.168.1.10:8000
 //		vnet(10.0.0.11:5788) => proxy1 => 192.168.1.10:8001
 //		vnet(10.0.0.11:5789) => proxy2 => 192.168.1.10:8002
-func ExampleUDPProxyOneToOne() {
+func ExampleUDPProxyOneToOne() { // nolint:govet
 	var clientNetwork *vnet.Net
 
-	serverAddr0, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8000")
-	if err != nil {
+	var serverAddr0 *net.UDPAddr
+	if addr, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8000"); err != nil {
 		// handle error
+	} else {
+		serverAddr0 = addr
 	}
 
-	serverAddr1, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8001")
-	if err != nil {
+	var serverAddr1 *net.UDPAddr
+	if addr, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8001"); err != nil {
 		// handle error
+	} else {
+		serverAddr1 = addr
 	}
 
-	serverAddr2, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8002")
-	if err != nil {
+	var serverAddr2 *net.UDPAddr
+	if addr, err := net.ResolveUDPAddr("udp4", "192.168.1.10:8002"); err != nil {
 		// handle error
+	} else {
+		serverAddr2 = addr
 	}
 
 	// Setup the network and proxy.
@@ -221,17 +232,17 @@ func ExampleUDPProxyOneToOne() {
 		}
 
 		// Start the router.
-		if err := router.Start(); err != nil {
+		if err = router.Start(); err != nil {
 			// handle error
 		}
-		defer router.Stop()
+		defer router.Stop() // nolint:errcheck
 
 		// Create a proxy, bind to the router.
 		proxy, err := vnet_proxy.NewProxy(router)
 		if err != nil {
 			// handle error
 		}
-		defer proxy.Close()
+		defer proxy.Close() // nolint:errcheck
 
 		// Start to proxy some addresses, clientNetwork is a hit for proxy,
 		// that the client in vnet is from this network.
@@ -251,17 +262,17 @@ func ExampleUDPProxyOneToOne() {
 	if err != nil {
 		// handle error
 	}
-	client0.WriteTo([]byte("Hello"), serverAddr0)
+	_, _ = client0.WriteTo([]byte("Hello"), serverAddr0)
 
 	client1, err := clientNetwork.ListenPacket("udp4", "10.0.0.11:5788")
 	if err != nil {
 		// handle error
 	}
-	client1.WriteTo([]byte("Hello"), serverAddr1)
+	_, _ = client1.WriteTo([]byte("Hello"), serverAddr1)
 
 	client2, err := clientNetwork.ListenPacket("udp4", "10.0.0.11:5789")
 	if err != nil {
 		// handle error
 	}
-	client2.WriteTo([]byte("Hello"), serverAddr2)
+	_, _ = client2.WriteTo([]byte("Hello"), serverAddr2)
 }

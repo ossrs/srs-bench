@@ -314,7 +314,7 @@ func TestRtcDTLS_ClientPassive_Default(t *testing.T) {
 
 // The srs-server is DTLS server, srs-bench is DTLS client which is active mode.
 // When srs-bench close the PC, it will send DTLS alert and might retransmit it.
-func TestRtcDTLS_ClientActive_ARQ_Alert(t *testing.T) {
+func TestRtcDTLS_ClientActive_Duplicated_Alert(t *testing.T) {
 	if err := filterTestError(func() error {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
@@ -372,7 +372,7 @@ func TestRtcDTLS_ClientActive_ARQ_Alert(t *testing.T) {
 
 // The srs-server is DTLS client, srs-bench is DTLS server which is passive mode.
 // When srs-bench close the PC, it will send DTLS alert and might retransmit it.
-func TestRtcDTLS_ClientPassive_ARQ_Alert(t *testing.T) {
+func TestRtcDTLS_ClientPassive_Duplicated_Alert(t *testing.T) {
 	if err := filterTestError(func() error {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
@@ -1074,10 +1074,10 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_ByDropped_ChangeCipherSpec(t *tes
 
 // The srs-server is DTLS client(client), srs-bench is DTLS server which is passive mode.
 // Drop all DTLS packets when got ClientHello, to test the server ARQ thread cleanup.
-func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ClientHello(t *testing.T) {
+func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ClientHello(t *testing.T) {
 	if err := filterTestError(func() error {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
-		vnetClientIP := *srsVnetClientIP
+		vnetClientIP, dtlsDropPackets := *srsVnetClientIP, *srsDTLSDropPackets
 
 		// Create top level test object.
 		api, err := NewTestWebRTCAPI()
@@ -1110,7 +1110,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ClientHello(t *testing.T) {
 						return true
 					}
 
-					if nnDrop++; nnDrop >= 5 {
+					if nnDrop++; nnDrop >= dtlsDropPackets {
 						cancel() // Done, server transmit 5 Client Hello.
 					}
 
@@ -1132,10 +1132,10 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ClientHello(t *testing.T) {
 
 // The srs-server is DTLS client(client), srs-bench is DTLS server which is passive mode.
 // Drop all DTLS packets when got ServerHello, to test the server ARQ thread cleanup.
-func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ServerHello(t *testing.T) {
+func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ServerHello(t *testing.T) {
 	if err := filterTestError(func() error {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
-		vnetClientIP := *srsVnetClientIP
+		vnetClientIP, dtlsDropPackets := *srsVnetClientIP, *srsDTLSDropPackets
 
 		// Create top level test object.
 		api, err := NewTestWebRTCAPI()
@@ -1168,7 +1168,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ServerHello(t *testing.T) {
 						return true
 					}
 
-					if nnDrop++; nnDrop >= 5 {
+					if nnDrop++; nnDrop >= dtlsDropPackets {
 						cancel() // Done, server transmit 5 Client Hello.
 					}
 
@@ -1190,10 +1190,10 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ServerHello(t *testing.T) {
 
 // The srs-server is DTLS client(client), srs-bench is DTLS server which is passive mode.
 // Drop all DTLS packets when got Certificate, to test the server ARQ thread cleanup.
-func TestRtcDTLS_ClientPassive_ARQ_DropAfter_Certificate(t *testing.T) {
+func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_Certificate(t *testing.T) {
 	if err := filterTestError(func() error {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
-		vnetClientIP := *srsVnetClientIP
+		vnetClientIP, dtlsDropPackets := *srsVnetClientIP, *srsDTLSDropPackets
 
 		// Create top level test object.
 		api, err := NewTestWebRTCAPI()
@@ -1226,7 +1226,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAfter_Certificate(t *testing.T) {
 						return true
 					}
 
-					if nnDrop++; nnDrop >= 5 {
+					if nnDrop++; nnDrop >= dtlsDropPackets {
 						cancel() // Done, server transmit 5 Client Hello.
 					}
 
@@ -1248,10 +1248,10 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAfter_Certificate(t *testing.T) {
 
 // The srs-server is DTLS client(client), srs-bench is DTLS server which is passive mode.
 // Drop all DTLS packets when got ChangeCipherSpec, to test the server ARQ thread cleanup.
-func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ChangeCipherSpec(t *testing.T) {
+func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ChangeCipherSpec(t *testing.T) {
 	if err := filterTestError(func() error {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
-		vnetClientIP := *srsVnetClientIP
+		vnetClientIP, dtlsDropPackets := *srsVnetClientIP, *srsDTLSDropPackets
 
 		// Create top level test object.
 		api, err := NewTestWebRTCAPI()
@@ -1284,7 +1284,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ChangeCipherSpec(t *testing.T) {
 						return true
 					}
 
-					if nnDrop++; nnDrop >= 5 {
+					if nnDrop++; nnDrop >= dtlsDropPackets {
 						cancel() // Done, server transmit 5 Client Hello.
 					}
 
@@ -1310,7 +1310,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAfter_ChangeCipherSpec(t *testing.T) {
 func TestRtcDTLS_ClientPassive_ARQ_VeryBadNetwork(t *testing.T) {
 	if err := filterTestError(func() error {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
-		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
+		publishOK, vnetClientIP, dtlsDropPackets := *srsPublishOKPackets, *srsVnetClientIP, *srsDTLSDropPackets
 
 		// Create top level test object.
 		api, err := NewTestWebRTCAPI()
@@ -1358,7 +1358,7 @@ func TestRtcDTLS_ClientPassive_ARQ_VeryBadNetwork(t *testing.T) {
 					}
 
 					if chunk.IsCertificate() {
-						if nnDropCertificate >= 4 {
+						if nnDropCertificate >= dtlsDropPackets {
 							return true
 						}
 						nnDropCertificate++
@@ -1376,6 +1376,92 @@ func TestRtcDTLS_ClientPassive_ARQ_VeryBadNetwork(t *testing.T) {
 
 		return p.Run(ctx, cancel)
 	}()); err != nil {
+		t.Errorf("err %+v", err)
+	}
+}
+
+// The srs-server is DTLS client(client), srs-bench is DTLS server which is passive mode.
+// If we retransmit 2 ClientHello packets, consumed 150ms, server might wait at 200ms.
+// Then we retransmit the Certificate, server reset the timer and retransmit it in 50ms, not 200ms.
+func TestRtcDTLS_ClientPassive_ARQ_Certificate_After_ClientHello(t *testing.T) {
+	var r0 error
+	err := func() error {
+		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
+		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
+
+		// Create top level test object.
+		api, err := NewTestWebRTCAPI()
+		if err != nil {
+			return err
+		}
+		defer api.Close()
+
+		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
+		p := NewTestPublisher(api, func(p *TestPublisher) {
+			p.streamSuffix = streamSuffix
+			p.onOffer = testUtilSetupPassive
+		})
+		defer p.Close()
+
+		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+			var nn int64
+			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
+				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
+					if nn++; nn >= int64(publishOK) {
+						cancel() // Send enough packets, done.
+					}
+					logger.Tf(ctx, "publish write %v packets", nn)
+					return i.nextRTPWriter.Write(header, payload, attributes)
+				}
+			}))
+		}, func(api *TestWebRTCAPI) {
+			nnDropClientHello, nnDropCertificate := 0, 0
+			var firstCertificate time.Time
+			api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
+				chunk, parsed := NewChunkMessageType(c)
+				if !parsed {
+					return true
+				}
+
+				if chunk.IsHandshake() {
+					if !chunk.IsClientHello() && !chunk.IsCertificate() {
+						return true
+					}
+
+					if chunk.IsClientHello() {
+						if nnDropClientHello > 3 {
+							return true
+						}
+						nnDropClientHello++
+					}
+
+					if chunk.IsCertificate() {
+						if nnDropCertificate == 0 {
+							firstCertificate = time.Now()
+						} else if nnDropCertificate == 1 {
+							if duration := time.Now().Sub(firstCertificate); duration > 150*time.Millisecond {
+								r0 = fmt.Errorf("ARQ between ClientHello and Certificate too large %v", duration)
+							} else {
+								logger.Tf(ctx, "ARQ between ClientHello and Certificate is %v", duration)
+							}
+							cancel()
+						}
+						nnDropCertificate++
+					}
+
+					logger.Tf(ctx, "N=%v/%v, Drop chunk %v %v bytes", nnDropClientHello, nnDropCertificate, chunk, len(c.UserData()))
+					return false
+				}
+
+				return true
+			})
+		}); err != nil {
+			return err
+		}
+
+		return p.Run(ctx, cancel)
+	}()
+	if err := filterTestError(err, r0); err != nil {
 		t.Errorf("err %+v", err)
 	}
 }

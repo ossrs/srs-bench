@@ -57,6 +57,7 @@ var srsPublishAudio = flag.String("srs-publish-audio", "avatar.ogg", "The audio 
 var srsPublishVideo = flag.String("srs-publish-video", "avatar.h264", "The video file for publisher.")
 var srsPublishVideoFps = flag.Int("srs-publish-video-fps", 25, "The video fps for publisher.")
 var srsVnetClientIP = flag.String("srs-vnet-client-ip", "192.168.168.168", "The client ip in pion/vnet.")
+var srsDTLSDropPackets = flag.Int("srs-dtls-drop-packets", 5, "If dropped N packets, it's ok, or fail")
 
 func prepareTest() error {
 	var err error

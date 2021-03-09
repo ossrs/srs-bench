@@ -159,6 +159,7 @@ make && ./objs/srs_test -test.v -srs-server=127.0.0.1
 * `-srs-publish-ok-packets`，推流时，发送多少个包认为时测试通过，默认值：`10`
 * `-srs-https`，是否连接HTTPS-API。默认值：`false`，即连接HTTP-API。
 * `-srs-play-pli`，播放时，PLI的间隔，毫秒。默认值：`5000`，即5秒。
+* `-srs-dtls-drop-packets`，DTLS丢包测试，丢了多少个包算成功，默认值：`5`
 
 ## GCOVR
 

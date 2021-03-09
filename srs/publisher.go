@@ -22,14 +22,15 @@ package srs
 
 import (
 	"context"
+	"io"
+	"sync"
+	"time"
+
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/pion/interceptor"
 	"github.com/pion/sdp/v3"
 	"github.com/pion/webrtc/v3"
-	"io"
-	"sync"
-	"time"
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/play-from-disk/main.go

@@ -23,9 +23,10 @@ package srs
 import (
 	"context"
 	"encoding/json"
-	"github.com/ossrs/go-oryx-lib/logger"
 	"net/http"
 	"strings"
+
+	"github.com/ossrs/go-oryx-lib/logger"
 )
 
 type statRTC struct {

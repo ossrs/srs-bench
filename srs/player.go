@@ -23,6 +23,10 @@ package srs
 import (
 	"context"
 	"fmt"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/pion/interceptor"
@@ -33,9 +37,6 @@ import (
 	"github.com/pion/webrtc/v3/pkg/media/h264writer"
 	"github.com/pion/webrtc/v3/pkg/media/ivfwriter"
 	"github.com/pion/webrtc/v3/pkg/media/oggwriter"
-	"strings"
-	"sync"
-	"time"
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/save-to-disk/main.go

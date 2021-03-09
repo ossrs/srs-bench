@@ -22,6 +22,11 @@ package srs
 
 import (
 	"context"
+	"io"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/pion/interceptor"
@@ -31,10 +36,6 @@ import (
 	"github.com/pion/webrtc/v3/pkg/media"
 	"github.com/pion/webrtc/v3/pkg/media/h264reader"
 	"github.com/pion/webrtc/v3/pkg/media/oggreader"
-	"io"
-	"os"
-	"strings"
-	"time"
 )
 
 type videoIngester struct {

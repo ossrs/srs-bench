@@ -24,12 +24,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
+	"path"
 	"strconv"
 	"strings"
 	"sync"
@@ -63,6 +66,70 @@ var srsStream *string
 var srsPublishAudio *string
 var srsPublishVideo *string
 var srsVnetClientIP *string
+
+func prepareTest() error {
+	var err error
+
+	srsHttps = flag.Bool("srs-https", false, "Whther connect to HTTPS-API")
+	srsServer = flag.String("srs-server", "127.0.0.1", "The RTC server to connect to")
+	srsStream = flag.String("srs-stream", "/rtc/regression", "The RTC stream to play")
+	srsLog = flag.Bool("srs-log", false, "Whether enable the detail log")
+	srsTimeout = flag.Int("srs-timeout", 5000, "For each case, the timeout in ms")
+	srsPlayPLI = flag.Int("srs-play-pli", 5000, "The PLI interval in seconds for player.")
+	srsPlayOKPackets = flag.Int("srs-play-ok-packets", 10, "If recv N RTP packets, it's ok, or fail")
+	srsPublishOKPackets = flag.Int("srs-publish-ok-packets", 3, "If send N RTP, recv N RTCP packets, it's ok, or fail")
+	srsPublishAudio = flag.String("srs-publish-audio", "avatar.ogg", "The audio file for publisher.")
+	srsPublishVideo = flag.String("srs-publish-video", "avatar.h264", "The video file for publisher.")
+	srsPublishVideoFps = flag.Int("srs-publish-video-fps", 25, "The video fps for publisher.")
+	srsVnetClientIP = flag.String("srs-vnet-client-ip", "192.168.168.168", "The client ip in pion/vnet.")
+	srsDTLSDropPackets = flag.Int("srs-dtls-drop-packets", 5, "If dropped N packets, it's ok, or fail")
+
+	// Should parse it first.
+	flag.Parse()
+
+	// The stream should starts with /, for example, /rtc/regression
+	if !strings.HasPrefix(*srsStream, "/") {
+		*srsStream = "/" + *srsStream
+	}
+
+	// Generate srs protocol from whether use HTTPS.
+	srsSchema = "http"
+	if *srsHttps {
+		srsSchema = "https"
+	}
+
+	// Check file.
+	tryOpenFile := func(filename string) (string, error) {
+		if filename == "" {
+			return filename, nil
+		}
+
+		f, err := os.Open(filename)
+		if err != nil {
+			nfilename := path.Join("../", filename)
+			f2, err := os.Open(nfilename)
+			if err != nil {
+				return filename, errors.Wrapf(err, "No video file at %v or %v", filename, nfilename)
+			}
+			defer f2.Close()
+
+			return nfilename, nil
+		}
+		defer f.Close()
+
+		return filename, nil
+	}
+
+	if *srsPublishVideo, err = tryOpenFile(*srsPublishVideo); err != nil {
+		return err
+	}
+
+	if *srsPublishAudio, err = tryOpenFile(*srsPublishAudio); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func apiRtcRequest(ctx context.Context, apiPath, r, offer string) (string, error) {
 	u, err := url.Parse(r)

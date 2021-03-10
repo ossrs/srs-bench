@@ -5,6 +5,8 @@
 
 Recommend to use mirror at: https://gitee.com/winlinvip/srs-bench
 
+For WebRTC benchmark and test, please use branch [feature/rtc](https://github.com/ossrs/srs-bench/tree/feature/rtc).
+
 hls/http/rtmp-play/rtmp-publish load test tool base on st(state-threads), support huge concurrency<br/>
 
 ## About

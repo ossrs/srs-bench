@@ -24,8 +24,6 @@ import (
 	"net"
 	"sync"
 	"time"
-
-	"github.com/pion/transport/vnet"
 )
 
 // A UDP proxy between real server(net.UDPConn) and vnet.UDPConn.
@@ -69,7 +67,7 @@ import (
 //                           ......................................
 type UDPProxy struct {
 	// The router bind to.
-	router *vnet.Router
+	router *Router
 
 	// Each vnet source, bind to a real socket to server.
 	// key is real server addr, which is net.Addr
@@ -88,7 +86,7 @@ type UDPProxy struct {
 // NewProxy create a proxy, the router for this proxy belongs/bind to. If need to proxy for
 // please create a new proxy for each router. For all addresses we proxy, we will create a
 // vnet.Net in this router and proxy all packets.
-func NewProxy(router *vnet.Router) (*UDPProxy, error) {
+func NewProxy(router *Router) (*UDPProxy, error) {
 	v := &UDPProxy{router: router, timeout: 2 * time.Minute}
 	return v, nil
 }
@@ -100,7 +98,7 @@ func (v *UDPProxy) Close() error {
 }
 
 // Proxy starts a worker for server, ignore if already started.
-func (v *UDPProxy) Proxy(client *vnet.Net, server *net.UDPAddr) error {
+func (v *UDPProxy) Proxy(client *Net, server *net.UDPAddr) error {
 	// Note that even if the worker exists, it's also ok to create a same worker,
 	// because the router will use the last one, and the real server will see a address
 	// change event after we switch to the next worker.
@@ -120,7 +118,7 @@ func (v *UDPProxy) Proxy(client *vnet.Net, server *net.UDPAddr) error {
 
 // A proxy worker for a specified proxy server.
 type aUDPProxyWorker struct {
-	router             *vnet.Router
+	router             *Router
 	mockRealServerAddr *net.UDPAddr
 
 	// Each vnet source, bind to a real socket to server.
@@ -129,9 +127,9 @@ type aUDPProxyWorker struct {
 	endpoints sync.Map
 }
 
-func (v *aUDPProxyWorker) Proxy(client *vnet.Net, serverAddr *net.UDPAddr) error { // nolint:gocognit
+func (v *aUDPProxyWorker) Proxy(client *Net, serverAddr *net.UDPAddr) error { // nolint:gocognit
 	// Create vnet for real server by serverAddr.
-	nw := vnet.NewNet(&vnet.NetConfig{
+	nw := NewNet(&NetConfig{
 		StaticIP: serverAddr.IP.String(),
 	})
 	if err := v.router.AddNet(nw); err != nil {

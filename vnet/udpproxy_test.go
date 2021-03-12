@@ -32,7 +32,6 @@ import (
 	"time"
 
 	"github.com/pion/logging"
-	"github.com/pion/transport/vnet"
 )
 
 type MockUDPEchoServer struct {
@@ -163,7 +162,7 @@ func TestUDPProxyOne2One(t *testing.T) {
 		}
 
 		doVnetProxy := func() error {
-			router, err := vnet.NewRouter(&vnet.RouterConfig{
+			router, err := NewRouter(&RouterConfig{
 				CIDR:          "0.0.0.0/0",
 				LoggerFactory: logging.NewDefaultLoggerFactory(),
 			})
@@ -171,7 +170,7 @@ func TestUDPProxyOne2One(t *testing.T) {
 				return err
 			}
 
-			clientNetwork := vnet.NewNet(&vnet.NetConfig{
+			clientNetwork := NewNet(&NetConfig{
 				StaticIP: "10.0.0.11",
 			})
 			if err = router.AddNet(clientNetwork); err != nil {
@@ -309,7 +308,7 @@ func TestUDPProxyTwo2One(t *testing.T) {
 		}
 
 		doVnetProxy := func() error {
-			router, err := vnet.NewRouter(&vnet.RouterConfig{
+			router, err := NewRouter(&RouterConfig{
 				CIDR:          "0.0.0.0/0",
 				LoggerFactory: logging.NewDefaultLoggerFactory(),
 			})
@@ -317,7 +316,7 @@ func TestUDPProxyTwo2One(t *testing.T) {
 				return err
 			}
 
-			clientNetwork := vnet.NewNet(&vnet.NetConfig{
+			clientNetwork := NewNet(&NetConfig{
 				StaticIP: "10.0.0.11",
 			})
 			if err = router.AddNet(clientNetwork); err != nil {
@@ -487,7 +486,7 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 		}
 
 		doVnetProxy := func() error {
-			router, err := vnet.NewRouter(&vnet.RouterConfig{
+			router, err := NewRouter(&RouterConfig{
 				CIDR:          "0.0.0.0/0",
 				LoggerFactory: logging.NewDefaultLoggerFactory(),
 			})
@@ -495,7 +494,7 @@ func TestUDPProxyProxyTwice(t *testing.T) {
 				return err
 			}
 
-			clientNetwork := vnet.NewNet(&vnet.NetConfig{
+			clientNetwork := NewNet(&NetConfig{
 				StaticIP: "10.0.0.11",
 			})
 			if err = router.AddNet(clientNetwork); err != nil {

@@ -26,6 +26,7 @@ import (
 
 type Router = vnet.Router
 type Net = vnet.Net
+
 type NetConfig = vnet.NetConfig
 type RouterConfig = vnet.RouterConfig
 

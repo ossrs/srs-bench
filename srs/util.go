@@ -684,23 +684,30 @@ type TestPlayerOptionFunc func(p *TestPlayer) error
 type TestPlayer struct {
 	pc        *webrtc.PeerConnection
 	receivers []*webrtc.RTPReceiver
-	// root api object
+	// We should dispose it.
 	api *TestWebRTCAPI
 	// Optional suffix for stream url.
 	streamSuffix string
 }
 
-func NewTestPlayer(api *TestWebRTCAPI, options ...TestPlayerOptionFunc) (*TestPlayer, error) {
-	v := &TestPlayer{api: api}
+func CreateApiForPlayer(play *TestPlayer) error {
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		return err
+	}
+
+	play.api = api
+	return nil
+}
+
+func NewTestPlayer(options ...TestPlayerOptionFunc) (*TestPlayer, error) {
+	v := &TestPlayer{}
 
 	for _, opt := range options {
 		if err := opt(v); err != nil {
 			return nil, err
 		}
 	}
-
-	// The api might be override by options.
-	api = v.api
 
 	return v, nil
 }
@@ -712,6 +719,10 @@ func (v *TestPlayer) Close() error {
 
 	for _, receiver := range v.receivers {
 		receiver.Stop()
+	}
+
+	if v.api != nil {
+		v.api.Close()
 	}
 
 	return nil
@@ -826,7 +837,7 @@ type TestPublisher struct {
 	aIngester *audioIngester
 	vIngester *videoIngester
 	pc        *webrtc.PeerConnection
-	// root api object
+	// We should dispose it.
 	api *TestWebRTCAPI
 	// Optional suffix for stream url.
 	streamSuffix string
@@ -834,19 +845,26 @@ type TestPublisher struct {
 	cancel context.CancelFunc
 }
 
-func NewTestPublisher(api *TestWebRTCAPI, options ...TestPublisherOptionFunc) (*TestPublisher, error) {
+func CreateApiForPublisher(pub *TestPublisher) error {
+	api, err := NewTestWebRTCAPI()
+	if err != nil {
+		return err
+	}
+
+	pub.api = api
+	return nil
+}
+
+func NewTestPublisher(options ...TestPublisherOptionFunc) (*TestPublisher, error) {
 	sourceVideo, sourceAudio := *srsPublishVideo, *srsPublishAudio
 
-	v := &TestPublisher{api: api}
+	v := &TestPublisher{}
 
 	for _, opt := range options {
 		if err := opt(v); err != nil {
 			return nil, err
 		}
 	}
-
-	// The api might be override by options.
-	api = v.api
 
 	// Create ingesters.
 	if sourceAudio != "" {
@@ -857,6 +875,7 @@ func NewTestPublisher(api *TestWebRTCAPI, options ...TestPublisherOptionFunc) (*
 	}
 
 	// Setup the interceptors for packets.
+	api := v.api
 	api.options = append(api.options, func(api *TestWebRTCAPI) {
 		// Filter for RTCP packets.
 		rtcpInterceptor := &RTCPInterceptor{}
@@ -891,6 +910,10 @@ func (v *TestPublisher) Close() error {
 
 	if v.pc != nil {
 		v.pc.Close()
+	}
+
+	if v.api != nil {
+		v.api.Close()
 	}
 
 	return nil

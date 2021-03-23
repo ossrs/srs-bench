@@ -98,19 +98,12 @@ func TestRtcBasic_PublishPlay(t *testing.T) {
 			streamSuffix := fmt.Sprintf("basic-publish-play-%v-%v", os.Getpid(), rand.Int())
 
 			// Initialize player with private api.
-			if play, err := NewTestPlayer(nil, func(play *TestPlayer) error {
+			if play, err := NewTestPlayer(CreateApiForPlayer, func(play *TestPlayer) error {
 				play.streamSuffix = streamSuffix
 				resources = append(resources, play)
 
-				api, err := NewTestWebRTCAPI()
-				if err != nil {
-					return err
-				}
-				resources = append(resources, api)
-				play.api = api
-
 				var nnPlayWriteRTCP, nnPlayReadRTCP, nnPlayWriteRTP, nnPlayReadRTP uint64
-				if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+				if err := play.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 					api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 						i.rtpReader = func(payload []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
 							if nnPlayReadRTP++; nnPlayReadRTP >= uint64(playOK) {
@@ -145,20 +138,13 @@ func TestRtcBasic_PublishPlay(t *testing.T) {
 			}
 
 			// Initialize publisher with private api.
-			if pub, err := NewTestPublisher(nil, func(pub *TestPublisher) error {
+			if pub, err := NewTestPublisher(CreateApiForPublisher, func(pub *TestPublisher) error {
 				pub.streamSuffix = streamSuffix
 				pub.iceReadyCancel = publishReadyCancel
 				resources = append(resources, pub)
 
-				api, err := NewTestWebRTCAPI()
-				if err != nil {
-					return err
-				}
-				resources = append(resources, api)
-				pub.api = api
-
 				var nnPubWriteRTCP, nnPubReadRTCP, nnPubWriteRTP, nnPubReadRTP uint64
-				if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+				if err := pub.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 					api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 						i.rtpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
 							nn, attr, err := i.nextRTPReader.Read(buf, attributes)
@@ -277,8 +263,6 @@ func TestRtcBasic_Republish(t *testing.T) {
 	publishReady, publishReadyCancel := context.WithCancel(context.Background())
 	republishReady, republishReadyCancel := context.WithCancel(context.Background())
 
-	_, _ = theRepublisher, republishReadyCancel
-
 	// Objects init.
 	wg.Add(1)
 	go func() {
@@ -290,19 +274,12 @@ func TestRtcBasic_Republish(t *testing.T) {
 			streamSuffix := fmt.Sprintf("basic-publish-play-%v-%v", os.Getpid(), rand.Int())
 
 			// Initialize player with private api.
-			if play, err := NewTestPlayer(nil, func(play *TestPlayer) error {
+			if play, err := NewTestPlayer(CreateApiForPlayer, func(play *TestPlayer) error {
 				play.streamSuffix = streamSuffix
 				resources = append(resources, play)
 
-				api, err := NewTestWebRTCAPI()
-				if err != nil {
-					return err
-				}
-				resources = append(resources, api)
-				play.api = api
-
 				var nnPlayReadRTP uint64
-				if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+				if err := play.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 					api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 						i.rtpReader = func(payload []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
 							select {
@@ -329,20 +306,13 @@ func TestRtcBasic_Republish(t *testing.T) {
 			}
 
 			// Initialize publisher with private api.
-			if pub, err := NewTestPublisher(nil, func(pub *TestPublisher) error {
+			if pub, err := NewTestPublisher(CreateApiForPublisher, func(pub *TestPublisher) error {
 				pub.streamSuffix = streamSuffix
 				pub.iceReadyCancel = publishReadyCancel
 				resources = append(resources, pub)
 
-				api, err := NewTestWebRTCAPI()
-				if err != nil {
-					return err
-				}
-				resources = append(resources, api)
-				pub.api = api
-
 				var nnPubReadRTCP uint64
-				if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+				if err := pub.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 					api.registry.Add(NewRTCPInterceptor(func(i *RTCPInterceptor) {
 						i.rtcpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
 							nn, attr, err := i.nextRTCPReader.Read(buf, attributes)
@@ -365,20 +335,13 @@ func TestRtcBasic_Republish(t *testing.T) {
 			}
 
 			// Initialize re-publisher with private api.
-			if pub, err := NewTestPublisher(nil, func(pub *TestPublisher) error {
+			if pub, err := NewTestPublisher(CreateApiForPublisher, func(pub *TestPublisher) error {
 				pub.streamSuffix = streamSuffix
-				pub.iceReadyCancel = publishReadyCancel
+				pub.iceReadyCancel = republishReadyCancel
 				resources = append(resources, pub)
 
-				api, err := NewTestWebRTCAPI()
-				if err != nil {
-					return err
-				}
-				resources = append(resources, api)
-				pub.api = api
-
 				var nnPubReadRTCP uint64
-				if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+				if err := pub.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 					api.registry.Add(NewRTCPInterceptor(func(i *RTCPInterceptor) {
 						i.rtcpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
 							nn, attr, err := i.nextRTCPReader.Read(buf, attributes)
@@ -425,7 +388,6 @@ func TestRtcBasic_Republish(t *testing.T) {
 		pubCtx, pubCancel := context.WithCancel(ctx)
 		if err := thePublisher.Run(logger.WithContext(pubCtx), pubCancel); err != nil {
 			r2 = err
-			return
 		}
 		logger.Tf(ctx, "pub done, re-publish again")
 
@@ -467,15 +429,8 @@ func TestRtcDTLS_ClientActive_Default(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -485,7 +440,7 @@ func TestRtcDTLS_ClientActive_Default(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -531,15 +486,8 @@ func TestRtcDTLS_ClientPassive_Default(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-active-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -549,7 +497,7 @@ func TestRtcDTLS_ClientPassive_Default(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -592,15 +540,8 @@ func TestRtcDTLS_ClientActive_Duplicated_Alert(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-active-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -610,7 +551,7 @@ func TestRtcDTLS_ClientActive_Duplicated_Alert(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -660,15 +601,8 @@ func TestRtcDTLS_ClientPassive_Duplicated_Alert(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-active-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -678,7 +612,7 @@ func TestRtcDTLS_ClientPassive_Duplicated_Alert(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -735,15 +669,8 @@ func TestRtcDTLS_ClientActive_ARQ_ClientHello_ByDropped_ClientHello(t *testing.T
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-active-arq-client-hello-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -753,7 +680,7 @@ func TestRtcDTLS_ClientActive_ARQ_ClientHello_ByDropped_ClientHello(t *testing.T
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -822,15 +749,8 @@ func TestRtcDTLS_ClientPassive_ARQ_ClientHello_ByDropped_ClientHello(t *testing.
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-arq-client-hello-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -840,7 +760,7 @@ func TestRtcDTLS_ClientPassive_ARQ_ClientHello_ByDropped_ClientHello(t *testing.
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -908,15 +828,8 @@ func TestRtcDTLS_ClientActive_ARQ_ClientHello_ByDropped_ServerHello(t *testing.T
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-active-arq-client-hello-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -926,7 +839,7 @@ func TestRtcDTLS_ClientActive_ARQ_ClientHello_ByDropped_ServerHello(t *testing.T
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -1005,15 +918,8 @@ func TestRtcDTLS_ClientPassive_ARQ_ClientHello_ByDropped_ServerHello(t *testing.
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-arq-client-hello-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1023,7 +929,7 @@ func TestRtcDTLS_ClientPassive_ARQ_ClientHello_ByDropped_ServerHello(t *testing.
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -1099,15 +1005,8 @@ func TestRtcDTLS_ClientActive_ARQ_Certificate_ByDropped_Certificate(t *testing.T
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-active-arq-certificate-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -1117,7 +1016,7 @@ func TestRtcDTLS_ClientActive_ARQ_Certificate_ByDropped_Certificate(t *testing.T
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -1185,15 +1084,8 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_ByDropped_Certificate(t *testing.
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-arq-certificate-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1203,7 +1095,7 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_ByDropped_Certificate(t *testing.
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -1271,15 +1163,8 @@ func TestRtcDTLS_ClientActive_ARQ_Certificate_ByDropped_ChangeCipherSpec(t *test
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-active-arq-certificate-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -1289,7 +1174,7 @@ func TestRtcDTLS_ClientActive_ARQ_Certificate_ByDropped_ChangeCipherSpec(t *test
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -1366,15 +1251,8 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_ByDropped_ChangeCipherSpec(t *tes
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-arq-certificate-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1384,7 +1262,7 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_ByDropped_ChangeCipherSpec(t *tes
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -1452,15 +1330,8 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ClientHello(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		vnetClientIP, dtlsDropPackets := *srsVnetClientIP, *srsDTLSDropPackets
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1470,7 +1341,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ClientHello(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			nnDrop, dropAll := 0, false
 			api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
 				chunk, parsed := NewChunkMessageType(c)
@@ -1514,15 +1385,8 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ServerHello(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		vnetClientIP, dtlsDropPackets := *srsVnetClientIP, *srsDTLSDropPackets
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1532,7 +1396,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ServerHello(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			nnDrop, dropAll := 0, false
 			api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
 				chunk, parsed := NewChunkMessageType(c)
@@ -1576,15 +1440,8 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_Certificate(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		vnetClientIP, dtlsDropPackets := *srsVnetClientIP, *srsDTLSDropPackets
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1594,7 +1451,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_Certificate(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			nnDrop, dropAll := 0, false
 			api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
 				chunk, parsed := NewChunkMessageType(c)
@@ -1638,15 +1495,8 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ChangeCipherSpec(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		vnetClientIP, dtlsDropPackets := *srsVnetClientIP, *srsDTLSDropPackets
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1656,7 +1506,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ChangeCipherSpec(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			nnDrop, dropAll := 0, false
 			api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
 				chunk, parsed := NewChunkMessageType(c)
@@ -1701,15 +1551,8 @@ func TestRtcDTLS_ClientPassive_ARQ_VeryBadNetwork(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP, dtlsDropPackets := *srsPublishOKPackets, *srsVnetClientIP, *srsDTLSDropPackets
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1719,7 +1562,7 @@ func TestRtcDTLS_ClientPassive_ARQ_VeryBadNetwork(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
@@ -1788,15 +1631,8 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_After_ClientHello(t *testing.T) {
 		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
 		publishOK, vnetClientIP := *srsPublishOKPackets, *srsVnetClientIP
 
-		// Create top level test object.
-		api, err := NewTestWebRTCAPI()
-		if err != nil {
-			return err
-		}
-		defer api.Close()
-
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := NewTestPublisher(api, func(p *TestPublisher) error {
+		p, err := NewTestPublisher(CreateApiForPublisher, func(p *TestPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1806,7 +1642,7 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_After_ClientHello(t *testing.T) {
 		}
 		defer p.Close()
 
-		if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+		if err := p.api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
 			var nnRTCP, nnRTP int64
 			api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
 				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {

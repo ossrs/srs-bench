@@ -74,11 +74,12 @@ func (v *UDPProxy) Proxy(client *Net, server *net.UDPAddr) error {
 	}
 
 	// Create context for cleanup.
-	worker.ctxDispose, worker.ctxDisposeCancel = context.WithCancel(context.Background())
+	var ctx context.Context
+	ctx, worker.ctxDisposeCancel = context.WithCancel(context.Background())
 
 	v.workers.Store(server.String(), worker)
 
-	return worker.Proxy(client, server)
+	return worker.Proxy(ctx, client, server)
 }
 
 // A proxy worker for a specified proxy server.
@@ -92,7 +93,6 @@ type aUDPProxyWorker struct {
 	endpoints sync.Map
 
 	// For cleanup.
-	ctxDispose       context.Context
 	ctxDisposeCancel context.CancelFunc
 	wg               sync.WaitGroup
 }
@@ -107,7 +107,7 @@ func (v *aUDPProxyWorker) Close() error {
 	return nil
 }
 
-func (v *aUDPProxyWorker) Proxy(client *Net, serverAddr *net.UDPAddr) error { // nolint:gocognit
+func (v *aUDPProxyWorker) Proxy(ctx context.Context, client *Net, serverAddr *net.UDPAddr) error { // nolint:gocognit
 	// Create vnet for real server by serverAddr.
 	nw := NewNet(&NetConfig{
 		StaticIP: serverAddr.IP.String(),
@@ -125,7 +125,7 @@ func (v *aUDPProxyWorker) Proxy(client *Net, serverAddr *net.UDPAddr) error { //
 
 	// User stop proxy, we should close the socket.
 	go func() {
-		<-v.ctxDispose.Done()
+		<-ctx.Done()
 		_ = vnetSocket.Close()
 	}()
 
@@ -151,7 +151,7 @@ func (v *aUDPProxyWorker) Proxy(client *Net, serverAddr *net.UDPAddr) error { //
 
 		// User stop proxy, we should close the socket.
 		go func() {
-			<-v.ctxDispose.Done()
+			<-ctx.Done()
 			_ = realSocket.Close()
 		}()
 

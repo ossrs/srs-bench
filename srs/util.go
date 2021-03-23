@@ -325,6 +325,14 @@ func filterTestError(errs ...error) error {
 		if err == nil || errors.Cause(err) == context.Canceled {
 			continue
 		}
+
+		// If url error, server maybe error, do not print the detail log.
+		if r0 := errors.Cause(err); r0 != nil {
+			if r1, ok := r0.(*url.Error); ok {
+				err = r1
+			}
+		}
+
 		filteredErrors = append(filteredErrors, err)
 	}
 
@@ -822,6 +830,8 @@ type TestPublisher struct {
 	api *TestWebRTCAPI
 	// Optional suffix for stream url.
 	streamSuffix string
+	// To cancel the publisher, pass by Run.
+	cancel context.CancelFunc
 }
 
 func NewTestPublisher(api *TestWebRTCAPI, options ...TestPublisherOptionFunc) (*TestPublisher, error) {
@@ -892,6 +902,9 @@ func (v *TestPublisher) SetStreamSuffix(suffix string) *TestPublisher {
 }
 
 func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) error {
+	// Save the cancel.
+	v.cancel = cancel
+
 	r := fmt.Sprintf("%v://%v%v", srsSchema, *srsServer, *srsStream)
 	if v.streamSuffix != "" {
 		r = fmt.Sprintf("%v-%v", r, v.streamSuffix)
@@ -1012,11 +1025,17 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		<-ctx.Done()
 
 		if v.aIngester != nil && v.aIngester.sAudioSender != nil {
-			v.aIngester.sAudioSender.Stop()
+			// We MUST wait for the ingester ready(or closed), because it might crash if sender is disposed.
+			<-v.aIngester.ready.Done()
+
+			v.aIngester.Close()
 		}
 
 		if v.vIngester != nil && v.vIngester.sVideoSender != nil {
-			v.vIngester.sVideoSender.Stop()
+			// We MUST wait for the ingester ready(or closed), because it might crash if sender is disposed.
+			<-v.vIngester.ready.Done()
+
+			v.vIngester.Close()
 		}
 	}()
 
@@ -1028,6 +1047,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		if v.aIngester == nil {
 			return
 		}
+		defer v.aIngester.readyCancel()
 
 		select {
 		case <-ctx.Done():
@@ -1072,6 +1092,7 @@ func (v *TestPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		if v.vIngester == nil {
 			return
 		}
+		defer v.vIngester.readyCancel()
 
 		select {
 		case <-ctx.Done():

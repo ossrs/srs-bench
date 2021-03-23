@@ -245,6 +245,218 @@ func TestRtcBasic_PublishPlay(t *testing.T) {
 	}()
 }
 
+// When republish a stream, the player stream SHOULD be continuous.
+func TestRtcBasic_Republish(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+
+	var r0, r1, r2, r3 error
+	defer func(ctx context.Context) {
+		if err := filterTestError(ctx.Err(), r0, r1, r2, r3); err != nil {
+			t.Errorf("Fail for err %+v", err)
+		} else {
+			logger.Tf(ctx, "test done with err %+v", err)
+		}
+	}(ctx)
+
+	var resources []io.Closer
+	defer func() {
+		for _, resource := range resources {
+			resource.Close()
+		}
+	}()
+
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	// The event notify.
+	var thePublisher, theRepublisher *TestPublisher
+	var thePlayer *TestPlayer
+
+	mainReady, mainReadyCancel := context.WithCancel(context.Background())
+	publishReady, publishReadyCancel := context.WithCancel(context.Background())
+	republishReady, republishReadyCancel := context.WithCancel(context.Background())
+
+	_, _ = theRepublisher, republishReadyCancel
+
+	// Objects init.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		doInit := func() error {
+			playOK, vnetClientIP := *srsPlayOKPackets, *srsVnetClientIP
+			streamSuffix := fmt.Sprintf("basic-publish-play-%v-%v", os.Getpid(), rand.Int())
+
+			// Initialize player with private api.
+			if play, err := NewTestPlayer(nil, func(play *TestPlayer) error {
+				play.streamSuffix = streamSuffix
+				resources = append(resources, play)
+
+				api, err := NewTestWebRTCAPI()
+				if err != nil {
+					return err
+				}
+				resources = append(resources, api)
+				play.api = api
+
+				var nnPlayReadRTP uint64
+				if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+					api.registry.Add(NewRTPInterceptor(func(i *RTPInterceptor) {
+						i.rtpReader = func(payload []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
+							select {
+							case <-republishReady.Done():
+								if nnPlayReadRTP++; nnPlayReadRTP >= uint64(playOK) {
+									cancel() // Completed.
+								}
+								logger.Tf(ctx, "Play recv rtp %v packets", nnPlayReadRTP)
+							default:
+								logger.Tf(ctx, "Play recv rtp packet before republish")
+							}
+							return i.nextRTPReader.Read(payload, attributes)
+						}
+					}))
+				}); err != nil {
+					return err
+				}
+
+				return nil
+			}); err != nil {
+				return err
+			} else {
+				thePlayer = play
+			}
+
+			// Initialize publisher with private api.
+			if pub, err := NewTestPublisher(nil, func(pub *TestPublisher) error {
+				pub.streamSuffix = streamSuffix
+				pub.iceReadyCancel = publishReadyCancel
+				resources = append(resources, pub)
+
+				api, err := NewTestWebRTCAPI()
+				if err != nil {
+					return err
+				}
+				resources = append(resources, api)
+				pub.api = api
+
+				var nnPubReadRTCP uint64
+				if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+					api.registry.Add(NewRTCPInterceptor(func(i *RTCPInterceptor) {
+						i.rtcpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
+							nn, attr, err := i.nextRTCPReader.Read(buf, attributes)
+							if nnPubReadRTCP++; nnPubReadRTCP > 0 && pub.cancel != nil {
+								pub.cancel() // We only cancel the publisher itself.
+							}
+							logger.Tf(ctx, "Publish recv rtcp %v packets", nnPubReadRTCP)
+							return nn, attr, err
+						}
+					}))
+				}); err != nil {
+					return err
+				}
+
+				return nil
+			}); err != nil {
+				return err
+			} else {
+				thePublisher = pub
+			}
+
+			// Initialize re-publisher with private api.
+			if pub, err := NewTestPublisher(nil, func(pub *TestPublisher) error {
+				pub.streamSuffix = streamSuffix
+				pub.iceReadyCancel = publishReadyCancel
+				resources = append(resources, pub)
+
+				api, err := NewTestWebRTCAPI()
+				if err != nil {
+					return err
+				}
+				resources = append(resources, api)
+				pub.api = api
+
+				var nnPubReadRTCP uint64
+				if err := api.Setup(vnetClientIP, func(api *TestWebRTCAPI) {
+					api.registry.Add(NewRTCPInterceptor(func(i *RTCPInterceptor) {
+						i.rtcpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
+							nn, attr, err := i.nextRTCPReader.Read(buf, attributes)
+							nnPubReadRTCP++
+							logger.Tf(ctx, "RePublish recv rtcp %v packets", nnPubReadRTCP)
+							return nn, attr, err
+						}
+					}))
+				}); err != nil {
+					return err
+				}
+
+				return nil
+			}); err != nil {
+				return err
+			} else {
+				theRepublisher = pub
+			}
+
+			// Init done.
+			mainReadyCancel()
+
+			<-ctx.Done()
+			return nil
+		}
+
+		if err := doInit(); err != nil {
+			r1 = err
+		}
+	}()
+
+	// Run publisher.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-mainReady.Done():
+		}
+
+		pubCtx, pubCancel := context.WithCancel(ctx)
+		if err := thePublisher.Run(logger.WithContext(pubCtx), pubCancel); err != nil {
+			r2 = err
+			return
+		}
+		logger.Tf(ctx, "pub done, re-publish again")
+
+		// Dispose the stream.
+		thePublisher.Close()
+
+		if err := theRepublisher.Run(logger.WithContext(ctx), cancel); err != nil {
+			r2 = err
+		}
+		logger.Tf(ctx, "re-pub done")
+	}()
+
+	// Run player.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-publishReady.Done():
+		}
+
+		if err := thePlayer.Run(logger.WithContext(ctx), cancel); err != nil {
+			r3 = err
+		}
+		logger.Tf(ctx, "play done")
+	}()
+}
+
 // The srs-server is DTLS server(passive), srs-bench is DTLS client which is active mode.
 //     No.1  srs-bench: ClientHello
 //     No.2 srs-server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone

@@ -57,7 +57,7 @@ func NewVideoIngester(sourceVideo string) *videoIngester {
 func (v *videoIngester) Close() error {
 	v.readyCancel()
 	if v.sVideoSender != nil {
-		v.sVideoSender.Stop()
+		_ = v.sVideoSender.Stop()
 	}
 	return nil
 }
@@ -200,7 +200,7 @@ func (v *audioIngester) Close() error {
 	v.readyCancel() // OK we are closed, also ready.
 
 	if v.sAudioSender != nil {
-		v.sAudioSender.Stop()
+		_ = v.sAudioSender.Stop()
 	}
 	return nil
 }
@@ -268,7 +268,7 @@ func (v *audioIngester) Ingest(ctx context.Context) error {
 		}
 
 		// The amount of samples is the difference between the last and current timestamp
-		sampleCount := uint64(pageHeader.GranulePosition - lastGranule)
+		sampleCount := pageHeader.GranulePosition - lastGranule
 		lastGranule = pageHeader.GranulePosition
 		sampleDuration := time.Duration(uint64(time.Millisecond) * 1000 * sampleCount / uint64(codec.ClockRate))
 
@@ -281,7 +281,7 @@ func (v *audioIngester) Ingest(ctx context.Context) error {
 						return 0, err
 					}
 
-					header.SetExtension(uint8(audioLevel.ID), audioLevelPayload)
+					_ = header.SetExtension(uint8(audioLevel.ID), audioLevelPayload)
 				}
 
 				return ri.nextRTPWriter.Write(header, payload, attributes)

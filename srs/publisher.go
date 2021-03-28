@@ -37,7 +37,7 @@ import (
 func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int, enableAudioLevel, enableTWCC bool) error {
 	ctx = logger.WithContext(ctx)
 
-	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v, audio-level=%v, twcc=%v",
+	logger.Tf(ctx, "Run publish url=%v, audio=%v, video=%v, fps=%v, audio-level=%v, twcc=%v",
 		r, sourceAudio, sourceVideo, fps, enableAudioLevel, enableTWCC)
 
 	// Filter for SPS/PPS marker.

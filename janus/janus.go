@@ -18,56 +18,51 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-package main
+package janus
 
 import (
 	"context"
-	"flag"
+	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
-	"github.com/ossrs/srs-bench/janus"
-	"github.com/ossrs/srs-bench/srs"
-	"os"
-	"os/signal"
-	"syscall"
+	"math/rand"
+	"strings"
+	"unicode"
 )
 
-func main() {
-	var sfu string
-	fl := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
-	fl.StringVar(&sfu, "sfu", "srs", "The SFU server, srs or janus")
-	_ = fl.Parse(os.Args[1:])
+func Parse(ctx context.Context) {
+}
 
-	ctx := context.Background()
-	if sfu == "srs" {
-		srs.Parse(ctx)
-	} else if sfu == "janus" {
-		janus.Parse(ctx)
-	} else {
-		logger.Ef(ctx, "invalid sfu %v", sfu)
-		os.Exit(-1)
+func newTransactionID() string {
+	sb := strings.Builder{}
+	for i := 0; i < 12; i++ {
+		sb.WriteByte(byte('a') + byte(rand.Int()%26))
 	}
+	return sb.String()
+}
 
-	ctx, cancel := context.WithCancel(ctx)
-	go func() {
-		sigs := make(chan os.Signal, 1)
-		signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
-		for sig := range sigs {
-			logger.Wf(ctx, "Quit for signal %v", sig)
-			cancel()
+func escapeJSON(s string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsSpace(r) {
+			return rune(-1)
 		}
-	}()
+		return r
+	}, s)
+}
 
-	var err error
-	if sfu == "srs" {
-		err = srs.Run(ctx)
-	} else if sfu == "janus" {
-		err = janus.Run(ctx)
+func Run(ctx context.Context) error {
+	ctx = logger.WithContext(ctx)
+	r := "janus://localhost:8080/1234/livestream"
+
+	api := newJanusAPI(r)
+	if err := api.Create(ctx); err != nil {
+		return errors.Wrapf(err, "create")
 	}
 
-	if err != nil {
-		logger.Wf(ctx, "srs err %+v", err)
-		return
+	if err := api.JoinAsPublisher(ctx, 1234, "livestream"); err != nil {
+		return errors.Wrapf(err, "join as publisher")
 	}
 
-	logger.Tf(ctx, "Done")
+	<-ctx.Done()
+
+	return nil
 }

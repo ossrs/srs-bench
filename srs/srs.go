@@ -130,7 +130,7 @@ func Parse(ctx context.Context) {
 		summaryDesc = fmt.Sprintf("%v, publish(url=%v, sa=%v, sv=%v, fps=%v)",
 			summaryDesc, pr, sourceAudio, sourceVideo, fps)
 	}
-	logger.Tf(ctx, "Start benchmark with %v", summaryDesc)
+	logger.Tf(ctx, "Run benchmark with %v", summaryDesc)
 
 	checkFlags := func() error {
 		if dumpVideo != "" && !strings.HasSuffix(dumpVideo, ".h264") && !strings.HasSuffix(dumpVideo, ".ivf") {
@@ -153,13 +153,13 @@ func Parse(ctx context.Context) {
 	}
 }
 
-func Start(ctx context.Context) error {
+func Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 
 	// Run tasks.
 	var wg sync.WaitGroup
 
-	// Start STAT API server.
+	// Run STAT API server.
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -201,7 +201,7 @@ func Start(ctx context.Context) error {
 		}
 	}()
 
-	// Start all subscribers or players.
+	// Run all subscribers or players.
 	for i := 0; sr != "" && i < streams && ctx.Err() == nil; i++ {
 		r_auto := sr
 		if streams > 1 && !strings.Contains(r_auto, "%") {
@@ -241,7 +241,7 @@ func Start(ctx context.Context) error {
 		}
 	}
 
-	// Start all publishers.
+	// Run all publishers.
 	for i := 0; pr != "" && i < streams && ctx.Err() == nil; i++ {
 		r_auto := pr
 		if streams > 1 && !strings.Contains(r_auto, "%") {

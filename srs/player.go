@@ -43,7 +43,7 @@ import (
 func startPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioLevel, enableTWCC bool, pli int) error {
 	ctx = logger.WithContext(ctx)
 
-	logger.Tf(ctx, "Start play url=%v, audio=%v, video=%v, audio-level=%v, twcc=%v",
+	logger.Tf(ctx, "Run play url=%v, audio=%v, video=%v, audio-level=%v, twcc=%v",
 		r, dumpAudio, dumpVideo, enableAudioLevel, enableTWCC)
 
 	// For audio-level.

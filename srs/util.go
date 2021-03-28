@@ -737,7 +737,7 @@ func (v *testPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 		r = fmt.Sprintf("%v-%v", r, v.streamSuffix)
 	}
 	pli := time.Duration(*srsPlayPLI) * time.Millisecond
-	logger.Tf(ctx, "Start play url=%v", r)
+	logger.Tf(ctx, "Run play url=%v", r)
 
 	pc, err := v.api.NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
@@ -770,7 +770,7 @@ func (v *testPlayer) Run(ctx context.Context, cancel context.CancelFunc) error {
 		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
 	}
 
-	// Start a proxy for real server and vnet.
+	// Run a proxy for real server and vnet.
 	if address, err := parseAddressOfCandidate(answer); err != nil {
 		return errors.Wrapf(err, "parse address of %v", answer)
 	} else if err := v.api.proxy.Proxy(v.api.network, address); err != nil {
@@ -945,7 +945,7 @@ func (v *testPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 	}
 	sourceVideo, sourceAudio, fps := *srsPublishVideo, *srsPublishAudio, *srsPublishVideoFps
 
-	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v",
+	logger.Tf(ctx, "Run publish url=%v, audio=%v, video=%v, fps=%v",
 		r, sourceAudio, sourceVideo, fps)
 
 	pc, err := v.api.NewPeerConnection(webrtc.Configuration{})
@@ -986,7 +986,7 @@ func (v *testPublisher) Run(ctx context.Context, cancel context.CancelFunc) erro
 		return errors.Wrapf(err, "Api request offer=%v", offer.SDP)
 	}
 
-	// Start a proxy for real server and vnet.
+	// Run a proxy for real server and vnet.
 	if address, err := parseAddressOfCandidate(answerSDP); err != nil {
 		return errors.Wrapf(err, "parse address of %v", answerSDP)
 	} else if err := v.api.proxy.Proxy(v.api.network, address); err != nil {

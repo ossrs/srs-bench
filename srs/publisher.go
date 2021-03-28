@@ -34,7 +34,7 @@ import (
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/play-from-disk/main.go
-func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int, enableAudioLevel, enableTWCC bool) error {
+func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps int, enableAudioLevel, enableTWCC bool) error {
 	ctx = logger.WithContext(ctx)
 
 	logger.Tf(ctx, "Start publish url=%v, audio=%v, video=%v, fps=%v, audio-level=%v, twcc=%v",
@@ -78,11 +78,11 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 		}
 
 		if sourceAudio != "" {
-			aIngester = NewAudioIngester(sourceAudio)
+			aIngester = newAudioIngester(sourceAudio)
 			registry.Add(aIngester.audioLevelInterceptor)
 		}
 		if sourceVideo != "" {
-			vIngester = NewVideoIngester(sourceVideo)
+			vIngester = newVideoIngester(sourceVideo)
 			registry.Add(vIngester.markerInterceptor)
 		}
 
@@ -290,7 +290,7 @@ func StartPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 			case <-ctx.Done():
 				return
 			case <-time.After(5 * time.Second):
-				StatRTC.PeerConnection = pc.GetStats()
+				gStatRTC.PeerConnection = pc.GetStats()
 			}
 		}
 	}()

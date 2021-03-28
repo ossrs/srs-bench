@@ -40,7 +40,7 @@ import (
 )
 
 // @see https://github.com/pion/webrtc/blob/master/examples/save-to-disk/main.go
-func StartPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioLevel, enableTWCC bool, pli int) error {
+func startPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioLevel, enableTWCC bool, pli int) error {
 	ctx = logger.WithContext(ctx)
 
 	logger.Tf(ctx, "Start play url=%v, audio=%v, video=%v, audio-level=%v, twcc=%v",
@@ -257,7 +257,7 @@ func StartPlay(ctx context.Context, r, dumpAudio, dumpVideo string, enableAudioL
 			case <-ctx.Done():
 				return
 			case <-time.After(5 * time.Second):
-				StatRTC.PeerConnection = pc.GetStats()
+				gStatRTC.PeerConnection = pc.GetStats()
 			}
 		}
 	}()

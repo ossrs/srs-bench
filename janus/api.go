@@ -52,6 +52,7 @@ type janusAPI struct {
 	handleID      uint64
 	pollingCtx    context.Context
 	pollingCancel context.CancelFunc
+	wg            sync.WaitGroup
 	// key is transactionID, value is janusReply.
 	replies sync.Map
 }
@@ -59,6 +60,12 @@ type janusAPI struct {
 func newJanusAPI(r string) *janusAPI {
 	v := &janusAPI{r: r}
 	return v
+}
+
+func (v *janusAPI) Close() error {
+	v.pollingCancel()
+	v.wg.Wait()
+	return nil
 }
 
 func (v *janusAPI) Create(ctx context.Context) error {
@@ -177,6 +184,120 @@ func (v *janusAPI) JoinAsPublisher(ctx context.Context, room int, display string
 	return nil
 }
 
+func (v *janusAPI) Publish(ctx context.Context, offer string) (answer string, err error) {
+	u, err := url.Parse(v.r)
+	if err != nil {
+		return "", errors.Wrapf(err, "Parse url %v", v.r)
+	}
+
+	api := fmt.Sprintf("http://%v/janus/%v/%v", u.Host, v.sessionID, v.handleID)
+
+	reqBodyBody := struct {
+		Request string `json:"request"`
+		Video   bool   `json:"video"`
+		Audio   bool   `json:"audio"`
+	}{
+		"configure", true, true,
+	}
+	jsepBody := struct {
+		Type string `json:"type"`
+		SDP  string `json:"sdp"`
+	}{
+		"offer", offer,
+	}
+	reqBody := struct {
+		Janus       string      `json:"janus"`
+		Transaction string      `json:"transaction"`
+		Body        interface{} `json:"body"`
+		JSEP        interface{} `json:"jsep"`
+	}{
+		"message", newTransactionID(), reqBodyBody, jsepBody,
+	}
+
+	reply := newJanusReply(reqBody.Transaction)
+	v.replies.Store(reqBody.Transaction, reply)
+
+	b, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", errors.Wrapf(err, "Marshal body %v", reqBody)
+	}
+	logger.Tf(ctx, "Request url api=%v with %v", api, string(b))
+
+	req, err := http.NewRequest("POST", api, strings.NewReader(string(b)))
+	if err != nil {
+		return "", errors.Wrapf(err, "HTTP request %v", string(b))
+	}
+
+	res, err := http.DefaultClient.Do(req.WithContext(ctx))
+	if err != nil {
+		return "", errors.Wrapf(err, "Do HTTP request %v", string(b))
+	}
+
+	b2, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, "Read response for %v", string(b))
+	}
+
+	s2 := escapeJSON(string(b2))
+	logger.Tf(ctx, "Response from %v is %v", api, s2)
+
+	ackBody := struct {
+		Janus       string `json:"janus"`
+		SessionID   uint64 `json:"session_id"`
+		Transaction string `json:"transaction"`
+	}{}
+	if err := json.Unmarshal([]byte(s2), &ackBody); err != nil {
+		return "", errors.Wrapf(err, "Marshal %v", s2)
+	}
+	if ackBody.Janus != "ack" {
+		return "", errors.Errorf("Server fail code=%v %v", ackBody.Janus, s2)
+	}
+	logger.Tf(ctx, "Response tid=%v ack", reply.transactionID)
+
+	// Reply from polling.
+	var s3 string
+	select {
+	case <-ctx.Done():
+		return "", nil
+	case b3 := <-reply.replies:
+		s3 = escapeJSON(string(b3))
+		logger.Tf(ctx, "Async response tid=%v, reply=%v", reply.transactionID, s3)
+	}
+	resBody := struct {
+		Janus       string `json:"janus"`
+		Session     uint64 `json:"session_id"`
+		Transaction string `json:"transaction"`
+		Sender      uint64 `json:"sender"`
+		PluginData  struct {
+			Plugin string `json:"plugin"`
+			Data   struct {
+				VideoRoom  string `json:"videoroom"`
+				Room       int    `json:"room"`
+				Configured string `json:"configured"`
+				AudioCodec string `json:"audio_codec"`
+				VideoCodec string `json:"video_codec"`
+			} `json:"data"`
+		} `json:"plugindata"`
+		JSEP struct {
+			Type string `json:"type"`
+			SDP  string `json:"sdp"`
+		} `json:"jsep"`
+	}{}
+	if err := json.Unmarshal([]byte(s3), &resBody); err != nil {
+		return "", errors.Wrapf(err, "Marshal %v", s3)
+	}
+
+	plugin := resBody.PluginData.Data
+	jsep := resBody.JSEP
+	if resBody.Janus != "event" || plugin.VideoRoom != "event" {
+		return "", errors.Errorf("Server fail janus=%v, plugin=%v %v", resBody.Janus, plugin.VideoRoom, s3)
+	}
+	logger.Tf(ctx, "Configure publisher offer=%vB, tid=%v ok, event=%v, plugin=%v, answer=%vB",
+		len(offer), reply.transactionID, resBody.Janus, plugin.VideoRoom, len(jsep.SDP))
+
+	return jsep.SDP, nil
+}
+
 func (v *janusAPI) createSession(ctx context.Context) error {
 	v.pollingCtx, v.pollingCancel = context.WithCancel(ctx)
 
@@ -235,11 +356,14 @@ func (v *janusAPI) createSession(ctx context.Context) error {
 	v.sessionID = resBody.Data.ID
 	logger.Tf(ctx, "Parse create sessionID=%v", v.sessionID)
 
+	v.wg.Add(1)
 	go func() {
-		for {
-			if err := v.polling(ctx); err != nil {
+		defer v.wg.Done()
+		defer v.pollingCancel()
+
+		for v.pollingCtx.Err() == nil {
+			if err := v.polling(v.pollingCtx); err != nil {
 				logger.Wf(ctx, "polling err %+v", err)
-				v.pollingCancel()
 				break
 			}
 		}

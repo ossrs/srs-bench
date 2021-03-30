@@ -158,7 +158,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
-	pcDone, pcDoneCancel := context.WithCancel(context.Background())
+	pcDoneCtx, pcDoneCancel := context.WithCancel(context.Background())
 	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
 		logger.Tf(ctx, "PC state %v", state)
 
@@ -196,7 +196,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 
 		select {
 		case <-ctx.Done():
-		case <-pcDone.Done():
+		case <-pcDoneCtx.Done():
 			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read audio packets")
 		}
 
@@ -218,7 +218,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 
 		select {
 		case <-ctx.Done():
-		case <-pcDone.Done():
+		case <-pcDoneCtx.Done():
 			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest audio %v", sourceAudio)
 		}
 
@@ -244,7 +244,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 
 		select {
 		case <-ctx.Done():
-		case <-pcDone.Done():
+		case <-pcDoneCtx.Done():
 			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video packets")
 		}
 
@@ -266,7 +266,7 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 
 		select {
 		case <-ctx.Done():
-		case <-pcDone.Done():
+		case <-pcDoneCtx.Done():
 			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest video %v", sourceVideo)
 		}
 

@@ -47,18 +47,25 @@ func newJanusReply(tid string) *janusReply {
 }
 
 type janusAPI struct {
-	r             string
-	sessionID     uint64
-	handleID      uint64
+	r string
+	// The ID created by API.
+	sessionID   uint64
+	handleID    uint64
+	publisherID uint64
+	// The callbacks.
+	onWebrtcUp func(sender, sessionID uint64)
+	// The context for polling.
 	pollingCtx    context.Context
 	pollingCancel context.CancelFunc
 	wg            sync.WaitGroup
-	// key is transactionID, value is janusReply.
+	// The replies of polling key is transactionID, value is janusReply.
 	replies sync.Map
 }
 
 func newJanusAPI(r string) *janusAPI {
 	v := &janusAPI{r: r}
+	v.onWebrtcUp = func(sender, sessionID uint64) {
+	}
 	return v
 }
 
@@ -178,8 +185,10 @@ func (v *janusAPI) JoinAsPublisher(ctx context.Context, room int, display string
 	if resBody.Janus != "event" || plugin.VideoRoom != "joined" {
 		return errors.Errorf("Server fail janus=%v, plugin=%v %v", resBody.Janus, plugin.VideoRoom, s3)
 	}
-	logger.Tf(ctx, "Join as publisher room=%v, display=%v, tid=%v ok, event=%v, plugin=%v, publishers=%v",
-		room, display, reply.transactionID, resBody.Janus, plugin.VideoRoom, len(plugin.Publishers))
+
+	v.publisherID = plugin.ID
+	logger.Tf(ctx, "Join as publisher room=%v, display=%v, tid=%v ok, event=%v, plugin=%v, id=%v, publishers=%v",
+		room, display, reply.transactionID, resBody.Janus, plugin.VideoRoom, v.publisherID, len(plugin.Publishers))
 
 	return nil
 }
@@ -475,23 +484,40 @@ func (v *janusAPI) polling(ctx context.Context) error {
 		return errors.Wrapf(err, "Marshal %v", s2)
 	}
 
-	if replyID.Janus != "event" {
-		return errors.Errorf("Server fail code=%v %v", replyID.Janus, s2)
-	}
-	if replyID.Transaction == "" {
-		return errors.Errorf("Server fail transaction=%v %v", replyID.Transaction, s2)
+	if replyID.Janus == "event" && replyID.Transaction != "" {
+		if r, ok := v.replies.Load(replyID.Transaction); !ok {
+			logger.Wf(ctx, "Polling: Drop tid=%v reply %v", replyID.Transaction, s2)
+		} else if r2, ok := r.(*janusReply); !ok {
+			logger.Wf(ctx, "Polling: Ignore tid=%v reply %v", replyID.Transaction, s2)
+		} else {
+			select {
+			case <-ctx.Done():
+			case r2.replies <- b2:
+				logger.Tf(ctx, "Polling: Reply tid=%v ok, %v", replyID.Transaction, s2)
+			}
+		}
+	} else if replyID.Janus == "webrtcup" {
+		if err := v.handleCall(replyID.Janus, s2); err != nil {
+			logger.Wf(ctx, "Polling: Handle call %v fail %v, err %+v", replyID.Janus, s2, err)
+		}
+	} else {
+		logger.Wf(ctx, "Polling: Unknown janus=%v %v", replyID.Janus, s2)
 	}
 
-	if r, ok := v.replies.Load(replyID.Transaction); !ok {
-		logger.Wf(ctx, "Polling: Drop tid=%v reply %v", replyID.Transaction, s2)
-	} else if r2, ok := r.(*janusReply); !ok {
-		logger.Wf(ctx, "Polling: Ignore tid=%v reply %v", replyID.Transaction, s2)
-	} else {
-		select {
-		case <-ctx.Done():
-		case r2.replies <- b2:
-			logger.Tf(ctx, "Polling: Reply tid=%v ok, %v", replyID.Transaction, s2)
+	return nil
+}
+
+func (v *janusAPI) handleCall(janus string, s string) error {
+	if janus == "webrtcup" {
+		r := struct {
+			Sender    uint64 `json:"sender"`
+			SessionID uint64 `json:"session_id"`
+		}{}
+		if err := json.Unmarshal([]byte(s), &r); err != nil {
+			return err
 		}
+
+		v.onWebrtcUp(r.Sender, r.SessionID)
 	}
 
 	return nil

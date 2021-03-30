@@ -134,6 +134,12 @@ func Run(ctx context.Context) error {
 	api := newJanusAPI(r)
 	defer api.Close()
 
+	webrtcUpCtx, webrtcUpCancel := context.WithCancel(ctx)
+	api.onWebrtcUp = func(sender, sessionID uint64) {
+		logger.Tf(ctx, "Event webrtcup: DTLS/SRTP done")
+		webrtcUpCancel()
+	}
+
 	if err := api.Create(ctx); err != nil {
 		return errors.Wrapf(err, "create")
 	}
@@ -171,7 +177,7 @@ func Run(ctx context.Context) error {
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
-	pcDone, pcDoneCancel := context.WithCancel(context.Background())
+	pcDoneCtx, pcDoneCancel := context.WithCancel(context.Background())
 	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
 		logger.Tf(ctx, "PC state %v", state)
 
@@ -189,7 +195,8 @@ func Run(ctx context.Context) error {
 		}
 	})
 
-	_ = pcDone
+	_ = webrtcUpCtx
+	_ = pcDoneCtx
 	<-ctx.Done()
 
 	return nil

@@ -54,6 +54,7 @@ type janusAPI struct {
 	publisherID uint64
 	// The callbacks.
 	onWebrtcUp func(sender, sessionID uint64)
+	onMedia    func(sender, sessionID uint64, mtype string, receiving bool)
 	// The context for polling.
 	pollingCtx    context.Context
 	pollingCancel context.CancelFunc
@@ -65,6 +66,8 @@ type janusAPI struct {
 func newJanusAPI(r string) *janusAPI {
 	v := &janusAPI{r: r}
 	v.onWebrtcUp = func(sender, sessionID uint64) {
+	}
+	v.onMedia = func(sender, sessionID uint64, mtype string, receiving bool) {
 	}
 	return v
 }
@@ -372,7 +375,9 @@ func (v *janusAPI) createSession(ctx context.Context) error {
 
 		for v.pollingCtx.Err() == nil {
 			if err := v.polling(v.pollingCtx); err != nil {
-				logger.Wf(ctx, "polling err %+v", err)
+				if ctx.Err() != context.Canceled {
+					logger.Wf(ctx, "polling err %+v", err)
+				}
 				break
 			}
 		}
@@ -484,7 +489,8 @@ func (v *janusAPI) polling(ctx context.Context) error {
 		return errors.Wrapf(err, "Marshal %v", s2)
 	}
 
-	if replyID.Janus == "event" && replyID.Transaction != "" {
+	switch replyID.Janus {
+	case "event":
 		if r, ok := v.replies.Load(replyID.Transaction); !ok {
 			logger.Wf(ctx, "Polling: Drop tid=%v reply %v", replyID.Transaction, s2)
 		} else if r2, ok := r.(*janusReply); !ok {
@@ -496,11 +502,13 @@ func (v *janusAPI) polling(ctx context.Context) error {
 				logger.Tf(ctx, "Polling: Reply tid=%v ok, %v", replyID.Transaction, s2)
 			}
 		}
-	} else if replyID.Janus == "webrtcup" {
+	case "keepalive":
+		return nil
+	case "webrtcup", "media":
 		if err := v.handleCall(replyID.Janus, s2); err != nil {
 			logger.Wf(ctx, "Polling: Handle call %v fail %v, err %+v", replyID.Janus, s2, err)
 		}
-	} else {
+	default:
 		logger.Wf(ctx, "Polling: Unknown janus=%v %v", replyID.Janus, s2)
 	}
 
@@ -508,16 +516,32 @@ func (v *janusAPI) polling(ctx context.Context) error {
 }
 
 func (v *janusAPI) handleCall(janus string, s string) error {
-	if janus == "webrtcup" {
-		r := struct {
-			Sender    uint64 `json:"sender"`
-			SessionID uint64 `json:"session_id"`
-		}{}
+	type callHeader struct {
+		Sender    uint64 `json:"sender"`
+		SessionID uint64 `json:"session_id"`
+	}
+
+	switch janus {
+	case "webrtcup":
+		// {"janus":"webrtcup","sender":7698695982180732,"session_id":2403223275773854}
+		r := callHeader{}
 		if err := json.Unmarshal([]byte(s), &r); err != nil {
 			return err
 		}
 
 		v.onWebrtcUp(r.Sender, r.SessionID)
+	case "media":
+		// {"janus":"media","receiving":true,"sender":7698695982180732,"session_id":2403223275773854,"type":"audio"}
+		r := struct {
+			callHeader
+			Type      string `json:"type"`
+			Receiving bool   `json:"receiving"`
+		}{}
+		if err := json.Unmarshal([]byte(s), &r); err != nil {
+			return err
+		}
+
+		v.onMedia(r.Sender, r.SessionID, r.Type, r.Receiving)
 	}
 
 	return nil

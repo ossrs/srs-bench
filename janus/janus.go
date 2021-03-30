@@ -27,6 +27,8 @@ import (
 	"github.com/pion/interceptor"
 	"github.com/pion/sdp/v3"
 	"github.com/pion/webrtc/v3"
+	"io"
+	"sync"
 )
 
 func Parse(ctx context.Context) {
@@ -131,6 +133,7 @@ func Run(ctx context.Context) error {
 		return errors.Wrapf(err, "Set offer %v", offer)
 	}
 
+	// Signaling API
 	api := newJanusAPI(r)
 	defer api.Close()
 
@@ -138,6 +141,9 @@ func Run(ctx context.Context) error {
 	api.onWebrtcUp = func(sender, sessionID uint64) {
 		logger.Tf(ctx, "Event webrtcup: DTLS/SRTP done")
 		webrtcUpCancel()
+	}
+	api.onMedia = func(sender, sessionID uint64, mtype string, receiving bool) {
+		logger.Tf(ctx, "Event media: %v receiving=%v", mtype, receiving)
 	}
 
 	if err := api.Create(ctx); err != nil {
@@ -153,6 +159,7 @@ func Run(ctx context.Context) error {
 		return errors.Wrapf(err, "join as publisher")
 	}
 
+	// Setup the offer-answer
 	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
 		Type: webrtc.SDPTypeAnswer, SDP: answer,
 	}); err != nil {
@@ -195,9 +202,118 @@ func Run(ctx context.Context) error {
 		}
 	})
 
-	_ = webrtcUpCtx
-	_ = pcDoneCtx
-	<-ctx.Done()
+	// OK, DTLS/SRTP ok.
+	select {
+	case <-ctx.Done():
+		return nil
+	case <-webrtcUpCtx.Done():
+	}
 
+	// Wait for event from context or tracks.
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-ctx.Done()
+		doClose() // Interrupt the RTCP read.
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if aIngester == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDoneCtx.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read audio packets")
+		}
+
+		buf := make([]byte, 1500)
+		for ctx.Err() == nil {
+			if _, _, err := aIngester.sAudioSender.Read(buf); err != nil {
+				return
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if aIngester == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDoneCtx.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest audio %v", sourceAudio)
+		}
+
+		// Read audio and send out.
+		for ctx.Err() == nil {
+			if err := aIngester.Ingest(ctx); err != nil {
+				if errors.Cause(err) == io.EOF {
+					logger.Tf(ctx, "EOF, restart ingest audio %v", sourceAudio)
+					continue
+				}
+				logger.Wf(ctx, "Ignore audio err %+v", err)
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if vIngester == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDoneCtx.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start read video packets")
+		}
+
+		buf := make([]byte, 1500)
+		for ctx.Err() == nil {
+			if _, _, err := vIngester.sVideoSender.Read(buf); err != nil {
+				return
+			}
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		if vIngester == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+		case <-pcDoneCtx.Done():
+			logger.Tf(ctx, "PC(ICE+DTLS+SRTP) done, start ingest video %v", sourceVideo)
+		}
+
+		for ctx.Err() == nil {
+			if err := vIngester.Ingest(ctx); err != nil {
+				if errors.Cause(err) == io.EOF {
+					logger.Tf(ctx, "EOF, restart ingest video %v", sourceVideo)
+					continue
+				}
+				logger.Wf(ctx, "Ignore video err %+v", err)
+			}
+		}
+	}()
+
+	wg.Wait()
 	return nil
 }

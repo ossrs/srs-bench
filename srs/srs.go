@@ -49,6 +49,9 @@ var statListen string
 func Parse(ctx context.Context) {
 	fl := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 
+	var sfu string
+	fl.StringVar(&sfu, "sfu", "srs", "The SFU server, srs or janus")
+
 	fl.StringVar(&sr, "sr", "", "")
 	fl.StringVar(&dumpAudio, "da", "", "")
 	fl.StringVar(&dumpVideo, "dv", "", "")
@@ -70,6 +73,8 @@ func Parse(ctx context.Context) {
 
 	fl.Usage = func() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
+		fmt.Println(fmt.Sprintf("SFU:"))
+		fmt.Println(fmt.Sprintf("   -sfu    The target SFU, srs or janus. Default: srs"))
 		fmt.Println(fmt.Sprintf("Options:"))
 		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
 		fmt.Println(fmt.Sprintf("   -sn     The number of streams to simulate. Variable: %%d. Default: 1"))
@@ -146,7 +151,6 @@ func Parse(ctx context.Context) {
 		}
 		return nil
 	}
-
 	if err := checkFlags(); err != nil {
 		logger.Ef(ctx, "Check faile err %+v", err)
 		os.Exit(-1)

@@ -26,6 +26,7 @@ import (
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/ossrs/srs-bench/janus"
 	"github.com/ossrs/srs-bench/srs"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,6 +35,7 @@ import (
 func main() {
 	var sfu string
 	fl := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	fl.SetOutput(ioutil.Discard)
 	fl.StringVar(&sfu, "sfu", "srs", "The SFU server, srs or janus")
 	_ = fl.Parse(os.Args[1:])
 

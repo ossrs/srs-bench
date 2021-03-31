@@ -28,11 +28,23 @@ import (
 	"github.com/ossrs/go-oryx-lib/logger"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
 )
+
+type publisherInfo struct {
+	AudioCodec string `json:"audio_codec"`
+	Display    string `json:"display"`
+	ID         uint64 `json:"id"`
+	Talking    bool   `json:"talking"`
+	VideoCodec string `json:"video_codec"`
+}
+
+func (v publisherInfo) String() string {
+	return fmt.Sprintf("%v(codec:%v/%v,id:%v,talk:%v)",
+		v.Display, v.VideoCodec, v.AudioCodec, v.ID, v.Talking)
+}
 
 type janusReply struct {
 	transactionID string
@@ -47,14 +59,19 @@ func newJanusReply(tid string) *janusReply {
 }
 
 type janusAPI struct {
+	// For example, http://localhost:8088/janus
 	r string
 	// The ID created by API.
 	sessionID   uint64
 	handleID    uint64
 	publisherID uint64
 	// The callbacks.
-	onWebrtcUp func(sender, sessionID uint64)
-	onMedia    func(sender, sessionID uint64, mtype string, receiving bool)
+	onWebrtcUp    func(sender, sessionID uint64)
+	onMedia       func(sender, sessionID uint64, mtype string, receiving bool)
+	onSlowLink    func(sender, sessionID uint64, media string, lost uint64, uplink bool)
+	onPublisher   func(sender, sessionID uint64, publishers []publisherInfo)
+	onUnPublished func(sender, sessionID, id uint64)
+	onLeave       func(sender, sessionID, id uint64)
 	// The context for polling.
 	pollingCtx    context.Context
 	pollingCancel context.CancelFunc
@@ -65,9 +82,20 @@ type janusAPI struct {
 
 func newJanusAPI(r string) *janusAPI {
 	v := &janusAPI{r: r}
+	if !strings.HasSuffix(r, "/") {
+		v.r += "/"
+	}
 	v.onWebrtcUp = func(sender, sessionID uint64) {
 	}
 	v.onMedia = func(sender, sessionID uint64, mtype string, receiving bool) {
+	}
+	v.onSlowLink = func(sender, sessionID uint64, media string, lost uint64, uplink bool) {
+	}
+	v.onPublisher = func(sender, sessionID uint64, publishers []publisherInfo) {
+	}
+	v.onUnPublished = func(sender, sessionID, id uint64) {
+	}
+	v.onLeave = func(sender, sessionID, id uint64) {
 	}
 	return v
 }
@@ -91,12 +119,7 @@ func (v *janusAPI) Create(ctx context.Context) error {
 }
 
 func (v *janusAPI) JoinAsPublisher(ctx context.Context, room int, display string) error {
-	u, err := url.Parse(v.r)
-	if err != nil {
-		return errors.Wrapf(err, "Parse url %v", v.r)
-	}
-
-	api := fmt.Sprintf("http://%v/janus/%v/%v", u.Host, v.sessionID, v.handleID)
+	api := fmt.Sprintf("%v%v/%v", v.r, v.sessionID, v.handleID)
 
 	reqBodyBody := struct {
 		Request string `json:"request"`
@@ -197,12 +220,7 @@ func (v *janusAPI) JoinAsPublisher(ctx context.Context, room int, display string
 }
 
 func (v *janusAPI) Publish(ctx context.Context, offer string) (answer string, err error) {
-	u, err := url.Parse(v.r)
-	if err != nil {
-		return "", errors.Wrapf(err, "Parse url %v", v.r)
-	}
-
-	api := fmt.Sprintf("http://%v/janus/%v/%v", u.Host, v.sessionID, v.handleID)
+	api := fmt.Sprintf("%v%v/%v", v.r, v.sessionID, v.handleID)
 
 	reqBodyBody := struct {
 		Request string `json:"request"`
@@ -313,12 +331,7 @@ func (v *janusAPI) Publish(ctx context.Context, offer string) (answer string, er
 func (v *janusAPI) createSession(ctx context.Context) error {
 	v.pollingCtx, v.pollingCancel = context.WithCancel(ctx)
 
-	u, err := url.Parse(v.r)
-	if err != nil {
-		return errors.Wrapf(err, "Parse url %v", v.r)
-	}
-
-	api := fmt.Sprintf("http://%v/janus", u.Host)
+	api := v.r
 
 	reqBody := struct {
 		Janus       string `json:"janus"`
@@ -387,12 +400,7 @@ func (v *janusAPI) createSession(ctx context.Context) error {
 }
 
 func (v *janusAPI) attachPlugin(ctx context.Context) error {
-	u, err := url.Parse(v.r)
-	if err != nil {
-		return errors.Wrapf(err, "Parse url %v", v.r)
-	}
-
-	api := fmt.Sprintf("http://%v/janus/%v", u.Host, v.sessionID)
+	api := fmt.Sprintf("%v%v", v.r, v.sessionID)
 
 	reqBody := struct {
 		Janus       string `json:"janus"`
@@ -450,12 +458,7 @@ func (v *janusAPI) attachPlugin(ctx context.Context) error {
 }
 
 func (v *janusAPI) polling(ctx context.Context) error {
-	u, err := url.Parse(v.r)
-	if err != nil {
-		return errors.Wrapf(err, "Parse url %v", v.r)
-	}
-
-	api := fmt.Sprintf("http://%v/janus/%v?rid=%v&maxev=1", u.Host, v.sessionID,
+	api := fmt.Sprintf("%v%v?rid=%v&maxev=1", v.r, v.sessionID,
 		uint64(time.Duration(time.Now().UnixNano())/time.Millisecond))
 	logger.Tf(ctx, "Polling: Request url api=%v", api)
 
@@ -492,7 +495,9 @@ func (v *janusAPI) polling(ctx context.Context) error {
 	switch replyID.Janus {
 	case "event":
 		if r, ok := v.replies.Load(replyID.Transaction); !ok {
-			logger.Wf(ctx, "Polling: Drop tid=%v reply %v", replyID.Transaction, s2)
+			if err := v.handleCall(replyID.Janus, s2); err != nil {
+				logger.Wf(ctx, "Polling: Handle call %v fail %v, err %+v", replyID.Janus, s2, err)
+			}
 		} else if r2, ok := r.(*janusReply); !ok {
 			logger.Wf(ctx, "Polling: Ignore tid=%v reply %v", replyID.Transaction, s2)
 		} else {
@@ -504,7 +509,7 @@ func (v *janusAPI) polling(ctx context.Context) error {
 		}
 	case "keepalive":
 		return nil
-	case "webrtcup", "media":
+	case "webrtcup", "media", "slowlink":
 		if err := v.handleCall(replyID.Janus, s2); err != nil {
 			logger.Wf(ctx, "Polling: Handle call %v fail %v, err %+v", replyID.Janus, s2, err)
 		}
@@ -523,7 +528,11 @@ func (v *janusAPI) handleCall(janus string, s string) error {
 
 	switch janus {
 	case "webrtcup":
-		// {"janus":"webrtcup","sender":7698695982180732,"session_id":2403223275773854}
+		/*{
+			"janus": "webrtcup",
+			"sender": 7698695982180732,
+			"session_id": 2403223275773854
+		}*/
 		r := callHeader{}
 		if err := json.Unmarshal([]byte(s), &r); err != nil {
 			return err
@@ -531,7 +540,13 @@ func (v *janusAPI) handleCall(janus string, s string) error {
 
 		v.onWebrtcUp(r.Sender, r.SessionID)
 	case "media":
-		// {"janus":"media","receiving":true,"sender":7698695982180732,"session_id":2403223275773854,"type":"audio"}
+		/*{
+			"janus": "media",
+			"receiving": true,
+			"sender": 7698695982180732,
+			"session_id": 2403223275773854,
+			"type": "audio"
+		}*/
 		r := struct {
 			callHeader
 			Type      string `json:"type"`
@@ -542,6 +557,124 @@ func (v *janusAPI) handleCall(janus string, s string) error {
 		}
 
 		v.onMedia(r.Sender, r.SessionID, r.Type, r.Receiving)
+	case "slowlink":
+		/*{
+			"janus": "slowlink",
+			"lost": 4294902988,
+			"media": "video",
+			"sender": 562229074390269,
+			"session_id": 156116325213625,
+			"uplink": false
+		}*/
+		r := struct {
+			callHeader
+			Lost   uint64 `json:"lost"`
+			Media  string `json:"media"`
+			Uplink bool   `json:"uplink"`
+		}{}
+		if err := json.Unmarshal([]byte(s), &r); err != nil {
+			return err
+		}
+
+		v.onSlowLink(r.Sender, r.SessionID, r.Media, r.Lost, r.Uplink)
+	case "event":
+		if strings.Contains(s, "publishers") {
+			/*{
+				"janus": "event",
+				"plugindata": {
+					"data": {
+						"publishers": [{
+							"audio_codec": "opus",
+							"display": "test",
+							"id": 2805536617160145,
+							"talking": false,
+							"video_codec": "h264"
+						}],
+						"room": 2345,
+						"videoroom": "event"
+					},
+					"plugin": "janus.plugin.videoroom"
+				},
+				"sender": 2156044968631669,
+				"session_id": 6696376606446844
+			}*/
+			r := struct {
+				callHeader
+				PluginData struct {
+					Data struct {
+						Publishers []publisherInfo `json:"publishers"`
+						Room       int             `json:"room"`
+						VideoRoom  string          `json:"videoroom"`
+					} `json:"data"`
+					Plugin string `json:"plugin"`
+				} `json:"plugindata"`
+			}{}
+			if err := json.Unmarshal([]byte(s), &r); err != nil {
+				return err
+			}
+
+			v.onPublisher(r.Sender, r.SessionID, r.PluginData.Data.Publishers)
+		} else if strings.Contains(s, "unpublished") {
+			/*{
+				"janus": "event",
+				"plugindata": {
+					"data": {
+						"room": 2345,
+						"unpublished": 2805536617160145,
+						"videoroom": "event"
+					},
+					"plugin": "janus.plugin.videoroom"
+				},
+				"sender": 2156044968631669,
+				"session_id": 6696376606446844
+			}*/
+			r := struct {
+				callHeader
+				PluginData struct {
+					Data struct {
+						Room        int    `json:"room"`
+						UnPublished uint64 `json:"unpublished"`
+						VideoRoom   string `json:"videoroom"`
+					} `json:"data"`
+					Plugin string `json:"plugin"`
+				} `json:"plugindata"`
+			}{}
+			if err := json.Unmarshal([]byte(s), &r); err != nil {
+				return err
+			}
+
+			v.onUnPublished(r.Sender, r.SessionID, r.PluginData.Data.UnPublished)
+		} else if strings.Contains(s, "leaving") {
+			/*{
+				"janus": "event",
+				"plugindata": {
+					"data": {
+						"leaving": 2805536617160145,
+						"room": 2345,
+						"videoroom": "event"
+					},
+					"plugin": "janus.plugin.videoroom"
+				},
+				"sender": 2156044968631669,
+				"session_id": 6696376606446844
+			}*/
+			r := struct {
+				callHeader
+				PluginData struct {
+					Data struct {
+						Leaving   uint64 `json:"leaving"`
+						Room      int    `json:"room"`
+						VideoRoom string `json:"videoroom"`
+					} `json:"data"`
+					Plugin string `json:"plugin"`
+				} `json:"plugindata"`
+			}{}
+			if err := json.Unmarshal([]byte(s), &r); err != nil {
+				return err
+			}
+
+			v.onLeave(r.Sender, r.SessionID, r.PluginData.Data.Leaving)
+		}
 	}
 
 	return nil

@@ -22,12 +22,16 @@ package janus
 
 import (
 	"context"
+	"fmt"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/pion/interceptor"
 	"github.com/pion/sdp/v3"
 	"github.com/pion/webrtc/v3"
 	"io"
+	"net/url"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -35,11 +39,28 @@ func Parse(ctx context.Context) {
 }
 
 func Run(ctx context.Context) error {
-	ctx = logger.WithContext(ctx)
 	r := "janus://localhost:8080/2345/livestream"
-	room, display := 2345, "livestream"
 	sourceAudio, sourceVideo, fps := "avatar.ogg", "avatar.h264", 25
 	enableAudioLevel, enableTWCC := true, true
+
+	ctx = logger.WithContext(ctx)
+
+	u, err := url.Parse(r)
+	if err != nil {
+		return errors.Wrapf(err, "Parse url %v", r)
+	}
+
+	var room int
+	var display string
+	if us := strings.SplitN(u.Path, "/", 3); len(us) >= 3 {
+		if iv, err := strconv.Atoi(us[1]); err != nil {
+			return errors.Wrapf(err, "parse %v", us[1])
+		} else {
+			room = iv
+		}
+
+		display = strings.Join(us[2:], "-")
+	}
 
 	logger.Tf(ctx, "Run publish url=%v, audio=%v, video=%v, fps=%v, audio-level=%v, twcc=%v",
 		r, sourceAudio, sourceVideo, fps, enableAudioLevel, enableTWCC)
@@ -134,16 +155,28 @@ func Run(ctx context.Context) error {
 	}
 
 	// Signaling API
-	api := newJanusAPI(r)
+	api := newJanusAPI(fmt.Sprintf("http://%v/janus", u.Host))
 	defer api.Close()
 
 	webrtcUpCtx, webrtcUpCancel := context.WithCancel(ctx)
 	api.onWebrtcUp = func(sender, sessionID uint64) {
-		logger.Tf(ctx, "Event webrtcup: DTLS/SRTP done")
+		logger.Tf(ctx, "Event webrtcup: DTLS/SRTP done, from=(sender:%v,session:%v)", sender, sessionID)
 		webrtcUpCancel()
 	}
 	api.onMedia = func(sender, sessionID uint64, mtype string, receiving bool) {
-		logger.Tf(ctx, "Event media: %v receiving=%v", mtype, receiving)
+		logger.Tf(ctx, "Event media: %v receiving=%v, from=(sender:%v,session:%v)", mtype, receiving, sender, sessionID)
+	}
+	api.onSlowLink = func(sender, sessionID uint64, media string, lost uint64, uplink bool) {
+		logger.Tf(ctx, "Event slowlink: %v lost=%v, uplink=%v, from=(sender:%v,session:%v)", media, lost, uplink, sender, sessionID)
+	}
+	api.onPublisher = func(sender, sessionID uint64, publishers []publisherInfo) {
+		logger.Tf(ctx, "Event publisher: %v, from=(sender:%v,session:%v)", publishers, sender, sessionID)
+	}
+	api.onUnPublished = func(sender, sessionID, id uint64) {
+		logger.Tf(ctx, "Event unpublish: %v, from=(sender:%v,session:%v)", id, sender, sessionID)
+	}
+	api.onLeave = func(sender, sessionID, id uint64) {
+		logger.Tf(ctx, "Event leave: %v, from=(sender:%v,session:%v)", id, sender, sessionID)
 	}
 
 	if err := api.Create(ctx); err != nil {

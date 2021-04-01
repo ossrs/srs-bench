@@ -69,7 +69,8 @@ type janusAPI struct {
 	// For example, http://localhost:8088/janus
 	r string
 	// The ID created by API.
-	sessionID uint64
+	sessionID uint64 // By Create().
+	privateID uint64 // By JoinAsPublisher().
 	// The handles, key is handleID, value is *janusHandle
 	handles sync.Map
 	// The callbacks.
@@ -371,7 +372,7 @@ func (v *janusAPI) JoinAsPublisher(ctx context.Context, handleID uint64, room in
 	var s3 string
 	select {
 	case <-ctx.Done():
-		return nil
+		return ctx.Err()
 	case b3 := <-reply.replies:
 		s3 = escapeJSON(string(b3))
 		logger.Tf(ctx, "Async response tid=%v, reply=%v", reply.transactionID, s3)
@@ -403,8 +404,9 @@ func (v *janusAPI) JoinAsPublisher(ctx context.Context, handleID uint64, room in
 	}
 
 	handler.publisherID = plugin.ID
-	logger.Tf(ctx, "Join as publisher room=%v, display=%v, tid=%v ok, event=%v, plugin=%v, id=%v, publishers=%v",
-		room, display, reply.transactionID, resBody.Janus, plugin.VideoRoom, handler.publisherID, len(plugin.Publishers))
+	v.privateID = plugin.PrivateID
+	logger.Tf(ctx, "Join as publisher room=%v, display=%v, tid=%v ok, event=%v, plugin=%v, id=%v, private=%v, publishers=%v",
+		room, display, reply.transactionID, resBody.Janus, plugin.VideoRoom, handler.publisherID, plugin.PrivateID, len(plugin.Publishers))
 
 	if len(plugin.Publishers) > 0 {
 		v.onPublisher(resBody.Sender, resBody.Session, plugin.Publishers)
@@ -540,7 +542,7 @@ func (v *janusAPI) Publish(ctx context.Context, handleID uint64, offer string) (
 	var s3 string
 	select {
 	case <-ctx.Done():
-		return "", nil
+		return "", ctx.Err()
 	case b3 := <-reply.replies:
 		s3 = escapeJSON(string(b3))
 		logger.Tf(ctx, "Async response tid=%v, reply=%v", reply.transactionID, s3)
@@ -576,6 +578,110 @@ func (v *janusAPI) Publish(ctx context.Context, handleID uint64, offer string) (
 	}
 	logger.Tf(ctx, "Configure publisher offer=%vB, tid=%v ok, event=%v, plugin=%v, answer=%vB",
 		len(offer), reply.transactionID, resBody.Janus, plugin.VideoRoom, len(jsep.SDP))
+
+	return jsep.SDP, nil
+}
+
+func (v *janusAPI) JoinAsSubscribe(ctx context.Context, handleID uint64, room int, publisher *publisherInfo) (offer string, err error) {
+	handler := v.loadHandler(handleID)
+	api := fmt.Sprintf("%v%v/%v", v.r, v.sessionID, handler.handleID)
+
+	reqBodyBody := struct {
+		Request   string `json:"request"`
+		PType     string `json:"ptype"`
+		Room      int    `json:"room"`
+		Feed      uint64 `json:"feed"`
+		PrivateID uint64 `json:"private_id"`
+	}{
+		"join", "subscriber", room, publisher.ID, v.privateID,
+	}
+	reqBody := struct {
+		Janus       string      `json:"janus"`
+		Transaction string      `json:"transaction"`
+		Body        interface{} `json:"body"`
+	}{
+		"message", newTransactionID(), reqBodyBody,
+	}
+
+	reply := newJanusReply(reqBody.Transaction)
+	v.replies.Store(reqBody.Transaction, reply)
+
+	b, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", errors.Wrapf(err, "Marshal body %v", reqBody)
+	}
+	logger.Tf(ctx, "Request url api=%v with %v", api, string(b))
+
+	req, err := http.NewRequest("POST", api, strings.NewReader(string(b)))
+	if err != nil {
+		return "", errors.Wrapf(err, "HTTP request %v", string(b))
+	}
+
+	res, err := http.DefaultClient.Do(req.WithContext(ctx))
+	if err != nil {
+		return "", errors.Wrapf(err, "Do HTTP request %v", string(b))
+	}
+
+	b2, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, "Read response for %v", string(b))
+	}
+
+	s2 := escapeJSON(string(b2))
+	logger.Tf(ctx, "Response from %v is %v", api, s2)
+
+	ackBody := struct {
+		Janus       string `json:"janus"`
+		SessionID   uint64 `json:"session_id"`
+		Transaction string `json:"transaction"`
+	}{}
+	if err := json.Unmarshal([]byte(s2), &ackBody); err != nil {
+		return "", errors.Wrapf(err, "Marshal %v", s2)
+	}
+	if ackBody.Janus != "ack" {
+		return "", errors.Errorf("Server fail code=%v %v", ackBody.Janus, s2)
+	}
+	logger.Tf(ctx, "Response tid=%v ack", reply.transactionID)
+
+	// Reply from polling.
+	var s3 string
+	select {
+	case <-ctx.Done():
+		return "", ctx.Err()
+	case b3 := <-reply.replies:
+		s3 = escapeJSON(string(b3))
+		logger.Tf(ctx, "Async response tid=%v, reply=%v", reply.transactionID, s3)
+	}
+	resBody := struct {
+		Janus       string `json:"janus"`
+		Session     uint64 `json:"session_id"`
+		Transaction string `json:"transaction"`
+		Sender      uint64 `json:"sender"`
+		PluginData  struct {
+			Plugin string `json:"plugin"`
+			Data   struct {
+				VideoRoom string `json:"videoroom"`
+				Room      int    `json:"room"`
+				ID        uint64 `json:"id"`
+				Display   string `json:"display"`
+			} `json:"data"`
+		} `json:"plugindata"`
+		JSEP struct {
+			Type string `json:"type"`
+			SDP  string `json:"sdp"`
+		} `json:"jsep"`
+	}{}
+	if err := json.Unmarshal([]byte(s3), &resBody); err != nil {
+		return "", errors.Wrapf(err, "Marshal %v", s3)
+	}
+
+	plugin := resBody.PluginData.Data
+	jsep := resBody.JSEP
+	if resBody.Janus != "event" || plugin.VideoRoom != "attached" {
+		return "", errors.Errorf("Server fail janus=%v, plugin=%v %v", resBody.Janus, plugin.VideoRoom, s3)
+	}
+	logger.Tf(ctx, "Join as subscriber room=%v, tid=%v ok, event=%v, plugin=%v, offer=%vB",
+		room, reply.transactionID, resBody.Janus, plugin.VideoRoom, len(jsep.SDP))
 
 	return jsep.SDP, nil
 }
@@ -626,6 +732,7 @@ func (v *janusAPI) polling(ctx context.Context) error {
 		} else {
 			select {
 			case <-ctx.Done():
+				return ctx.Err()
 			case r2.replies <- b2:
 				logger.Tf(ctx, "Polling: Reply tid=%v ok, %v", replyID.Transaction, s2)
 			}
@@ -854,7 +961,7 @@ func (v *janusAPI) DiscoverPublisher(ctx context.Context, room int, display stri
 
 	select {
 	case <-ctx.Done():
-		return nil, nil
+		return nil, ctx.Err()
 	case <-discoverCtx.Done():
 	case <-time.After(timeout):
 		discoverCancel()

@@ -113,15 +113,6 @@ func startPlay(ctx context.Context, r string, enableAudioLevel, enableTWCC bool,
 		Direction: webrtc.RTPTransceiverDirectionRecvonly,
 	})
 
-	offer, err := pc.CreateOffer(nil)
-	if err != nil {
-		return errors.Wrapf(err, "Create Offer")
-	}
-
-	if err := pc.SetLocalDescription(offer); err != nil {
-		return errors.Wrapf(err, "Set offer %v", offer)
-	}
-
 	// Signaling API
 	api := newJanusAPI(fmt.Sprintf("http://%v/janus", u.Host))
 
@@ -130,16 +121,24 @@ func startPlay(ctx context.Context, r string, enableAudioLevel, enableTWCC bool,
 	}
 	defer api.Close()
 
-	// Discover the publisher to subscribe.
-	publisher, err := api.DiscoverPublisher(ctx, room, display, 5*time.Second)
+	// Discover the publisherInfo to subscribe.
+	publisherInfo, err := api.DiscoverPublisher(ctx, room, display, 5*time.Second)
 	if err != nil {
 		return err
 	}
-	if publisher == nil {
-		return nil // Cancelled, ignore.
-	}
-	logger.Tf(ctx, "Publisher found, room=%v, display=%v, %v", room, display, publisher)
+	logger.Tf(ctx, "Publisher found, room=%v, display=%v, %v", room, display, publisherInfo)
 
+	subscribeHandle, err := api.AttachPlugin(ctx)
+	if err != nil {
+		return errors.Wrap(err, "attach plugin")
+	}
+
+	offer, err := api.JoinAsSubscribe(ctx, subscribeHandle, room, publisherInfo)
+	if err != nil {
+		return errors.Wrapf(err, "subscribe")
+	}
+
+	_ = offer
 	<-ctx.Done()
 	return nil
 }

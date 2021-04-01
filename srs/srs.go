@@ -73,9 +73,8 @@ func Parse(ctx context.Context) {
 
 	fl.Usage = func() {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
-		fmt.Println(fmt.Sprintf("SFU:"))
-		fmt.Println(fmt.Sprintf("   -sfu    The target SFU, srs or janus. Default: srs"))
 		fmt.Println(fmt.Sprintf("Options:"))
+		fmt.Println(fmt.Sprintf("   -sfu    The target SFU, srs or janus. Default: srs"))
 		fmt.Println(fmt.Sprintf("   -nn     The number of clients to simulate. Default: 1"))
 		fmt.Println(fmt.Sprintf("   -sn     The number of streams to simulate. Variable: %%d. Default: 1"))
 		fmt.Println(fmt.Sprintf("   -delay  The start delay in ms for each client or stream to simulate. Default: 50"))

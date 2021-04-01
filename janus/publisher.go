@@ -149,7 +149,6 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 
 	// Signaling API
 	api := newJanusAPI(fmt.Sprintf("http://%v/janus", u.Host))
-	defer api.Close()
 
 	webrtcUpCtx, webrtcUpCancel := context.WithCancel(ctx)
 	api.onWebrtcUp = func(sender, sessionID uint64) {
@@ -175,15 +174,23 @@ func startPublish(ctx context.Context, r, sourceAudio, sourceVideo string, fps i
 	if err := api.Create(ctx); err != nil {
 		return errors.Wrapf(err, "create")
 	}
+	defer api.Close()
 
-	if err := api.JoinAsPublisher(ctx, room, display); err != nil {
+	publishHandleID, err := api.AttachPlugin(ctx)
+	if err != nil {
+		return errors.Wrapf(err, "attach plugin")
+	}
+	defer api.DetachPlugin(ctx, publishHandleID)
+
+	if err := api.JoinAsPublisher(ctx, publishHandleID, room, display); err != nil {
 		return errors.Wrapf(err, "join as publisher")
 	}
 
-	answer, err := api.Publish(ctx, offer.SDP)
+	answer, err := api.Publish(ctx, publishHandleID, offer.SDP)
 	if err != nil {
 		return errors.Wrapf(err, "join as publisher")
 	}
+	defer api.UnPublish(ctx, publishHandleID)
 
 	// Setup the offer-answer
 	if err := pc.SetRemoteDescription(webrtc.SessionDescription{

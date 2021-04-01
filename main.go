@@ -23,6 +23,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/ossrs/srs-bench/janus"
 	"github.com/ossrs/srs-bench/srs"
@@ -45,7 +46,9 @@ func main() {
 	} else if sfu == "janus" {
 		janus.Parse(ctx)
 	} else {
-		logger.Ef(ctx, "invalid sfu %v", sfu)
+		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
+		fmt.Println(fmt.Sprintf("Options:"))
+		fmt.Println(fmt.Sprintf("   -sfu    The target SFU, srs or janus. Default: srs"))
 		os.Exit(-1)
 	}
 

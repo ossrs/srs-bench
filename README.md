@@ -197,7 +197,7 @@ pip install lxml && pip install gcovr
 ```bash
 ip=$(ifconfig en0 inet|grep inet|awk '{print $2}') &&
 sed -i '' "s/nat_1_1_mapping.*/nat_1_1_mapping=\"$ip\"/g" janus.jcfg &&
-docker run --rm -it -p 8080:8080 -p 20000-20010:20000-20010/udp \
+docker run --rm -it -p 8080:8080 -p 8443:8443 -p 20000-20010:20000-20010/udp \
     -v $(pwd)/janus.jcfg:/usr/local/etc/janus/janus.jcfg \
     -v $(pwd)/janus.plugin.videoroom.jcfg:/usr/local/etc/janus/janus.plugin.videoroom.jcfg \
     registry.cn-hangzhou.aliyuncs.com/ossrs/janus:v1.0.7

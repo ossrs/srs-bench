@@ -58,6 +58,56 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+// Basic use scenario, publish a stream.
+func TestRtcBasic_PublishOnly(t *testing.T) {
+	if err := filterTestError(func() error {
+		streamSuffix := fmt.Sprintf("publish-only-%v-%v", os.Getpid(), rand.Int())
+		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+			p.streamSuffix = streamSuffix
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		defer p.Close()
+
+		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
+		if err := p.Setup(*srsVnetClientIP, func(api *testWebRTCAPI) {
+			var nnRTCP, nnRTP int64
+			api.registry.Add(newRTPInterceptor(func(i *rtpInterceptor) {
+				i.rtpWriter = func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
+					nnRTP++
+					return i.nextRTPWriter.Write(header, payload, attributes)
+				}
+			}))
+			api.registry.Add(newRTCPInterceptor(func(i *rtcpInterceptor) {
+				i.rtcpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
+					if nnRTCP++; nnRTCP >= int64(*srsPublishOKPackets) && nnRTP >= int64(*srsPublishOKPackets) {
+						cancel() // Send enough packets, done.
+					}
+					logger.Tf(ctx, "publish write %v RTP read %v RTCP packets", nnRTP, nnRTCP)
+					return i.nextRTCPReader.Read(buf, attributes)
+				}
+			}))
+		}, func(api *testWebRTCAPI) {
+			api.router.AddChunkFilter(func(c vnet.Chunk) (ok bool) {
+				chunk, parsed := newChunkMessageType(c)
+				if !parsed {
+					return true
+				}
+				logger.Tf(ctx, "Chunk %v, ok=%v %v bytes", chunk, ok, len(c.UserData()))
+				return true
+			})
+		}); err != nil {
+			return err
+		}
+
+		return p.Run(ctx, cancel)
+	}()); err != nil {
+		t.Errorf("err %+v", err)
+	}
+}
+
 // Basic use scenario, publish a stream, then play it.
 func TestRtcBasic_PublishPlay(t *testing.T) {
 	ctx := logger.WithContext(context.Background())

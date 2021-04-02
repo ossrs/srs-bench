@@ -213,4 +213,12 @@ make -j10 && ./objs/srs_bench -sfu janus \
   -sa avatar.ogg -sv avatar.h264 -fps 25 -sn 5
 ```
 
+模拟5个拉流入会，只拉流不推流：
+
+```bash
+make -j10 && ./objs/srs_bench -sfu janus \
+  -sr webrtc://localhost:8080/2345/livestream \
+  -nn 5
+```
+
 2021.01, Winlin

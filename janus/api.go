@@ -686,6 +686,108 @@ func (v *janusAPI) JoinAsSubscribe(ctx context.Context, handleID uint64, room in
 	return jsep.SDP, nil
 }
 
+func (v *janusAPI) Subscribe(ctx context.Context, handleID uint64, room int, answer string) error {
+	handler := v.loadHandler(handleID)
+	api := fmt.Sprintf("%v%v/%v", v.r, v.sessionID, handler.handleID)
+
+	reqBodyBody := struct {
+		Request string `json:"request"`
+		Room    int    `json:"room"`
+	}{
+		"start", room,
+	}
+	jsepBody := struct {
+		Type string `json:"type"`
+		SDP  string `json:"sdp"`
+	}{
+		"answer", answer,
+	}
+	reqBody := struct {
+		Janus       string      `json:"janus"`
+		Transaction string      `json:"transaction"`
+		Body        interface{} `json:"body"`
+		JSEP        interface{} `json:"jsep"`
+	}{
+		"message", newTransactionID(), reqBodyBody, jsepBody,
+	}
+
+	reply := newJanusReply(reqBody.Transaction)
+	v.replies.Store(reqBody.Transaction, reply)
+
+	b, err := json.Marshal(reqBody)
+	if err != nil {
+		return errors.Wrapf(err, "Marshal body %v", reqBody)
+	}
+	logger.Tf(ctx, "Request url api=%v with %v", api, string(b))
+
+	req, err := http.NewRequest("POST", api, strings.NewReader(string(b)))
+	if err != nil {
+		return errors.Wrapf(err, "HTTP request %v", string(b))
+	}
+
+	res, err := http.DefaultClient.Do(req.WithContext(ctx))
+	if err != nil {
+		return errors.Wrapf(err, "Do HTTP request %v", string(b))
+	}
+
+	b2, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return errors.Wrapf(err, "Read response for %v", string(b))
+	}
+
+	s2 := escapeJSON(string(b2))
+	logger.Tf(ctx, "Response from %v is %v", api, s2)
+
+	ackBody := struct {
+		Janus       string `json:"janus"`
+		SessionID   uint64 `json:"session_id"`
+		Transaction string `json:"transaction"`
+	}{}
+	if err := json.Unmarshal([]byte(s2), &ackBody); err != nil {
+		return errors.Wrapf(err, "Marshal %v", s2)
+	}
+	if ackBody.Janus != "ack" {
+		return errors.Errorf("Server fail code=%v %v", ackBody.Janus, s2)
+	}
+	logger.Tf(ctx, "Response tid=%v ack", reply.transactionID)
+
+	// Reply from polling.
+	var s3 string
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case b3 := <-reply.replies:
+		s3 = escapeJSON(string(b3))
+		logger.Tf(ctx, "Async response tid=%v, reply=%v", reply.transactionID, s3)
+	}
+	resBody := struct {
+		Janus       string `json:"janus"`
+		Session     uint64 `json:"session_id"`
+		Transaction string `json:"transaction"`
+		Sender      uint64 `json:"sender"`
+		PluginData  struct {
+			Plugin string `json:"plugin"`
+			Data   struct {
+				VideoRoom string `json:"videoroom"`
+				Room      int    `json:"room"`
+				Started   string `json:"started"`
+			} `json:"data"`
+		} `json:"plugindata"`
+	}{}
+	if err := json.Unmarshal([]byte(s3), &resBody); err != nil {
+		return errors.Wrapf(err, "Marshal %v", s3)
+	}
+
+	plugin := resBody.PluginData.Data
+	if resBody.Janus != "event" || plugin.VideoRoom != "event" || plugin.Started != "ok" {
+		return errors.Errorf("Server fail janus=%v, plugin=%v, started=%v %v", resBody.Janus, plugin.VideoRoom, plugin.Started, s3)
+	}
+	logger.Tf(ctx, "Start subscribe answer=%vB, tid=%v ok, event=%v, plugin=%v, started=%v",
+		len(answer), reply.transactionID, resBody.Janus, plugin.VideoRoom, plugin.Started)
+
+	return nil
+}
+
 func (v *janusAPI) polling(ctx context.Context) error {
 	api := fmt.Sprintf("%v%v?rid=%v&maxev=1", v.r, v.sessionID,
 		uint64(time.Duration(time.Now().UnixNano())/time.Millisecond))

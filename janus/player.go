@@ -26,6 +26,7 @@ import (
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/pion/interceptor"
+	"github.com/pion/rtcp"
 	"github.com/pion/sdp/v3"
 	"github.com/pion/webrtc/v3"
 	"net/url"
@@ -93,7 +94,9 @@ func startPlay(ctx context.Context, r string, enableAudioLevel, enableTWCC bool,
 		return api.NewPeerConnection(configuration)
 	}
 
-	pc, err := webrtcNewPeerConnection(webrtc.Configuration{})
+	pc, err := webrtcNewPeerConnection(webrtc.Configuration{
+		SDPSemantics: webrtc.SDPSemanticsUnifiedPlanWithFallback,
+	})
 	if err != nil {
 		return errors.Wrapf(err, "Create PC")
 	}
@@ -138,7 +141,106 @@ func startPlay(ctx context.Context, r string, enableAudioLevel, enableTWCC bool,
 		return errors.Wrapf(err, "subscribe")
 	}
 
-	_ = offer
+	// Exchange offer and generate answer.
+	if err := pc.SetRemoteDescription(webrtc.SessionDescription{
+		Type: webrtc.SDPTypeOffer, SDP: offer,
+	}); err != nil {
+		return errors.Wrapf(err, "Set offer %v", offer)
+	}
+
+	answer, err := pc.CreateAnswer(nil)
+	if err != nil {
+		return errors.Wrapf(err, "Create answer")
+	}
+	if err := pc.SetLocalDescription(answer); err != nil {
+		return errors.Wrapf(err, "Set answer %v", answer)
+	}
+
+	// Send answer to Janus.
+	if err := api.Subscribe(ctx, subscribeHandle, room, answer.SDP); err != nil {
+		return errors.Wrapf(err, "Subscribe with answer %v", answer)
+	}
+
+	handleTrack := func(ctx context.Context, track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) error {
+		// Send a PLI on an interval so that the publisher is pushing a keyframe
+		go func() {
+			if track.Kind() == webrtc.RTPCodecTypeAudio {
+				return
+			}
+
+			if pli <= 0 {
+				return
+			}
+
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(time.Duration(pli) * time.Second):
+					_ = pc.WriteRTCP([]rtcp.Packet{&rtcp.PictureLossIndication{
+						MediaSSRC: uint32(track.SSRC()),
+					}})
+				}
+			}
+		}()
+
+		receivers = append(receivers, receiver)
+
+		codec := track.Codec()
+
+		trackDesc := fmt.Sprintf("channels=%v", codec.Channels)
+		if track.Kind() == webrtc.RTPCodecTypeVideo {
+			trackDesc = fmt.Sprintf("fmtp=%v", codec.SDPFmtpLine)
+		}
+		if headers := receiver.GetParameters().HeaderExtensions; len(headers) > 0 {
+			trackDesc = fmt.Sprintf("%v, header=%v", trackDesc, headers)
+		}
+		logger.Tf(ctx, "Got track %v, pt=%v, tbn=%v, %v",
+			codec.MimeType, codec.PayloadType, codec.ClockRate, trackDesc)
+
+		return writeTrackToDisk(ctx, track)
+	}
+
+	ctx, cancel := context.WithCancel(ctx)
+	pc.OnTrack(func(track *webrtc.TrackRemote, receiver *webrtc.RTPReceiver) {
+		err = handleTrack(ctx, track, receiver)
+		if err != nil {
+			codec := track.Codec()
+			err = errors.Wrapf(err, "Handle  track %v, pt=%v", codec.MimeType, codec.PayloadType)
+			cancel()
+		}
+	})
+
+	pc.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
+		logger.If(ctx, "ICE state %v", state)
+
+		if state == webrtc.ICEConnectionStateFailed || state == webrtc.ICEConnectionStateClosed {
+			if ctx.Err() != nil {
+				return
+			}
+
+			logger.Wf(ctx, "Close for ICE state %v", state)
+			cancel()
+		}
+	})
+
 	<-ctx.Done()
 	return nil
+}
+
+func writeTrackToDisk(ctx context.Context, track *webrtc.TrackRemote) error {
+	for ctx.Err() == nil {
+		pkt, _, err := track.ReadRTP()
+		if err != nil {
+			if ctx.Err() != nil {
+				return nil
+			}
+			return errors.Wrapf(err, "Read RTP")
+		}
+
+		logger.If(ctx, "Got packet ssrc=%v, pt=%v, seq=%v %vB",
+			pkt.SSRC, pkt.PayloadType, pkt.SequenceNumber, len(pkt.Payload))
+	}
+
+	return ctx.Err()
 }

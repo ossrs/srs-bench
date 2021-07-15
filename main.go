@@ -27,6 +27,7 @@ import (
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/ossrs/srs-bench/janus"
 	"github.com/ossrs/srs-bench/srs"
+	"github.com/ossrs/srs-bench/zlm"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -37,7 +38,7 @@ func main() {
 	var sfu string
 	fl := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 	fl.SetOutput(ioutil.Discard)
-	fl.StringVar(&sfu, "sfu", "srs", "The SFU server, srs or janus")
+	fl.StringVar(&sfu, "sfu", "srs", "The SFU server, srs or janus or zlm")
 	_ = fl.Parse(os.Args[1:])
 
 	ctx := context.Background()
@@ -45,7 +46,9 @@ func main() {
 		srs.Parse(ctx)
 	} else if sfu == "janus" {
 		janus.Parse(ctx)
-	} else {
+	} else if sfu == "zlm" {
+		zlm.Parse(ctx)
+	}else {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
 		fmt.Println(fmt.Sprintf("   -sfu    The target SFU, srs or janus. Default: srs"))
@@ -67,6 +70,8 @@ func main() {
 		err = srs.Run(ctx)
 	} else if sfu == "janus" {
 		err = janus.Run(ctx)
+	} else if sfu == "zlm" {
+		err = zlm.Run(ctx)
 	}
 
 	if err != nil {

@@ -182,8 +182,8 @@ var (
 	errPeerConnSimulcastMidRTPExtensionRequired       = errors.New("mid RTP Extensions required for Simulcast")
 	errPeerConnSimulcastStreamIDRTPExtensionRequired  = errors.New("stream id RTP Extensions required for Simulcast")
 	errPeerConnSimulcastIncomingSSRCFailed            = errors.New("incoming SSRC failed Simulcast probing")
-	errPeerConnAddTransceiverFromKindOnlyAcceptsOne   = errors.New("AddTransceiverFromKind only accepts one RtpTransceiverInit")
-	errPeerConnAddTransceiverFromTrackOnlyAcceptsOne  = errors.New("AddTransceiverFromTrack only accepts one RtpTransceiverInit")
+	errPeerConnAddTransceiverFromKindOnlyAcceptsOne   = errors.New("AddTransceiverFromKind only accepts one RTPTransceiverInit")
+	errPeerConnAddTransceiverFromTrackOnlyAcceptsOne  = errors.New("AddTransceiverFromTrack only accepts one RTPTransceiverInit")
 	errPeerConnAddTransceiverFromKindSupport          = errors.New("AddTransceiverFromKind currently only supports recvonly")
 	errPeerConnAddTransceiverFromTrackSupport         = errors.New("AddTransceiverFromTrack currently only supports sendonly and sendrecv")
 	errPeerConnSetIdentityProviderNotImplemented      = errors.New("TODO SetIdentityProvider")
@@ -202,6 +202,7 @@ var (
 
 	errRTPTransceiverCannotChangeMid        = errors.New("errRTPSenderTrackNil")
 	errRTPTransceiverSetSendingInvalidState = errors.New("invalid state change in RTPTransceiver.setSending")
+	errRTPTransceiverCodecUnsupported       = errors.New("unsupported codec type by this transceiver")
 
 	errSCTPTransportDTLS = errors.New("DTLS not established")
 
@@ -217,4 +218,8 @@ var (
 	errStatsICECandidateStateInvalid = errors.New("cannot convert to StatsICECandidatePairStateSucceeded invalid ice candidate state")
 
 	errICETransportNotInNew = errors.New("ICETransport can only be called in ICETransportStateNew")
+
+	errCertificatePEMFormatError = errors.New("bad Certificate PEM format")
+
+	errRTPTooShort = errors.New("not long enough to be a RTP Packet")
 )

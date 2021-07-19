@@ -76,6 +76,7 @@ Check out the **[contributing wiki](https://github.com/pion/webrtc/wiki/Contribu
 * [Sean DuBois](https://github.com/sean-der) - *Original Author*
 * [Atsushi Watanabe](https://github.com/at-wat)
 * [Alessandro Ros](https://github.com/aler9)
+* [Mathis Engelbart](https://github.com/mengelbart)
 
 ### License
 MIT License - see [LICENSE](LICENSE) for full text

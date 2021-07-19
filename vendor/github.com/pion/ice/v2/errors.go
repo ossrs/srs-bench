@@ -129,4 +129,6 @@ var (
 	errUnknownRole                   = errors.New("unknown role")
 	errMismatchUsername              = errors.New("username mismatch")
 	errICEWriteSTUNMessage           = errors.New("the ICE conn can't write STUN messages")
+	errUDPMuxDisabled                = errors.New("UDPMux is not enabled")
+	errCandidateIPNotFound           = errors.New("could not determine local IP for Mux candidate")
 )

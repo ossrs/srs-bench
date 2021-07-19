@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/pion/ice/v2"
 	"github.com/pion/logging"
@@ -271,8 +272,9 @@ func populateLocalCandidates(sessionDescription *SessionDescription, i *ICEGathe
 	}
 
 	return &SessionDescription{
-		SDP:  string(sdp),
-		Type: sessionDescription.Type,
+		SDP:    string(sdp),
+		Type:   sessionDescription.Type,
+		parsed: parsed,
 	}
 }
 
@@ -290,7 +292,7 @@ func addTransceiverSDP(d *sdp.SessionDescription, isPlanB, shouldAddCandidates b
 		WithPropertyAttribute(sdp.AttrKeyRTCPMux).
 		WithPropertyAttribute(sdp.AttrKeyRTCPRsize)
 
-	codecs := mediaEngine.getCodecsByKind(t.kind)
+	codecs := t.getCodecs()
 	for _, codec := range codecs {
 		name := strings.TrimPrefix(codec.MimeType, "audio/")
 		name = strings.TrimPrefix(name, "video/")
@@ -400,13 +402,13 @@ func populateSDP(d *sdp.SessionDescription, isPlanB bool, dtlsFingerprints []DTL
 		}
 
 		shouldAddID := true
-		shouldAddCanidates := i == 0
+		shouldAddCandidates := i == 0
 		if m.data {
-			if err = addDataMediaSection(d, shouldAddCanidates, mediaDtlsFingerprints, m.id, iceParams, candidates, connectionRole, iceGatheringState); err != nil {
+			if err = addDataMediaSection(d, shouldAddCandidates, mediaDtlsFingerprints, m.id, iceParams, candidates, connectionRole, iceGatheringState); err != nil {
 				return nil, err
 			}
 		} else {
-			shouldAddID, err = addTransceiverSDP(d, isPlanB, shouldAddCanidates, mediaDtlsFingerprints, mediaEngine, m.id, iceParams, candidates, connectionRole, iceGatheringState, m)
+			shouldAddID, err = addTransceiverSDP(d, isPlanB, shouldAddCandidates, mediaDtlsFingerprints, mediaEngine, m.id, iceParams, candidates, connectionRole, iceGatheringState, m)
 			if err != nil {
 				return nil, err
 			}
@@ -640,4 +642,23 @@ func rtpExtensionsFromMediaDescription(m *sdp.MediaDescription) (map[string]int,
 	}
 
 	return out, nil
+}
+
+// updateSDPOrigin saves sdp.Origin in PeerConnection when creating 1st local SDP;
+// for subsequent calling, it updates Origin for SessionDescription from saved one
+// and increments session version by one.
+// https://tools.ietf.org/html/draft-ietf-rtcweb-jsep-25#section-5.2.2
+// https://tools.ietf.org/html/draft-ietf-rtcweb-jsep-25#section-5.3.2
+func updateSDPOrigin(origin *sdp.Origin, d *sdp.SessionDescription) {
+	if atomic.CompareAndSwapUint64(&origin.SessionVersion, 0, d.Origin.SessionVersion) { // store
+		atomic.StoreUint64(&origin.SessionID, d.Origin.SessionID)
+	} else { // load
+		for { // awaiting for saving session id
+			d.Origin.SessionID = atomic.LoadUint64(&origin.SessionID)
+			if d.Origin.SessionID != 0 {
+				break
+			}
+		}
+		d.Origin.SessionVersion = atomic.AddUint64(&origin.SessionVersion, 1)
+	}
 }

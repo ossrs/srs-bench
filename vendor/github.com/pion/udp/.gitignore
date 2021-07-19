@@ -1,15 +1,24 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+### JetBrains IDE ###
+#####################
+.idea/
 
-# Test binary, built with `go test -c`
-*.test
+### Emacs Temporary Files ###
+#############################
+*~
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
+### Folders ###
+###############
+bin/
+vendor/
+node_modules/
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+### Files ###
+#############
+*.ivf
+*.ogg
+tags
+cover.out
+*.sw[poe]
+*.wasm
+examples/sfu-ws/cert.pem
+examples/sfu-ws/key.pem

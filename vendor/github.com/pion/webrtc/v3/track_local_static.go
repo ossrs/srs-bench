@@ -48,7 +48,7 @@ func (s *TrackLocalStaticRTP) Bind(t TrackLocalContext) (RTPCodecParameters, err
 	defer s.mu.Unlock()
 
 	parameters := RTPCodecParameters{RTPCodecCapability: s.codec}
-	if codec, err := codecParametersFuzzySearch(parameters, t.CodecParameters()); err == nil {
+	if codec, matchType := codecParametersFuzzySearch(parameters, t.CodecParameters()); matchType != codecMatchNone {
 		s.bindings = append(s.bindings, trackBinding{
 			ssrc:        t.SSRC(),
 			payloadType: codec.PayloadType,
@@ -103,21 +103,40 @@ func (s *TrackLocalStaticRTP) Codec() RTPCodecCapability {
 	return s.codec
 }
 
+// packetPool is a pool of packets used by WriteRTP and Write below
+// nolint:gochecknoglobals
+var rtpPacketPool = sync.Pool{
+	New: func() interface{} {
+		return &rtp.Packet{}
+	},
+}
+
 // WriteRTP writes a RTP Packet to the TrackLocalStaticRTP
 // If one PeerConnection fails the packets will still be sent to
 // all PeerConnections. The error message will contain the ID of the failed
 // PeerConnections so you can remove them
 func (s *TrackLocalStaticRTP) WriteRTP(p *rtp.Packet) error {
+	ipacket := rtpPacketPool.Get()
+	packet := ipacket.(*rtp.Packet)
+	defer func() {
+		*packet = rtp.Packet{}
+		rtpPacketPool.Put(ipacket)
+	}()
+	*packet = *p
+	return s.writeRTP(packet)
+}
+
+// writeRTP is like WriteRTP, except that it may modify the packet p
+func (s *TrackLocalStaticRTP) writeRTP(p *rtp.Packet) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	writeErrs := []error{}
-	outboundPacket := *p
 
 	for _, b := range s.bindings {
-		outboundPacket.Header.SSRC = uint32(b.ssrc)
-		outboundPacket.Header.PayloadType = uint8(b.payloadType)
-		if _, err := b.writeStream.WriteRTP(&outboundPacket.Header, outboundPacket.Payload); err != nil {
+		p.Header.SSRC = uint32(b.ssrc)
+		p.Header.PayloadType = uint8(b.payloadType)
+		if _, err := b.writeStream.WriteRTP(&p.Header, p.Payload); err != nil {
 			writeErrs = append(writeErrs, err)
 		}
 	}
@@ -130,18 +149,25 @@ func (s *TrackLocalStaticRTP) WriteRTP(p *rtp.Packet) error {
 // all PeerConnections. The error message will contain the ID of the failed
 // PeerConnections so you can remove them
 func (s *TrackLocalStaticRTP) Write(b []byte) (n int, err error) {
-	packet := &rtp.Packet{}
+	ipacket := rtpPacketPool.Get()
+	packet := ipacket.(*rtp.Packet)
+	defer func() {
+		*packet = rtp.Packet{}
+		rtpPacketPool.Put(ipacket)
+	}()
+
 	if err = packet.Unmarshal(b); err != nil {
 		return 0, err
 	}
 
-	return len(b), s.WriteRTP(packet)
+	return len(b), s.writeRTP(packet)
 }
 
 // TrackLocalStaticSample is a TrackLocal that has a pre-set codec and accepts Samples.
 // If you wish to send a RTP Packet use TrackLocalStaticRTP
 type TrackLocalStaticSample struct {
 	packetizer rtp.Packetizer
+	sequencer  rtp.Sequencer
 	rtpTrack   *TrackLocalStaticRTP
 	clockRate  float64
 }
@@ -196,12 +222,13 @@ func (s *TrackLocalStaticSample) Bind(t TrackLocalContext) (RTPCodecParameters, 
 		return codec, err
 	}
 
+	s.sequencer = rtp.NewRandomSequencer()
 	s.packetizer = rtp.NewPacketizer(
 		rtpOutboundMTU,
 		0, // Value is handled when writing
 		0, // Value is handled when writing
 		payloader,
-		rtp.NewRandomSequencer(),
+		s.sequencer,
 		codec.ClockRate,
 	)
 	s.clockRate = float64(codec.RTPCodecCapability.ClockRate)
@@ -228,8 +255,16 @@ func (s *TrackLocalStaticSample) WriteSample(sample media.Sample) error {
 		return nil
 	}
 
-	samples := sample.Duration.Seconds() * clockRate
-	packets := p.(rtp.Packetizer).Packetize(sample.Data, uint32(samples))
+	// skip packets by the number of previously dropped packets
+	for i := uint16(0); i < sample.PrevDroppedPackets; i++ {
+		s.sequencer.NextSequenceNumber()
+	}
+
+	samples := uint32(sample.Duration.Seconds() * clockRate)
+	if sample.PrevDroppedPackets > 0 {
+		p.(rtp.Packetizer).SkipSamples(samples * uint32(sample.PrevDroppedPackets))
+	}
+	packets := p.(rtp.Packetizer).Packetize(sample.Data, samples)
 
 	writeErrs := []error{}
 	for _, p := range packets {

@@ -19,6 +19,8 @@ import (
 type trackStreams struct {
 	track *TrackRemote
 
+	streamInfo interceptor.StreamInfo
+
 	rtpReadStream  *srtp.ReadStreamSRTP
 	rtpInterceptor interceptor.RTPReader
 
@@ -35,6 +37,8 @@ type RTPReceiver struct {
 
 	closed, received chan interface{}
 	mu               sync.RWMutex
+
+	tr *RTPTransceiver
 
 	// A reference to the associated api object
 	api *API
@@ -58,6 +62,12 @@ func (api *API) NewRTPReceiver(kind RTPCodecType, transport *DTLSTransport) (*RT
 	return r, nil
 }
 
+func (r *RTPReceiver) setRTPTransceiver(tr *RTPTransceiver) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.tr = tr
+}
+
 // Transport returns the currently-configured *DTLSTransport or nil
 // if one has not yet been configured
 func (r *RTPReceiver) Transport() *DTLSTransport {
@@ -66,10 +76,18 @@ func (r *RTPReceiver) Transport() *DTLSTransport {
 	return r.transport
 }
 
+func (r *RTPReceiver) getParameters() RTPParameters {
+	parameters := r.api.mediaEngine.getRTPParametersByKind(r.kind, []RTPTransceiverDirection{RTPTransceiverDirectionRecvonly})
+	parameters.Codecs = r.tr.getCodecs()
+	return parameters
+}
+
 // GetParameters describes the current configuration for the encoding and
 // transmission of media on the receiver's track.
 func (r *RTPReceiver) GetParameters() RTPParameters {
-	return r.api.mediaEngine.getRTPParametersByKind(r.kind, []RTPTransceiverDirection{RTPTransceiverDirectionRecvonly})
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.getParameters()
 }
 
 // Track returns the RtpTransceiver TrackRemote
@@ -112,20 +130,20 @@ func (r *RTPReceiver) Receive(parameters RTPReceiveParameters) error {
 			track: newTrackRemote(
 				r.kind,
 				parameters.Encodings[0].SSRC,
-				"",
+				parameters.Encodings[0].RID,
 				r,
 			),
 		}
 
-		globalParams := r.GetParameters()
+		globalParams := r.getParameters()
 		codec := RTPCodecCapability{}
 		if len(globalParams.Codecs) != 0 {
 			codec = globalParams.Codecs[0].RTPCodecCapability
 		}
 
-		streamInfo := createStreamInfo("", parameters.Encodings[0].SSRC, 0, codec, globalParams.HeaderExtensions)
+		t.streamInfo = createStreamInfo("", parameters.Encodings[0].SSRC, 0, codec, globalParams.HeaderExtensions)
 		var err error
-		if t.rtpReadStream, t.rtpInterceptor, t.rtcpReadStream, t.rtcpInterceptor, err = r.streamsForSSRC(parameters.Encodings[0].SSRC, streamInfo); err != nil {
+		if t.rtpReadStream, t.rtpInterceptor, t.rtcpReadStream, t.rtcpInterceptor, err = r.streamsForSSRC(parameters.Encodings[0].SSRC, t.streamInfo); err != nil {
 			return err
 		}
 
@@ -235,6 +253,7 @@ func (r *RTPReceiver) Stop() error {
 			}
 
 			err = util.FlattenErrs(errs)
+			r.api.interceptor.UnbindRemoteStream(&r.tracks[i].streamInfo)
 		}
 	default:
 	}
@@ -275,11 +294,11 @@ func (r *RTPReceiver) receiveForRid(rid string, params RTPParameters, ssrc SSRC)
 			r.tracks[i].track.codec = params.Codecs[0]
 			r.tracks[i].track.params = params
 			r.tracks[i].track.ssrc = ssrc
-			streamInfo := createStreamInfo("", ssrc, params.Codecs[0].PayloadType, params.Codecs[0].RTPCodecCapability, params.HeaderExtensions)
+			r.tracks[i].streamInfo = createStreamInfo("", ssrc, params.Codecs[0].PayloadType, params.Codecs[0].RTPCodecCapability, params.HeaderExtensions)
 			r.tracks[i].track.mu.Unlock()
 
 			var err error
-			if r.tracks[i].rtpReadStream, r.tracks[i].rtpInterceptor, r.tracks[i].rtcpReadStream, r.tracks[i].rtcpInterceptor, err = r.streamsForSSRC(ssrc, streamInfo); err != nil {
+			if r.tracks[i].rtpReadStream, r.tracks[i].rtpInterceptor, r.tracks[i].rtcpReadStream, r.tracks[i].rtcpInterceptor, err = r.streamsForSSRC(ssrc, r.tracks[i].streamInfo); err != nil {
 				return nil, err
 			}
 

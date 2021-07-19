@@ -122,6 +122,7 @@ func (n *GeneratorInterceptor) loop(rtcpWriter interceptor.RTCPWriter) {
 	senderSSRC := rand.Uint32() // #nosec
 
 	ticker := time.NewTicker(n.interval)
+	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:

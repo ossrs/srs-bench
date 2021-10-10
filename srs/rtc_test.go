@@ -24,17 +24,21 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pion/transport/vnet"
 	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/pion/transport/vnet"
+	"github.com/pion/webrtc/v3"
+
 	"github.com/ossrs/go-oryx-lib/errors"
+	"github.com/ossrs/go-oryx-lib/flv"
 	"github.com/ossrs/go-oryx-lib/logger"
 	"github.com/pion/interceptor"
 	"github.com/pion/rtcp"
@@ -58,11 +62,384 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+// Test for https://github.com/ossrs/srs/pull/2483
+func TestPR2483_RtcStatApi_PublisherOnly(t *testing.T) {
+	if err := filterTestError(func() error {
+		streamSuffix := fmt.Sprintf("publish-only-%v-%v", os.Getpid(), rand.Int())
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
+			p.streamSuffix = streamSuffix
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		defer p.Close()
+
+		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
+		if err := p.Setup(*srsVnetClientIP, func(api *testWebRTCAPI) {
+			var once sync.Once
+			api.registry.Add(newRTCPInterceptor(func(i *rtcpInterceptor) {
+				i.rtcpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
+					once.Do(func() {
+						stat := newStatAPI(ctx).Streams().FilterByStreamSuffix(p.streamSuffix)
+						logger.Tf(ctx, "Check publishing, streams=%v, stream=%v", len(stat.streams), stat.stream)
+						if stat.stream != nil {
+							cancel() // done
+						}
+					})
+					return i.nextRTCPReader.Read(buf, attributes)
+				}
+			}))
+		}); err != nil {
+			return err
+		}
+
+		return p.Run(ctx, cancel)
+	}()); err != nil {
+		t.Errorf("err %+v", err)
+	}
+}
+
+// Veirfy https://github.com/ossrs/srs/issues/2371
+func TestBugfix2371_PublishWithNack(t *testing.T) {
+	ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
+	if err := filterTestError(func() error {
+		streamSuffix := fmt.Sprintf("bugfix-2371-%v-%v", os.Getpid(), rand.Int())
+		p, err := newTestPublisher(registerMiniCodecs, func(p *testPublisher) error {
+			p.streamSuffix = streamSuffix
+			p.onOffer = func(s *webrtc.SessionDescription) error {
+				if n := strings.Count(s.SDP, "nack"); n != 2 {
+					return errors.Errorf("invalid %v nack", n)
+				}
+				return nil
+			}
+			p.onAnswer = func(s *webrtc.SessionDescription) error {
+				if n := strings.Count(s.SDP, "nack"); n != 2 {
+					return errors.Errorf("invalid %v nack", n)
+				}
+				cancel()
+				return nil
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		defer p.Close()
+
+		if err := p.Setup(*srsVnetClientIP); err != nil {
+			return err
+		}
+
+		return p.Run(ctx, cancel)
+	}()); err != nil {
+		t.Errorf("err %+v", err)
+	}
+}
+
+// Veirfy https://github.com/ossrs/srs/issues/2371
+func TestBugfix2371_PublishWithoutNack(t *testing.T) {
+	ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
+	if err := filterTestError(func() error {
+		streamSuffix := fmt.Sprintf("bugfix-2371-%v-%v", os.Getpid(), rand.Int())
+		p, err := newTestPublisher(registerMiniCodecsWithoutNack, func(p *testPublisher) error {
+			p.streamSuffix = streamSuffix
+			p.onOffer = func(s *webrtc.SessionDescription) error {
+				if n := strings.Count(s.SDP, "nack"); n != 0 {
+					return errors.Errorf("invalid %v nack", n)
+				}
+				return nil
+			}
+			p.onAnswer = func(s *webrtc.SessionDescription) error {
+				if n := strings.Count(s.SDP, "nack"); n != 0 {
+					return errors.Errorf("invalid %v nack", n)
+				}
+				cancel()
+				return nil
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		defer p.Close()
+
+		if err := p.Setup(*srsVnetClientIP); err != nil {
+			return err
+		}
+
+		return p.Run(ctx, cancel)
+	}()); err != nil {
+		t.Errorf("err %+v", err)
+	}
+}
+
+// Veirfy https://github.com/ossrs/srs/issues/2371
+func TestBugfix2371_PlayWithNack(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+
+	var r0, r1, r2, r3 error
+	defer func(ctx context.Context) {
+		if err := filterTestError(ctx.Err(), r0, r1, r2, r3); err != nil {
+			t.Errorf("Fail for err %+v", err)
+		} else {
+			logger.Tf(ctx, "test done with err %+v", err)
+		}
+	}(ctx)
+
+	var resources []io.Closer
+	defer func() {
+		for _, resource := range resources {
+			_ = resource.Close()
+		}
+	}()
+
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	// The event notify.
+	var thePublisher *testPublisher
+	var thePlayer *testPlayer
+
+	mainReady, mainReadyCancel := context.WithCancel(context.Background())
+	publishReady, publishReadyCancel := context.WithCancel(context.Background())
+
+	// Objects init.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		doInit := func() (err error) {
+			streamSuffix := fmt.Sprintf("basic-publish-play-%v-%v", os.Getpid(), rand.Int())
+
+			// Initialize player with private api.
+			if thePlayer, err = newTestPlayer(registerMiniCodecs, func(play *testPlayer) error {
+				play.streamSuffix = streamSuffix
+				play.onOffer = func(s *webrtc.SessionDescription) error {
+					if n := strings.Count(s.SDP, "nack"); n != 2 {
+						return errors.Errorf("invalid %v nack", n)
+					}
+					return nil
+				}
+				play.onAnswer = func(s *webrtc.SessionDescription) error {
+					if n := strings.Count(s.SDP, "nack"); n != 2 {
+						return errors.Errorf("invalid %v nack", n)
+					}
+					cancel()
+					return nil
+				}
+				resources = append(resources, play)
+				return play.Setup(*srsVnetClientIP)
+			}); err != nil {
+				return err
+			}
+
+			// Initialize publisher with private api.
+			if thePublisher, err = newTestPublisher(registerMiniCodecs, func(pub *testPublisher) error {
+				pub.streamSuffix = streamSuffix
+				pub.iceReadyCancel = publishReadyCancel
+				resources = append(resources, pub)
+				return pub.Setup(*srsVnetClientIP)
+			}); err != nil {
+				return err
+			}
+
+			// Init done.
+			mainReadyCancel()
+
+			<-ctx.Done()
+			return nil
+		}
+
+		if err := doInit(); err != nil {
+			r1 = err
+		}
+	}()
+
+	// Run publisher.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		select {
+		case <-ctx.Done():
+		case <-mainReady.Done():
+			r2 = thePublisher.Run(logger.WithContext(ctx), cancel)
+			logger.Tf(ctx, "pub done")
+		}
+	}()
+
+	// Run player.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		select {
+		case <-ctx.Done():
+		case <-publishReady.Done():
+			r3 = thePlayer.Run(logger.WithContext(ctx), cancel)
+			logger.Tf(ctx, "play done")
+		}
+	}()
+}
+
+// Veirfy https://github.com/ossrs/srs/issues/2371
+func TestBugfix2371_PlayWithoutNack(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+
+	var r0, r1, r2, r3 error
+	defer func(ctx context.Context) {
+		if err := filterTestError(ctx.Err(), r0, r1, r2, r3); err != nil {
+			t.Errorf("Fail for err %+v", err)
+		} else {
+			logger.Tf(ctx, "test done with err %+v", err)
+		}
+	}(ctx)
+
+	var resources []io.Closer
+	defer func() {
+		for _, resource := range resources {
+			_ = resource.Close()
+		}
+	}()
+
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	// The event notify.
+	var thePublisher *testPublisher
+	var thePlayer *testPlayer
+
+	mainReady, mainReadyCancel := context.WithCancel(context.Background())
+	publishReady, publishReadyCancel := context.WithCancel(context.Background())
+
+	// Objects init.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		doInit := func() (err error) {
+			streamSuffix := fmt.Sprintf("basic-publish-play-%v-%v", os.Getpid(), rand.Int())
+
+			// Initialize player with private api.
+			if thePlayer, err = newTestPlayer(registerMiniCodecsWithoutNack, func(play *testPlayer) error {
+				play.streamSuffix = streamSuffix
+				play.onOffer = func(s *webrtc.SessionDescription) error {
+					if n := strings.Count(s.SDP, "nack"); n != 0 {
+						return errors.Errorf("invalid %v nack", n)
+					}
+					return nil
+				}
+				play.onAnswer = func(s *webrtc.SessionDescription) error {
+					if n := strings.Count(s.SDP, "nack"); n != 0 {
+						return errors.Errorf("invalid %v nack", n)
+					}
+					cancel()
+					return nil
+				}
+				resources = append(resources, play)
+				return play.Setup(*srsVnetClientIP)
+			}); err != nil {
+				return err
+			}
+
+			// Initialize publisher with private api.
+			if thePublisher, err = newTestPublisher(registerMiniCodecs, func(pub *testPublisher) error {
+				pub.streamSuffix = streamSuffix
+				pub.iceReadyCancel = publishReadyCancel
+				resources = append(resources, pub)
+				return pub.Setup(*srsVnetClientIP)
+			}); err != nil {
+				return err
+			}
+
+			// Init done.
+			mainReadyCancel()
+
+			<-ctx.Done()
+			return nil
+		}
+
+		if err := doInit(); err != nil {
+			r1 = err
+		}
+	}()
+
+	// Run publisher.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		select {
+		case <-ctx.Done():
+		case <-mainReady.Done():
+			r2 = thePublisher.Run(logger.WithContext(ctx), cancel)
+			logger.Tf(ctx, "pub done")
+		}
+	}()
+
+	// Run player.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		select {
+		case <-ctx.Done():
+		case <-publishReady.Done():
+			r3 = thePlayer.Run(logger.WithContext(ctx), cancel)
+			logger.Tf(ctx, "play done")
+		}
+	}()
+}
+
+// Veirfy https://github.com/ossrs/srs/issues/2371
+func TestBugfix2371_RTMP2RTC_PlayWithNack(t *testing.T) {
+	if err := filterTestError(func() error {
+		ctx, cancel := context.WithTimeout(logger.WithContext(context.Background()), time.Duration(*srsTimeout)*time.Millisecond)
+		p, err := newTestPlayer(registerMiniCodecs, func(play *testPlayer) error {
+			play.onOffer = func(s *webrtc.SessionDescription) error {
+				if n := strings.Count(s.SDP, "nack"); n != 2 {
+					return errors.Errorf("invalid %v nack", n)
+				}
+				return nil
+			}
+			play.onAnswer = func(s *webrtc.SessionDescription) error {
+				if n := strings.Count(s.SDP, "nack"); n != 2 {
+					return errors.Errorf("invalid %v nack", n)
+				}
+				cancel()
+				return nil
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		defer p.Close()
+
+		if err := p.Setup(*srsVnetClientIP); err != nil {
+			return err
+		}
+
+		return p.Run(ctx, cancel)
+	}()); err != nil {
+		t.Errorf("err %+v", err)
+	}
+}
+
 // Basic use scenario, publish a stream.
 func TestRtcBasic_PublishOnly(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("publish-only-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			return nil
 		})
@@ -149,7 +526,7 @@ func TestRtcBasic_PublishPlay(t *testing.T) {
 			streamSuffix := fmt.Sprintf("basic-publish-play-%v-%v", os.Getpid(), rand.Int())
 
 			// Initialize player with private api.
-			if thePlayer, err = newTestPlayer(createApiForPlayer, func(play *testPlayer) error {
+			if thePlayer, err = newTestPlayer(registerDefaultCodecs, func(play *testPlayer) error {
 				play.streamSuffix = streamSuffix
 				resources = append(resources, play)
 
@@ -183,7 +560,7 @@ func TestRtcBasic_PublishPlay(t *testing.T) {
 			}
 
 			// Initialize publisher with private api.
-			if thePublisher, err = newTestPublisher(createApiForPublisher, func(pub *testPublisher) error {
+			if thePublisher, err = newTestPublisher(registerDefaultCodecs, func(pub *testPublisher) error {
 				pub.streamSuffix = streamSuffix
 				pub.iceReadyCancel = publishReadyCancel
 				resources = append(resources, pub)
@@ -262,155 +639,6 @@ func TestRtcBasic_PublishPlay(t *testing.T) {
 	}()
 }
 
-// When republish a stream, the player stream SHOULD be continuous.
-func TestRtcBasic_Republish(t *testing.T) {
-	ctx := logger.WithContext(context.Background())
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
-
-	var r0, r1, r2, r3, r4 error
-	defer func(ctx context.Context) {
-		if err := filterTestError(ctx.Err(), r0, r1, r2, r3, r4); err != nil {
-			t.Errorf("Fail for err %+v", err)
-		} else {
-			logger.Tf(ctx, "test done with err %+v", err)
-		}
-	}(ctx)
-
-	var resources []io.Closer
-	defer func() {
-		for _, resource := range resources {
-			_ = resource.Close()
-		}
-	}()
-
-	var wg sync.WaitGroup
-	defer wg.Wait()
-
-	// The event notify.
-	var thePublisher, theRepublisher *testPublisher
-	var thePlayer *testPlayer
-
-	mainReady, mainReadyCancel := context.WithCancel(context.Background())
-	publishReady, publishReadyCancel := context.WithCancel(context.Background())
-	republishReady, republishReadyCancel := context.WithCancel(context.Background())
-
-	// Objects init.
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		defer cancel()
-
-		doInit := func() (err error) {
-			streamSuffix := fmt.Sprintf("basic-publish-play-%v-%v", os.Getpid(), rand.Int())
-
-			// Initialize player with private api.
-			if thePlayer, err = newTestPlayer(createApiForPlayer, func(play *testPlayer) error {
-				play.streamSuffix = streamSuffix
-				resources = append(resources, play)
-
-				var nnPlayReadRTP uint64
-				return play.Setup(*srsVnetClientIP, func(api *testWebRTCAPI) {
-					api.registry.Add(newRTPInterceptor(func(i *rtpInterceptor) {
-						i.rtpReader = func(payload []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
-							select {
-							case <-republishReady.Done():
-								if nnPlayReadRTP++; nnPlayReadRTP >= uint64(*srsPlayOKPackets) {
-									cancel() // Completed.
-								}
-								logger.Tf(ctx, "Play recv rtp %v packets", nnPlayReadRTP)
-							default:
-								logger.Tf(ctx, "Play recv rtp packet before republish")
-							}
-							return i.nextRTPReader.Read(payload, attributes)
-						}
-					}))
-				})
-			}); err != nil {
-				return err
-			}
-
-			// Initialize publisher with private api.
-			if thePublisher, err = newTestPublisher(createApiForPublisher, func(pub *testPublisher) error {
-				pub.streamSuffix = streamSuffix
-				pub.iceReadyCancel = publishReadyCancel
-				resources = append(resources, pub)
-
-				var nnPubReadRTCP uint64
-				return pub.Setup(*srsVnetClientIP, func(api *testWebRTCAPI) {
-					api.registry.Add(newRTCPInterceptor(func(i *rtcpInterceptor) {
-						i.rtcpReader = func(buf []byte, attributes interceptor.Attributes) (int, interceptor.Attributes, error) {
-							nn, attr, err := i.nextRTCPReader.Read(buf, attributes)
-							if nnPubReadRTCP++; nnPubReadRTCP > 0 && pub.cancel != nil {
-								pub.cancel() // We only cancel the publisher itself.
-							}
-							logger.Tf(ctx, "Publish recv rtcp %v packets", nnPubReadRTCP)
-							return nn, attr, err
-						}
-					}))
-				})
-			}); err != nil {
-				return err
-			}
-
-			// Initialize re-publisher with private api.
-			if theRepublisher, err = newTestPublisher(createApiForPublisher, func(pub *testPublisher) error {
-				pub.streamSuffix = streamSuffix
-				pub.iceReadyCancel = republishReadyCancel
-				resources = append(resources, pub)
-
-				return pub.Setup(*srsVnetClientIP)
-			}); err != nil {
-				return err
-			}
-
-			// Init done.
-			mainReadyCancel()
-
-			<-ctx.Done()
-			return nil
-		}
-
-		if err := doInit(); err != nil {
-			r1 = err
-		}
-	}()
-
-	// Run publisher.
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		defer cancel()
-
-		select {
-		case <-ctx.Done():
-		case <-mainReady.Done():
-			pubCtx, pubCancel := context.WithCancel(ctx)
-			r2 = thePublisher.Run(logger.WithContext(pubCtx), pubCancel)
-			logger.Tf(ctx, "pub done, re-publish again")
-
-			// Dispose the stream.
-			_ = thePublisher.Close()
-
-			r4 = theRepublisher.Run(logger.WithContext(ctx), cancel)
-			logger.Tf(ctx, "re-pub done")
-		}
-	}()
-
-	// Run player.
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		defer cancel()
-
-		select {
-		case <-ctx.Done():
-		case <-publishReady.Done():
-			r3 = thePlayer.Run(logger.WithContext(ctx), cancel)
-			logger.Tf(ctx, "play done")
-		}
-	}()
-}
-
 // The srs-server is DTLS server(passive), srs-bench is DTLS client which is active mode.
 //     No.1  srs-bench: ClientHello
 //     No.2 srs-server: ServerHello, Certificate, ServerKeyExchange, CertificateRequest, ServerHelloDone
@@ -419,7 +647,7 @@ func TestRtcBasic_Republish(t *testing.T) {
 func TestRtcDTLS_ClientActive_Default(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -474,7 +702,7 @@ func TestRtcDTLS_ClientActive_Default(t *testing.T) {
 func TestRtcDTLS_ClientPassive_Default(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-active-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -526,7 +754,7 @@ func TestRtcDTLS_ClientPassive_Default(t *testing.T) {
 func TestRtcDTLS_ClientActive_Duplicated_Alert(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-active-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -585,7 +813,7 @@ func TestRtcDTLS_ClientActive_Duplicated_Alert(t *testing.T) {
 func TestRtcDTLS_ClientPassive_Duplicated_Alert(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-active-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -651,7 +879,7 @@ func TestRtcDTLS_ClientActive_ARQ_ClientHello_ByDropped_ClientHello(t *testing.T
 	var r0 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-active-arq-client-hello-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -729,7 +957,7 @@ func TestRtcDTLS_ClientPassive_ARQ_ClientHello_ByDropped_ClientHello(t *testing.
 	var r0 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-arq-client-hello-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -806,7 +1034,7 @@ func TestRtcDTLS_ClientActive_ARQ_ClientHello_ByDropped_ServerHello(t *testing.T
 	var r0, r1 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-active-arq-client-hello-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -894,7 +1122,7 @@ func TestRtcDTLS_ClientPassive_ARQ_ClientHello_ByDropped_ServerHello(t *testing.
 	var r0, r1 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-arq-client-hello-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -979,7 +1207,7 @@ func TestRtcDTLS_ClientActive_ARQ_Certificate_ByDropped_Certificate(t *testing.T
 	var r0 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-active-arq-certificate-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -1056,7 +1284,7 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_ByDropped_Certificate(t *testing.
 	var r0 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-arq-certificate-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1133,7 +1361,7 @@ func TestRtcDTLS_ClientActive_ARQ_Certificate_ByDropped_ChangeCipherSpec(t *test
 	var r0, r1 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-active-arq-certificate-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupActive
 			return nil
@@ -1219,7 +1447,7 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_ByDropped_ChangeCipherSpec(t *tes
 	var r0, r1 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-arq-certificate-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1296,7 +1524,7 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_ByDropped_ChangeCipherSpec(t *tes
 func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ClientHello(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1349,7 +1577,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ClientHello(t *testing.T) {
 func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ServerHello(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1402,7 +1630,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ServerHello(t *testing.T) {
 func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_Certificate(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1455,7 +1683,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_Certificate(t *testing.T) {
 func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ChangeCipherSpec(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1509,7 +1737,7 @@ func TestRtcDTLS_ClientPassive_ARQ_DropAllAfter_ChangeCipherSpec(t *testing.T) {
 func TestRtcDTLS_ClientPassive_ARQ_VeryBadNetwork(t *testing.T) {
 	if err := filterTestError(func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1587,7 +1815,7 @@ func TestRtcDTLS_ClientPassive_ARQ_Certificate_After_ClientHello(t *testing.T) {
 	var r0 error
 	err := func() error {
 		streamSuffix := fmt.Sprintf("dtls-passive-no-arq-%v-%v", os.Getpid(), rand.Int())
-		p, err := newTestPublisher(createApiForPublisher, func(p *testPublisher) error {
+		p, err := newTestPublisher(registerDefaultCodecs, func(p *testPublisher) error {
 			p.streamSuffix = streamSuffix
 			p.onOffer = testUtilSetupPassive
 			return nil
@@ -1709,4 +1937,163 @@ func TestRTCServerVersion(t *testing.T) {
 		t.Errorf("Invalid version %v", obj.Data)
 		return
 	}
+}
+
+func TestRtcPublishFlvPlay(t *testing.T) {
+	ctx := logger.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(*srsTimeout)*time.Millisecond)
+
+	var r0, r1, r2, r3 error
+	defer func(ctx context.Context) {
+		if err := filterTestError(ctx.Err(), r0, r1, r2, r3); err != nil {
+			t.Errorf("Fail for err %+v", err)
+		} else {
+			logger.Tf(ctx, "test done with err %+v", err)
+		}
+	}(ctx)
+
+	var resources []io.Closer
+	defer func() {
+		for _, resource := range resources {
+			_ = resource.Close()
+		}
+	}()
+
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	// The event notify.
+	var thePublisher *testPublisher
+
+	mainReady, mainReadyCancel := context.WithCancel(context.Background())
+	publishReady, publishReadyCancel := context.WithCancel(context.Background())
+
+	streamSuffix := fmt.Sprintf("basic-publish-flvplay-%v-%v", os.Getpid(), rand.Int())
+	// Objects init.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		doInit := func() (err error) {
+			// Initialize publisher with private api.
+			if thePublisher, err = newTestPublisher(registerDefaultCodecs, func(pub *testPublisher) error {
+				pub.streamSuffix = streamSuffix
+				pub.iceReadyCancel = publishReadyCancel
+				resources = append(resources, pub)
+
+				return pub.Setup(*srsVnetClientIP)
+			}); err != nil {
+				return err
+			}
+
+			// Init done.
+			mainReadyCancel()
+
+			<-ctx.Done()
+			return nil
+		}
+
+		if err := doInit(); err != nil {
+			r1 = err
+		}
+	}()
+
+	// Run publisher.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		select {
+		case <-ctx.Done():
+		case <-mainReady.Done():
+			r2 = thePublisher.Run(logger.WithContext(ctx), cancel)
+			logger.Tf(ctx, "pub done")
+		}
+	}()
+
+	// Run player.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer cancel()
+
+		select {
+		case <-ctx.Done():
+		case <-publishReady.Done():
+			var url string = "http://127.0.0.1:8080" + *srsStream + "-" + streamSuffix + ".flv"
+			logger.Tf(ctx, "Run play flv url=%v", url)
+
+			req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+			if err != nil {
+				logger.Tf(ctx, "New request for flv %v failed, err=%v", url, err)
+				return
+			}
+
+			client := http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				logger.Tf(ctx, "Http get flv %v failed, err=%v", url, err)
+				return
+			}
+
+			var f flv.Demuxer
+			if f, err = flv.NewDemuxer(resp.Body); err != nil {
+				logger.Tf(ctx, "Create flv demuxer for %v failed, err=%v", url, err)
+				return
+			}
+			defer f.Close()
+
+			var version uint8
+			var hasVideo, hasAudio bool
+			if version, hasVideo, hasAudio, err = f.ReadHeader(); err != nil {
+				logger.Tf(ctx, "Flv demuxer read header failed, err=%v", err)
+				return
+			}
+
+			// Optional, user can check the header.
+			_ = version
+			_ = hasAudio
+			_ = hasVideo
+
+			var nnVideo, nnAudio int
+			var prevVideoTimestamp, prevAudioTimestamp int64
+
+			for {
+				var tagType flv.TagType
+				var tagSize, timestamp uint32
+				if tagType, tagSize, timestamp, err = f.ReadTagHeader(); err != nil {
+					logger.Tf(ctx, "Flv demuxer read tag header failed, err=%v", err)
+					return
+				}
+
+				var tag []byte
+				if tag, err = f.ReadTag(tagSize); err != nil {
+					logger.Tf(ctx, "Flv demuxer read tag failed, err=%v", err)
+					return
+				}
+
+				if tagType == flv.TagTypeAudio {
+					nnAudio++
+					prevAudioTimestamp = (int64)(timestamp)
+				} else if tagType == flv.TagTypeVideo {
+					nnVideo++
+					prevVideoTimestamp = (int64)(timestamp)
+				}
+
+				if nnAudio >= 10 && nnVideo >= 10 {
+					avDiff := prevVideoTimestamp - prevAudioTimestamp
+					// Check timestamp gap between video and audio, make sure audio timestamp align to video timestamp.
+					if avDiff <= 50 && avDiff >= -50 {
+						logger.Tf(ctx, "Flv recv %v audio, %v video, timestamp gap=%v", nnAudio, nnVideo, avDiff)
+						cancel()
+						break
+					}
+				}
+
+				_ = tag
+			}
+		}
+	}()
 }

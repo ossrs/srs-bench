@@ -108,7 +108,24 @@ int StHlsTask::ProcessM3u8(StHttpClient& client){
     }
     
     if (!variant.empty()) {
-        if ((ret = url.Initialize(variant)) != ERROR_SUCCESS) {
+        string variant_url = variant;
+
+        // Resolve relative path.
+        if (variant.find("http://") != 0 && variant.find("https://") != 0) {
+            stringstream ss;
+            ss << string(url.GetSchema()) << "://" << string(url.GetHost()) << ":" << url.GetPort();
+            if (variant.find("/") != 0) {
+                string path = url.GetPath();
+                if (path.rfind("/") != string::npos) {
+                    ss << path.substr(0, path.rfind("/"));
+                }
+                ss << "/";
+            }
+            ss << variant;
+            variant_url = ss.str();
+        }
+
+        if ((ret = url.Initialize(variant_url)) != ERROR_SUCCESS) {
             Error("parse variant=%s failed, ret=%d", variant.c_str(), ret);
             return ret;
         }

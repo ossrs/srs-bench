@@ -37,7 +37,7 @@ using namespace std;
 #include <htl_main_utility.hpp>
 
 #define DefaultDelaySeconds -1
-#define DefaultHttpUrl "http://127.0.0.1:3080/hls/hls.m3u8"
+#define DefaultHttpUrl "http://127.0.0.1:8080/live/livestream.m3u8"
 #define DefaultVod false
 
 int discovery_options(int argc, char** argv, 

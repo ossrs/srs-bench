@@ -20,7 +20,7 @@ cd srs-bench && ./configure && make &&
 Or directly by docker:
 
 ```bash
-docker run --rm -it --net=host --name sb ossrs/srs:sb \
+docker run --rm -it --network=host --name sb ossrs/srs:sb \
     ./objs/sb_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
 ```
 

@@ -13,5 +13,5 @@ COPY --from=build /usr/local/bin /usr/local/bin
 COPY --from=build /usr/local/srs-bench /usr/local/srs-bench
 
 WORKDIR /usr/local/srs-bench
-CMD ["ls", "-lh", "objs"]
+CMD ["bash", "-c", "ls -lh objs"]
 

@@ -3,11 +3,26 @@
 ![](http://ossrs.net:8000/gif/v1/sls.gif?site=github.com&path=/srs/bench)
 [![](https://cloud.githubusercontent.com/assets/2777660/22814959/c51cbe72-ef92-11e6-81cc-32b657b285d5.png)](https://github.com/ossrs/srs/wiki/v1_CN_Contact#wechat)
 
-Recommend to use mirror at: https://gitee.com/winlinvip/srs-bench
-
 For WebRTC benchmark and test, please use branch [feature/rtc](https://github.com/ossrs/srs-bench/tree/feature/rtc).
 
 hls/http/rtmp-play/rtmp-publish load test tool base on st(state-threads), support huge concurrency<br/>
+
+## Usage
+
+Build from source:
+
+```
+git clone https://github.com/ossrs/srs-bench.git &&
+cd srs-bench && ./configure && make &&
+./objs/sb_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
+```
+
+Or directly by docker:
+
+```bash
+docker run --rm -it --net=host ossrs/srs:sb \
+    ./objs/sb_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
+```
 
 ## About
 
@@ -25,14 +40,6 @@ hls/http/rtmp-play/rtmp-publish load test tool base on st(state-threads), suppor
 1. HTTP/HLS：依赖服务器Content-Length，不支持chunked方式(chunked时会把所有内容当做body一直读)。
 2. 所有程序都在Linux下运行，模拟客户端运行。
 3. 其他工具参考[srs-librtmp](https://github.com/ossrs/srs/wiki/v2_CN_SrsLibrtmp#srs-librtmp-examples)
-
-## Usage
-
-```
-git clone https://github.com/ossrs/srs-bench.git &&
-cd srs-bench && ./configure && make &&
-./objs/sb_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
-```
 
 ## Benchmarks
 

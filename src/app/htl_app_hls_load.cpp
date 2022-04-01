@@ -199,7 +199,8 @@ int StHlsTask::DownloadTS(StHttpClient& client, M3u8TS& ts){
     
     Info("[TS] url=%s, duration=%.2f, delay=%.2f", url.GetUrl(), ts.duration, delay_seconds);
     statistic->OnSubTaskStart(GetId(), ts.ts_url);
-    
+
+    int64_t starttime = StUtility::GetCurrentTime();
     if((ret = client.DownloadString(&url, NULL)) != ERROR_SUCCESS){
         statistic->OnSubTaskError(GetId(), (int)ts.duration);
             
@@ -208,8 +209,9 @@ int StHlsTask::DownloadTS(StHttpClient& client, M3u8TS& ts){
     }
     
     int sleep_ms = StUtility::BuildRandomMTime((delay_seconds >= 0)? delay_seconds:ts.duration);
-    Trace("[TS] url=%s download, duration=%.2f, delay=%.2f, size=%"PRId64", sleep %dms", 
-        url.GetUrl(), ts.duration, delay_seconds, client.GetResponseHeader()->content_length, sleep_ms);
+    Trace("[TS] url=%s download, cost=%dms, duration=%.2f, delay=%.2f, size=%"PRId64", sleep %dms",
+        url.GetUrl(), (int)(StUtility::GetCurrentTime() - starttime), ts.duration, delay_seconds,
+        client.GetResponseHeader()->content_length, sleep_ms);
     st_usleep(sleep_ms * 1000);
     
     statistic->OnSubTaskEnd(GetId(), (int)ts.duration);

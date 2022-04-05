@@ -24,6 +24,13 @@ docker run --rm -it --network=host --name sb ossrs/srs:sb \
     ./objs/sb_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
 ```
 
+Or from Aliyun mirror:
+
+```bash
+docker run --rm -it --network=host --name sb \
+    registry.cn-hangzhou.aliyuncs.com/ossrs/srs:sb \
+    ./objs/sb_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
+
 > Note: Please use `docker kill sb` to stop it.
 
 ## About

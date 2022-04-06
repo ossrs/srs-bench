@@ -9,7 +9,7 @@ hls/http/rtmp-play/rtmp-publish load test tool base on st(state-threads), suppor
 
 ## Usage
 
-Build from source:
+Build from source, then run RTMP benchmark:
 
 ```
 git clone https://github.com/ossrs/srs-bench.git &&
@@ -22,6 +22,20 @@ Or directly by docker:
 ```bash
 docker run --rm -it --network=host --name sb ossrs/srs:sb \
     ./objs/sb_rtmp_load -c 1 -r rtmp://127.0.0.1:1935/live/livestream
+```
+
+For HTTP-FLV benchmark:
+
+```bash
+docker run --rm -it --network=host --name sb ossrs/srs:sb \
+    ./objs/sb_http_load -c 1 -r http://127.0.0.1:8080/live/livestream.flv
+```
+
+For HLS benchmark:
+
+```bash
+docker run --rm -it --network=host --name sb ossrs/srs:sb \
+    ./objs/sb_hls_load -c 1 -r http://127.0.0.1:8080/live/livestream.m3u8
 ```
 
 Or from Aliyun mirror:

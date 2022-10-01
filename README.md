@@ -189,7 +189,7 @@ pip install lxml && pip install gcovr
 支持Janus的压测，使用选项`-sfu janus`可以查看帮助：
 
 ```bash
-./objs/srs_bench -sfu janus --help
+make && ./objs/srs_bench -sfu janus --help
 ```
 
 首先需要启动Janus，推荐使用[janus-docker](https://github.com/winlinvip/janus-docker#usage):
@@ -219,6 +219,14 @@ make -j10 && ./objs/srs_bench -sfu janus \
 make -j10 && ./objs/srs_bench -sfu janus \
   -sr webrtc://localhost:8080/2345/livestream \
   -nn 5
+```
+
+## GB28181
+
+支持GB28181的压测，使用选项`-sfu gb28181`可以查看帮助：
+
+```bash
+make && ./objs/srs_bench -sfu gb28181 --help
 ```
 
 2021.01, Winlin

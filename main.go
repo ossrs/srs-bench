@@ -42,10 +42,11 @@ func main() {
 	_ = fl.Parse(os.Args[1:])
 
 	ctx := context.Background()
+	var conf interface{}
 	if sfu == "srs" {
 		srs.Parse(ctx)
 	} else if sfu == "gb28181" {
-		gb28181.Parse(ctx)
+		conf = gb28181.Parse(ctx)
 	} else if sfu == "janus" {
 		janus.Parse(ctx)
 	} else {
@@ -69,7 +70,7 @@ func main() {
 	if sfu == "srs" {
 		err = srs.Run(ctx)
 	} else if sfu == "gb28181" {
-		err = gb28181.Run(ctx)
+		err = gb28181.Run(ctx, conf)
 	} else if sfu == "janus" {
 		err = janus.Run(ctx)
 	}

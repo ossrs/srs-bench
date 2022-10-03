@@ -46,14 +46,19 @@ type SIPConfig struct {
 	random int
 	// The SIP server ID, for example: srs or 34020000002000000001
 	server string
+	// The cached device id.
+	deviceID string
 }
 
 func (v *SIPConfig) DeviceID() string {
-	var rid string
-	for len(rid) < v.random {
-		rid += fmt.Sprintf("%v", rand.Uint64())
+	if v.deviceID == "" {
+		var rid string
+		for len(rid) < v.random {
+			rid += fmt.Sprintf("%v", rand.Uint64())
+		}
+		v.deviceID = fmt.Sprintf("%v%v", v.user, rid[:v.random])
 	}
-	return fmt.Sprintf("%v%v", v.user, rid[:v.random])
+	return v.deviceID
 }
 
 func (v *SIPConfig) String() string {
@@ -86,12 +91,14 @@ type SIPSession struct {
 	ctx       context.Context
 	cancel    context.CancelFunc
 	client    *SIPClient
+	seq uint
 }
 
 func NewSIPSession(c *SIPConfig) *SIPSession {
 	return &SIPSession{
 		conf: c, client: NewSIPClient(), rb: sip.NewRequestBuilder(),
 		requests: make(chan sip.Request, 1024), responses: make(chan sip.Response, 1024),
+		seq: 100,
 	}
 }
 
@@ -105,6 +112,10 @@ func (v *SIPSession) Close() error {
 }
 
 func (v *SIPSession) Connect(ctx context.Context) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	ctx, cancel := context.WithCancel(ctx)
 	v.ctx, v.cancel = ctx, cancel
 
@@ -145,6 +156,10 @@ func (v *SIPSession) Connect(ctx context.Context) error {
 }
 
 func (v *SIPSession) Register(ctx context.Context) (sip.Message, sip.Message, error) {
+	if ctx.Err() != nil {
+		return nil, nil, ctx.Err()
+	}
+
 	sipPort := sip.Port(5060)
 	sipCallID := sip.CallID(fmt.Sprintf("%v", rand.Uint64()))
 	sipBranch := fmt.Sprintf("z9hG4bK_%v", rand.Uint32())
@@ -152,6 +167,7 @@ func (v *SIPSession) Register(ctx context.Context) (sip.Message, sip.Message, er
 	sipMaxForwards := sip.MaxForwards(70)
 	sipExpires := sip.Expires(3600)
 	sipPIP := "192.168.3.99"
+	v.seq++
 
 	rb := v.rb
 	rb.SetTransport("TCP")
@@ -168,7 +184,7 @@ func (v *SIPSession) Register(ctx context.Context) (sip.Message, sip.Message, er
 		Uri: &sip.SipUri{FUser: sip.String{v.conf.DeviceID()}, FHost: v.conf.domain},
 	})
 	rb.SetCallID(&sipCallID)
-	rb.SetSeqNo(1)
+	rb.SetSeqNo(v.seq)
 	rb.SetRecipient(&sip.SipUri{FUser: sip.String{v.conf.server}, FHost: v.conf.domain})
 	rb.SetContact(&sip.Address{
 		Uri: &sip.SipUri{FUser: sip.String{v.conf.DeviceID()}, FHost: sipPIP, FPort: &sipPort},
@@ -201,6 +217,10 @@ func (v *SIPSession) Register(ctx context.Context) (sip.Message, sip.Message, er
 }
 
 func (v *SIPSession) Trying(ctx context.Context, invite sip.Message) error {
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+
 	req, ok := invite.(sip.Request)
 	if !ok {
 		return errors.Errorf("Invalid SIP request invite %v", invite.String())
@@ -215,6 +235,10 @@ func (v *SIPSession) Trying(ctx context.Context, invite sip.Message) error {
 }
 
 func (v *SIPSession) InviteResponse(ctx context.Context, invite sip.Message) (sip.Message, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	req, ok := invite.(sip.Request)
 	if !ok {
 		return nil, errors.Errorf("Invalid SIP request invite %v", invite.String())
@@ -246,7 +270,84 @@ func (v *SIPSession) InviteResponse(ctx context.Context, invite sip.Message) (si
 	}
 }
 
+func (v *SIPSession) Message(ctx context.Context) (sip.Message, sip.Message, error) {
+	if ctx.Err() != nil {
+		return nil, nil, ctx.Err()
+	}
+
+	sipPort := sip.Port(5060)
+	sipCallID := sip.CallID(fmt.Sprintf("%v", rand.Uint64()))
+	sipBranch := fmt.Sprintf("z9hG4bK_%v", rand.Uint32())
+	sipTag := fmt.Sprintf("%v", rand.Uint32())
+	sipMaxForwards := sip.MaxForwards(70)
+	sipExpires := sip.Expires(3600)
+	sipPIP := "192.168.3.99"
+	v.seq++
+
+	rb := v.rb
+	rb.SetTransport("TCP")
+	rb.SetMethod(sip.MESSAGE)
+	rb.AddVia(&sip.ViaHop{
+		ProtocolName: "SIP", ProtocolVersion: "2.0", Transport: "TCP", Host: sipPIP, Port: &sipPort,
+		Params: sip.NewParams().Add("branch", sip.String{Str: sipBranch}),
+	})
+	rb.SetFrom(&sip.Address{
+		Uri:    &sip.SipUri{FUser: sip.String{v.conf.DeviceID()}, FHost: v.conf.domain},
+		Params: sip.NewParams().Add("tag", sip.String{Str: sipTag}),
+	})
+	rb.SetTo(&sip.Address{
+		Uri: &sip.SipUri{FUser: sip.String{v.conf.DeviceID()}, FHost: v.conf.domain},
+	})
+	rb.SetCallID(&sipCallID)
+	rb.SetSeqNo(v.seq)
+	rb.SetRecipient(&sip.SipUri{FUser: sip.String{v.conf.server}, FHost: v.conf.domain})
+	rb.SetContact(&sip.Address{
+		Uri: &sip.SipUri{FUser: sip.String{v.conf.DeviceID()}, FHost: sipPIP, FPort: &sipPort},
+	})
+	rb.SetMaxForwards(&sipMaxForwards)
+	rb.SetExpires(&sipExpires)
+
+	v.seq++
+	rb.SetBody(strings.Join([]string{
+		`<?xml version="1.0" encoding="GB2312"?>`,
+		"<Notify>",
+		"<CmdType>Keepalive</CmdType>",
+		fmt.Sprintf("<SN>%v</SN>", v.seq),
+		fmt.Sprintf("<DeviceID>%v</DeviceID>", v.conf.DeviceID()),
+		"<Status>OK</Status>",
+		"</Notify>\n",
+	}, "\n"))
+
+	req, err := rb.Build()
+	if err != nil {
+		return req, nil, errors.Wrap(err, "build request")
+	}
+
+	if err = v.client.Send(req); err != nil {
+		return req, nil, errors.Wrapf(err, "send request %v", req.String())
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, nil, ctx.Err()
+		case <-v.ctx.Done():
+			return nil, nil, v.ctx.Err()
+		case msg := <-v.responses:
+			if r0, ok := msg.CallID(); ok && r0.Equals(sipCallID) {
+				return req, msg, nil
+			} else {
+				logger.Wf(v.ctx, "Not callID=%v, drop message %v", sipCallID.String(), msg.String())
+			}
+		}
+	}
+}
+
 func (v *SIPSession) Wait(ctx context.Context, method sip.RequestMethod) (sip.Message, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
 	for {
 		select {
 		case <-ctx.Done():

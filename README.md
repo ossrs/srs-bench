@@ -151,8 +151,8 @@ make && ./objs/srs_test -test.v -srs-log -test.run TestRtcBasic_PublishPlay
 支持的参数如下：
 
 * `-srs-server`，RTC服务器地址。默认值：`127.0.0.1`
-* `-srs-stream`，RTC流地址。默认值：`/rtc/regression`
-* `-srs-timeout`，每个Case的超时时间，毫秒。默认值：`3000`，即3秒。
+* `-srs-stream`，RTC流地址，一般会加上随机的后缀。默认值：`/rtc/regression`
+* `-srs-timeout`，每个Case的超时时间，毫秒。默认值：`5000`，即5秒。
 * `-srs-publish-audio`，推流时，使用的音频文件。默认值：`avatar.ogg`
 * `-srs-publish-video`，推流时，使用的视频文件。默认值：`avatar.h264`
 * `-srs-publish-video-fps`，推流时，视频文件的FPS。默认值：`25`
@@ -228,5 +228,24 @@ make -j10 && ./objs/srs_bench -sfu janus \
 ```bash
 make && ./objs/srs_bench -sfu gb28181 --help
 ```
+
+运行回归测试用例，更多命令请参考[Regression Test](#regression-test)：
+
+```bash
+go test ./gb28181 -mod=vendor -v
+```
+
+支持的参数如下：
+
+* `-srs-sip`，SIP服务器地址。默认值：`tcp://127.0.0.1:5060`
+* `-srs-stream`，GB的user，即流名称，一般会加上随机的后缀。默认值：`3402000000`
+* `-srs-timeout`，每个Case的超时时间，毫秒。默认值：`5000`，即5秒。
+* `-srs-publish-audio`，推流时，使用的音频文件。默认值：`avatar.aac`
+* `-srs-publish-video`，推流时，使用的视频文件。默认值：`avatar.h264`
+* `-srs-publish-video-fps`，推流时，视频文件的FPS。默认值：`25`
+
+其他不常用参数：
+
+* `-srs-log`，是否开启详细日志。默认值：`false`
 
 2021.01, Winlin

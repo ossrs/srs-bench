@@ -112,7 +112,7 @@ fi
 然后运行回归测试用例，如果只跑一次，可以直接运行：
 
 ```bash
-go test ./srs -mod=vendor -v
+go test ./srs -mod=vendor -v -count=1
 ```
 
 也可以用make编译出重复使用的二进制：
@@ -137,7 +137,7 @@ PASS
 可以给回归测试传参数，这样可以测试不同的序列，比如：
 
 ```bash
-go test ./srs -mod=vendor -v -srs-server=127.0.0.1
+go test ./srs -mod=vendor -v -count=1 -srs-server=127.0.0.1
 # Or
 make && ./objs/srs_test -test.v -srs-server=127.0.0.1
 ```
@@ -232,14 +232,14 @@ make && ./objs/srs_bench -sfu gb28181 --help
 运行回归测试用例，更多命令请参考[Regression Test](#regression-test)：
 
 ```bash
-go test ./gb28181 -mod=vendor -v
+go test ./gb28181 -mod=vendor -v -count=1
 ```
 
 支持的参数如下：
 
 * `-srs-sip`，SIP服务器地址。默认值：`tcp://127.0.0.1:5060`
 * `-srs-stream`，GB的user，即流名称，一般会加上随机的后缀。默认值：`3402000000`
-* `-srs-timeout`，每个Case的超时时间，毫秒。默认值：`5000`，即5秒。
+* `-srs-timeout`，每个Case的超时时间，毫秒。默认值：`11000`，即11秒。
 * `-srs-publish-audio`，推流时，使用的音频文件。默认值：`avatar.aac`
 * `-srs-publish-video`，推流时，使用的视频文件。默认值：`avatar.h264`
 * `-srs-publish-video-fps`，推流时，视频文件的FPS。默认值：`25`

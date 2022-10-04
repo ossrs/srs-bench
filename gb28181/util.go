@@ -25,6 +25,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/ghettovoice/gosip/sip"
 	"github.com/ossrs/go-oryx-lib/aac"
 	"github.com/ossrs/go-oryx-lib/errors"
 	"github.com/yapingcat/gomedia/mpeg2"
@@ -48,6 +49,8 @@ var srsSipRandomID *int
 var srsSipDomain *string
 var srsSipSvrID *string
 
+var srsMediaTimeout *int
+var srsReinviteTimeout *int
 var srsPublishAudio *string
 var srsPublishVideo *string
 
@@ -58,7 +61,9 @@ func prepareTest() (err error) {
 	srsSipDomain = flag.String("srs-domain", "3402000000", "The GB SIP domain")
 	srsSipSvrID = flag.String("srs-server", "34020000002000000001", "The GB server ID for SIP")
 	srsLog = flag.Bool("srs-log", false, "Whether enable the detail log")
-	srsTimeout = flag.Int("srs-timeout", 5000, "For each case, the timeout in ms")
+	srsTimeout = flag.Int("srs-timeout", 11000, "For each case, the timeout in ms")
+	srsMediaTimeout = flag.Int("srs-media-timeout", 2100, "PS media disconnect timeout in ms")
+	srsReinviteTimeout = flag.Int("srs-reinvite-timeout", 1200, "When disconnect, SIP re-invite timeout in ms")
 	srsPublishAudio = flag.String("srs-publish-audio", "avatar.aac", "The audio file for publisher.")
 	srsPublishVideo = flag.String("srs-publish-video", "avatar.h264", "The video file for publisher.")
 	srsPublishVideoFps = flag.Int("srs-publish-video-fps", 25, "The video fps for publisher.")
@@ -100,7 +105,7 @@ func prepareTest() (err error) {
 }
 
 type GBTestSession struct {
-	session  *GBSession
+	session *GBSession
 }
 
 func NewGBTestSession() *GBTestSession {
@@ -113,8 +118,8 @@ func NewGBTestSession() *GBTestSession {
 	}
 	return &GBTestSession{
 		session: NewGBSession(&GBSessionConfig{
-			regTimeout:    3 * time.Minute,
-			inviteTimeout: 3 * time.Minute,
+			regTimeout:    time.Duration(*srsTimeout) * 5 * time.Minute,
+			inviteTimeout: time.Duration(*srsTimeout) * 5 * time.Minute,
 		}, &sipConfig),
 	}
 }
@@ -158,8 +163,8 @@ func NewGBTestPublisher() *GBTestPublisher {
 	}
 	return &GBTestPublisher{
 		session: NewGBSession(&GBSessionConfig{
-			regTimeout:    3 * time.Minute,
-			inviteTimeout: 3 * time.Minute,
+			regTimeout:    time.Duration(*srsTimeout) * 5 * time.Minute,
+			inviteTimeout: time.Duration(*srsTimeout) * 5 * time.Minute,
 		}, &sipConfig),
 		ingester: NewPSIngester(&IngesterConfig{
 			psConfig: psConfig,
@@ -186,7 +191,7 @@ func (v *GBTestPublisher) Run(ctx context.Context) (err error) {
 
 	serverAddr, err := utilBuildMediaAddr(v.session.sip.conf.addr, v.session.out.mediaPort)
 	if err != nil {
-		return errors.Wrap(err, "parse");
+		return errors.Wrap(err, "parse")
 	}
 	v.ingester.conf.serverAddr = serverAddr
 
@@ -252,6 +257,14 @@ func (v *wallClock) Tick(d time.Duration) time.Duration {
 		return re
 	}
 	return 0
+}
+
+func sipGetCallID(m sip.Message) string {
+	if v, ok := m.CallID(); !ok {
+		return ""
+	} else {
+		return v.Value()
+	}
 }
 
 func utilBuildMediaAddr(addr string, mediaPort int64) (string, error) {

@@ -50,13 +50,28 @@ type SIPConfig struct {
 	deviceID string
 }
 
+// The global cache to avoid conflict of deviceID.
+// Note that it's not coroutine safe, but it should be OK for utest.
+var deviceIDCache map[string]bool
+
+func init() {
+	deviceIDCache = make(map[string]bool)
+}
+
 func (v *SIPConfig) DeviceID() string {
-	if v.deviceID == "" {
+	for v.deviceID == "" {
+		// Generate a random ID.
 		var rid string
 		for len(rid) < v.random {
 			rid += fmt.Sprintf("%v", rand.Uint64())
 		}
-		v.deviceID = fmt.Sprintf("%v%v", v.user, rid[:v.random])
+		deviceID := fmt.Sprintf("%v%v", v.user, rid[:v.random])
+
+		// Ignore if exists.
+		if _, ok := deviceIDCache[deviceID]; !ok {
+			v.deviceID = deviceID
+			deviceIDCache[deviceID] = true
+		}
 	}
 	return v.deviceID
 }
@@ -91,7 +106,7 @@ type SIPSession struct {
 	ctx       context.Context
 	cancel    context.CancelFunc
 	client    *SIPClient
-	seq uint
+	seq       uint
 }
 
 func NewSIPSession(c *SIPConfig) *SIPSession {
@@ -156,6 +171,14 @@ func (v *SIPSession) Connect(ctx context.Context) error {
 }
 
 func (v *SIPSession) Register(ctx context.Context) (sip.Message, sip.Message, error) {
+	return v.doRegister(ctx, 3600)
+}
+
+func (v *SIPSession) UnRegister(ctx context.Context) (sip.Message, sip.Message, error) {
+	return v.doRegister(ctx, 0)
+}
+
+func (v *SIPSession) doRegister(ctx context.Context, expires int) (sip.Message, sip.Message, error) {
 	if ctx.Err() != nil {
 		return nil, nil, ctx.Err()
 	}
@@ -165,7 +188,7 @@ func (v *SIPSession) Register(ctx context.Context) (sip.Message, sip.Message, er
 	sipBranch := fmt.Sprintf("z9hG4bK_%v", rand.Uint32())
 	sipTag := fmt.Sprintf("%v", rand.Uint32())
 	sipMaxForwards := sip.MaxForwards(70)
-	sipExpires := sip.Expires(3600)
+	sipExpires := sip.Expires(uint32(expires))
 	sipPIP := "192.168.3.99"
 	v.seq++
 
@@ -200,6 +223,12 @@ func (v *SIPSession) Register(ctx context.Context) (sip.Message, sip.Message, er
 		return req, nil, errors.Wrapf(err, "send request %v", req.String())
 	}
 
+	callID := sipGetCallID(req)
+	if callID == "" {
+		return req, nil, errors.Errorf("Invalid SIP Call-ID register %v", req.String())
+	}
+	logger.Tf(ctx, "Send REGISTER request, Call-ID=%v, Expires=%v", callID, expires)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -207,10 +236,10 @@ func (v *SIPSession) Register(ctx context.Context) (sip.Message, sip.Message, er
 		case <-v.ctx.Done():
 			return nil, nil, v.ctx.Err()
 		case msg := <-v.responses:
-			if r0, ok := msg.CallID(); ok && r0.Equals(sipCallID) {
+			if tv := sipGetCallID(msg); tv == callID {
 				return req, msg, nil
 			} else {
-				logger.Wf(v.ctx, "Not callID=%v, drop message %v", sipCallID.String(), msg.String())
+				logger.Wf(v.ctx, "Not callID=%v, msg=%v, drop message %v", callID, tv, msg.String())
 			}
 		}
 	}
@@ -244,8 +273,8 @@ func (v *SIPSession) InviteResponse(ctx context.Context, invite sip.Message) (si
 		return nil, errors.Errorf("Invalid SIP request invite %v", invite.String())
 	}
 
-	sipCallID, ok := invite.CallID()
-	if !ok {
+	callID := sipGetCallID(invite)
+	if callID == "" {
 		return nil, errors.Errorf("Invalid SIP Call-ID invite %v", invite.String())
 	}
 
@@ -253,6 +282,7 @@ func (v *SIPSession) InviteResponse(ctx context.Context, invite sip.Message) (si
 	if err := v.client.Send(res); err != nil {
 		return nil, errors.Wrapf(err, "send response %v", res.String())
 	}
+	logger.Tf(ctx, "Send INVITE response, Call-ID=%v", callID)
 
 	for {
 		select {
@@ -261,10 +291,16 @@ func (v *SIPSession) InviteResponse(ctx context.Context, invite sip.Message) (si
 		case <-v.ctx.Done():
 			return nil, v.ctx.Err()
 		case msg := <-v.requests:
-			if r0, ok := msg.CallID(); ok && r0.Equals(sipCallID) {
+			// Must be an ACK message.
+			if !msg.IsAck() {
+				return msg, errors.Errorf("invalid ACK message %v", msg.String())
+			}
+
+			// Check CALL-ID of ACK, should be equal to 200 OK.
+			if tv := sipGetCallID(msg); tv == callID {
 				return msg, nil
 			} else {
-				logger.Wf(v.ctx, "Not callID=%v, drop message %v", sipCallID.String(), msg.String())
+				logger.Wf(v.ctx, "Not callID=%v, msg=%v, drop message %v", callID, tv, msg.String())
 			}
 		}
 	}
@@ -296,7 +332,7 @@ func (v *SIPSession) Message(ctx context.Context) (sip.Message, sip.Message, err
 		Params: sip.NewParams().Add("tag", sip.String{Str: sipTag}),
 	})
 	rb.SetTo(&sip.Address{
-		Uri: &sip.SipUri{FUser: sip.String{v.conf.DeviceID()}, FHost: v.conf.domain},
+		Uri: &sip.SipUri{FUser: sip.String{v.conf.server}, FHost: v.conf.domain},
 	})
 	rb.SetCallID(&sipCallID)
 	rb.SetSeqNo(v.seq)
@@ -327,6 +363,12 @@ func (v *SIPSession) Message(ctx context.Context) (sip.Message, sip.Message, err
 		return req, nil, errors.Wrapf(err, "send request %v", req.String())
 	}
 
+	callID := sipGetCallID(req)
+	if callID == "" {
+		return req, nil, errors.Errorf("Invalid SIP Call-ID message %v", req.String())
+	}
+	logger.Tf(ctx, "Send MESSAGE request, Call-ID=%v", callID)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -334,10 +376,78 @@ func (v *SIPSession) Message(ctx context.Context) (sip.Message, sip.Message, err
 		case <-v.ctx.Done():
 			return nil, nil, v.ctx.Err()
 		case msg := <-v.responses:
-			if r0, ok := msg.CallID(); ok && r0.Equals(sipCallID) {
+			if tv := sipGetCallID(msg); tv == callID {
 				return req, msg, nil
 			} else {
-				logger.Wf(v.ctx, "Not callID=%v, drop message %v", sipCallID.String(), msg.String())
+				logger.Wf(v.ctx, "Not callID=%v, msg=%v, drop message %v", callID, tv, msg.String())
+			}
+		}
+	}
+}
+
+func (v *SIPSession) Bye(ctx context.Context) (sip.Message, sip.Message, error) {
+	if ctx.Err() != nil {
+		return nil, nil, ctx.Err()
+	}
+
+	sipPort := sip.Port(5060)
+	sipCallID := sip.CallID(fmt.Sprintf("%v", rand.Uint64()))
+	sipBranch := fmt.Sprintf("z9hG4bK_%v", rand.Uint32())
+	sipTag := fmt.Sprintf("%v", rand.Uint32())
+	sipMaxForwards := sip.MaxForwards(70)
+	sipExpires := sip.Expires(3600)
+	sipPIP := "192.168.3.99"
+	v.seq++
+
+	rb := v.rb
+	rb.SetTransport("TCP")
+	rb.SetMethod(sip.BYE)
+	rb.AddVia(&sip.ViaHop{
+		ProtocolName: "SIP", ProtocolVersion: "2.0", Transport: "TCP", Host: sipPIP, Port: &sipPort,
+		Params: sip.NewParams().Add("branch", sip.String{Str: sipBranch}),
+	})
+	rb.SetFrom(&sip.Address{
+		Uri:    &sip.SipUri{FUser: sip.String{v.conf.DeviceID()}, FHost: v.conf.domain},
+		Params: sip.NewParams().Add("tag", sip.String{Str: sipTag}),
+	})
+	rb.SetTo(&sip.Address{
+		Uri: &sip.SipUri{FUser: sip.String{v.conf.server}, FHost: v.conf.domain},
+	})
+	rb.SetCallID(&sipCallID)
+	rb.SetSeqNo(v.seq)
+	rb.SetRecipient(&sip.SipUri{FUser: sip.String{v.conf.server}, FHost: v.conf.domain})
+	rb.SetContact(&sip.Address{
+		Uri: &sip.SipUri{FUser: sip.String{v.conf.DeviceID()}, FHost: sipPIP, FPort: &sipPort},
+	})
+	rb.SetMaxForwards(&sipMaxForwards)
+	rb.SetExpires(&sipExpires)
+
+	req, err := rb.Build()
+	if err != nil {
+		return req, nil, errors.Wrap(err, "build request")
+	}
+
+	if err = v.client.Send(req); err != nil {
+		return req, nil, errors.Wrapf(err, "send request %v", req.String())
+	}
+
+	callID := sipGetCallID(req)
+	if callID == "" {
+		return req, nil, errors.Errorf("Invalid SIP Call-ID bye %v", req.String())
+	}
+	logger.Tf(ctx, "Send BYE request, Call-ID=%v", callID)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, nil, ctx.Err()
+		case <-v.ctx.Done():
+			return nil, nil, v.ctx.Err()
+		case msg := <-v.responses:
+			if tv := sipGetCallID(msg); tv == callID {
+				return req, msg, nil
+			} else {
+				logger.Wf(v.ctx, "Not callID=%v, msg=%v, drop message %v", callID, tv, msg.String())
 			}
 		}
 	}
@@ -385,11 +495,13 @@ func (v *SIPClient) Close() error {
 	}
 
 	// Wait for protocol stack to cleanup.
-	select {
-	case <-time.After(v.cleanupTimeout):
-		logger.E(v.ctx, "Wait for protocol cleanup timeout")
-	case <-v.protocol.Done():
-		logger.T(v.ctx, "SIP protocol stack done")
+	if v.protocol != nil {
+		select {
+		case <-time.After(v.cleanupTimeout):
+			logger.E(v.ctx, "Wait for protocol cleanup timeout")
+		case <-v.protocol.Done():
+			logger.T(v.ctx, "SIP protocol stack done")
+		}
 	}
 
 	return nil
@@ -444,5 +556,6 @@ func (v *SIPClient) Connect(ctx context.Context, addr string) error {
 }
 
 func (v *SIPClient) Send(msg sip.Message) error {
+	logger.Tf(v.ctx, "Send msg %v", msg.String())
 	return v.protocol.Send(v.target, msg)
 }

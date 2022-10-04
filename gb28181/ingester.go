@@ -57,20 +57,27 @@ type GBSession struct {
 	onRegisterDone func(req, res sip.Message) error
 	// Callback when got INVITE request.
 	onInviteRequest func(req sip.Message) error
+	// Callback when got INVITE 200 OK ACK request.
+	onInviteOkAck func(req, res sip.Message) error
 	// Callback when got MESSAGE response.
 	onMessageHeartbeat func(req, res sip.Message) error
-	// For heatbeat coroutines.
-	heartbeatCtx context.Context
-	cancel context.CancelFunc
+	// For heartbeat coroutines.
+	heartbeatInterval time.Duration
+	heartbeatCtx      context.Context
+	cancel            context.CancelFunc
 	// WaitGroup for coroutines.
 	wg sync.WaitGroup
 }
 
 func NewGBSession(c *GBSessionConfig, sc *SIPConfig) *GBSession {
 	return &GBSession{
-		sip: NewSIPSession(sc), conf: c, out: &GBSessionOutput{
-			clockRate: uint64(90000), payloadType: uint8(96),
+		sip:  NewSIPSession(sc),
+		conf: c,
+		out: &GBSessionOutput{
+			clockRate:   uint64(90000),
+			payloadType: uint8(96),
 		},
+		heartbeatInterval: 1 * time.Second,
 	}
 }
 
@@ -129,6 +136,7 @@ func (v *GBSession) Invite(ctx context.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "wait")
 		}
+		logger.Tf(ctx, "Got INVITE request, Call-ID=%v", sipGetCallID(inviteReq))
 
 		if v.onInviteRequest != nil {
 			if err = v.onInviteRequest(inviteReq); err != nil {
@@ -139,6 +147,7 @@ func (v *GBSession) Invite(ctx context.Context) error {
 		if err = client.Trying(ctx, inviteReq); err != nil {
 			return errors.Wrapf(err, "trying invite is %v", inviteReq.String())
 		}
+		time.Sleep(100 * time.Millisecond)
 
 		inviteRes, err := client.InviteResponse(ctx, inviteReq)
 		if err != nil {
@@ -157,6 +166,12 @@ func (v *GBSession) Invite(ctx context.Context) error {
 		logger.Tf(ctx, "Invite id=%v, response=%v, y=%v, ssrc=%v, mediaPort=%v",
 			inviteReq.MessageID(), inviteRes.MessageID(), ssrcStr, v.out.ssrc, v.out.mediaPort,
 		)
+
+		if v.onInviteOkAck != nil {
+			if err = v.onInviteOkAck(inviteReq, inviteRes); err != nil {
+				return errors.Wrap(err, "callback")
+			}
+		}
 
 		break
 	}
@@ -186,10 +201,48 @@ func (v *GBSession) Invite(ctx context.Context) error {
 			select {
 			case <-ctx.Done():
 				return
-			case <- time.After(1 * time.Second):
+			case <-time.After(v.heartbeatInterval):
 			}
 		}
 	}(v.heartbeatCtx)
+
+	return ctx.Err()
+}
+
+func (v *GBSession) Bye(ctx context.Context) error {
+	client := v.sip
+
+	for ctx.Err() == nil {
+		ctx, regCancel := context.WithTimeout(ctx, v.conf.regTimeout)
+		defer regCancel()
+
+		regReq, regRes, err := client.Bye(ctx)
+		if err != nil {
+			return errors.Wrap(err, "bye")
+		}
+		logger.Tf(ctx, "Bye id=%v, response=%v", regReq.MessageID(), regRes.MessageID())
+
+		break
+	}
+
+	return ctx.Err()
+}
+
+func (v *GBSession) UnRegister(ctx context.Context) error {
+	client := v.sip
+
+	for ctx.Err() == nil {
+		ctx, regCancel := context.WithTimeout(ctx, v.conf.regTimeout)
+		defer regCancel()
+
+		regReq, regRes, err := client.UnRegister(ctx)
+		if err != nil {
+			return errors.Wrap(err, "UnRegister")
+		}
+		logger.Tf(ctx, "UnRegister id=%v, response=%v", regReq.MessageID(), regRes.MessageID())
+
+		break
+	}
 
 	return ctx.Err()
 }
@@ -213,7 +266,9 @@ func NewPSIngester(c *IngesterConfig) *PSIngester {
 }
 
 func (v *PSIngester) Close() error {
-	v.cancel()
+	if v.cancel != nil {
+		v.cancel()
+	}
 	return nil
 }
 

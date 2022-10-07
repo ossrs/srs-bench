@@ -125,7 +125,7 @@ github.com/sirupsen/logrus
 github.com/tevino/abool
 # github.com/x-cray/logrus-prefixed-formatter v0.5.2
 github.com/x-cray/logrus-prefixed-formatter
-# github.com/yapingcat/gomedia/codec v0.0.0-20220609081842-9e0c0e8a19a0
+# github.com/yapingcat/gomedia/codec v0.0.0-20220617074658-94762898dc25
 ## explicit
 github.com/yapingcat/gomedia/codec
 # github.com/yapingcat/gomedia/mpeg2 v0.0.0-20220617074658-94762898dc25

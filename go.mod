@@ -12,6 +12,6 @@ require (
 	github.com/pion/sdp/v3 v3.0.4
 	github.com/pion/transport v0.12.2
 	github.com/pion/webrtc/v3 v3.0.13
-	github.com/yapingcat/gomedia/codec v0.0.0-20220609081842-9e0c0e8a19a0
+	github.com/yapingcat/gomedia/codec v0.0.0-20220617074658-94762898dc25
 	github.com/yapingcat/gomedia/mpeg2 v0.0.0-20220617074658-94762898dc25
 )

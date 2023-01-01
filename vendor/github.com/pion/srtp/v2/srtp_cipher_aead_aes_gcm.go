@@ -61,58 +61,84 @@ func newSrtpCipherAeadAesGcm(masterKey, masterSalt []byte) (*srtpCipherAeadAesGc
 }
 
 func (s *srtpCipherAeadAesGcm) authTagLen() int {
+	return 0
+}
+
+func (s *srtpCipherAeadAesGcm) aeadAuthTagLen() int {
 	return 16
 }
 
 func (s *srtpCipherAeadAesGcm) encryptRTP(dst []byte, header *rtp.Header, payload []byte, roc uint32) (ciphertext []byte, err error) {
+	// Grow the given buffer to fit the output.
+	dst = growBufferSize(dst, header.MarshalSize()+len(payload)+s.aeadAuthTagLen())
+
 	hdr, err := header.Marshal()
 	if err != nil {
 		return nil, err
 	}
 
 	iv := s.rtpInitializationVector(header, roc)
-	out := s.srtpCipher.Seal(nil, iv, payload, hdr)
-	return append(hdr, out...), nil
+	nHdr := len(hdr)
+	s.srtpCipher.Seal(dst[nHdr:nHdr], iv, payload, hdr)
+	copy(dst[:nHdr], hdr)
+	return dst, nil
 }
 
 func (s *srtpCipherAeadAesGcm) decryptRTP(dst, ciphertext []byte, header *rtp.Header, roc uint32) ([]byte, error) {
+	// Grow the given buffer to fit the output.
+	nDst := len(ciphertext) - s.aeadAuthTagLen()
+	if nDst < 0 {
+		// Size of ciphertext is shorter than AEAD auth tag len.
+		return nil, errFailedToVerifyAuthTag
+	}
+	dst = growBufferSize(dst, nDst)
+
 	iv := s.rtpInitializationVector(header, roc)
 
-	out, err := s.srtpCipher.Open(nil, iv, ciphertext[header.PayloadOffset:], ciphertext[:header.PayloadOffset])
-	if err != nil {
+	if _, err := s.srtpCipher.Open(
+		dst[header.PayloadOffset:header.PayloadOffset], iv, ciphertext[header.PayloadOffset:], ciphertext[:header.PayloadOffset],
+	); err != nil {
 		return nil, err
 	}
 
-	out = append(make([]byte, header.PayloadOffset), out...)
-	copy(out, ciphertext[:header.PayloadOffset])
-
-	return out, nil
+	copy(dst[:header.PayloadOffset], ciphertext[:header.PayloadOffset])
+	return dst, nil
 }
 
 func (s *srtpCipherAeadAesGcm) encryptRTCP(dst, decrypted []byte, srtcpIndex uint32, ssrc uint32) ([]byte, error) {
+	aadPos := len(decrypted) + s.aeadAuthTagLen()
+	// Grow the given buffer to fit the output.
+	dst = growBufferSize(dst, aadPos+srtcpIndexSize)
+
 	iv := s.rtcpInitializationVector(srtcpIndex, ssrc)
 	aad := s.rtcpAdditionalAuthenticatedData(decrypted, srtcpIndex)
 
-	out := s.srtcpCipher.Seal(nil, iv, decrypted[8:], aad)
+	s.srtcpCipher.Seal(dst[8:8], iv, decrypted[8:], aad)
 
-	out = append(make([]byte, 8), out...)
-	copy(out, decrypted[:8])
-	out = append(out, aad[8:]...)
-
-	return out, nil
+	copy(dst[:8], decrypted[:8])
+	copy(dst[aadPos:aadPos+4], aad[8:12])
+	return dst, nil
 }
 
-func (s *srtpCipherAeadAesGcm) decryptRTCP(out, encrypted []byte, srtcpIndex, ssrc uint32) ([]byte, error) {
+func (s *srtpCipherAeadAesGcm) decryptRTCP(dst, encrypted []byte, srtcpIndex, ssrc uint32) ([]byte, error) {
+	aadPos := len(encrypted) - srtcpIndexSize
+	// Grow the given buffer to fit the output.
+	nDst := aadPos - s.aeadAuthTagLen()
+	if nDst < 0 {
+		// Size of ciphertext is shorter than AEAD auth tag len.
+		return nil, errFailedToVerifyAuthTag
+	}
+	dst = growBufferSize(dst, nDst)
+
 	iv := s.rtcpInitializationVector(srtcpIndex, ssrc)
 	aad := s.rtcpAdditionalAuthenticatedData(encrypted, srtcpIndex)
 
-	decrypted, err := s.srtcpCipher.Open(nil, iv, encrypted[8:len(encrypted)-srtcpIndexSize], aad)
-	if err != nil {
+	if _, err := s.srtcpCipher.Open(dst[8:8], iv, encrypted[8:aadPos], aad); err != nil {
 		return nil, err
 	}
 
-	decrypted = append(encrypted[:8], decrypted...)
-	return decrypted, nil
+	copy(dst[:8], encrypted[:8])
+	return dst, nil
 }
 
 // The 12-octet IV used by AES-GCM SRTP is formed by first concatenating

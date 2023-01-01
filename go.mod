@@ -11,7 +11,8 @@ require (
 	github.com/pion/rtp v1.6.2
 	github.com/pion/sdp/v3 v3.0.4
 	github.com/pion/transport v0.12.2
-	github.com/pion/webrtc/v3 v3.0.13
+	github.com/pion/webrtc/v3 v3.0.15
+	github.com/pkg/errors v0.9.1
 	github.com/yapingcat/gomedia/codec v0.0.0-20220617074658-94762898dc25
 	github.com/yapingcat/gomedia/mpeg2 v0.0.0-20220617074658-94762898dc25
 )

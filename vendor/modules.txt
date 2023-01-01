@@ -82,7 +82,7 @@ github.com/pion/sctp
 # github.com/pion/sdp/v3 v3.0.4
 ## explicit
 github.com/pion/sdp/v3
-# github.com/pion/srtp/v2 v2.0.1
+# github.com/pion/srtp/v2 v2.0.2
 github.com/pion/srtp/v2
 # github.com/pion/stun v0.3.5
 github.com/pion/stun
@@ -103,7 +103,7 @@ github.com/pion/turn/v2/internal/proto
 github.com/pion/turn/v2/internal/server
 # github.com/pion/udp v0.1.0
 github.com/pion/udp
-# github.com/pion/webrtc/v3 v3.0.13
+# github.com/pion/webrtc/v3 v3.0.15
 ## explicit
 github.com/pion/webrtc/v3
 github.com/pion/webrtc/v3/internal/mux
@@ -116,6 +116,7 @@ github.com/pion/webrtc/v3/pkg/media/oggreader
 github.com/pion/webrtc/v3/pkg/media/oggwriter
 github.com/pion/webrtc/v3/pkg/rtcerr
 # github.com/pkg/errors v0.9.1
+## explicit
 github.com/pkg/errors
 # github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
 github.com/satori/go.uuid
@@ -136,7 +137,7 @@ golang.org/x/crypto/cryptobyte
 golang.org/x/crypto/cryptobyte/asn1
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20210119194325-5f4716e94777
+# golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 golang.org/x/net/bpf
 golang.org/x/net/dns/dnsmessage
 golang.org/x/net/internal/iana

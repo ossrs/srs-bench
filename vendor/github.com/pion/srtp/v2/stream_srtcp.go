@@ -66,7 +66,12 @@ func (r *ReadStreamSRTCP) Read(buf []byte) (int, error) {
 // SetReadDeadline sets the deadline for the Read operation.
 // Setting to zero means no deadline.
 func (r *ReadStreamSRTCP) SetReadDeadline(t time.Time) error {
-	return r.buffer.(*packetio.Buffer).SetReadDeadline(t)
+	if b, ok := r.buffer.(interface {
+		SetReadDeadline(time.Time) error
+	}); ok {
+		return b.SetReadDeadline(t)
+	}
+	return nil
 }
 
 // Close removes the ReadStream from the session and cleans up any associated state

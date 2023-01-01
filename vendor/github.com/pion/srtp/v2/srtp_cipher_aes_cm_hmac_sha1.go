@@ -68,6 +68,10 @@ func (s *srtpCipherAesCmHmacSha1) authTagLen() int {
 	return 10
 }
 
+func (s *srtpCipherAesCmHmacSha1) aeadAuthTagLen() int {
+	return 0
+}
+
 func (s *srtpCipherAesCmHmacSha1) encryptRTP(dst []byte, header *rtp.Header, payload []byte, roc uint32) (ciphertext []byte, err error) {
 	// Grow the given buffer to fit the output.
 	dst = growBufferSize(dst, header.MarshalSize()+len(payload)+s.authTagLen())

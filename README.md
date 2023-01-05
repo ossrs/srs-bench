@@ -27,7 +27,7 @@ cd srs-bench && make
 
 ```bash
 git clone https://github.com/ossrs/srs.git &&
-cd srs/trunk && ./configure && make &&
+cd srs/trunk && ./configure --h265=on --gb28181=on && make &&
 ./objs/srs -c conf/console.conf
 ```
 
@@ -240,16 +240,32 @@ go test ./blackbox -mod=vendor -v -count=1
 make && ./objs/srs_blackbox_test -test.v
 ```
 
+由于黑盒测试依赖特殊的FFmpeg，可以在Docker中编译和启动：
+
+```bash
+docker run --rm -it -v $(pwd):/g -w /g ossrs/srs:ubuntu20 bash
+make && ./objs/srs_blackbox_test -test.v
+```
+
+> Note: 依赖SRS二进制，当然也可以在这个Docker中编译SRS，具体请参考SRS的Wiki。
+
 支持的参数如下：
 
 * `-srs-binary`，每个测试用例都需要启动一个SRS服务，因此需要设置SRS的位置。默认值：`../../objs/srs`
-* `-srs-ffmpeg`，FFmpeg工具的位置，用来推流和录制。默认值：`/usr/local/bin/ffmpeg`
-* `-srs-ffprobe`，ffprobe工具的位置，用来分析流的信息。默认值：`/usr/local/bin/ffprobe`
+* `-srs-ffmpeg`，FFmpeg工具的位置，用来推流和录制。默认值：`ffmpeg`
+* `-srs-ffprobe`，ffprobe工具的位置，用来分析流的信息。默认值：`ffprobe`
 * `-srs-timeout`，每个Case的超时时间，毫秒。默认值：`64000`，即64秒。
+* `-srs-publish-avatar`，测试源文件路径。默认值：`avatar.flv`。
+* `-srs-ffprobe-duration`，每个Case的探测时间，毫秒。默认值：`16000`，即16秒。
+* `-srs-ffprobe-timeout`，每个Case的探测超时时间，毫秒。默认值：`21000`，即21秒。
 
 其他不常用参数：
 
 * `-srs-log`，是否开启详细日志。默认值：`false`
+* `-srs-stdout`，是否开启SRS的stdout详细日志。默认值：`false`
+* `-srs-ffmpeg-stderr`，是否开启FFmpeg的stderr详细日志。默认值：`false`
+* `-srs-dvr-stderr`，是否开启DVR的stderr详细日志。默认值：`false`
+* `-srs-ffprobe-stdout`，是否开启FFprobe的stdout详细日志。默认值：`false`
 
 由于每个黑盒的用例时间都很长，可以开启并行：
 

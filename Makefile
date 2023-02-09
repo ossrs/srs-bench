@@ -7,13 +7,17 @@ clean:
 
 #########################################################################################################
 # SRS benchmark tool for SRS, janus, GB28181.
-./objs/.format.bench.txt: *.go srs/*.go vnet/*.go janus/*.go gb28181/*.go
+./objs/.format.bench.txt: *.go srs/*.go vnet/*.go janus/*.go gb28181/*.go srt/*.go
 	gofmt -w .
 	mkdir -p objs && echo "done" > ./objs/.format.bench.txt
 
 bench: ./objs/srs_bench
 
-./objs/srs_bench: ./objs/.format.bench.txt *.go srs/*.go vnet/*.go janus/*.go gb28181/*.go Makefile
+./objs/srs_bench: ./objs/.format.bench.txt *.go srs/*.go vnet/*.go janus/*.go gb28181/*.go srt/*.go Makefile
+	./3rdparty/build.sh && pwd && \
+	CGO_CFLAGS="-I`pwd`/objs/openssl/include/ -I`pwd`/objs/srt/include/" \
+	CGO_LDFLAGS="`pwd`/objs/srt/lib/libsrt.a `pwd`/objs/openssl/lib/libssl.a `pwd`/objs/openssl/lib/libcrypto.a -lstdc++ -lm -lpthread -ldl" \
+	CGO_CXXFLAGS=${CGO_CFLAGS} \
 	go build -mod=vendor -o objs/srs_bench .
 
 #########################################################################################################

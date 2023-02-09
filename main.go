@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2021 Winlin
+// # Copyright (c) 2021 Winlin
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -28,6 +28,7 @@ import (
 	"github.com/ossrs/srs-bench/gb28181"
 	"github.com/ossrs/srs-bench/janus"
 	"github.com/ossrs/srs-bench/srs"
+	"github.com/ossrs/srs-bench/srt"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -38,7 +39,7 @@ func main() {
 	var sfu string
 	fl := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 	fl.SetOutput(ioutil.Discard)
-	fl.StringVar(&sfu, "sfu", "srs", "The SFU server, srs or gb28181 or janus")
+	fl.StringVar(&sfu, "sfu", "srs", "The SFU server, srs or gb28181 or srt or janus")
 	_ = fl.Parse(os.Args[1:])
 
 	ctx := context.Background()
@@ -49,10 +50,12 @@ func main() {
 		conf = gb28181.Parse(ctx)
 	} else if sfu == "janus" {
 		janus.Parse(ctx)
+	} else if sfu == "srt" {
+		srt.Parse(ctx)
 	} else {
 		fmt.Println(fmt.Sprintf("Usage: %v [Options]", os.Args[0]))
 		fmt.Println(fmt.Sprintf("Options:"))
-		fmt.Println(fmt.Sprintf("   -sfu    The target SFU, srs or gb28181 or janus. Default: srs"))
+		fmt.Println(fmt.Sprintf("   -sfu    The target SFU, srs or gb28181 or srt or janus. Default: srs"))
 		os.Exit(-1)
 	}
 
@@ -73,6 +76,8 @@ func main() {
 		err = gb28181.Run(ctx, conf)
 	} else if sfu == "janus" {
 		err = janus.Run(ctx)
+	} else if sfu == "srt" {
+		err = srt.Run(ctx)
 	}
 
 	if err != nil {

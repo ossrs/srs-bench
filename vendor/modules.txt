@@ -18,12 +18,17 @@ github.com/gobwas/ws
 github.com/gobwas/ws/wsutil
 # github.com/google/uuid v1.1.5
 github.com/google/uuid
+# github.com/haivision/srtgo v0.0.0-20220509140706-5ecc7b5ed023
+## explicit
+github.com/haivision/srtgo
 # github.com/konsorten/go-windows-terminal-sequences v1.0.2
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/mattn/go-colorable v0.1.4
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.8
 github.com/mattn/go-isatty
+# github.com/mattn/go-pointer v0.0.1
+github.com/mattn/go-pointer
 # github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 github.com/mgutz/ansi
 # github.com/ossrs/go-oryx-lib v0.0.9
@@ -116,6 +121,7 @@ github.com/pion/webrtc/v3/pkg/media/oggreader
 github.com/pion/webrtc/v3/pkg/media/oggwriter
 github.com/pion/webrtc/v3/pkg/rtcerr
 # github.com/pkg/errors v0.9.1
+## explicit
 github.com/pkg/errors
 # github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
 github.com/satori/go.uuid
@@ -125,6 +131,10 @@ github.com/sirupsen/logrus
 github.com/tevino/abool
 # github.com/x-cray/logrus-prefixed-formatter v0.5.2
 github.com/x-cray/logrus-prefixed-formatter
+# github.com/yapingcat/gomedia v0.0.0-20230108040612-6d6ac05461ea
+## explicit
+github.com/yapingcat/gomedia/go-codec
+github.com/yapingcat/gomedia/go-mpeg2
 # github.com/yapingcat/gomedia/codec v0.0.0-20220617074658-94762898dc25
 ## explicit
 github.com/yapingcat/gomedia/codec

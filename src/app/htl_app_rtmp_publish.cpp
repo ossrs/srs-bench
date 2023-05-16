@@ -36,6 +36,18 @@ using namespace std;
 #include <htl_app_rtmp_publish.hpp>
 #include <srs_librtmp.h>
 
+#include <sys/time.h>
+int64_t srs_system_time_us()
+{
+    timeval now;
+
+    if (gettimeofday(&now, NULL) < 0) {
+        return -1;
+    }
+
+    return ((int64_t)now.tv_sec) * 1000 * 1000 + (int64_t)now.tv_usec;
+}
+
 StRtmpPublishClient::StRtmpPublishClient(){
     stream_id = 0;
     srs = NULL;
@@ -153,6 +165,7 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv,
         return ret;
     }
 
+    int64_t start_us = srs_system_time_us();
     // open flv and publish to server.
     u_int32_t re = 0;
     while(true){
@@ -222,10 +235,10 @@ int StRtmpPublishClient::PublishAV(srs_flv_t flv,
         if (re <= 0) {
             re = timestamp;
         }
-        
-        if (timestamp - re > 300) {
-            st_usleep((timestamp - re) * 1000);
-            re = timestamp;
+
+        int64_t now_us = srs_system_time_us();
+        if ((timestamp - re) * 1000 - (now_us - start_us) > 300000) {
+            st_usleep((timestamp - re) * 1000 - (now_us - start_us));
         }
     }
     

@@ -1,4 +1,6 @@
-/* 
+/* SPDX-License-Identifier: MPL-1.1 OR GPL-2.0-or-later */
+
+/*
  * The contents of this file are subject to the Mozilla Public
  * License Version 1.1 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of
@@ -45,9 +47,9 @@
 #include "common.h"
 
 
-extern time_t _st_curr_time;
-extern st_utime_t _st_last_tset;
-extern int _st_active_count;
+extern __thread time_t _st_curr_time;
+extern __thread st_utime_t _st_last_tset;
+extern __thread int _st_active_count;
 
 static st_utime_t (*_st_utime)(void) = NULL;
 

@@ -1,4 +1,6 @@
-/* 
+/* SPDX-License-Identifier: MPL-1.1 OR GPL-2.0-or-later */
+
+/*
  * The contents of this file are subject to the Mozilla Public
  * License Version 1.1 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of
@@ -77,7 +79,12 @@ int st_key_getlimit(void)
 int st_thread_setspecific(int key, void *value)
 {
     _st_thread_t *me = _ST_CURRENT_THREAD();
-    
+    return st_thread_setspecific2(me, key, value);
+}
+
+
+int st_thread_setspecific2(_st_thread_t *me, int key, void *value)
+{
     if (key < 0 || key >= key_max) {
         errno = EINVAL;
         return -1;

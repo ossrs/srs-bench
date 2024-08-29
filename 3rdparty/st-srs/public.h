@@ -1,4 +1,6 @@
-/* 
+/* SPDX-License-Identifier: MPL-1.1 OR GPL-2.0-or-later */
+
+/*
  * The contents of this file are subject to the Mozilla Public
  * License Version 1.1 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of
@@ -66,7 +68,6 @@
 
 #define ST_EVENTSYS_DEFAULT 0
 #define ST_EVENTSYS_SELECT  1
-#define ST_EVENTSYS_POLL    2
 #define ST_EVENTSYS_ALT     3
 
 #ifdef __cplusplus
@@ -98,6 +99,7 @@ extern st_thread_t st_thread_self(void);
 extern void st_thread_exit(void *retval);
 extern int st_thread_join(st_thread_t thread, void **retvalp);
 extern void st_thread_interrupt(st_thread_t thread);
+extern void st_thread_yield();
 extern st_thread_t st_thread_create(void *(*start)(void *arg), void *arg, int joinable, int stack_size);
 extern int st_randomize_stacks(int on);
 extern int st_set_utime_function(st_utime_t (*func)(void));
@@ -152,15 +154,10 @@ extern int st_sendto(st_netfd_t fd, const void *msg, int len, const struct socka
 extern int st_recvmsg(st_netfd_t fd, struct msghdr *msg, int flags, st_utime_t timeout);
 extern int st_sendmsg(st_netfd_t fd, const struct msghdr *msg, int flags, st_utime_t timeout);
 
-// @see http://man7.org/linux/man-pages/man2/sendmmsg.2.html
-#include <sys/socket.h>
-struct st_mmsghdr {
-   struct msghdr msg_hdr;  /* Message header */
-   unsigned int  msg_len;  /* Number of bytes transmitted */
-};
-extern int st_sendmmsg(st_netfd_t fd, struct st_mmsghdr *msgvec, unsigned int vlen, int flags, st_utime_t timeout);
-
 extern st_netfd_t st_open(const char *path, int oflags, mode_t mode);
+
+extern void st_destroy(void);
+extern int st_thread_setspecific2(st_thread_t thread, int key, void *value);
 
 #ifdef DEBUG
 extern void _st_show_thread_stack(st_thread_t thread, const char *messg);

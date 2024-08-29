@@ -1,4 +1,6 @@
-/* 
+/* SPDX-License-Identifier: MPL-1.1 OR GPL-2.0-or-later */
+
+/*
  * The contents of this file are subject to the Mozilla Public
  * License Version 1.1 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of
@@ -52,6 +54,23 @@
 #include <errno.h>
 #include "common.h"
 
+// Global stat.
+#if defined(DEBUG) && defined(DEBUG_STATS)
+__thread unsigned long long _st_stat_recvfrom = 0;
+__thread unsigned long long _st_stat_recvfrom_eagain = 0;
+__thread unsigned long long _st_stat_sendto = 0;
+__thread unsigned long long _st_stat_sendto_eagain = 0;
+__thread unsigned long long _st_stat_read = 0;
+__thread unsigned long long _st_stat_read_eagain = 0;
+__thread unsigned long long _st_stat_readv = 0;
+__thread unsigned long long _st_stat_readv_eagain = 0;
+__thread unsigned long long _st_stat_writev = 0;
+__thread unsigned long long _st_stat_writev_eagain = 0;
+__thread unsigned long long _st_stat_recvmsg = 0;
+__thread unsigned long long _st_stat_recvmsg_eagain = 0;
+__thread unsigned long long _st_stat_sendmsg = 0;
+__thread unsigned long long _st_stat_sendmsg_eagain = 0;
+#endif
 
 #if EAGAIN != EWOULDBLOCK
     #define _IO_NOT_READY_ERROR  ((errno == EAGAIN) || (errno == EWOULDBLOCK))
@@ -62,7 +81,7 @@
 #define _LOCAL_MAXIOV  16
 
 /* File descriptor object free list */
-static _st_netfd_t *_st_netfd_freelist = NULL;
+static __thread _st_netfd_t *_st_netfd_freelist = NULL;
 /* Maximum number of file descriptors that the process can open */
 static int _st_osfd_limit = -1;
 
@@ -93,7 +112,7 @@ int _st_io_init(void)
     /**
      * by SRS, for osx.
      * when rlimit max is negative, for example, osx, use cur directly.
-     * @see https://github.com/winlinvip/simple-rtmp-server/issues/336
+     * @see https://github.com/ossrs/srs/issues/336
      */
     if ((int)rlim.rlim_max < 0) {
         _st_osfd_limit = (int)(fdlim > 0? fdlim : rlim.rlim_cur);
@@ -243,7 +262,6 @@ int st_netfd_poll(_st_netfd_t *fd, int how, st_utime_t timeout)
 }
 
 
-#ifdef MD_ALWAYS_UNSERIALIZED_ACCEPT
 /* No-op */
 int st_netfd_serialize_accept(_st_netfd_t *fd)
 {
@@ -291,112 +309,6 @@ _st_netfd_t *st_accept(_st_netfd_t *fd, struct sockaddr *addr, int *addrlen, st_
     return newfd;
 }
 
-#else /* MD_ALWAYS_UNSERIALIZED_ACCEPT */
-/*
- * On some platforms accept() calls from different processes
- * on the same listen socket must be serialized.
- * The following code serializes accept()'s without process blocking.
- * A pipe is used as an inter-process semaphore.
- */
-int st_netfd_serialize_accept(_st_netfd_t *fd)
-{
-    _st_netfd_t **p;
-    int osfd[2], err;
-    
-    if (fd->aux_data) {
-        errno = EINVAL;
-        return -1;
-    }
-    if ((p = (_st_netfd_t **)calloc(2, sizeof(_st_netfd_t *))) == NULL)
-        return -1;
-    if (pipe(osfd) < 0) {
-        free(p);
-        return -1;
-    }
-    if ((p[0] = st_netfd_open(osfd[0])) != NULL && (p[1] = st_netfd_open(osfd[1])) != NULL && write(osfd[1], " ", 1) == 1) {
-        fd->aux_data = p;
-        return 0;
-    }
-    /* Error */
-    err = errno;
-    if (p[0])
-        st_netfd_free(p[0]);
-    if (p[1])
-        st_netfd_free(p[1]);
-    close(osfd[0]);
-    close(osfd[1]);
-    free(p);
-    errno = err;
-    
-    return -1;
-}
-
-static void _st_netfd_free_aux_data(_st_netfd_t *fd)
-{
-    _st_netfd_t **p = (_st_netfd_t **) fd->aux_data;
-    
-    st_netfd_close(p[0]);
-    st_netfd_close(p[1]);
-    free(p);
-    fd->aux_data = NULL;
-}
-
-_st_netfd_t *st_accept(_st_netfd_t *fd, struct sockaddr *addr, int *addrlen, st_utime_t timeout)
-{
-    int osfd, err;
-    _st_netfd_t *newfd;
-    _st_netfd_t **p = (_st_netfd_t **) fd->aux_data;
-    ssize_t n;
-    char c;
-    
-    for ( ; ; ) {
-        if (p == NULL) {
-            osfd = accept(fd->osfd, addr, (socklen_t *)addrlen);
-        } else {
-            /* Get the lock */
-            n = st_read(p[0], &c, 1, timeout);
-            if (n < 0)
-                return NULL;
-            ST_ASSERT(n == 1);
-            /* Got the lock */
-            osfd = accept(fd->osfd, addr, (socklen_t *)addrlen);
-            /* Unlock */
-            err = errno;
-            n = st_write(p[1], &c, 1, timeout);
-            ST_ASSERT(n == 1);
-            errno = err;
-        }
-        if (osfd >= 0)
-            break;
-        if (errno == EINTR)
-            continue;
-        if (!_IO_NOT_READY_ERROR)
-            return NULL;
-        /* Wait until the socket becomes readable */
-        if (st_netfd_poll(fd, POLLIN, timeout) < 0)
-            return NULL;
-    }
-    
-    /* On some platforms the new socket created by accept() inherits */
-    /* the nonblocking attribute of the listening socket */
-#if defined (MD_ACCEPT_NB_INHERITED)
-    newfd = _st_netfd_new(osfd, 0, 1);
-#elif defined (MD_ACCEPT_NB_NOT_INHERITED)
-    newfd = _st_netfd_new(osfd, 1, 1);
-#else
-#error Unknown OS
-#endif
-    
-    if (!newfd) {
-        err = errno;
-        close(osfd);
-        errno = err;
-    }
-    
-    return newfd;
-}
-#endif /* MD_ALWAYS_UNSERIALIZED_ACCEPT */
-
 
 int st_connect(_st_netfd_t *fd, const struct sockaddr *addr, int addrlen, st_utime_t timeout)
 {
@@ -437,12 +349,21 @@ int st_connect(_st_netfd_t *fd, const struct sockaddr *addr, int addrlen, st_uti
 ssize_t st_read(_st_netfd_t *fd, void *buf, size_t nbyte, st_utime_t timeout)
 {
     ssize_t n;
+
+    #if defined(DEBUG) && defined(DEBUG_STATS)
+    ++_st_stat_read;
+    #endif
     
     while ((n = read(fd->osfd, buf, nbyte)) < 0) {
         if (errno == EINTR)
             continue;
         if (!_IO_NOT_READY_ERROR)
             return -1;
+
+        #if defined(DEBUG) && defined(DEBUG_STATS)
+        ++_st_stat_read_eagain;
+        #endif
+
         /* Wait until the socket becomes readable */
         if (st_netfd_poll(fd, POLLIN, timeout) < 0)
             return -1;
@@ -470,12 +391,21 @@ int st_read_resid(_st_netfd_t *fd, void *buf, size_t *resid, st_utime_t timeout)
 ssize_t st_readv(_st_netfd_t *fd, const struct iovec *iov, int iov_size, st_utime_t timeout)
 {
     ssize_t n;
+
+    #if defined(DEBUG) && defined(DEBUG_STATS)
+    ++_st_stat_readv;
+    #endif
     
     while ((n = readv(fd->osfd, iov, iov_size)) < 0) {
         if (errno == EINTR)
             continue;
         if (!_IO_NOT_READY_ERROR)
             return -1;
+
+        #if defined(DEBUG) && defined(DEBUG_STATS)
+        ++_st_stat_readv_eagain;
+        #endif
+
         /* Wait until the socket becomes readable */
         if (st_netfd_poll(fd, POLLIN, timeout) < 0)
             return -1;
@@ -572,6 +502,10 @@ ssize_t st_writev(_st_netfd_t *fd, const struct iovec *iov, int iov_size, st_uti
     nleft = nbyte;
     tmp_iov = (struct iovec *) iov;    /* we promise not to modify iov */
     iov_cnt = iov_size;
+
+    #if defined(DEBUG) && defined(DEBUG_STATS)
+    ++_st_stat_writev;
+    #endif
     
     while (nleft > 0) {
         if (iov_cnt == 1) {
@@ -616,6 +550,11 @@ ssize_t st_writev(_st_netfd_t *fd, const struct iovec *iov, int iov_size, st_uti
                 tmp_iov[iov_cnt].iov_len = iov[index].iov_len;
             }
         }
+
+        #if defined(DEBUG) && defined(DEBUG_STATS)
+        ++_st_stat_writev_eagain;
+        #endif
+
         /* Wait until the socket becomes writable */
         if (st_netfd_poll(fd, POLLOUT, timeout) < 0) {
             rv = -1;
@@ -633,6 +572,10 @@ ssize_t st_writev(_st_netfd_t *fd, const struct iovec *iov, int iov_size, st_uti
 int st_writev_resid(_st_netfd_t *fd, struct iovec **iov, int *iov_size, st_utime_t timeout)
 {
     ssize_t n;
+
+    #if defined(DEBUG) && defined(DEBUG_STATS)
+    ++_st_stat_writev;
+    #endif
     
     while (*iov_size > 0) {
         if (*iov_size == 1)
@@ -659,6 +602,11 @@ int st_writev_resid(_st_netfd_t *fd, struct iovec **iov, int *iov_size, st_utime
             (*iov)->iov_base = (char *) (*iov)->iov_base + n;
             (*iov)->iov_len -= n;
         }
+
+        #if defined(DEBUG) && defined(DEBUG_STATS)
+        ++_st_stat_writev_eagain;
+        #endif
+
         /* Wait until the socket becomes writable */
         if (st_netfd_poll(fd, POLLOUT, timeout) < 0)
             return -1;
@@ -674,12 +622,21 @@ int st_writev_resid(_st_netfd_t *fd, struct iovec **iov, int *iov_size, st_utime
 int st_recvfrom(_st_netfd_t *fd, void *buf, int len, struct sockaddr *from, int *fromlen, st_utime_t timeout)
 {
     int n;
-    
+
+    #if defined(DEBUG) && defined(DEBUG_STATS)
+    ++_st_stat_recvfrom;
+    #endif
+
     while ((n = recvfrom(fd->osfd, buf, len, 0, from, (socklen_t *)fromlen)) < 0) {
         if (errno == EINTR)
             continue;
         if (!_IO_NOT_READY_ERROR)
             return -1;
+
+        #if defined(DEBUG) && defined(DEBUG_STATS)
+        ++_st_stat_recvfrom_eagain;
+        #endif
+
         /* Wait until the socket becomes readable */
         if (st_netfd_poll(fd, POLLIN, timeout) < 0)
             return -1;
@@ -692,12 +649,21 @@ int st_recvfrom(_st_netfd_t *fd, void *buf, int len, struct sockaddr *from, int 
 int st_sendto(_st_netfd_t *fd, const void *msg, int len, const struct sockaddr *to, int tolen, st_utime_t timeout)
 {
     int n;
+
+    #if defined(DEBUG) && defined(DEBUG_STATS)
+    ++_st_stat_sendto;
+    #endif
     
     while ((n = sendto(fd->osfd, msg, len, 0, to, tolen)) < 0) {
         if (errno == EINTR)
             continue;
         if (!_IO_NOT_READY_ERROR)
             return -1;
+
+        #if defined(DEBUG) && defined(DEBUG_STATS)
+        ++_st_stat_sendto_eagain;
+        #endif
+
         /* Wait until the socket becomes writable */
         if (st_netfd_poll(fd, POLLOUT, timeout) < 0)
             return -1;
@@ -710,12 +676,21 @@ int st_sendto(_st_netfd_t *fd, const void *msg, int len, const struct sockaddr *
 int st_recvmsg(_st_netfd_t *fd, struct msghdr *msg, int flags, st_utime_t timeout)
 {
     int n;
+
+    #if defined(DEBUG) && defined(DEBUG_STATS)
+    ++_st_stat_recvmsg;
+    #endif
     
     while ((n = recvmsg(fd->osfd, msg, flags)) < 0) {
         if (errno == EINTR)
             continue;
         if (!_IO_NOT_READY_ERROR)
             return -1;
+
+        #if defined(DEBUG) && defined(DEBUG_STATS)
+        ++_st_stat_recvmsg_eagain;
+        #endif
+
         /* Wait until the socket becomes readable */
         if (st_netfd_poll(fd, POLLIN, timeout) < 0)
             return -1;
@@ -728,72 +703,27 @@ int st_recvmsg(_st_netfd_t *fd, struct msghdr *msg, int flags, st_utime_t timeou
 int st_sendmsg(_st_netfd_t *fd, const struct msghdr *msg, int flags, st_utime_t timeout)
 {
     int n;
+
+    #if defined(DEBUG) && defined(DEBUG_STATS)
+    ++_st_stat_sendmsg;
+    #endif
     
     while ((n = sendmsg(fd->osfd, msg, flags)) < 0) {
         if (errno == EINTR)
             continue;
         if (!_IO_NOT_READY_ERROR)
             return -1;
+
+        #if defined(DEBUG) && defined(DEBUG_STATS)
+        ++_st_stat_sendmsg_eagain;
+        #endif
+
         /* Wait until the socket becomes writable */
         if (st_netfd_poll(fd, POLLOUT, timeout) < 0)
             return -1;
     }
     
     return n;
-}
-
-int st_sendmmsg(st_netfd_t fd, struct st_mmsghdr *msgvec, unsigned int vlen, int flags, st_utime_t timeout)
-{
-#if defined(MD_HAVE_SENDMMSG) && defined(_GNU_SOURCE)
-    int n;
-    int left;
-    struct mmsghdr *p;
-
-    left = (int)vlen;
-    while (left > 0) {
-        p = (struct mmsghdr*)msgvec + (vlen - left);
-
-        if ((n = sendmmsg(fd->osfd, p, left, flags)) < 0) {
-            if (errno == EINTR)
-                continue;
-            if (!_IO_NOT_READY_ERROR)
-                break;
-            /* Wait until the socket becomes writable */
-            if (st_netfd_poll(fd, POLLOUT, timeout) < 0)
-                break;
-        }
-
-        left -= n;
-    }
-
-    // An error is returned only if no datagrams could be sent.
-    if (left == (int)vlen) {
-        return n;
-    }
-    return (int)vlen - left;
-#else
-    struct st_mmsghdr *p;
-    int i, n;
-
-    // @see http://man7.org/linux/man-pages/man2/sendmmsg.2.html
-    for (i = 0; i < (int)vlen; ++i) {
-        p = msgvec + i;
-        n = st_sendmsg(fd, &p->msg_hdr, flags, timeout);
-        if (n < 0) {
-            // An error is returned only if no datagrams could be sent.
-            if (i == 0) {
-                return n;
-            }
-            return i + 1;
-        }
-
-        p->msg_len = n;
-    }
-
-    // Returns the number of messages sent from msgvec; if this is less than vlen, the caller can retry with a
-    // further sendmmsg() call to send the remaining messages.
-    return vlen;
-#endif
 }
 
 

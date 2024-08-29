@@ -1,4 +1,6 @@
-/* 
+/* SPDX-License-Identifier: MPL-1.1 OR GPL-2.0-or-later */
+
+/*
  * The contents of this file are subject to the Mozilla Public
  * License Version 1.1 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of
@@ -155,9 +157,6 @@ typedef struct _st_stack {
     char *stk_bottom;           /* Lowest address of stack's usable portion */
     char *stk_top;              /* Highest address of stack's usable portion */
     void *sp;                   /* Stack pointer from C's point of view */
-#ifdef __ia64__
-    void *bsp;                  /* Register stack backing store pointer */
-#endif
     /* merge from https://github.com/toffaletti/state-threads/commit/7f57fc9acc05e657bca1223f1e5b9b1a45ed929b */
 #ifndef NVALGRIND
     /* id returned by VALGRIND_STACK_REGISTER */
@@ -170,7 +169,6 @@ typedef struct _st_stack {
 typedef struct _st_cond {
     _st_clist_t wait_q;          /* Condition variable wait queue */
 } _st_cond_t;
-
 
 typedef struct _st_thread _st_thread_t;
 
@@ -199,7 +197,7 @@ struct _st_thread {
 
     _st_cond_t *term;           /* Termination condition variable for join */
 
-    jmp_buf context;            /* Thread's context */
+    _st_jmp_buf_t context;            /* Thread's context */
 };
 
 
@@ -228,6 +226,7 @@ typedef struct _st_eventsys_ops {
     int  (*fd_new)(int);                       /* New descriptor allocated */
     int  (*fd_close)(int);                     /* Descriptor closed */
     int  (*fd_getlimit)(void);                 /* Descriptor hard limit */
+    void (*destroy)(void);                     /* Destroy the event object */
 } _st_eventsys_t;
 
 
@@ -267,9 +266,9 @@ typedef struct _st_netfd {
  * Current vp, thread, and event system
  */
 
-extern _st_vp_t        _st_this_vp;
-extern _st_thread_t *_st_this_thread;
-extern _st_eventsys_t *_st_eventsys;
+extern __thread _st_vp_t        _st_this_vp;
+extern __thread _st_thread_t *_st_this_thread;
+extern __thread _st_eventsys_t *_st_eventsys;
 
 #define _ST_CURRENT_THREAD()            (_st_this_thread)
 #define _ST_SET_CURRENT_THREAD(_thread) (_st_this_thread = (_thread))
@@ -299,6 +298,7 @@ extern _st_eventsys_t *_st_eventsys;
 #define _ST_DEL_IOQ(_pq)    ST_REMOVE_LINK(&_pq.links)
 
 #define _ST_ADD_RUNQ(_thr)  ST_APPEND_LINK(&(_thr)->links, &_ST_RUNQ)
+#define _ST_INSERT_RUNQ(_thr)  ST_INSERT_LINK(&(_thr)->links, &_ST_RUNQ)
 #define _ST_DEL_RUNQ(_thr)  ST_REMOVE_LINK(&(_thr)->links)
 
 #define _ST_ADD_SLEEPQ(_thr, _timeout)  _st_add_sleep_q(_thr, _timeout)
@@ -367,11 +367,7 @@ extern _st_eventsys_t *_st_eventsys;
     #define ST_UTIME_NO_TIMEOUT ((st_utime_t) -1LL)
 #endif
 
-#ifndef __ia64__
-    #define ST_DEFAULT_STACK_SIZE (64*1024)
-#else
-    #define ST_DEFAULT_STACK_SIZE (128*1024)  /* Includes register stack size */
-#endif
+#define ST_DEFAULT_STACK_SIZE (128*1024)  /* Includes register stack size */
 
 #ifndef ST_KEYS_MAX
     #define ST_KEYS_MAX 16

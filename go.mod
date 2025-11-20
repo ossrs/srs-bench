@@ -1,6 +1,6 @@
 module github.com/ossrs/srs-bench
 
-go 1.23.0
+go 1.24.0
 
 require (
 	github.com/bluenviron/gortsplib/v4 v4.13.1
@@ -45,8 +45,8 @@ require (
 	github.com/tevino/abool v0.0.0-20170917061928-9b9efcf221b5 // indirect
 	github.com/wlynxg/anet v0.0.5 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
-	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/term v0.32.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/term v0.37.0 // indirect
 )

@@ -152,7 +152,7 @@ func (c *handshakeConfig) writeKeyLog(label string, clientRandom, secret []byte)
 	}
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	_, err := c.keyLogWriter.Write([]byte(fmt.Sprintf("%s %x %x\n", label, clientRandom, secret)))
+	_, err := fmt.Fprintf(c.keyLogWriter, "%s %x %x\n", label, clientRandom, secret)
 	if err != nil {
 		c.log.Debugf("failed to write key log file: %s", err)
 	}
@@ -290,8 +290,9 @@ func (s *handshakeFSM) wait(ctx context.Context, conn flightConn) (handshakeStat
 		case state := <-conn.recvHandshake():
 			if state.isRetransmit {
 				close(state.done)
-
-				return handshakeSending, nil
+				// ignore incoming retransmit hints, only rely on the timer-driven path below
+				// https://github.com/pion/dtls/issues/758
+				continue
 			}
 
 			nextFlight, alert, err := parse(ctx, conn, s.state, s.cache, s.cfg)

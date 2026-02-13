@@ -22,9 +22,9 @@ import (
 	"github.com/pion/dtls/v3/pkg/protocol/handshake"
 	"github.com/pion/dtls/v3/pkg/protocol/recordlayer"
 	"github.com/pion/logging"
-	"github.com/pion/transport/v3/deadline"
-	"github.com/pion/transport/v3/netctx"
-	"github.com/pion/transport/v3/replaydetector"
+	"github.com/pion/transport/v4/deadline"
+	"github.com/pion/transport/v4/netctx"
+	"github.com/pion/transport/v4/replaydetector"
 )
 
 const (
@@ -65,14 +65,14 @@ type Conn struct {
 	nextConn       netctx.PacketConn // Embedded Conn, typically a udpconn we read/write from
 	fragmentBuffer *fragmentBuffer   // out-of-order and missing fragment handling
 	handshakeCache *handshakeCache   // caching of handshake messages for verifyData generation
-	decrypted      chan interface{}  // Decrypted Application Data or error, pull by calling `Read`
+	decrypted      chan any          // Decrypted Application Data or error, pull by calling `Read`
 	rAddr          net.Addr
 	state          State // Internal state
 
 	maximumTransmissionUnit int
 	paddingLengthGenerator  func(uint) uint
 
-	handshakeCompletedSuccessfully atomic.Value
+	handshakeCompletedSuccessfully atomic.Bool
 	handshakeMutex                 sync.Mutex
 	handshakeDone                  chan struct{}
 
@@ -153,7 +153,7 @@ func createConn(
 	}
 
 	workerInterval := initialTickerInterval
-	if config.FlightInterval != 0 {
+	if config.FlightInterval > 0 {
 		workerInterval = config.FlightInterval
 	}
 
@@ -214,7 +214,7 @@ func createConn(
 		maximumTransmissionUnit: mtu,
 		paddingLengthGenerator:  paddingLengthGenerator,
 
-		decrypted: make(chan interface{}, 1),
+		decrypted: make(chan any, 1),
 		log:       logger,
 
 		readDeadline:  deadline.New(),
@@ -725,7 +725,7 @@ func (c *Conn) fragmentHandshake(dtlsHandshake *handshake.Handshake) ([][]byte, 
 }
 
 var poolReadBuffer = sync.Pool{ //nolint:gochecknoglobals
-	New: func() interface{} {
+	New: func() any {
 		b := make([]byte, inboundBufferSize)
 
 		return &b
@@ -793,8 +793,10 @@ func (c *Conn) readAndBuffer(ctx context.Context) error { //nolint:cyclop
 }
 
 func (c *Conn) handleQueuedPackets(ctx context.Context) error {
+	c.lock.Lock()
 	pkts := c.encryptedPackets
 	c.encryptedPackets = nil
+	c.lock.Unlock()
 
 	for _, p := range pkts {
 		_, _, alert, err := c.handleIncomingPacket(ctx, p.data, p.rAddr, false) // don't re-enqueue
@@ -818,6 +820,9 @@ func (c *Conn) handleQueuedPackets(ctx context.Context) error {
 }
 
 func (c *Conn) enqueueEncryptedPackets(packet addrPkt) bool {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	if len(c.encryptedPackets) < maxAppDataPacketQueueSize {
 		c.encryptedPackets = append(c.encryptedPackets, packet)
 
@@ -1077,14 +1082,12 @@ func (c *Conn) notify(ctx context.Context, level alert.Level, desc alert.Descrip
 	})
 }
 
-func (c *Conn) setHandshakeCompletedSuccessfully() {
-	c.handshakeCompletedSuccessfully.Store(struct{ bool }{true})
+func (c *Conn) setHandshakeCompletedSuccessfully() bool {
+	return c.handshakeCompletedSuccessfully.CompareAndSwap(false, true)
 }
 
 func (c *Conn) isHandshakeCompletedSuccessfully() bool {
-	boolean, _ := c.handshakeCompletedSuccessfully.Load().(struct{ bool })
-
-	return boolean.bool
+	return c.handshakeCompletedSuccessfully.Load()
 }
 
 //nolint:cyclop,gocognit,contextcheck
@@ -1099,8 +1102,7 @@ func (c *Conn) handshake(
 	done := make(chan struct{})
 	ctxRead, cancelRead := context.WithCancel(context.Background())
 	cfg.onFlightState = func(_ flightVal, s handshakeState) {
-		if s == handshakeFinished && !c.isHandshakeCompletedSuccessfully() {
-			c.setHandshakeCompletedSuccessfully()
+		if s == handshakeFinished && c.setHandshakeCompletedSuccessfully() {
 			close(done)
 		}
 	}

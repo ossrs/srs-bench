@@ -103,8 +103,8 @@ github.com/ossrs/go-oryx-lib/rtmp
 # github.com/pion/datachannel v1.5.10
 ## explicit; go 1.20
 github.com/pion/datachannel
-# github.com/pion/dtls/v3 v3.0.6
-## explicit; go 1.20
+# github.com/pion/dtls/v3 v3.0.11
+## explicit; go 1.21
 github.com/pion/dtls/v3
 github.com/pion/dtls/v3/internal/ciphersuite
 github.com/pion/dtls/v3/internal/ciphersuite/types
@@ -181,12 +181,16 @@ github.com/pion/stun/v3/internal/hmac
 ## explicit; go 1.19
 github.com/pion/transport/v3
 github.com/pion/transport/v3/deadline
-github.com/pion/transport/v3/netctx
 github.com/pion/transport/v3/packetio
 github.com/pion/transport/v3/replaydetector
 github.com/pion/transport/v3/stdnet
 github.com/pion/transport/v3/utils/xor
 github.com/pion/transport/v3/vnet
+# github.com/pion/transport/v4 v4.0.1
+## explicit; go 1.21
+github.com/pion/transport/v4/deadline
+github.com/pion/transport/v4/netctx
+github.com/pion/transport/v4/replaydetector
 # github.com/pion/turn/v4 v4.0.2
 ## explicit; go 1.20
 github.com/pion/turn/v4
@@ -237,7 +241,6 @@ github.com/yapingcat/gomedia/mpeg2
 ## explicit; go 1.23.0
 golang.org/x/crypto/cryptobyte
 golang.org/x/crypto/cryptobyte/asn1
-golang.org/x/crypto/curve25519
 golang.org/x/crypto/ssh/terminal
 # golang.org/x/net v0.41.0
 ## explicit; go 1.23.0

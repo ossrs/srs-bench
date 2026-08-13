@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// # Copyright (c) 2025 Winlin
+// # Copyright (c) 2026 Winlin
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -174,7 +174,7 @@ func Run(ctx context.Context) error {
 				gStatLive.Publishers.Alive--
 				logger.Tf(ctx, "Publisher %v done, alive=%v", pr, gStatLive.Publishers.Alive)
 
-				<- publisherStartedCtx.Done()
+				<-publisherStartedCtx.Done()
 				if gStatLive.Publishers.Alive == 0 {
 					cancel()
 				}

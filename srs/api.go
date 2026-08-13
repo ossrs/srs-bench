@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// # Copyright (c) 2025 Winlin
+// # Copyright (c) 2026 Winlin
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -133,7 +133,8 @@ func (v *statAPI) Streams() *statAPI {
 	}{}
 
 	ctx := v.ctx
-	if err := apiRequest(ctx, "http://localhost:1985/api/v1/streams/", nil, &res); err != nil {
+	// Add count parameter to get all streams (default is 1 which only returns first stream)
+	if err := apiRequest(ctx, "http://localhost:1985/api/v1/streams/?count=100", nil, &res); err != nil {
 		logger.Tf(ctx, "query streams err %+v", err)
 		return v
 	}

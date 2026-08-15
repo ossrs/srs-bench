@@ -75,9 +75,6 @@ github.com/google/uuid
 # github.com/haivision/srtgo v0.0.0-20230627061225-a70d53fcd618
 ## explicit; go 1.12
 github.com/haivision/srtgo
-# github.com/konsorten/go-windows-terminal-sequences v1.0.2
-## explicit
-github.com/konsorten/go-windows-terminal-sequences
 # github.com/mattn/go-colorable v0.1.4
 ## explicit
 github.com/mattn/go-colorable
@@ -215,8 +212,8 @@ github.com/pkg/errors
 # github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
 ## explicit
 github.com/satori/go.uuid
-# github.com/sirupsen/logrus v1.4.2
-## explicit
+# github.com/sirupsen/logrus v1.8.3
+## explicit; go 1.13
 github.com/sirupsen/logrus
 # github.com/tevino/abool v0.0.0-20170917061928-9b9efcf221b5
 ## explicit

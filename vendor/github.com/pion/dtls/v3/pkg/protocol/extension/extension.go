@@ -13,13 +13,16 @@ type TypeValue uint16
 
 // TypeValue constants.
 const (
-	ServerNameTypeValue                   TypeValue = 0
+	ServerNameTypeValue TypeValue = 0
+	// In DTLS 1.3, this extension in renamed to "supported_groups".
 	SupportedEllipticCurvesTypeValue      TypeValue = 10
 	SupportedPointFormatsTypeValue        TypeValue = 11
 	SupportedSignatureAlgorithmsTypeValue TypeValue = 13
 	UseSRTPTypeValue                      TypeValue = 14
 	ALPNTypeValue                         TypeValue = 16
 	UseExtendedMasterSecretTypeValue      TypeValue = 23
+	SupportedVersionsTypeValue            TypeValue = 43
+	KeyShareTypeValue                     TypeValue = 51
 	ConnectionIDTypeValue                 TypeValue = 54
 	RenegotiationInfoTypeValue            TypeValue = 65281
 )
@@ -57,38 +60,45 @@ func Unmarshal(buf []byte) ([]Extension, error) { //nolint:cyclop
 	}
 
 	for offset := 2; offset < len(buf); {
-		if len(buf) < (offset + 2) {
+		bufView := buf[offset:] //nolint:gosec // offset bounded by loop condition
+		if len(bufView) < 2 {
 			return nil, errBufferTooSmall
 		}
+
 		var err error
-		switch TypeValue(binary.BigEndian.Uint16(buf[offset:])) {
+		switch TypeValue(binary.BigEndian.Uint16(bufView)) {
 		case ServerNameTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &ServerName{})
+			err = unmarshalAndAppend(bufView, &ServerName{})
 		case SupportedEllipticCurvesTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &SupportedEllipticCurves{})
+			err = unmarshalAndAppend(bufView, &SupportedEllipticCurves{})
 		case SupportedPointFormatsTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &SupportedPointFormats{})
+			err = unmarshalAndAppend(bufView, &SupportedPointFormats{})
 		case SupportedSignatureAlgorithmsTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &SupportedSignatureAlgorithms{})
+			err = unmarshalAndAppend(bufView, &SupportedSignatureAlgorithms{})
 		case UseSRTPTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &UseSRTP{})
+			err = unmarshalAndAppend(bufView, &UseSRTP{})
 		case ALPNTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &ALPN{})
+			err = unmarshalAndAppend(bufView, &ALPN{})
 		case UseExtendedMasterSecretTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &UseExtendedMasterSecret{})
+			err = unmarshalAndAppend(bufView, &UseExtendedMasterSecret{})
 		case RenegotiationInfoTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &RenegotiationInfo{})
+			err = unmarshalAndAppend(bufView, &RenegotiationInfo{})
 		case ConnectionIDTypeValue:
-			err = unmarshalAndAppend(buf[offset:], &ConnectionID{})
+			err = unmarshalAndAppend(bufView, &ConnectionID{})
+		case SupportedVersionsTypeValue:
+			err = unmarshalAndAppend(bufView, &SupportedVersions{})
+		case KeyShareTypeValue:
+			err = unmarshalAndAppend(bufView, &KeyShare{})
 		default:
 		}
+
 		if err != nil {
 			return nil, err
 		}
-		if len(buf) < (offset + 4) {
+		if len(bufView) < 4 {
 			return nil, errBufferTooSmall
 		}
-		extensionLength := binary.BigEndian.Uint16(buf[offset+2:])
+		extensionLength := binary.BigEndian.Uint16(bufView[2:])
 		offset += (4 + int(extensionLength))
 	}
 

@@ -14,7 +14,11 @@ import (
 	"github.com/pion/dtls/v3/pkg/protocol/handshake"
 )
 
-//nolint:cyclop
+// renegotiationInfoSCSV is TLS_EMPTY_RENEGOTIATION_INFO_SCSV defined in RFC 5746.
+// https://datatracker.ietf.org/doc/html/rfc5746#section-3.3.
+const renegotiationInfoSCSV uint16 = 0x00ff
+
+//nolint:cyclop,gocognit
 func flight0Parse(
 	_ context.Context,
 	_ flightConn,
@@ -52,6 +56,11 @@ func flight0Parse(
 
 	cipherSuites := []CipherSuite{}
 	for _, id := range clientHello.CipherSuiteIDs {
+		if id == renegotiationInfoSCSV {
+			state.remoteSupportsRenegotiation = true
+
+			continue
+		}
 		if c := cipherSuiteForID(CipherSuiteID(id), cfg.customCipherSuites); c != nil {
 			cipherSuites = append(cipherSuites, c)
 		}
@@ -81,6 +90,8 @@ func flight0Parse(
 			}
 		case *extension.ServerName:
 			state.serverName = ext.ServerName // remote server name
+		case *extension.RenegotiationInfo:
+			state.remoteSupportsRenegotiation = true
 		case *extension.ALPN:
 			state.peerSupportedProtocols = ext.ProtocolNameList
 		case *extension.ConnectionID:

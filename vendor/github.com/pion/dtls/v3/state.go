@@ -13,7 +13,7 @@ import (
 	"github.com/pion/dtls/v3/pkg/crypto/prf"
 	"github.com/pion/dtls/v3/pkg/crypto/signaturehash"
 	"github.com/pion/dtls/v3/pkg/protocol/handshake"
-	"github.com/pion/transport/v3/replaydetector"
+	"github.com/pion/transport/v4/replaydetector"
 )
 
 // State holds the dtls connection state and implements both encoding.BinaryMarshaler and
@@ -25,6 +25,8 @@ type State struct {
 	masterSecret              []byte
 	cipherSuite               CipherSuite // nil if a cipherSuite hasn't been chosen
 	CipherSuiteID             CipherSuiteID
+
+	remoteSupportsRenegotiation bool // True when Client Hello contained renegotiation extension
 
 	srtpProtectionProfile         atomic.Value // Negotiated SRTPProtectionProfile
 	remoteSRTPMasterKeyIdentifier []byte
@@ -89,7 +91,7 @@ type serializedState struct {
 	NegotiatedProtocol    string
 }
 
-var errCipherSuiteNotSet = &InternalError{Err: errors.New("cipher suite not set")} //nolint:goerr113
+var errCipherSuiteNotSet = &InternalError{Err: errors.New("cipher suite not set")} //nolint:err113
 
 func (s *State) clone() (*State, error) {
 	serialized, err := s.serialize()
